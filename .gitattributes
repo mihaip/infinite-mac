@@ -1,0 +1,2 @@
+*.zip !text !filter !merge !diff
+*.dsk !text !filter !merge !diff
