@@ -1,0 +1,16 @@
+name = "transparent-mac"
+type = 'webpack'
+account_id = '2ccb840de076261467812cbc32f8aa47'
+route = ''
+zone_id = ''
+usage_model = ''
+workers_dev = true
+target_type = "webpack"
+
+[site]
+bucket = "./build"
+entry-point = "workers-site"
+
+[env.production]
+zone_id = "768b712e6dad883eb4c3aefbd5df8c80"
+route = "transparent-mac.persistent.info/*"

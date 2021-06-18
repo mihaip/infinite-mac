@@ -1,0 +1,3 @@
+# Transparent Mac
+
+TODO
