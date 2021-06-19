@@ -45,6 +45,15 @@ async function handleEvent(event) {
         response.headers.set("X-Frame-Options", "DENY");
         response.headers.set("Referrer-Policy", "unsafe-url");
         response.headers.set("Feature-Policy", "none");
+
+        // Static content uses a content hash in the URL, so it can be cached
+        // for a while (30 days).
+        if (url.pathname.startsWith("/static")) {
+            response.headers.set(
+                "Cache-Control",
+                `max-age=${60 * 60 * 24 * 30}`
+            );
+        }
         return response;
     } catch (e) {
         // if an error is thrown try to serve the asset at 404.html
