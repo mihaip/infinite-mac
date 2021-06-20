@@ -37,8 +37,23 @@ async function handleEvent(event) {
         }
         const page = await getAssetFromKV(event, options);
 
-        // allow headers to be altered
-        const response = new Response(page.body, page);
+        let response = new Response(page.body, page);
+
+        // Make sure that pre-gzipped static content is passed through (see
+        // https://stackoverflow.com/a/64849685/343108)
+        if (url.pathname.endsWith(".gz")) {
+            response = new Response(response.body, {
+                status: response.status,
+                headers: response.headers,
+                encodeBody: "manual",
+            });
+
+            response.headers.set("Content-Encoding", "gzip");
+            // Ensure that the final response is still compressed when sent to
+            // the browser, compressible MIME types are listed at
+            // https://support.cloudflare.com/hc/en-us/articles/200168396-What-will-Cloudflare-compress-
+            response.headers.set("Content-Type", "multipart/bag");
+        }
 
         response.headers.set("X-XSS-Protection", "1; mode=block");
         response.headers.set("X-Content-Type-Options", "nosniff");

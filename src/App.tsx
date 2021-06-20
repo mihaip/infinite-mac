@@ -1,11 +1,10 @@
 import "./App.css";
+import {Mac} from "./Mac";
 
 function App() {
     return (
         <div className="App">
-            <header className="App-header">
-                <p>Transparent Mac</p>
-            </header>
+            <Mac />
         </div>
     );
 }
