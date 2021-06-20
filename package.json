@@ -20,6 +20,7 @@
         "web-vitals": "^1.0.1"
     },
     "scripts": {
+        "import-basilisk-ii": "scripts/import-basilisk-ii.sh",
         "start": "PORT=3127 react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",

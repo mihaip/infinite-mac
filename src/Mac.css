@@ -1,0 +1,13 @@
+.Mac {
+    border: solid #ded1b9 40px;
+    border-radius: 20px;
+}
+
+.Mac-Screen {
+    border: 0;
+    background-color: black;
+    /* The emulator draws the cursor */
+    cursor: none;
+    /* Avoid bluriness on retina screens */
+    image-rendering: pixelated;
+}
