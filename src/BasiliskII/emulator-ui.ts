@@ -1,10 +1,12 @@
-var SCREEN_WIDTH = 800;
-var SCREEN_HEIGHT = 600;
+import {InputBufferAddresses, LockStates} from "./emulator-common";
+
+const SCREEN_WIDTH = 800;
+const SCREEN_HEIGHT = 600;
 
 canvas.width = SCREEN_WIDTH;
 canvas.height = SCREEN_HEIGHT;
 
-var audio = {
+const audio = {
     channels: 1,
     bytesPerSample: 2,
     samples: 4096,
@@ -19,7 +21,7 @@ var audio = {
     nextPlayTime: 0,
 };
 
-var audioTotalSamples = audio.samples * audio.channels;
+const audioTotalSamples = audio.samples * audio.channels;
 audio.bytesPerSample =
     audio.format == 0x0008 /*AUDIO_U8*/ || audio.format == 0x8008 /*AUDIO_S8*/
         ? 1
@@ -34,56 +36,38 @@ audio.bufferingDelay = 50 / 1000; // Audio samples are played with a constant de
 audio.numSimultaneouslyQueuedBuffers = 5;
 audio.nextChunkIndex = 0;
 
-var SCREEN_BUFFER_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT * 4; // 32bpp;
+const SCREEN_BUFFER_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT * 4; // 32bpp;
 
-var canvasCtx = canvas.getContext("2d", {desynchronized: true});
-var imageData = canvasCtx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
+const canvasCtx = canvas.getContext("2d", {desynchronized: true});
+const imageData = canvasCtx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-var screenBuffer = new SharedArrayBuffer(SCREEN_BUFFER_SIZE);
-var screenBufferView = new Uint8Array(screenBuffer);
+const screenBuffer = new SharedArrayBuffer(SCREEN_BUFFER_SIZE);
+const screenBufferView = new Uint8Array(screenBuffer);
 
-var VIDEO_MODE_BUFFER_SIZE = 10;
-var videoModeBuffer = new SharedArrayBuffer(VIDEO_MODE_BUFFER_SIZE * 4);
-var videoModeBufferView = new Int32Array(videoModeBuffer);
+const VIDEO_MODE_BUFFER_SIZE = 10;
+const videoModeBuffer = new SharedArrayBuffer(VIDEO_MODE_BUFFER_SIZE * 4);
+const videoModeBufferView = new Int32Array(videoModeBuffer);
 
-var AUDIO_CONFIG_BUFFER_SIZE = 10;
-var audioConfigBuffer = new SharedArrayBuffer(AUDIO_CONFIG_BUFFER_SIZE);
-var audioConfigBufferView = new Uint8Array(audioConfigBuffer);
+const AUDIO_CONFIG_BUFFER_SIZE = 10;
+const audioConfigBuffer = new SharedArrayBuffer(AUDIO_CONFIG_BUFFER_SIZE);
+const audioConfigBufferView = new Uint8Array(audioConfigBuffer);
 
-var audioBlockChunkSize = audio.bufferSize + 2;
-var AUDIO_DATA_BUFFER_SIZE =
+const audioBlockChunkSize = audio.bufferSize + 2;
+const AUDIO_DATA_BUFFER_SIZE =
     audioBlockChunkSize * audio.maxBuffersInSharedMemory;
-var audioDataBuffer = new SharedArrayBuffer(AUDIO_DATA_BUFFER_SIZE);
-var audioDataBufferView = new Uint8Array(audioDataBuffer);
+const audioDataBuffer = new SharedArrayBuffer(AUDIO_DATA_BUFFER_SIZE);
+const audioDataBufferView = new Uint8Array(audioDataBuffer);
 
-var INPUT_BUFFER_SIZE = 100;
-var inputBuffer = new SharedArrayBuffer(INPUT_BUFFER_SIZE * 4);
-var inputBufferView = new Int32Array(inputBuffer);
-var inputQueue = [];
+const INPUT_BUFFER_SIZE = 100;
+const inputBuffer = new SharedArrayBuffer(INPUT_BUFFER_SIZE * 4);
+const inputBufferView = new Int32Array(inputBuffer);
+let inputQueue = [];
 
-var Atomics_notify = Atomics.wake || Atomics.notify;
+const Atomics_notify = Atomics.wake || Atomics.notify;
 
-var InputBufferAddresses = {
-    globalLockAddr: 0,
-    mouseMoveFlagAddr: 1,
-    mouseMoveXDeltaAddr: 2,
-    mouseMoveYDeltaAddr: 3,
-    mouseButtonStateAddr: 4,
-    keyEventFlagAddr: 5,
-    keyCodeAddr: 6,
-    keyStateAddr: 7,
-};
+const audioContext = new AudioContext();
 
-var LockStates = {
-    READY_FOR_UI_THREAD: 0,
-    UI_THREAD_LOCK: 1,
-    READY_FOR_EMUL_THREAD: 2,
-    EMUL_THREAD_LOCK: 3,
-};
-
-var audioContext = new AudioContext();
-
-var gainNode = audioContext.createGain();
+const gainNode = audioContext.createGain();
 
 gainNode.gain.value = 1;
 gainNode.connect(audioContext.destination);
@@ -99,8 +83,8 @@ addEventListenerOnce(canvas, "click", function () {
     audioContext.resume();
 });
 
-var warningLastTime = {};
-var warningCount = {};
+const warningLastTime = {};
+const warningCount = {};
 function throttledWarning(message, type = "") {
     warningCount[type] = (warningCount[type] || 0) + 1;
     if (Date.now() - (warningLastTime[type] || 0) > 5000) {
@@ -117,14 +101,14 @@ function openAudio() {
     ) {
         if (audio.paused) return;
 
-        var sizeSamples = sizeBytes / audio.bytesPerSample; // How many samples fit in the callback buffer?
-        var sizeSamplesPerChannel = sizeSamples / audio.channels; // How many samples per a single channel fit in the cb buffer?
+        const sizeSamples = sizeBytes / audio.bytesPerSample; // How many samples fit in the callback buffer?
+        const sizeSamplesPerChannel = sizeSamples / audio.channels; // How many samples per a single channel fit in the cb buffer?
         if (sizeSamplesPerChannel != audio.samples) {
             throw "Received mismatching audio buffer size!";
         }
         // Allocate new sound buffer to be played.
-        var source = audioContext.createBufferSource();
-        var soundBuffer = audioContext.createBuffer(
+        const source = audioContext.createBufferSource();
+        const soundBuffer = audioContext.createBuffer(
             audio.channels,
             sizeSamplesPerChannel,
             audio.freq
@@ -142,7 +126,7 @@ function openAudio() {
 
         // Schedule the generated sample buffer to be played out at the correct time right after the previously scheduled
         // sample buffer has finished.
-        var curtime = audioContext.currentTime;
+        const curtime = audioContext.currentTime;
 
         // assertion
         if (curtime > audio.nextPlayTime && audio.nextPlayTime != 0) {
@@ -151,7 +135,7 @@ function openAudio() {
 
         // Don't ever start buffer playbacks earlier from current time than a given constant 'audio.bufferingDelay', since a browser
         // may not be able to mix that audio clip in immediately, and there may be subsequent jitter that might cause the stream to starve.
-        var playtime = Math.max(
+        const playtime = Math.max(
             curtime + audio.bufferingDelay,
             audio.nextPlayTime
         );
@@ -166,8 +150,8 @@ function openAudio() {
         // 0: lock state
         // 1: pointer to next chunk
         // 2->buffersize+2: audio buffer
-        var curChunkIndex = audio.nextChunkIndex;
-        var curChunkAddr = curChunkIndex * audioBlockChunkSize;
+        const curChunkIndex = audio.nextChunkIndex;
+        const curChunkAddr = curChunkIndex * audioBlockChunkSize;
 
         if (audioDataBufferView[curChunkAddr] !== LockStates.UI_THREAD_LOCK) {
             if (audio.gotFirstBlock) {
@@ -177,7 +161,7 @@ function openAudio() {
         }
         audio.gotFirstBlock = true;
 
-        var blockBuffer = audioDataBufferView.slice(
+        const blockBuffer = audioDataBufferView.slice(
             curChunkAddr + 2,
             curChunkAddr + 2 + audio.bufferSize
         );
@@ -194,8 +178,8 @@ function openAudio() {
         blockSize, // probably 4096
         dstAudioBuffer
     ) {
-        for (var c = 0; c < audio.channels; ++c) {
-            var channelData = dstAudioBuffer.getChannelData(c);
+        for (let c = 0; c < audio.channels; ++c) {
+            const channelData = dstAudioBuffer.getChannelData(c);
             if (channelData.length != blockSize) {
                 throw (
                     "Web Audio output buffer length mismatch! Destination size: " +
@@ -205,9 +189,9 @@ function openAudio() {
                     " samples!"
                 );
             }
-            var blockBufferI16 = new Int16Array(blockBuffer.buffer);
+            const blockBufferI16 = new Int16Array(blockBuffer.buffer);
 
-            for (var j = 0; j < blockSize; ++j) {
+            for (let j = 0; j < blockSize; ++j) {
                 channelData[j] = blockBufferI16[j] / 0x8000; // convert i16 to f32 in range -1 to +1
             }
         }
@@ -218,11 +202,11 @@ function openAudio() {
     // new audio data. This is because setTimeouts alone have very poor granularity for audio streaming purposes, but also
     // the application might not be using emscripten_set_main_loop to drive the main loop, so we cannot rely on that alone.
     audio.queueNewAudioData = function queueNewAudioData() {
-        var i = 0;
+        let i = 0;
         for (; i < audio.numSimultaneouslyQueuedBuffers; ++i) {
             // Only queue new data if we don't have enough audio data already in queue. Otherwise skip this time slot
             // and wait to queue more in the next time the callback is run.
-            var secsUntilNextPlayStart =
+            const secsUntilNextPlayStart =
                 audio.nextPlayTime - audioContext.currentTime;
             if (
                 secsUntilNextPlayStart >=
@@ -232,7 +216,7 @@ function openAudio() {
             )
                 return;
 
-            var blockBuffer = audio.getBlockBuffer();
+            const blockBuffer = audio.getBlockBuffer();
             if (!blockBuffer) {
                 return;
             }
@@ -250,11 +234,11 @@ function openAudio() {
         audio.queueNewAudioData();
 
         // Queue this callback function to be called again later to pull more audio data.
-        var secsUntilNextPlayStart =
+        const secsUntilNextPlayStart =
             audio.nextPlayTime - audioContext.currentTime;
 
         // Queue the next audio frame push to be performed half-way when the previously queued buffer has finished playing.
-        var preemptBufferFeedSecs = audio.bufferDurationSecs / 2.0;
+        const preemptBufferFeedSecs = audio.bufferDurationSecs / 2.0;
 
         if (
             audio.numAudioTimersPending < audio.numSimultaneouslyQueuedBuffers
@@ -284,7 +268,7 @@ function openAudio() {
 }
 
 function acquireLock(bufferView, lockIndex) {
-    var res = Atomics.compareExchange(
+    const res = Atomics.compareExchange(
         bufferView,
         lockIndex,
         LockStates.READY_FOR_UI_THREAD,
@@ -312,18 +296,18 @@ function tryToSendInput() {
     if (!acquireLock(inputBufferView, InputBufferAddresses.globalLockAddr)) {
         return;
     }
-    var hasMouseMove = false;
-    var mouseMoveX = 0;
-    var mouseMoveY = 0;
-    var mouseButtonState = -1;
-    var hasKeyEvent = false;
-    var keyCode = -1;
-    var keyState = -1;
+    let hasMouseMove = false;
+    let mouseMoveX = 0;
+    let mouseMoveY = 0;
+    let mouseButtonState = -1;
+    let hasKeyEvent = false;
+    let keyCode = -1;
+    let keyState = -1;
     // currently only one key event can be sent per sync
     // TODO: better key handling code
-    var remainingKeyEvents = [];
-    for (var i = 0; i < inputQueue.length; i++) {
-        var inputEvent = inputQueue[i];
+    const remainingKeyEvents = [];
+    for (let i = 0; i < inputQueue.length; i++) {
+        const inputEvent = inputQueue[i];
         switch (inputEvent.type) {
             case "mousemove":
                 if (hasMouseMove) {
@@ -384,7 +368,7 @@ window.addEventListener("keyup", function (event) {
     handleInput({type: "keyup", keyCode: event.keyCode});
 });
 
-var workerConfig = Object.assign(
+const workerConfig = Object.assign(
     {
         inputBuffer: inputBuffer,
         inputBufferSize: INPUT_BUFFER_SIZE,
@@ -403,7 +387,7 @@ var workerConfig = Object.assign(
 );
 
 if (basiliskConfig.singleThreadedEmscripten) {
-    var worker = new Worker(
+    const worker = new Worker(
         basiliskConfig.baseURL + "BasiliskII-worker-boot.js"
     );
 

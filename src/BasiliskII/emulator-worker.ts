@@ -1,10 +1,12 @@
+import {InputBufferAddresses, LockStates} from "./emulator-common";
+
 let lastBlitFrameId = 0;
 let lastBlitFrameHash = 0;
 let nextExpectedBlitTime = 0;
 let lastIdleWaitFrameId = 0;
-var INSTRUMENT_MALLOC = false;
-var memAllocSet = new Set();
-var memAllocSetPersistent = new Set();
+const INSTRUMENT_MALLOC = false;
+const memAllocSet = new Set();
+const memAllocSetPersistent = new Set();
 function memAllocAdd(addr) {
     if (memAllocSet.has(addr)) {
         console.error(`unfreed memory alloc'd at ${addr}`);
@@ -25,10 +27,10 @@ function memAllocRemove(addr) {
     memAllocSet.delete(addr);
 }
 
-var pathGetFilenameRegex = /\/([^\/]+)$/;
+const pathGetFilenameRegex = /\/([^\/]+)$/;
 
 function pathGetFilename(path) {
-    var matches = path.match(pathGetFilenameRegex);
+    const matches = path.match(pathGetFilenameRegex);
     if (matches && matches.length) {
         return matches[1];
     } else {
@@ -37,7 +39,7 @@ function pathGetFilename(path) {
 }
 
 function addAutoloader(module) {
-    var loadDatafiles = function () {
+    const loadDatafiles = function () {
         module.autoloadFiles.forEach(function (filepath) {
             module.FS_createPreloadedFile(
                 "/",
@@ -70,17 +72,6 @@ function addCustomAsyncInit(module) {
     }
 }
 
-var InputBufferAddresses = {
-    globalLockAddr: 0,
-    mouseMoveFlagAddr: 1,
-    mouseMoveXDeltaAddr: 2,
-    mouseMoveYDeltaAddr: 3,
-    mouseButtonStateAddr: 4,
-    keyEventFlagAddr: 5,
-    keyCodeAddr: 6,
-    keyStateAddr: 7,
-};
-
 const InputBufferAddressTypes = Object.entries(InputBufferAddresses).reduce(
     (acc, [k, v]) => {
         acc[v] = k;
@@ -91,14 +82,7 @@ const InputBufferAddressTypes = Object.entries(InputBufferAddresses).reduce(
 
 const inputBufferLastVals = {};
 
-var LockStates = {
-    READY_FOR_UI_THREAD: 0,
-    UI_THREAD_LOCK: 1,
-    READY_FOR_EMUL_THREAD: 2,
-    EMUL_THREAD_LOCK: 3,
-};
-
-var Module = null;
+let Module = null;
 
 self.onmessage = function (msg) {
     console.log("init worker");
@@ -108,33 +92,33 @@ self.onmessage = function (msg) {
 };
 
 function startEmulator(parentConfig) {
-    var screenBufferView = new Uint8Array(
+    const screenBufferView = new Uint8Array(
         parentConfig.screenBuffer,
         0,
         parentConfig.screenBufferSize
     );
 
-    var videoModeBufferView = new Int32Array(
+    const videoModeBufferView = new Int32Array(
         parentConfig.videoModeBuffer,
         0,
         parentConfig.videoModeBufferSize
     );
 
-    var inputBufferView = new Int32Array(
+    const inputBufferView = new Int32Array(
         parentConfig.inputBuffer,
         0,
         parentConfig.inputBufferSize
     );
 
-    var nextAudioChunkIndex = 0;
-    var audioDataBufferView = new Uint8Array(
+    let nextAudioChunkIndex = 0;
+    const audioDataBufferView = new Uint8Array(
         parentConfig.audioDataBuffer,
         0,
         parentConfig.audioDataBufferSize
     );
 
     function tryToAcquireCyclicalLock(bufferView, lockIndex) {
-        var res = Atomics.compareExchange(
+        const res = Atomics.compareExchange(
             bufferView,
             lockIndex,
             LockStates.READY_FOR_EMUL_THREAD,
@@ -173,9 +157,9 @@ function startEmulator(parentConfig) {
         );
     }
 
-    var AudioConfig = null;
+    let AudioConfig = null;
 
-    var AudioBufferQueue = [];
+    const AudioBufferQueue = [];
 
     if (!parentConfig.autoloadFiles) {
         throw new Error("autoloadFiles missing in config");
@@ -195,14 +179,14 @@ function startEmulator(parentConfig) {
                 console.error("instrumenting malloc and free");
 
                 Module._malloc = function _wrapmalloc($0) {
-                    var $0 = $0 | 0;
-                    var $1 = oldMalloc($0);
+                    const $0 = $0 | 0;
+                    const $1 = oldMalloc($0);
                     memAllocAdd($1);
                     return $1 | 0;
                 };
                 Module._free = function _wrapfree($0) {
                     memAllocRemove($0);
-                    var $1 = oldFree($0);
+                    const $1 = oldFree($0);
                     return $1 | 0;
                 };
             }
@@ -211,14 +195,14 @@ function startEmulator(parentConfig) {
         },
 
         summarizeBuffer: function (bufPtr, width, height, depth) {
-            var length = width * height * (depth === 32 ? 4 : 1); // 32bpp or 8bpp
+            const length = width * height * (depth === 32 ? 4 : 1); // 32bpp or 8bpp
 
             let zeroChannelCount = 0;
             let nonZeroChannelCount = 0;
             let zeroAlphaCount = 0;
             let nonZeroAlphaCount = 0;
 
-            for (var i = 0; i < length; i++) {
+            for (let i = 0; i < length; i++) {
                 if (depth === 32) {
                     if (i % 4 < 3) {
                         if (Module.HEAPU8[bufPtr + i] > 0) {
@@ -255,7 +239,7 @@ function startEmulator(parentConfig) {
             videoModeBufferView[1] = height;
             videoModeBufferView[2] = depth;
             videoModeBufferView[3] = usingPalette;
-            var length = width * height * (depth === 32 ? 4 : 1); // 32bpp or 8bpp
+            const length = width * height * (depth === 32 ? 4 : 1); // 32bpp or 8bpp
             if (hash !== lastBlitFrameHash) {
                 lastBlitFrameHash = hash;
                 screenBufferView.set(
@@ -282,14 +266,14 @@ function startEmulator(parentConfig) {
         },
 
         enqueueAudio: function enqueueAudio(bufPtr, nbytes, type) {
-            var newAudio = Module.HEAPU8.slice(bufPtr, bufPtr + nbytes);
+            const newAudio = Module.HEAPU8.slice(bufPtr, bufPtr + nbytes);
             // console.assert(
             //   nbytes == parentConfig.audioBlockBufferSize,
             //   `emulator wrote ${nbytes}, expected ${parentConfig.audioBlockBufferSize}`
             // );
 
-            var writingChunkIndex = nextAudioChunkIndex;
-            var writingChunkAddr =
+            const writingChunkIndex = nextAudioChunkIndex;
+            const writingChunkAddr =
                 writingChunkIndex * parentConfig.audioBlockChunkSize;
 
             if (
@@ -300,7 +284,7 @@ function startEmulator(parentConfig) {
                 return 0;
             }
 
-            var nextNextChunkIndex = writingChunkIndex + 1;
+            let nextNextChunkIndex = writingChunkIndex + 1;
             if (
                 nextNextChunkIndex * parentConfig.audioBlockChunkSize >
                 audioDataBufferView.length - 1
