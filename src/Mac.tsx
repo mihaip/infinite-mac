@@ -4,6 +4,7 @@ import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import quadraRomPath from "./Data/Quadra-650.rom.gz";
 import macOs753ImagePath from "./Data/MacOS753.img.gz";
 import gamesImagePath from "./Data/Games.img.gz";
+import {Emulator} from "./BasiliskII/emulator-ui";
 
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 600;
@@ -11,18 +12,18 @@ const SCREEN_HEIGHT = 600;
 export function Mac() {
     const screeRef = useRef<HTMLCanvasElement>(null);
     useEffect(() => {
-        const emulatorConfig = {
+        const emulator = new Emulator({
             screenWidth: SCREEN_WIDTH,
             screenHeight: SCREEN_HEIGHT,
-            screenCanvas: screeRef.current,
+            screenCanvas: screeRef.current!,
             basiliskPrefsPath,
-            quadraRomPath,
-            macOs753ImagePath,
-            gamesImagePath,
-        };
-        console.log("Should start emulator with config", emulatorConfig);
+            romPath: quadraRomPath,
+            disk1Path: macOs753ImagePath,
+            disk2Path: gamesImagePath,
+        });
+        emulator.start();
         return () => {
-            console.log("Should stop emulator");
+            emulator.stop();
         };
     }, []);
     return (

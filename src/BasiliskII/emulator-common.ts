@@ -9,7 +9,18 @@ export const InputBufferAddresses = {
     keyStateAddr: 7,
 };
 
-export const enum LockStates {
+export type EmulatorMouseEvent =
+    | {type: "mousemove"; dx: number; dy: number}
+    | {type: "mousedown"}
+    | {type: "mouseup"};
+export type EmulatorKeyboardEvent = {
+    type: "keydown" | "keyup";
+    keyCode: number;
+};
+
+export type EmulatorInputEvent = EmulatorMouseEvent | EmulatorKeyboardEvent;
+
+export enum LockStates {
     READY_FOR_UI_THREAD,
     UI_THREAD_LOCK,
     READY_FOR_EMUL_THREAD,
