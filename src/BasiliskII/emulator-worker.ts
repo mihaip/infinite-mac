@@ -1,97 +1,22 @@
 import {InputBufferAddresses, LockStates} from "./emulator-common";
+import BasiliskIIPath from "./BasiliskII.jsz";
+import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 
 let lastBlitFrameId = 0;
 let lastBlitFrameHash = 0;
 let nextExpectedBlitTime = 0;
 let lastIdleWaitFrameId = 0;
-const INSTRUMENT_MALLOC = false;
-const memAllocSet = new Set();
-const memAllocSetPersistent = new Set();
-function memAllocAdd(addr) {
-    if (memAllocSet.has(addr)) {
-        console.error(`unfreed memory alloc'd at ${addr}`);
-    }
-    memAllocSet.add(addr);
-    console.warn("malloc", addr);
-    memAllocSetPersistent.add(addr);
-}
-function memAllocRemove(addr) {
-    if (!memAllocSet.has(addr)) {
-        console.error(
-            `unalloc'd memory free'd at ${addr} (everallocd=${memAllocSetPersistent.has(
-                addr
-            )})`
-        );
-    }
-    console.warn("free", addr);
-    memAllocSet.delete(addr);
-}
 
-const pathGetFilenameRegex = /\/([^\/]+)$/;
+type CustomModule = any; // TODO: better type safety
 
-function pathGetFilename(path) {
-    const matches = path.match(pathGetFilenameRegex);
-    if (matches && matches.length) {
-        return matches[1];
-    } else {
-        return path;
-    }
-}
-
-function addAutoloader(module) {
-    const loadDatafiles = function () {
-        module.autoloadFiles.forEach(function (filepath) {
-            module.FS_createPreloadedFile(
-                "/",
-                pathGetFilename(filepath),
-                filepath,
-                true,
-                true
-            );
-        });
-    };
-
-    if (module.autoloadFiles) {
-        module.preRun = module.preRun || [];
-        module.preRun.unshift(loadDatafiles);
-    }
-
-    return module;
-}
-
-function addCustomAsyncInit(module) {
-    if (module.asyncInit) {
-        module.preRun = module.preRun || [];
-        module.preRun.push(function waitForCustomAsyncInit() {
-            module.addRunDependency("__moduleAsyncInit");
-
-            module.asyncInit(module, function asyncInitCallback() {
-                module.removeRunDependency("__moduleAsyncInit");
-            });
-        });
-    }
-}
-
-const InputBufferAddressTypes = Object.entries(InputBufferAddresses).reduce(
-    (acc, [k, v]) => {
-        acc[v] = k;
-        return acc;
-    },
-    {}
-);
-
-const inputBufferLastVals = {};
-
-let Module = null;
+let Module: (EmscriptenModule & CustomModule) | null = null;
 
 self.onmessage = function (msg) {
-    console.log("init worker");
-    startEmulator(
-        Object.assign({}, msg.data, {singleThreadedEmscripten: true})
-    );
+    startEmulator(msg.data);
 };
 
-function startEmulator(parentConfig) {
+// TODO: types
+function startEmulator(parentConfig: any) {
     const screenBufferView = new Uint8Array(
         parentConfig.screenBuffer,
         0,
@@ -110,14 +35,19 @@ function startEmulator(parentConfig) {
         parentConfig.inputBufferSize
     );
 
+    /*
+    TODO: audio
     let nextAudioChunkIndex = 0;
     const audioDataBufferView = new Uint8Array(
         parentConfig.audioDataBuffer,
         0,
         parentConfig.audioDataBufferSize
     );
-
-    function tryToAcquireCyclicalLock(bufferView, lockIndex) {
+        */
+    function tryToAcquireCyclicalLock(
+        bufferView: Int32Array,
+        lockIndex: number
+    ) {
         const res = Atomics.compareExchange(
             bufferView,
             lockIndex,
@@ -130,8 +60,8 @@ function startEmulator(parentConfig) {
         return 0;
     }
 
-    function releaseCyclicalLock(bufferView, lockIndex) {
-        Atomics.store(bufferView, lockIndex, LockStates.READY_FOR_UI_THREAD); // unlock
+    function releaseCyclicalLock(bufferView: Int32Array, lockIndex: number) {
+        Atomics.store(bufferView, lockIndex, LockStates.READY_FOR_UI_THREAD);
     }
 
     function acquireInputLock() {
@@ -157,83 +87,41 @@ function startEmulator(parentConfig) {
         );
     }
 
+    /*
+    TODO: audio
     let AudioConfig = null;
 
     const AudioBufferQueue = [];
-
+    */
     if (!parentConfig.autoloadFiles) {
         throw new Error("autoloadFiles missing in config");
     }
 
-    Module = {
-        autoloadFiles: parentConfig.autoloadFiles,
-
+    (self as any).Module = Module = {
         arguments: parentConfig.arguments || ["--config", "prefs"],
         canvas: null,
 
+        locateFile: function (path: string, scriptDirectory: string) {
+            if (path === "BasiliskII.wasm") {
+                return BasiliskIIWasmPath;
+            }
+            console.log("locateFile", {path, scriptDirectory});
+            return scriptDirectory + path;
+        },
+
         onRuntimeInitialized: function () {
-            if (INSTRUMENT_MALLOC) {
-                // instrument malloc and free
-                const oldMalloc = Module._malloc;
-                const oldFree = Module._free;
-                console.error("instrumenting malloc and free");
-
-                Module._malloc = function _wrapmalloc($0) {
-                    const $0 = $0 | 0;
-                    const $1 = oldMalloc($0);
-                    memAllocAdd($1);
-                    return $1 | 0;
-                };
-                Module._free = function _wrapfree($0) {
-                    memAllocRemove($0);
-                    const $1 = oldFree($0);
-                    return $1 | 0;
-                };
-            }
-
-            self.Module = Module;
+            // TODO: type safety
+            (self as any).Module = Module;
         },
 
-        summarizeBuffer: function (bufPtr, width, height, depth) {
-            const length = width * height * (depth === 32 ? 4 : 1); // 32bpp or 8bpp
-
-            let zeroChannelCount = 0;
-            let nonZeroChannelCount = 0;
-            let zeroAlphaCount = 0;
-            let nonZeroAlphaCount = 0;
-
-            for (let i = 0; i < length; i++) {
-                if (depth === 32) {
-                    if (i % 4 < 3) {
-                        if (Module.HEAPU8[bufPtr + i] > 0) {
-                            nonZeroChannelCount++;
-                        } else {
-                            zeroChannelCount++;
-                        }
-                    } else {
-                        if (Module.HEAPU8[bufPtr + i] > 0) {
-                            nonZeroAlphaCount++;
-                        } else {
-                            zeroAlphaCount++;
-                        }
-                    }
-                }
-            }
-            console.log(
-                "buffer at",
-                bufPtr,
-                {
-                    zeroChannelCount,
-                    nonZeroChannelCount,
-                    pixelColorChannels: width * height * (depth === 32 ? 3 : 1),
-                    zeroAlphaCount,
-                    nonZeroAlphaCount,
-                },
-                Module.HEAPU8.slice(bufPtr, bufPtr + 128)
-            );
-        },
-
-        blit: function blit(bufPtr, width, height, depth, usingPalette, hash) {
+        blit: function blit(
+            bufPtr: number,
+            width: number,
+            height: number,
+            depth: number,
+            usingPalette: number,
+            hash: number
+        ) {
             lastBlitFrameId++;
             videoModeBufferView[0] = width;
             videoModeBufferView[1] = height;
@@ -251,11 +139,12 @@ function startEmulator(parentConfig) {
         },
 
         openAudio: function openAudio(
-            sampleRate,
-            sampleSize,
-            channels,
-            framesPerBuffer
+            sampleRate: number,
+            sampleSize: number,
+            channels: number,
+            framesPerBuffer: number
         ) {
+            /* TODO: audio
             AudioConfig = {
                 sampleRate: sampleRate,
                 sampleSize: sampleSize,
@@ -263,9 +152,15 @@ function startEmulator(parentConfig) {
                 framesPerBuffer: framesPerBuffer,
             };
             console.log(AudioConfig);
+            */
         },
 
-        enqueueAudio: function enqueueAudio(bufPtr, nbytes, type) {
+        enqueueAudio: function enqueueAudio(
+            bufPtr: number,
+            nbytes: number,
+            type: number
+        ): number {
+            /* TODO: audio
             const newAudio = Module.HEAPU8.slice(bufPtr, bufPtr + nbytes);
             // console.assert(
             //   nbytes == parentConfig.audioBlockBufferSize,
@@ -299,9 +194,11 @@ function startEmulator(parentConfig) {
 
             nextAudioChunkIndex = nextNextChunkIndex;
             return nbytes;
+            */
+            return 0;
         },
 
-        debugPointer: function debugPointer(ptr) {
+        debugPointer: function debugPointer(ptr: any) {
             console.log("debugPointer", ptr);
         },
 
@@ -328,15 +225,15 @@ function startEmulator(parentConfig) {
 
         InputBufferAddresses: InputBufferAddresses,
 
-        getInputValue: function getInputValue(addr) {
+        getInputValue: function getInputValue(addr: number) {
             return inputBufferView[addr];
         },
 
         totalDependencies: 0,
-        monitorRunDependencies: function (left) {
+        monitorRunDependencies: function (left: number) {
             this.totalDependencies = Math.max(this.totalDependencies, left);
 
-            if (left == 0) {
+            if (left === 0) {
                 postMessage({type: "emulator_ready"});
             } else {
                 postMessage({
@@ -356,10 +253,15 @@ function startEmulator(parentConfig) {
     };
 
     // inject extra behaviours
-    addAutoloader(Module);
-    addCustomAsyncInit(Module);
-
-    if (parentConfig.singleThreadedEmscripten) {
-        importScripts((parentConfig.baseURL || "") + "BasiliskII.js");
+    const {autoloadFiles} = parentConfig;
+    if (autoloadFiles) {
+        Module!.preRun = Module!.preRun || [];
+        Module!.preRun.unshift(function () {
+            for (const [name, path] of Object.entries(autoloadFiles)) {
+                FS.createPreloadedFile("/", name, path as string, true, true);
+            }
+        });
     }
+
+    importScripts(BasiliskIIPath);
 }

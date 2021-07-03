@@ -10,8 +10,8 @@ DATA_DIR="${SRC_DIR}/Data"
 BASILISK_II_DESTINATION_DIR="${SRC_DIR}/BasiliskII"
 
 # Build output
-cp "${BASILISK_II_DIR}/BasiliskII" "${BASILISK_II_DESTINATION_DIR}/BasiliskII.js"
-cp "${BASILISK_II_DIR}/BasiliskII.wasm" "${BASILISK_II_DESTINATION_DIR}/BasiliskII.wasm"
+cp "${BASILISK_II_DIR}/BasiliskII" "${BASILISK_II_DESTINATION_DIR}/BasiliskII.jsz"
+cp "${BASILISK_II_DIR}/BasiliskII.wasm" "${BASILISK_II_DESTINATION_DIR}/BasiliskII.wasmz"
 cp "${BASILISK_II_DIR}/BasiliskII.wasm.map" "${BASILISK_II_DESTINATION_DIR}/BasiliskII.wasm.map"
 
 # ROM and disk images

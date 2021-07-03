@@ -1,11 +1,12 @@
-import {InputBufferAddresses, LockStates} from "./emulator-common";
+import {
+    EmulatorInputEvent,
+    InputBufferAddresses,
+    LockStates,
+} from "./emulator-common";
+import Worker from "worker-loader!./emulator-worker";
 
-const SCREEN_WIDTH = 800;
-const SCREEN_HEIGHT = 600;
-
-canvas.width = SCREEN_WIDTH;
-canvas.height = SCREEN_HEIGHT;
-
+/*
+ TODO: audio support
 const audio = {
     channels: 1,
     bytesPerSample: 2,
@@ -23,7 +24,8 @@ const audio = {
 
 const audioTotalSamples = audio.samples * audio.channels;
 audio.bytesPerSample =
-    audio.format == 0x0008 /*AUDIO_U8*/ || audio.format == 0x8008 /*AUDIO_S8*/
+    audio.format == 0x0008 // AUDIO_U8
+     || audio.format == 0x8008 // AUDIO_S8
         ? 1
         : 2;
 audio.bufferSize = audioTotalSamples * audio.bytesPerSample;
@@ -36,18 +38,6 @@ audio.bufferingDelay = 50 / 1000; // Audio samples are played with a constant de
 audio.numSimultaneouslyQueuedBuffers = 5;
 audio.nextChunkIndex = 0;
 
-const SCREEN_BUFFER_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT * 4; // 32bpp;
-
-const canvasCtx = canvas.getContext("2d", {desynchronized: true});
-const imageData = canvasCtx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-const screenBuffer = new SharedArrayBuffer(SCREEN_BUFFER_SIZE);
-const screenBufferView = new Uint8Array(screenBuffer);
-
-const VIDEO_MODE_BUFFER_SIZE = 10;
-const videoModeBuffer = new SharedArrayBuffer(VIDEO_MODE_BUFFER_SIZE * 4);
-const videoModeBufferView = new Int32Array(videoModeBuffer);
-
 const AUDIO_CONFIG_BUFFER_SIZE = 10;
 const audioConfigBuffer = new SharedArrayBuffer(AUDIO_CONFIG_BUFFER_SIZE);
 const audioConfigBufferView = new Uint8Array(audioConfigBuffer);
@@ -57,13 +47,6 @@ const AUDIO_DATA_BUFFER_SIZE =
     audioBlockChunkSize * audio.maxBuffersInSharedMemory;
 const audioDataBuffer = new SharedArrayBuffer(AUDIO_DATA_BUFFER_SIZE);
 const audioDataBufferView = new Uint8Array(audioDataBuffer);
-
-const INPUT_BUFFER_SIZE = 100;
-const inputBuffer = new SharedArrayBuffer(INPUT_BUFFER_SIZE * 4);
-const inputBufferView = new Int32Array(inputBuffer);
-let inputQueue = [];
-
-const Atomics_notify = Atomics.wake || Atomics.notify;
 
 const audioContext = new AudioContext();
 
@@ -266,8 +249,9 @@ function openAudio() {
     audio.numAudioTimersPending = 1;
     audio.timer = setTimeout(audio.caller, 1);
 }
+*/
 
-function acquireLock(bufferView, lockIndex) {
+function acquireLock(bufferView: Int32Array, lockIndex: number) {
     const res = Atomics.compareExchange(
         bufferView,
         lockIndex,
@@ -280,119 +264,223 @@ function acquireLock(bufferView, lockIndex) {
     return false;
 }
 
-function releaseLock(bufferView, lockIndex) {
-    Atomics.store(bufferView, lockIndex, LockStates.READY_FOR_EMUL_THREAD); // unlock
-
-    Atomics_notify(bufferView, lockIndex);
+function releaseLock(bufferView: Int32Array, lockIndex: number) {
+    Atomics.store(bufferView, lockIndex, LockStates.READY_FOR_EMUL_THREAD);
+    Atomics.notify(bufferView, lockIndex);
 }
 
-function releaseInputLock() {
-    releaseLock(inputBufferView, InputBufferAddresses.globalLockAddr);
-}
-function tryToSendInput() {
-    if (!inputQueue.length) {
-        return;
+const INPUT_BUFFER_SIZE = 100;
+
+const VIDEO_MODE_BUFFER_SIZE = 10;
+
+export type EmulatorConfig = {
+    screenWidth: number;
+    screenHeight: number;
+    screenCanvas: HTMLCanvasElement;
+    basiliskPrefsPath: string;
+    romPath: string;
+    disk1Path: string;
+    disk2Path: string;
+};
+
+export class Emulator {
+    #config: EmulatorConfig;
+    #worker: Worker;
+
+    #inputQueue: EmulatorInputEvent[];
+    #inputBuffer = new SharedArrayBuffer(INPUT_BUFFER_SIZE * 4);
+    #inputBufferView = new Int32Array(this.#inputBuffer);
+
+    #screenCanvasContext: CanvasRenderingContext2D;
+    #screenImageData: ImageData;
+    #screenBuffer: SharedArrayBuffer;
+    #screenBufferView: Uint8Array;
+    #videoModeBuffer = new SharedArrayBuffer(VIDEO_MODE_BUFFER_SIZE * 4);
+    #videoModeBufferView = new Int32Array(this.#videoModeBuffer);
+
+    constructor(config: EmulatorConfig) {
+        this.#config = config;
+        this.#worker = new Worker();
+        this.#inputQueue = [];
+
+        const {screenCanvas: canvas, screenWidth, screenHeight} = this.#config;
+
+        this.#screenCanvasContext = canvas.getContext("2d", {
+            desynchronized: true,
+        })!;
+        this.#screenImageData = this.#screenCanvasContext.createImageData(
+            screenWidth,
+            screenHeight
+        );
+
+        const screenBufferSize = config.screenWidth * config.screenHeight * 4; // 32bpp
+        this.#screenBuffer = new SharedArrayBuffer(screenBufferSize);
+        this.#screenBufferView = new Uint8Array(this.#screenBuffer);
     }
-    if (!acquireLock(inputBufferView, InputBufferAddresses.globalLockAddr)) {
-        return;
+
+    start() {
+        const {screenCanvas: canvas} = this.#config;
+        canvas.addEventListener("mousemove", this.#handleMouseMove);
+        canvas.addEventListener("mousedown", this.#handleMouseDown);
+        canvas.addEventListener("mouseup", this.#handleMouseUp);
+        window.addEventListener("keydown", this.#handleKeyDown);
+        window.addEventListener("keyup", this.#handleKeyUp);
+
+        document.addEventListener(
+            "visibilitychange",
+            this.#handleVisibilityChange
+        );
+
+        this.#worker.addEventListener("message", this.#handleWorkerMessage);
+
+        this.#worker.postMessage({
+            autoloadFiles: {
+                "MacOS753": this.#config.disk1Path,
+                "Games.img": this.#config.disk2Path,
+                "Quadra-650.rom": this.#config.romPath,
+                "prefs": this.#config.basiliskPrefsPath,
+            },
+            arguments: ["--config", "prefs"],
+
+            inputBuffer: this.#inputBuffer,
+            inputBufferSize: INPUT_BUFFER_SIZE,
+            screenBuffer: this.#screenBuffer,
+            screenBufferSize: this.#screenBuffer.byteLength,
+            videoModeBuffer: this.#videoModeBuffer,
+            videoModeBufferSize: VIDEO_MODE_BUFFER_SIZE,
+            // TODO: audio
+            // audioDataBuffer: audioDataBuffer,
+            // audioDataBufferSize: AUDIO_DATA_BUFFER_SIZE,
+            // audioBlockBufferSize: audio.bufferSize,
+            // audioBlockChunkSize: audioBlockChunkSize,
+            SCREEN_WIDTH: this.#config.screenWidth,
+            SCREEN_HEIGHT: this.#config.screenHeight,
+        });
     }
-    let hasMouseMove = false;
-    let mouseMoveX = 0;
-    let mouseMoveY = 0;
-    let mouseButtonState = -1;
-    let hasKeyEvent = false;
-    let keyCode = -1;
-    let keyState = -1;
-    // currently only one key event can be sent per sync
-    // TODO: better key handling code
-    const remainingKeyEvents = [];
-    for (let i = 0; i < inputQueue.length; i++) {
-        const inputEvent = inputQueue[i];
-        switch (inputEvent.type) {
-            case "mousemove":
-                if (hasMouseMove) {
-                    break;
-                }
-                hasMouseMove = true;
-                mouseMoveX += inputEvent.dx;
-                mouseMoveY += inputEvent.dy;
-                break;
-            case "mousedown":
-            case "mouseup":
-                mouseButtonState = inputEvent.type === "mousedown" ? 1 : 0;
-                break;
-            case "keydown":
-            case "keyup":
-                if (hasKeyEvent) {
-                    remainingKeyEvents.push(inputEvent);
-                    break;
-                }
-                hasKeyEvent = true;
-                keyState = inputEvent.type === "keydown" ? 1 : 0;
-                keyCode = inputEvent.keyCode;
-                break;
+
+    stop() {
+        const {screenCanvas: canvas} = this.#config;
+        canvas.removeEventListener("mousemove", this.#handleMouseMove);
+        canvas.removeEventListener("mousedown", this.#handleMouseDown);
+        canvas.removeEventListener("mouseup", this.#handleMouseUp);
+        window.removeEventListener("keydown", this.#handleKeyDown);
+        window.removeEventListener("keyup", this.#handleKeyUp);
+
+        document.removeEventListener(
+            "visibilitychange",
+            this.#handleVisibilityChange
+        );
+
+        this.#worker.removeEventListener("message", this.#handleWorkerMessage);
+
+        this.#worker.postMessage({
+            // TODO
+        });
+    }
+
+    #handleMouseMove = (event: MouseEvent) => {
+        this.#handleInput({
+            type: "mousemove",
+            dx: event.offsetX,
+            dy: event.offsetY,
+        });
+    };
+
+    #handleMouseDown = (event: MouseEvent) => {
+        this.#handleInput({type: "mousedown"});
+    };
+
+    #handleMouseUp = (event: MouseEvent) => {
+        this.#handleInput({type: "mouseup"});
+    };
+
+    #handleKeyDown = (event: KeyboardEvent) => {
+        this.#handleInput({type: "keydown", keyCode: event.keyCode});
+    };
+
+    #handleKeyUp = (event: KeyboardEvent) => {
+        this.#handleInput({type: "keyup", keyCode: event.keyCode});
+    };
+
+    #handleInput(inputEvent: EmulatorInputEvent) {
+        this.#inputQueue.push(inputEvent);
+        this.#tryToSendInput();
+    }
+
+    #tryToSendInput() {
+        if (!this.#inputQueue.length) {
+            return;
         }
+        if (!this.#acquireInputLock()) {
+            return;
+        }
+        let hasMouseMove = false;
+        let mouseMoveX = 0;
+        let mouseMoveY = 0;
+        let mouseButtonState = -1;
+        let hasKeyEvent = false;
+        let keyCode = -1;
+        let keyState = -1;
+        // currently only one key event can be sent per sync
+        // TODO: better key handling code
+        const remainingKeyEvents = [];
+        for (const inputEvent of this.#inputQueue) {
+            switch (inputEvent.type) {
+                case "mousemove":
+                    if (hasMouseMove) {
+                        break;
+                    }
+                    hasMouseMove = true;
+                    mouseMoveX += inputEvent.dx;
+                    mouseMoveY += inputEvent.dy;
+                    break;
+                case "mousedown":
+                case "mouseup":
+                    mouseButtonState = inputEvent.type === "mousedown" ? 1 : 0;
+                    break;
+                case "keydown":
+                case "keyup":
+                    if (hasKeyEvent) {
+                        remainingKeyEvents.push(inputEvent);
+                        break;
+                    }
+                    hasKeyEvent = true;
+                    keyState = inputEvent.type === "keydown" ? 1 : 0;
+                    keyCode = inputEvent.keyCode;
+                    break;
+            }
+        }
+        const inputBufferView = this.#inputBufferView;
+        if (hasMouseMove) {
+            inputBufferView[InputBufferAddresses.mouseMoveFlagAddr] = 1;
+            inputBufferView[InputBufferAddresses.mouseMoveXDeltaAddr] =
+                mouseMoveX;
+            inputBufferView[InputBufferAddresses.mouseMoveYDeltaAddr] =
+                mouseMoveY;
+        }
+        inputBufferView[InputBufferAddresses.mouseButtonStateAddr] =
+            mouseButtonState;
+        if (hasKeyEvent) {
+            inputBufferView[InputBufferAddresses.keyEventFlagAddr] = 1;
+            inputBufferView[InputBufferAddresses.keyCodeAddr] = keyCode;
+            inputBufferView[InputBufferAddresses.keyStateAddr] = keyState;
+        }
+        this.#releaseInputLock();
+        this.#inputQueue = remainingKeyEvents;
     }
-    if (hasMouseMove) {
-        inputBufferView[InputBufferAddresses.mouseMoveFlagAddr] = 1;
-        inputBufferView[InputBufferAddresses.mouseMoveXDeltaAddr] = mouseMoveX;
-        inputBufferView[InputBufferAddresses.mouseMoveYDeltaAddr] = mouseMoveY;
+
+    #acquireInputLock(): boolean {
+        return acquireLock(
+            this.#inputBufferView,
+            InputBufferAddresses.globalLockAddr
+        );
     }
-    inputBufferView[InputBufferAddresses.mouseButtonStateAddr] =
-        mouseButtonState;
-    if (hasKeyEvent) {
-        inputBufferView[InputBufferAddresses.keyEventFlagAddr] = 1;
-        inputBufferView[InputBufferAddresses.keyCodeAddr] = keyCode;
-        inputBufferView[InputBufferAddresses.keyStateAddr] = keyState;
+
+    #releaseInputLock() {
+        releaseLock(this.#inputBufferView, InputBufferAddresses.globalLockAddr);
     }
-    releaseInputLock();
-    inputQueue = remainingKeyEvents;
-}
-function handleInput(inputEvent) {
-    inputQueue.push(inputEvent);
-    tryToSendInput();
-}
-canvas.addEventListener("mousemove", function (event) {
-    handleInput({type: "mousemove", dx: event.offsetX, dy: event.offsetY});
-});
-canvas.addEventListener("mousedown", function (event) {
-    handleInput({type: "mousedown"});
-});
-canvas.addEventListener("mouseup", function (event) {
-    handleInput({type: "mouseup"});
-});
-window.addEventListener("keydown", function (event) {
-    handleInput({type: "keydown", keyCode: event.keyCode});
-});
-window.addEventListener("keyup", function (event) {
-    handleInput({type: "keyup", keyCode: event.keyCode});
-});
 
-const workerConfig = Object.assign(
-    {
-        inputBuffer: inputBuffer,
-        inputBufferSize: INPUT_BUFFER_SIZE,
-        screenBuffer: screenBuffer,
-        screenBufferSize: SCREEN_BUFFER_SIZE,
-        videoModeBuffer: videoModeBuffer,
-        videoModeBufferSize: VIDEO_MODE_BUFFER_SIZE,
-        audioDataBuffer: audioDataBuffer,
-        audioDataBufferSize: AUDIO_DATA_BUFFER_SIZE,
-        audioBlockBufferSize: audio.bufferSize,
-        audioBlockChunkSize: audioBlockChunkSize,
-        SCREEN_WIDTH: SCREEN_WIDTH,
-        SCREEN_HEIGHT: SCREEN_HEIGHT,
-    },
-    basiliskConfig
-);
-
-if (basiliskConfig.singleThreadedEmscripten) {
-    const worker = new Worker(
-        basiliskConfig.baseURL + "BasiliskII-worker-boot.js"
-    );
-
-    worker.postMessage(workerConfig);
-    worker.onmessage = function (e) {
+    #handleWorkerMessage = (e: MessageEvent) => {
         if (
             e.data.type === "emulator_ready" ||
             e.data.type === "emulator_loading"
@@ -400,6 +488,7 @@ if (basiliskConfig.singleThreadedEmscripten) {
             document.body.className =
                 e.data.type === "emulator_ready" ? "" : "loading";
 
+            /* TODO: progress
             const progressElement =
                 basiliskConfig.progressElement ||
                 document.getElementById("progress");
@@ -417,42 +506,52 @@ if (basiliskConfig.singleThreadedEmscripten) {
                     progressElement.hidden = true;
                 }
             }
+            */
         } else if (e.data.type === "emulator_blit") {
-            drawScreen();
+            this.#drawScreen();
         }
     };
-}
 
-function drawScreen() {
-    if (document.hidden) {
-        return;
-    }
-    const pixelsRGBA = imageData.data;
-    const expandedFromPalettedMode = videoModeBufferView[3];
-    const start = audioContext.currentTime;
-    // if we were going to lock the framebuffer, this is where we'd do it
-    if (expandedFromPalettedMode) {
-        // palette expanded mode is already in RGBA order
-        pixelsRGBA.set(screenBufferView);
-    } else {
-        // offset by 1 to go from ARGB to RGBA (we don't actually care about the
-        // alpha, it should be the same for all pixels)
-        pixelsRGBA.set(
-            screenBufferView.subarray(1, screenBufferView.byteLength - 1)
-        );
-        // However, the alpha ends up being 0, which makes it transparent, so we
-        // need to override it to 255.
-        // TODO(mihai): do this on the native side, perhaps with a custom blit
-        // function.
-        const maxAlphaIndex = SCREEN_WIDTH * SCREEN_HEIGHT * 4 + 3;
-        for (let alphaIndex = 3; alphaIndex < maxAlphaIndex; alphaIndex += 4) {
-            pixelsRGBA[alphaIndex] = 0xff;
+    #handleVisibilityChange = () => {
+        this.#drawScreen();
+    };
+
+    #drawScreen() {
+        if (document.hidden) {
+            return;
         }
-    }
+        const pixelsRGBA = this.#screenImageData.data;
+        const expandedFromPalettedMode = this.#videoModeBufferView[3];
+        // if we were going to lock the framebuffer, this is where we'd do it
+        if (expandedFromPalettedMode) {
+            // palette expanded mode is already in RGBA order
+            pixelsRGBA.set(this.#screenBufferView);
+        } else {
+            // offset by 1 to go from ARGB to RGBA (we don't actually care about the
+            // alpha, it should be the same for all pixels)
+            pixelsRGBA.set(
+                this.#screenBufferView.subarray(
+                    1,
+                    this.#screenBufferView.byteLength - 1
+                )
+            );
+            // However, the alpha ends up being 0, which makes it transparent, so we
+            // need to override it to 255.
+            // TODO(mihai): do this on the native side, perhaps with a custom blit
+            // function.
+            const {screenWidth, screenHeight} = this.#config;
+            const maxAlphaIndex = screenWidth * screenHeight * 4 + 3;
+            for (
+                let alphaIndex = 3;
+                alphaIndex < maxAlphaIndex;
+                alphaIndex += 4
+            ) {
+                pixelsRGBA[alphaIndex] = 0xff;
+            }
+        }
 
-    canvasCtx.putImageData(imageData, 0, 0);
+        this.#screenCanvasContext.putImageData(this.#screenImageData, 0, 0);
+    }
 }
 
-document.addEventListener("visibilitychange", drawScreen);
-
-openAudio();
+// openAudio(); TODO: audio

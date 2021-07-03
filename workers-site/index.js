@@ -55,11 +55,21 @@ async function handleEvent(event) {
             response.headers.set("Content-Type", "multipart/bag");
         }
 
+        // Mirror MIME type overriding done by setupProxy.js
+        if (url.pathname.endsWith(".jsz")) {
+            response.headers.set("Content-Type", "text/javascript");
+        } else if (url.pathname.endsWith(".jsz")) {
+            response.headers.set("Content-Type", "application/wasm");
+        }
+
         response.headers.set("X-XSS-Protection", "1; mode=block");
         response.headers.set("X-Content-Type-Options", "nosniff");
         response.headers.set("X-Frame-Options", "DENY");
         response.headers.set("Referrer-Policy", "unsafe-url");
         response.headers.set("Feature-Policy", "none");
+        // Allow SharedArrayBuffer to work
+        response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+        response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
 
         // Static content uses a content hash in the URL, so it can be cached
         // for a while (30 days).
@@ -69,6 +79,7 @@ async function handleEvent(event) {
                 `max-age=${60 * 60 * 24 * 30}`
             );
         }
+
         return response;
     } catch (e) {
         // if an error is thrown try to serve the asset at 404.html
