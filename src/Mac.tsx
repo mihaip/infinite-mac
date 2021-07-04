@@ -8,6 +8,7 @@ import {Emulator} from "./BasiliskII/emulator-ui";
 
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 600;
+const SCREEN_UNDERSCAN = 20;
 
 export function Mac() {
     const screeRef = useRef<HTMLCanvasElement>(null);
@@ -29,12 +30,18 @@ export function Mac() {
     return (
         <div
             className="Mac"
-            style={{width: SCREEN_WIDTH, height: SCREEN_HEIGHT}}>
+            style={{
+                width: SCREEN_WIDTH + SCREEN_UNDERSCAN * 2,
+                height: SCREEN_HEIGHT + SCREEN_UNDERSCAN * 2,
+            }}>
+            <div className="Mac-Apple-Logo" />
+            <div className="Mac-Led" />
             <canvas
                 className="Mac-Screen"
                 ref={screeRef}
                 width={SCREEN_WIDTH}
                 height={SCREEN_HEIGHT}
+                style={{top: SCREEN_UNDERSCAN, left: SCREEN_UNDERSCAN}}
                 onContextMenu={e => e.preventDefault()}
             />
         </div>

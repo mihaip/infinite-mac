@@ -1,9 +1,113 @@
 .Mac {
-    border: solid #ded1b9 40px;
-    border-radius: 20px;
+    --screen-bezel-color: hsl(39deg 36% 80%);
+    --screen-bezel-color-dark1: hsl(39deg 36% 75%);
+    --screen-bezel-color-dark2: hsl(39deg 36% 70%);
+    --screen-bezel-color-light1: hsl(39deg 36% 85%);
+    --screen-bezel-color-light2: hsl(39deg 36% 90%);
+    --screen-bezel-size: 60px;
+    --screen-outer-chamfer-size: 4px;
+    --screen-inner-chamfer-size: 8px;
+    --screen-corner-radius: 8px;
+
+    border: solid var(--screen-bezel-size) var(--screen-bezel-color);
+    position: relative;
+    background: black;
+    user-select: none;
+}
+
+.Mac::before {
+    content: "";
+    position: absolute;
+    top: calc(
+        (var(--screen-bezel-size) + var(--screen-outer-chamfer-size)) * -1
+    );
+    left: calc(
+        (var(--screen-bezel-size) + var(--screen-outer-chamfer-size)) * -1
+    );
+    right: calc(
+        (var(--screen-bezel-size) + var(--screen-outer-chamfer-size)) * -1
+    );
+    bottom: calc(
+        (var(--screen-bezel-size) + var(--screen-outer-chamfer-size)) * -1
+    );
+    border: solid var(--screen-outer-chamfer-size);
+    border-color: var(--screen-bezel-color-light2)
+        var(--screen-bezel-color-dark2) var(--screen-bezel-color-dark1)
+        var(--screen-bezel-color-light1);
+    border-radius: var(--screen-corner-radius);
+    pointer-events: none;
+}
+
+.Mac::after {
+    content: "";
+    position: absolute;
+    top: calc(var(--screen-inner-chamfer-size) * -1);
+    left: calc(var(--screen-inner-chamfer-size) * -1);
+    right: calc(var(--screen-inner-chamfer-size) * -1);
+    bottom: calc(var(--screen-inner-chamfer-size) * -1);
+    border: solid var(--screen-inner-chamfer-size);
+    border-color: var(--screen-bezel-color-dark2)
+        var(--screen-bezel-color-light2) var(--screen-bezel-color-light1)
+        var(--screen-bezel-color-dark1);
+    border-radius: var(--screen-corner-radius);
+    pointer-events: none;
+}
+
+.Mac-Apple-Logo {
+    position: absolute;
+    bottom: -16px;
+    left: 0;
+    color: transparent;
+    font-size: 28px;
+    pointer-events: none;
+}
+
+.Mac-Apple-Logo::before,
+.Mac-Apple-Logo::after {
+    content: "";
+    background-clip: text;
+    background-image: linear-gradient(
+        to bottom,
+        #70c25c 0%,
+        #70c25c 34%,
+        #ffc04a 34%,
+        #ffc04a 45%,
+        #fc903d 45%,
+        #fc903d 55%,
+        #e94752 55%,
+        #e94752 65%,
+        #a954a5 65%,
+        #a954a5 75%,
+        #00afe0 75%,
+        #00afe0 100%
+    );
+}
+
+.Mac-Apple-Logo::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    text-shadow: 0 0 rgba(0, 0, 0, 0.5);
+}
+
+.Mac-Apple-Logo::after {
+    position: absolute;
+    top: 0.5px;
+    left: 0.5px;
+}
+
+.Mac-Led {
+    pointer-events: none;
+    position: absolute;
+    bottom: -40px;
+    right: 0;
+    width: 28px;
+    height: 8px;
+    background: #00ff00;
 }
 
 .Mac-Screen {
+    position: relative;
     border: 0;
     background-color: black;
     /* The emulator draws the cursor */
