@@ -412,6 +412,7 @@ export class Emulator {
             return;
         }
         if (!this.#acquireInputLock()) {
+            this.#tryToSendInputLater();
             return;
         }
         let hasMouseMove = false;
@@ -467,6 +468,13 @@ export class Emulator {
         }
         this.#releaseInputLock();
         this.#inputQueue = remainingKeyEvents;
+        if (this.#inputQueue.length) {
+            this.#tryToSendInputLater();
+        }
+    }
+
+    #tryToSendInputLater() {
+        window.setTimeout(() => this.#tryToSendInput(), 0);
     }
 
     #acquireInputLock(): boolean {
