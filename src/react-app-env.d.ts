@@ -1,4 +1,5 @@
 /// <reference types="react-scripts" />
+/// <reference types="emscripten" />
 
 declare module "*.txt" {
     const path: string;
@@ -26,4 +27,9 @@ declare module "worker-loader!*" {
     }
 
     export default WebpackWorker;
+}
+
+declare interface EmscriptenModule {
+    // Not part of the default type definitions for some reason
+    monitorRunDependencies(left: number): void;
 }
