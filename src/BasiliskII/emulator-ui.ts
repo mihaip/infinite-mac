@@ -1,105 +1,103 @@
 import {
+    EmulatorWorkerAudioConfig,
     EmulatorInputEvent,
+    EmulatorWorkerConfig,
     InputBufferAddresses,
     LockStates,
 } from "./emulator-common";
 import Worker from "worker-loader!./emulator-worker";
 
-/*
- TODO: audio support
-const audio = {
-    channels: 1,
-    bytesPerSample: 2,
-    samples: 4096,
-    // freq: 11025,
-    freq: 22050,
-    // freq: 44100,
-    format: 0x8010,
-    paused: false,
-    timer: null,
-    silence: 0,
-    maxBuffersInSharedMemory: 5,
-    nextPlayTime: 0,
-};
-
-const audioTotalSamples = audio.samples * audio.channels;
-audio.bytesPerSample =
-    audio.format == 0x0008 // AUDIO_U8
-     || audio.format == 0x8008 // AUDIO_S8
-        ? 1
-        : 2;
-audio.bufferSize = audioTotalSamples * audio.bytesPerSample;
-audio.bufferDurationSecs =
-    audio.bufferSize / audio.bytesPerSample / audio.channels / audio.freq; // Duration of a single queued buffer in seconds.
-audio.bufferingDelay = 50 / 1000; // Audio samples are played with a constant delay of this many seconds to account for browser and jitter.
-
-// To account for jittering in frametimes, always have multiple audio buffers queued up for the audio output device.
-// This helps that we won't starve that easily if a frame takes long to complete.
-audio.numSimultaneouslyQueuedBuffers = 5;
-audio.nextChunkIndex = 0;
-
-const AUDIO_CONFIG_BUFFER_SIZE = 10;
-const audioConfigBuffer = new SharedArrayBuffer(AUDIO_CONFIG_BUFFER_SIZE);
-const audioConfigBufferView = new Uint8Array(audioConfigBuffer);
-
-const audioBlockChunkSize = audio.bufferSize + 2;
-const AUDIO_DATA_BUFFER_SIZE =
-    audioBlockChunkSize * audio.maxBuffersInSharedMemory;
-const audioDataBuffer = new SharedArrayBuffer(AUDIO_DATA_BUFFER_SIZE);
-const audioDataBufferView = new Uint8Array(audioDataBuffer);
-
-const audioContext = new AudioContext();
-
-const gainNode = audioContext.createGain();
-
-gainNode.gain.value = 1;
-gainNode.connect(audioContext.destination);
-
-function addEventListenerOnce(element, eventType, cb) {
-    element.addEventListener(eventType, function () {
-        element.removeEventListener(eventType, cb);
-        cb.apply(this, arguments);
-    });
+// SDL Audio Formats
+enum EmulatorAudioFormat {
+    AUDIO_U8 = 0x0008,
+    AUDIO_S8 = 0x8008,
+    AUDIO_S16LSB = 0x8010,
 }
 
-addEventListenerOnce(canvas, "click", function () {
-    audioContext.resume();
-});
+class EmulatorAudio {
+    #channels = 1;
+    #samples = 4096;
+    #freq = 22050; // could also be 11025 or 44100
+    #format = EmulatorAudioFormat.AUDIO_S16LSB;
+    #audioTotalSamples = this.#samples * this.#channels;
+    #bytesPerSample =
+        this.#format === EmulatorAudioFormat.AUDIO_U8 ||
+        this.#format === EmulatorAudioFormat.AUDIO_S8
+            ? 1
+            : 2;
+    #bufferSize = this.#audioTotalSamples * this.#bytesPerSample;
+    #bufferDurationSecs =
+        this.#bufferSize / this.#bytesPerSample / this.#channels / this.#freq; // Duration of a single queued buffer in seconds.
+    #bufferingDelay = 50 / 1000; // Audio samples are played with a constant delay of this many seconds to account for browser and jitter.
 
-const warningLastTime = {};
-const warningCount = {};
-function throttledWarning(message, type = "") {
-    warningCount[type] = (warningCount[type] || 0) + 1;
-    if (Date.now() - (warningLastTime[type] || 0) > 5000) {
-        console.warn(message, `${warningCount[type] || 0} times`);
-        warningLastTime[type] = Date.now();
-        warningCount[type] = 0;
+    #gotFirstBlock = false;
+    #nextChunkIndex = 0;
+    #maxBuffersInSharedMemory = 5;
+    #nextPlayTime = 0;
+    #timeout: number;
+    #numAudioTimersPending: 1;
+    // To account for jittering in frametimes, always have multiple audio
+    // buffers queued up for the audio output device.
+    // This helps that we won't starve that easily if a frame takes long to
+    // complete.
+    #numSimultaneouslyQueuedBuffers = 5;
+
+    #audioContext: AudioContext;
+    #gainNode: GainNode;
+
+    #paused: boolean = false;
+
+    #audioBlockChunkSize = this.#bufferSize + 2;
+    #audioDataBufferSize =
+        this.#audioBlockChunkSize * this.#maxBuffersInSharedMemory;
+    #audioDataBuffer = new SharedArrayBuffer(this.#audioDataBufferSize);
+    #audioDataBufferView = new Uint8Array(this.#audioDataBuffer);
+
+    constructor(emulator: Emulator) {
+        this.#numAudioTimersPending = 1;
+        this.#timeout = window.setTimeout(this.#callback, 1);
+
+        this.#audioContext = new AudioContext();
+        this.#gainNode = this.#audioContext.createGain();
+        this.#gainNode.gain.value = 1;
+        this.#gainNode.connect(this.#audioContext.destination);
     }
-}
 
-function openAudio() {
-    audio.pushAudio = function pushAudio(
-        blockBuffer, // u8 typed array
-        sizeBytes // probably (frames per block=4096) * (bytes per sample=2) * (n channels=1)
+    start() {
+        this.#audioContext.resume();
+    }
+
+    workerConfig(): EmulatorWorkerAudioConfig {
+        return {
+            audioDataBuffer: this.#audioDataBuffer,
+            audioDataBufferSize: this.#audioDataBufferSize,
+            audioBlockBufferSize: this.#bufferSize,
+            audioBlockChunkSize: this.#audioBlockChunkSize,
+        };
+    }
+
+    #pushAudio(
+        blockBuffer: Uint8Array, // u8 typed array
+        sizeBytes: number // probably (frames per block=4096) * (bytes per sample=2) * (n channels=1)
     ) {
-        if (audio.paused) return;
+        if (this.#paused) return;
 
-        const sizeSamples = sizeBytes / audio.bytesPerSample; // How many samples fit in the callback buffer?
-        const sizeSamplesPerChannel = sizeSamples / audio.channels; // How many samples per a single channel fit in the cb buffer?
-        if (sizeSamplesPerChannel != audio.samples) {
-            throw "Received mismatching audio buffer size!";
+        const sizeSamples = sizeBytes / this.#bytesPerSample; // How many samples fit in the callback buffer?
+        const sizeSamplesPerChannel = sizeSamples / this.#channels; // How many samples per a single channel fit in the cb buffer?
+        if (sizeSamplesPerChannel !== this.#samples) {
+            throw new Error("Received mismatching audio buffer size!");
         }
         // Allocate new sound buffer to be played.
-        const source = audioContext.createBufferSource();
-        const soundBuffer = audioContext.createBuffer(
-            audio.channels,
+        const source = this.#audioContext.createBufferSource();
+        const soundBuffer = this.#audioContext.createBuffer(
+            this.#channels,
             sizeSamplesPerChannel,
-            audio.freq
+            this.#freq
         );
         // source.connect(audioContext.destination);
-        source.connect(gainNode);
+        source.connect(this.#gainNode);
 
-        audio.fillWebAudioBufferFromChunk(
+        this.#fillWebAudioBufferFromChunk(
             blockBuffer,
             sizeSamplesPerChannel,
             soundBuffer
@@ -109,67 +107,70 @@ function openAudio() {
 
         // Schedule the generated sample buffer to be played out at the correct time right after the previously scheduled
         // sample buffer has finished.
-        const curtime = audioContext.currentTime;
+        const curtime = this.#audioContext.currentTime;
 
         // assertion
-        if (curtime > audio.nextPlayTime && audio.nextPlayTime != 0) {
+        if (curtime > this.#nextPlayTime && this.#nextPlayTime !== 0) {
             // console.log('warning: Audio callback had starved sending audio by ' + (curtime - audio.nextPlayTime) + ' seconds.');
         }
 
         // Don't ever start buffer playbacks earlier from current time than a given constant 'audio.bufferingDelay', since a browser
         // may not be able to mix that audio clip in immediately, and there may be subsequent jitter that might cause the stream to starve.
         const playtime = Math.max(
-            curtime + audio.bufferingDelay,
-            audio.nextPlayTime
+            curtime + this.#bufferingDelay,
+            this.#nextPlayTime
         );
         source.start(playtime);
         // console.log(`queuing audio for ${playtime}`)
 
-        audio.nextPlayTime = playtime + audio.bufferDurationSecs;
-    };
+        this.#nextPlayTime = playtime + this.#bufferDurationSecs;
+    }
 
-    audio.getBlockBuffer = function getBlockBuffer() {
+    #getBlockBuffer() {
         // audio chunk layout
         // 0: lock state
         // 1: pointer to next chunk
         // 2->buffersize+2: audio buffer
-        const curChunkIndex = audio.nextChunkIndex;
-        const curChunkAddr = curChunkIndex * audioBlockChunkSize;
+        const curChunkIndex = this.#nextChunkIndex;
+        const curChunkAddr = curChunkIndex * this.#audioBlockChunkSize;
 
-        if (audioDataBufferView[curChunkAddr] !== LockStates.UI_THREAD_LOCK) {
-            if (audio.gotFirstBlock) {
-                // throttledWarning('UI thread tried to read audio data from worker-locked chunk');
+        if (
+            this.#audioDataBufferView[curChunkAddr] !==
+            LockStates.UI_THREAD_LOCK
+        ) {
+            if (this.#gotFirstBlock) {
+                // TODO: UI thread tried to read audio data from worker-locked chunk
             }
             return null;
         }
-        audio.gotFirstBlock = true;
+        this.#gotFirstBlock = true;
 
-        const blockBuffer = audioDataBufferView.slice(
+        const blockBuffer = this.#audioDataBufferView.slice(
             curChunkAddr + 2,
-            curChunkAddr + 2 + audio.bufferSize
+            curChunkAddr + 2 + this.#bufferSize
         );
-        audio.nextChunkIndex = audioDataBufferView[curChunkAddr + 1];
+        this.#nextChunkIndex = this.#audioDataBufferView[curChunkAddr + 1];
         // console.assert(audio.nextChunkIndex != curChunkIndex, `curChunkIndex=${curChunkIndex} == nextChunkIndex=${audio.nextChunkIndex}`)
-        audioDataBufferView[curChunkAddr] = LockStates.EMUL_THREAD_LOCK;
+        this.#audioDataBufferView[curChunkAddr] = LockStates.EMUL_THREAD_LOCK;
         // debugger
         // console.log(`got buffer=${curChunkIndex}, next=${audio.nextChunkIndex}`)
         return blockBuffer;
-    };
+    }
 
-    audio.fillWebAudioBufferFromChunk = function fillWebAudioBufferFromChunk(
-        blockBuffer, // u8 typed array
-        blockSize, // probably 4096
-        dstAudioBuffer
+    #fillWebAudioBufferFromChunk(
+        blockBuffer: Uint8Array,
+        blockSize: number, // probably 4096
+        dstAudioBuffer: AudioBuffer
     ) {
-        for (let c = 0; c < audio.channels; ++c) {
+        for (let c = 0; c < this.#channels; ++c) {
             const channelData = dstAudioBuffer.getChannelData(c);
-            if (channelData.length != blockSize) {
-                throw (
+            if (channelData.length !== blockSize) {
+                throw new Error(
                     "Web Audio output buffer length mismatch! Destination size: " +
-                    channelData.length +
-                    " samples vs expected " +
-                    blockSize +
-                    " samples!"
+                        channelData.length +
+                        " samples vs expected " +
+                        blockSize +
+                        " samples!"
                 );
             }
             const blockBufferI16 = new Int16Array(blockBuffer.buffer);
@@ -178,57 +179,57 @@ function openAudio() {
                 channelData[j] = blockBufferI16[j] / 0x8000; // convert i16 to f32 in range -1 to +1
             }
         }
-    };
+    }
 
     // Pulls and queues new audio data if appropriate. This function gets "over-called" in both requestAnimationFrames and
     // setTimeouts to ensure that we get the finest granularity possible and as many chances from the browser to fill
     // new audio data. This is because setTimeouts alone have very poor granularity for audio streaming purposes, but also
     // the application might not be using emscripten_set_main_loop to drive the main loop, so we cannot rely on that alone.
-    audio.queueNewAudioData = function queueNewAudioData() {
+    #queueNewAudioData() {
         let i = 0;
-        for (; i < audio.numSimultaneouslyQueuedBuffers; ++i) {
+        for (; i < this.#numSimultaneouslyQueuedBuffers; ++i) {
             // Only queue new data if we don't have enough audio data already in queue. Otherwise skip this time slot
             // and wait to queue more in the next time the callback is run.
             const secsUntilNextPlayStart =
-                audio.nextPlayTime - audioContext.currentTime;
+                this.#nextPlayTime - this.#audioContext.currentTime;
             if (
                 secsUntilNextPlayStart >=
-                audio.bufferingDelay +
-                    audio.bufferDurationSecs *
-                        audio.numSimultaneouslyQueuedBuffers
+                this.#bufferingDelay +
+                    this.#bufferDurationSecs *
+                        this.#numSimultaneouslyQueuedBuffers
             )
                 return;
 
-            const blockBuffer = audio.getBlockBuffer();
+            const blockBuffer = this.#getBlockBuffer();
             if (!blockBuffer) {
                 return;
             }
 
             // And queue it to be played after the currently playing audio stream.
-            audio.pushAudio(blockBuffer, audio.bufferSize);
+            this.#pushAudio(blockBuffer, this.#bufferSize);
         }
         // console.log(`queued ${i} buffers of audio`);
-    };
+    }
 
     // Create a callback function that will be routinely called to ask more audio data from the user application.
-    audio.caller = function audioCaller() {
-        --audio.numAudioTimersPending;
+    #callback = () => {
+        --this.#numAudioTimersPending;
 
-        audio.queueNewAudioData();
+        this.#queueNewAudioData();
 
         // Queue this callback function to be called again later to pull more audio data.
         const secsUntilNextPlayStart =
-            audio.nextPlayTime - audioContext.currentTime;
+            this.#nextPlayTime - this.#audioContext.currentTime;
 
         // Queue the next audio frame push to be performed half-way when the previously queued buffer has finished playing.
-        const preemptBufferFeedSecs = audio.bufferDurationSecs / 2.0;
+        const preemptBufferFeedSecs = this.#bufferDurationSecs / 2.0;
 
         if (
-            audio.numAudioTimersPending < audio.numSimultaneouslyQueuedBuffers
+            this.#numAudioTimersPending < this.#numSimultaneouslyQueuedBuffers
         ) {
-            ++audio.numAudioTimersPending;
-            audio.timer = setTimeout(
-                audio.caller,
+            ++this.#numAudioTimersPending;
+            this.#timeout = window.setTimeout(
+                this.#callback,
                 Math.max(
                     0.0,
                     1000.0 * (secsUntilNextPlayStart - preemptBufferFeedSecs)
@@ -237,19 +238,15 @@ function openAudio() {
 
             // If we are risking starving, immediately queue an extra buffer.
             if (
-                audio.numAudioTimersPending <
-                audio.numSimultaneouslyQueuedBuffers
+                this.#numAudioTimersPending <
+                this.#numSimultaneouslyQueuedBuffers
             ) {
-                ++audio.numAudioTimersPending;
-                setTimeout(audio.caller, 1.0);
+                ++this.#numAudioTimersPending;
+                setTimeout(this.#callback, 1.0);
             }
         }
     };
-
-    audio.numAudioTimersPending = 1;
-    audio.timer = setTimeout(audio.caller, 1);
 }
-*/
 
 function acquireLock(bufferView: Int32Array, lockIndex: number) {
     const res = Atomics.compareExchange(
@@ -298,6 +295,9 @@ export class Emulator {
     #videoModeBuffer = new SharedArrayBuffer(VIDEO_MODE_BUFFER_SIZE * 4);
     #videoModeBufferView = new Int32Array(this.#videoModeBuffer);
 
+    #audio: EmulatorAudio;
+    #startedAudio: boolean = false;
+
     constructor(config: EmulatorConfig) {
         this.#config = config;
         this.#worker = new Worker();
@@ -316,6 +316,8 @@ export class Emulator {
         const screenBufferSize = config.screenWidth * config.screenHeight * 4; // 32bpp
         this.#screenBuffer = new SharedArrayBuffer(screenBufferSize);
         this.#screenBufferView = new Uint8Array(this.#screenBuffer);
+
+        this.#audio = new EmulatorAudio(this);
     }
 
     start() {
@@ -333,7 +335,7 @@ export class Emulator {
 
         this.#worker.addEventListener("message", this.#handleWorkerMessage);
 
-        this.#worker.postMessage({
+        const config: EmulatorWorkerConfig = {
             autoloadFiles: {
                 "MacOS753": this.#config.disk1Path,
                 "Games.img": this.#config.disk2Path,
@@ -348,14 +350,11 @@ export class Emulator {
             screenBufferSize: this.#screenBuffer.byteLength,
             videoModeBuffer: this.#videoModeBuffer,
             videoModeBufferSize: VIDEO_MODE_BUFFER_SIZE,
-            // TODO: audio
-            // audioDataBuffer: audioDataBuffer,
-            // audioDataBufferSize: AUDIO_DATA_BUFFER_SIZE,
-            // audioBlockBufferSize: audio.bufferSize,
-            // audioBlockChunkSize: audioBlockChunkSize,
-            SCREEN_WIDTH: this.#config.screenWidth,
-            SCREEN_HEIGHT: this.#config.screenHeight,
-        });
+            screenWidth: this.#config.screenWidth,
+            screenHeight: this.#config.screenHeight,
+            audio: this.#audio.workerConfig(),
+        };
+        this.#worker.postMessage(config);
     }
 
     stop() {
@@ -387,6 +386,10 @@ export class Emulator {
     };
 
     #handleMouseDown = (event: MouseEvent) => {
+        if (!this.#startedAudio) {
+            this.#audio.start();
+            this.#startedAudio = true;
+        }
         this.#handleInput({type: "mousedown"});
     };
 
@@ -561,5 +564,3 @@ export class Emulator {
         this.#screenCanvasContext.putImageData(this.#screenImageData, 0, 0);
     }
 }
-
-// openAudio(); TODO: audio
