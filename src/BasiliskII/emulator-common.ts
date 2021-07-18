@@ -26,3 +26,24 @@ export enum LockStates {
     READY_FOR_EMUL_THREAD,
     EMUL_THREAD_LOCK,
 }
+
+export type EmulatorWorkerConfig = {
+    autoloadFiles: {[name: string]: string};
+    arguments: string[];
+    inputBuffer: SharedArrayBuffer;
+    inputBufferSize: number;
+    screenBuffer: SharedArrayBuffer;
+    screenBufferSize: number;
+    videoModeBuffer: SharedArrayBuffer;
+    videoModeBufferSize: number;
+    screenWidth: number;
+    screenHeight: number;
+    audio: EmulatorWorkerAudioConfig;
+};
+
+export type EmulatorWorkerAudioConfig = {
+    audioDataBuffer: SharedArrayBuffer;
+    audioDataBufferSize: number;
+    audioBlockBufferSize: number;
+    audioBlockChunkSize: number;
+};

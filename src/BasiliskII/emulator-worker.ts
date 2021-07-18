@@ -1,4 +1,8 @@
-import {InputBufferAddresses, LockStates} from "./emulator-common";
+import {
+    EmulatorWorkerConfig,
+    InputBufferAddresses,
+    LockStates,
+} from "./emulator-common";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 
@@ -15,8 +19,7 @@ self.onmessage = function (msg) {
     startEmulator(msg.data);
 };
 
-// TODO: types
-function startEmulator(parentConfig: any) {
+function startEmulator(parentConfig: EmulatorWorkerConfig) {
     const screenBufferView = new Uint8Array(
         parentConfig.screenBuffer,
         0,
@@ -35,15 +38,14 @@ function startEmulator(parentConfig: any) {
         parentConfig.inputBufferSize
     );
 
-    /*
-    TODO: audio
-    let nextAudioChunkIndex = 0;
+    const {audio: audioConfig} = parentConfig;
     const audioDataBufferView = new Uint8Array(
-        parentConfig.audioDataBuffer,
+        audioConfig.audioDataBuffer,
         0,
-        parentConfig.audioDataBufferSize
+        audioConfig.audioDataBufferSize
     );
-        */
+    let nextAudioChunkIndex = 0;
+
     function tryToAcquireCyclicalLock(
         bufferView: Int32Array,
         lockIndex: number
@@ -87,12 +89,6 @@ function startEmulator(parentConfig: any) {
         );
     }
 
-    /*
-    TODO: audio
-    let AudioConfig = null;
-
-    const AudioBufferQueue = [];
-    */
     if (!parentConfig.autoloadFiles) {
         throw new Error("autoloadFiles missing in config");
     }
@@ -144,15 +140,13 @@ function startEmulator(parentConfig: any) {
             channels: number,
             framesPerBuffer: number
         ) {
-            /* TODO: audio
-            AudioConfig = {
-                sampleRate: sampleRate,
-                sampleSize: sampleSize,
-                channels: channels,
-                framesPerBuffer: framesPerBuffer,
-            };
-            console.log(AudioConfig);
-            */
+            // TODO: actually send this to the UI thread instead of harcoding.
+            console.log("audio config", {
+                sampleRate,
+                sampleSize,
+                channels,
+                framesPerBuffer,
+            });
         },
 
         enqueueAudio: function enqueueAudio(
@@ -160,7 +154,6 @@ function startEmulator(parentConfig: any) {
             nbytes: number,
             type: number
         ): number {
-            /* TODO: audio
             const newAudio = Module.HEAPU8.slice(bufPtr, bufPtr + nbytes);
             // console.assert(
             //   nbytes == parentConfig.audioBlockBufferSize,
@@ -169,7 +162,7 @@ function startEmulator(parentConfig: any) {
 
             const writingChunkIndex = nextAudioChunkIndex;
             const writingChunkAddr =
-                writingChunkIndex * parentConfig.audioBlockChunkSize;
+                writingChunkIndex * audioConfig.audioBlockChunkSize;
 
             if (
                 audioDataBufferView[writingChunkAddr] ===
@@ -181,7 +174,7 @@ function startEmulator(parentConfig: any) {
 
             let nextNextChunkIndex = writingChunkIndex + 1;
             if (
-                nextNextChunkIndex * parentConfig.audioBlockChunkSize >
+                nextNextChunkIndex * audioConfig.audioBlockChunkSize >
                 audioDataBufferView.length - 1
             ) {
                 nextNextChunkIndex = 0;
@@ -194,8 +187,6 @@ function startEmulator(parentConfig: any) {
 
             nextAudioChunkIndex = nextNextChunkIndex;
             return nbytes;
-            */
-            return 0;
         },
 
         debugPointer: function debugPointer(ptr: any) {
