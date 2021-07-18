@@ -6,232 +6,243 @@ import {
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 
-let lastBlitFrameId = 0;
-let lastBlitFrameHash = 0;
-let nextExpectedBlitTime = 0;
-let lastIdleWaitFrameId = 0;
-
-type CustomModule = any; // TODO: better type safety
-
-let Module: (EmscriptenModule & CustomModule) | null = null;
+declare const Module: EmscriptenModule;
 
 self.onmessage = function (msg) {
     startEmulator(msg.data);
 };
 
-function startEmulator(parentConfig: EmulatorWorkerConfig) {
-    const screenBufferView = new Uint8Array(
-        parentConfig.screenBuffer,
-        0,
-        parentConfig.screenBufferSize
-    );
+function releaseCyclicalLock(bufferView: Int32Array, lockIndex: number) {
+    Atomics.store(bufferView, lockIndex, LockStates.READY_FOR_UI_THREAD);
+}
 
-    const videoModeBufferView = new Int32Array(
-        parentConfig.videoModeBuffer,
-        0,
-        parentConfig.videoModeBufferSize
+function tryToAcquireCyclicalLock(
+    bufferView: Int32Array,
+    lockIndex: number
+): number {
+    const res = Atomics.compareExchange(
+        bufferView,
+        lockIndex,
+        LockStates.READY_FOR_EMUL_THREAD,
+        LockStates.EMUL_THREAD_LOCK
     );
+    if (res === LockStates.READY_FOR_EMUL_THREAD) {
+        return 1;
+    }
+    return 0;
+}
 
-    const inputBufferView = new Int32Array(
-        parentConfig.inputBuffer,
-        0,
-        parentConfig.inputBufferSize
-    );
+class EmulatorWorkerApi {
+    InputBufferAddresses = InputBufferAddresses;
 
-    const {audio: audioConfig} = parentConfig;
-    const audioDataBufferView = new Uint8Array(
-        audioConfig.audioDataBuffer,
-        0,
-        audioConfig.audioDataBufferSize
-    );
-    let nextAudioChunkIndex = 0;
+    #screenBufferView: Uint8Array;
+    #videoModeBufferView: Int32Array;
+    #inputBufferView: Int32Array;
 
-    function tryToAcquireCyclicalLock(
-        bufferView: Int32Array,
-        lockIndex: number
-    ) {
-        const res = Atomics.compareExchange(
-            bufferView,
-            lockIndex,
-            LockStates.READY_FOR_EMUL_THREAD,
-            LockStates.EMUL_THREAD_LOCK
+    #audioDataBufferView: Uint8Array;
+    #nextAudioChunkIndex = 0;
+    #audioBlockChunkSize: number;
+
+    #lastBlitFrameId = 0;
+    #lastBlitFrameHash = 0;
+    #nextExpectedBlitTime = 0;
+    #lastIdleWaitFrameId = 0;
+
+    constructor(config: EmulatorWorkerConfig) {
+        this.#screenBufferView = new Uint8Array(
+            config.screenBuffer,
+            0,
+            config.screenBufferSize
         );
-        if (res === LockStates.READY_FOR_EMUL_THREAD) {
-            return 1;
+
+        this.#videoModeBufferView = new Int32Array(
+            config.videoModeBuffer,
+            0,
+            config.videoModeBufferSize
+        );
+
+        this.#inputBufferView = new Int32Array(
+            config.inputBuffer,
+            0,
+            config.inputBufferSize
+        );
+
+        const {audio: audioConfig} = config;
+        this.#audioDataBufferView = new Uint8Array(
+            audioConfig.audioDataBuffer,
+            0,
+            audioConfig.audioDataBufferSize
+        );
+        this.#audioBlockChunkSize = audioConfig.audioBlockChunkSize;
+    }
+
+    blit(
+        bufPtr: number,
+        width: number,
+        height: number,
+        depth: number,
+        usingPalette: number,
+        hash: number
+    ) {
+        this.#lastBlitFrameId++;
+        this.#videoModeBufferView[0] = width;
+        this.#videoModeBufferView[1] = height;
+        this.#videoModeBufferView[2] = depth;
+        this.#videoModeBufferView[3] = usingPalette;
+        const length = width * height * (depth === 32 ? 4 : 1); // 32bpp or 8bpp
+        if (hash !== this.#lastBlitFrameHash) {
+            this.#lastBlitFrameHash = hash;
+            this.#screenBufferView.set(
+                Module.HEAPU8.subarray(bufPtr, bufPtr + length)
+            );
+            postMessage({type: "emulator_blit"});
         }
-        return 0;
+        this.#nextExpectedBlitTime = performance.now() + 16;
     }
 
-    function releaseCyclicalLock(bufferView: Int32Array, lockIndex: number) {
-        Atomics.store(bufferView, lockIndex, LockStates.READY_FOR_UI_THREAD);
+    openAudio(
+        sampleRate: number,
+        sampleSize: number,
+        channels: number,
+        framesPerBuffer: number
+    ) {
+        // TODO: actually send this to the UI thread instead of harcoding.
+        console.log("audio config", {
+            sampleRate,
+            sampleSize,
+            channels,
+            framesPerBuffer,
+        });
     }
 
-    function acquireInputLock() {
+    enqueueAudio(bufPtr: number, nbytes: number, type: number): number {
+        const newAudio = Module.HEAPU8.slice(bufPtr, bufPtr + nbytes);
+        // console.assert(
+        //   nbytes == parentConfig.audioBlockBufferSize,
+        //   `emulator wrote ${nbytes}, expected ${parentConfig.audioBlockBufferSize}`
+        // );
+
+        const writingChunkIndex = this.#nextAudioChunkIndex;
+        const writingChunkAddr = writingChunkIndex * this.#audioBlockChunkSize;
+
+        if (
+            this.#audioDataBufferView[writingChunkAddr] ===
+            LockStates.UI_THREAD_LOCK
+        ) {
+            // console.warn('worker tried to write audio data to UI-thread-locked chunk',writingChunkIndex);
+            return 0;
+        }
+
+        let nextNextChunkIndex = writingChunkIndex + 1;
+        if (
+            nextNextChunkIndex * this.#audioBlockChunkSize >
+            this.#audioDataBufferView.length - 1
+        ) {
+            nextNextChunkIndex = 0;
+        }
+        // console.assert(nextNextChunkIndex != writingChunkIndex, `writingChunkIndex=${nextNextChunkIndex} == nextChunkIndex=${nextNextChunkIndex}`)
+
+        this.#audioDataBufferView[writingChunkAddr + 1] = nextNextChunkIndex;
+        this.#audioDataBufferView.set(newAudio, writingChunkAddr + 2);
+        this.#audioDataBufferView[writingChunkAddr] = LockStates.UI_THREAD_LOCK;
+
+        this.#nextAudioChunkIndex = nextNextChunkIndex;
+        return nbytes;
+    }
+
+    debugPointer(ptr: any) {
+        console.log("debugPointer", ptr);
+    }
+
+    idleWait() {
+        // Don't do more than one call per frame, otherwise we end up skipping
+        // frames.
+        // TOOD: understand why IdleWait is called multiple times in a row
+        // before VideoRefresh is called again.
+        if (this.#lastIdleWaitFrameId === this.#lastBlitFrameId) {
+            return;
+        }
+        this.#lastIdleWaitFrameId = this.#lastBlitFrameId;
+        Atomics.wait(
+            this.#inputBufferView,
+            InputBufferAddresses.globalLockAddr,
+            LockStates.READY_FOR_UI_THREAD,
+            // Time out such that we don't miss any frames (giving 2 milliseconds
+            // for blit and any CPU emulation to run).
+            this.#nextExpectedBlitTime - performance.now() - 2
+        );
+    }
+
+    acquireInputLock() {
         return tryToAcquireCyclicalLock(
-            inputBufferView,
+            this.#inputBufferView,
             InputBufferAddresses.globalLockAddr
         );
     }
 
-    function releaseInputLock() {
+    releaseInputLock() {
         // reset
-        inputBufferView[InputBufferAddresses.mouseMoveFlagAddr] = 0;
-        inputBufferView[InputBufferAddresses.mouseMoveXDeltaAddr] = 0;
-        inputBufferView[InputBufferAddresses.mouseMoveYDeltaAddr] = 0;
-        inputBufferView[InputBufferAddresses.mouseButtonStateAddr] = 0;
-        inputBufferView[InputBufferAddresses.keyEventFlagAddr] = 0;
-        inputBufferView[InputBufferAddresses.keyCodeAddr] = 0;
-        inputBufferView[InputBufferAddresses.keyStateAddr] = 0;
+        this.#inputBufferView[InputBufferAddresses.mouseMoveFlagAddr] = 0;
+        this.#inputBufferView[InputBufferAddresses.mouseMoveXDeltaAddr] = 0;
+        this.#inputBufferView[InputBufferAddresses.mouseMoveYDeltaAddr] = 0;
+        this.#inputBufferView[InputBufferAddresses.mouseButtonStateAddr] = 0;
+        this.#inputBufferView[InputBufferAddresses.keyEventFlagAddr] = 0;
+        this.#inputBufferView[InputBufferAddresses.keyCodeAddr] = 0;
+        this.#inputBufferView[InputBufferAddresses.keyStateAddr] = 0;
 
         releaseCyclicalLock(
-            inputBufferView,
+            this.#inputBufferView,
             InputBufferAddresses.globalLockAddr
         );
     }
 
-    if (!parentConfig.autoloadFiles) {
-        throw new Error("autoloadFiles missing in config");
+    getInputValue(addr: number) {
+        return this.#inputBufferView[addr];
     }
+}
 
-    (self as any).Module = Module = {
-        arguments: parentConfig.arguments || ["--config", "prefs"],
-        canvas: null,
+function startEmulator(config: EmulatorWorkerConfig) {
+    const workerApi = new EmulatorWorkerApi(config);
 
-        locateFile: function (path: string, scriptDirectory: string) {
+    let totalDependencies = 0;
+    const moduleOverrides: Partial<EmscriptenModule> = {
+        arguments: config.arguments,
+        locateFile(path: string, scriptDirectory: string) {
             if (path === "BasiliskII.wasm") {
                 return BasiliskIIWasmPath;
             }
-            console.log("locateFile", {path, scriptDirectory});
             return scriptDirectory + path;
         },
 
-        onRuntimeInitialized: function () {
-            // TODO: type safety
-            (self as any).Module = Module;
+        preRun: [
+            function () {
+                for (const [name, path] of Object.entries(
+                    config.autoloadFiles
+                )) {
+                    FS.createPreloadedFile(
+                        "/",
+                        name,
+                        path as string,
+                        true,
+                        true
+                    );
+                }
+            },
+        ],
+
+        onRuntimeInitialized() {
+            (globalThis as any).workerApi = workerApi;
         },
 
-        blit: function blit(
-            bufPtr: number,
-            width: number,
-            height: number,
-            depth: number,
-            usingPalette: number,
-            hash: number
-        ) {
-            lastBlitFrameId++;
-            videoModeBufferView[0] = width;
-            videoModeBufferView[1] = height;
-            videoModeBufferView[2] = depth;
-            videoModeBufferView[3] = usingPalette;
-            const length = width * height * (depth === 32 ? 4 : 1); // 32bpp or 8bpp
-            if (hash !== lastBlitFrameHash) {
-                lastBlitFrameHash = hash;
-                screenBufferView.set(
-                    Module.HEAPU8.subarray(bufPtr, bufPtr + length)
-                );
-                postMessage({type: "emulator_blit"});
-            }
-            nextExpectedBlitTime = performance.now() + 16;
-        },
-
-        openAudio: function openAudio(
-            sampleRate: number,
-            sampleSize: number,
-            channels: number,
-            framesPerBuffer: number
-        ) {
-            // TODO: actually send this to the UI thread instead of harcoding.
-            console.log("audio config", {
-                sampleRate,
-                sampleSize,
-                channels,
-                framesPerBuffer,
-            });
-        },
-
-        enqueueAudio: function enqueueAudio(
-            bufPtr: number,
-            nbytes: number,
-            type: number
-        ): number {
-            const newAudio = Module.HEAPU8.slice(bufPtr, bufPtr + nbytes);
-            // console.assert(
-            //   nbytes == parentConfig.audioBlockBufferSize,
-            //   `emulator wrote ${nbytes}, expected ${parentConfig.audioBlockBufferSize}`
-            // );
-
-            const writingChunkIndex = nextAudioChunkIndex;
-            const writingChunkAddr =
-                writingChunkIndex * audioConfig.audioBlockChunkSize;
-
-            if (
-                audioDataBufferView[writingChunkAddr] ===
-                LockStates.UI_THREAD_LOCK
-            ) {
-                // console.warn('worker tried to write audio data to UI-thread-locked chunk',writingChunkIndex);
-                return 0;
-            }
-
-            let nextNextChunkIndex = writingChunkIndex + 1;
-            if (
-                nextNextChunkIndex * audioConfig.audioBlockChunkSize >
-                audioDataBufferView.length - 1
-            ) {
-                nextNextChunkIndex = 0;
-            }
-            // console.assert(nextNextChunkIndex != writingChunkIndex, `writingChunkIndex=${nextNextChunkIndex} == nextChunkIndex=${nextNextChunkIndex}`)
-
-            audioDataBufferView[writingChunkAddr + 1] = nextNextChunkIndex;
-            audioDataBufferView.set(newAudio, writingChunkAddr + 2);
-            audioDataBufferView[writingChunkAddr] = LockStates.UI_THREAD_LOCK;
-
-            nextAudioChunkIndex = nextNextChunkIndex;
-            return nbytes;
-        },
-
-        debugPointer: function debugPointer(ptr: any) {
-            console.log("debugPointer", ptr);
-        },
-
-        idleWait: function () {
-            // Don't do more than one call per frame, otherwise we end up skipping
-            // frames.
-            // TOOD: understand why IdleWait is called multiple times in a row
-            // before VideoRefresh is called again.
-            if (lastIdleWaitFrameId === lastBlitFrameId) {
-                return;
-            }
-            lastIdleWaitFrameId = lastBlitFrameId;
-            Atomics.wait(
-                inputBufferView,
-                InputBufferAddresses.globalLockAddr,
-                LockStates.READY_FOR_UI_THREAD,
-                // Time out such that we don't miss any frames (giving 2 milliseconds
-                // for blit and any CPU emulation to run).
-                nextExpectedBlitTime - performance.now() - 2
-            );
-        },
-
-        acquireInputLock: acquireInputLock,
-
-        InputBufferAddresses: InputBufferAddresses,
-
-        getInputValue: function getInputValue(addr: number) {
-            return inputBufferView[addr];
-        },
-
-        totalDependencies: 0,
-        monitorRunDependencies: function (left: number) {
-            this.totalDependencies = Math.max(this.totalDependencies, left);
+        monitorRunDependencies(left: number) {
+            totalDependencies = Math.max(totalDependencies, left);
 
             if (left === 0) {
                 postMessage({type: "emulator_ready"});
             } else {
                 postMessage({
                     type: "emulator_loading",
-                    completion:
-                        (this.totalDependencies - left) /
-                        this.totalDependencies,
+                    completion: (totalDependencies - left) / totalDependencies,
                 });
             }
         },
@@ -239,20 +250,8 @@ function startEmulator(parentConfig: EmulatorWorkerConfig) {
         print: console.log.bind(console),
 
         printErr: console.warn.bind(console),
-
-        releaseInputLock: releaseInputLock,
     };
-
-    // inject extra behaviours
-    const {autoloadFiles} = parentConfig;
-    if (autoloadFiles) {
-        Module!.preRun = Module!.preRun || [];
-        Module!.preRun.unshift(function () {
-            for (const [name, path] of Object.entries(autoloadFiles)) {
-                FS.createPreloadedFile("/", name, path as string, true, true);
-            }
-        });
-    }
+    (self as any).Module = moduleOverrides;
 
     importScripts(BasiliskIIPath);
 }
