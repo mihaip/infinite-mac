@@ -30,15 +30,23 @@ export enum LockStates {
 export type EmulatorWorkerConfig = {
     autoloadFiles: {[name: string]: string};
     arguments: string[];
-    inputBuffer: SharedArrayBuffer;
-    inputBufferSize: number;
+    video: EmulatorWorkerVideoConfig;
+    input: EmulatorWorkerInputConfig;
+    audio: EmulatorWorkerAudioConfig;
+};
+
+export type EmulatorWorkerVideoConfig = {
     screenBuffer: SharedArrayBuffer;
     screenBufferSize: number;
     videoModeBuffer: SharedArrayBuffer;
     videoModeBufferSize: number;
     screenWidth: number;
     screenHeight: number;
-    audio: EmulatorWorkerAudioConfig;
+};
+
+export type EmulatorWorkerInputConfig = {
+    inputBuffer: SharedArrayBuffer;
+    inputBufferSize: number;
 };
 
 export type EmulatorWorkerAudioConfig = {
