@@ -1,19 +1,27 @@
 import {
     EmulatorInputEvent,
+    EmulatorWorkerFallbackInputConfig,
     EmulatorWorkerInputConfig,
+    EmulatorWorkerSharedMemoryInputConfig,
     InputBufferAddresses,
     LockStates,
 } from "./emulator-common";
 
 const INPUT_BUFFER_SIZE = 100;
 
-export class EmulatorInput {
+export interface EmulatorInput {
+    workerConfig(): EmulatorWorkerInputConfig;
+    handleInput(inputEvent: EmulatorInputEvent): void;
+}
+
+export class SharedMemoryEmulatorInput implements EmulatorInput {
     #inputBuffer = new SharedArrayBuffer(INPUT_BUFFER_SIZE * 4);
     #inputBufferView = new Int32Array(this.#inputBuffer);
     #inputQueue: EmulatorInputEvent[] = [];
 
-    workerConfig(): EmulatorWorkerInputConfig {
+    workerConfig(): EmulatorWorkerSharedMemoryInputConfig {
         return {
+            type: "shared-memory",
             inputBuffer: this.#inputBuffer,
             inputBufferSize: INPUT_BUFFER_SIZE,
         };
@@ -122,4 +130,12 @@ function acquireLock(bufferView: Int32Array, lockIndex: number) {
 function releaseLock(bufferView: Int32Array, lockIndex: number) {
     Atomics.store(bufferView, lockIndex, LockStates.READY_FOR_EMUL_THREAD);
     Atomics.notify(bufferView, lockIndex);
+}
+
+export class FallbackEmulatorInput implements EmulatorInput {
+    workerConfig(): EmulatorWorkerFallbackInputConfig {
+        return {type: "fallback"};
+    }
+
+    handleInput(inputEvent: EmulatorInputEvent): void {}
 }

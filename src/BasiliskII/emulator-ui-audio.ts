@@ -1,4 +1,9 @@
-import {EmulatorWorkerAudioConfig, LockStates} from "./emulator-common";
+import {
+    EmulatorWorkerAudioConfig,
+    EmulatorWorkerFallbackAudioConfig,
+    EmulatorWorkerSharedMemoryAudioConfig,
+    LockStates,
+} from "./emulator-common";
 
 // SDL Audio Formats
 enum EmulatorAudioFormat {
@@ -7,7 +12,12 @@ enum EmulatorAudioFormat {
     AUDIO_S16LSB = 0x8010,
 }
 
-export class EmulatorAudio {
+export interface EmulatorAudio {
+    workerConfig(): EmulatorWorkerAudioConfig;
+    start(): void;
+}
+
+export class SharedMemoryEmulatorAudio implements EmulatorAudio {
     #channels = 1;
     #samples = 4096;
     #freq = 22050; // could also be 11025 or 44100
@@ -60,8 +70,9 @@ export class EmulatorAudio {
         this.#audioContext.resume();
     }
 
-    workerConfig(): EmulatorWorkerAudioConfig {
+    workerConfig(): EmulatorWorkerSharedMemoryAudioConfig {
         return {
+            type: "shared-memory",
             audioDataBuffer: this.#audioDataBuffer,
             audioDataBufferSize: this.#audioDataBufferSize,
             audioBlockBufferSize: this.#bufferSize,
@@ -239,4 +250,12 @@ export class EmulatorAudio {
             }
         }
     };
+}
+
+export class FallbackEmulatorAudio implements EmulatorAudio {
+    workerConfig(): EmulatorWorkerFallbackAudioConfig {
+        return {type: "fallback"};
+    }
+
+    start(): void {}
 }

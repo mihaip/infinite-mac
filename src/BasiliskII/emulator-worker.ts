@@ -1,9 +1,21 @@
 import {EmulatorWorkerConfig, InputBufferAddresses} from "./emulator-common";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
-import {EmulatorWorkerAudio} from "./emulator-worker-audio";
-import {EmulatorWorkerInput} from "./emulator-worker-input";
-import {EmulatorWorkerVideo} from "./emulator-worker-video";
+import {
+    EmulatorWorkerAudio,
+    FallbackEmulatorWorkerAudio,
+    SharedMemoryEmulatorWorkerAudio,
+} from "./emulator-worker-audio";
+import {
+    EmulatorWorkerInput,
+    FallbackEmulatorWorkerInput,
+    SharedMemoryEmulatorWorkerInput,
+} from "./emulator-worker-input";
+import {
+    EmulatorWorkerVideo,
+    FallbackEmulatorWorkerVideo,
+    SharedMemoryEmulatorWorkerVideo,
+} from "./emulator-worker-video";
 
 declare const Module: EmscriptenModule;
 
@@ -24,9 +36,23 @@ class EmulatorWorkerApi {
     #lastIdleWaitFrameId = 0;
 
     constructor(config: EmulatorWorkerConfig) {
-        this.#video = new EmulatorWorkerVideo(config.video);
-        this.#input = new EmulatorWorkerInput(config.input);
-        this.#audio = new EmulatorWorkerAudio(config.audio);
+        const {
+            video: videoConfig,
+            input: inputConfig,
+            audio: audioConfig,
+        } = config;
+        this.#video =
+            videoConfig.type === "shared-memory"
+                ? new SharedMemoryEmulatorWorkerVideo(videoConfig)
+                : new FallbackEmulatorWorkerVideo(videoConfig);
+        this.#input =
+            inputConfig.type === "shared-memory"
+                ? new SharedMemoryEmulatorWorkerInput(inputConfig)
+                : new FallbackEmulatorWorkerInput(inputConfig);
+        this.#audio =
+            audioConfig.type === "shared-memory"
+                ? new SharedMemoryEmulatorWorkerAudio(audioConfig)
+                : new FallbackEmulatorWorkerAudio(audioConfig);
     }
 
     blit(

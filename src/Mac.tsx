@@ -13,7 +13,11 @@ const SCREEN_UNDERSCAN = 20;
 export function Mac() {
     const screeRef = useRef<HTMLCanvasElement>(null);
     useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
         const emulator = new Emulator({
+            useSharedMemory:
+                typeof SharedArrayBuffer !== "undefined" &&
+                searchParams.get("use_shared_memory") !== "false",
             screenWidth: SCREEN_WIDTH,
             screenHeight: SCREEN_HEIGHT,
             screenCanvas: screeRef.current!,
