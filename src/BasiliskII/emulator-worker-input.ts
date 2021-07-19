@@ -1,13 +1,21 @@
 import {
-    EmulatorWorkerInputConfig,
+    EmulatorWorkerFallbackInputConfig,
+    EmulatorWorkerSharedMemoryInputConfig,
     InputBufferAddresses,
     LockStates,
 } from "./emulator-common";
 
-export class EmulatorWorkerInput {
+export interface EmulatorWorkerInput {
+    idleWait(timeout: number): void;
+    acquireInputLock(): number;
+    releaseInputLock(): void;
+    getInputValue(addr: number): number;
+}
+
+export class SharedMemoryEmulatorWorkerInput implements EmulatorWorkerInput {
     #inputBufferView: Int32Array;
 
-    constructor(config: EmulatorWorkerInputConfig) {
+    constructor(config: EmulatorWorkerSharedMemoryInputConfig) {
         this.#inputBufferView = new Int32Array(
             config.inputBuffer,
             0,
@@ -49,7 +57,7 @@ export class EmulatorWorkerInput {
         );
     }
 
-    getInputValue(addr: number) {
+    getInputValue(addr: number): number {
         return this.#inputBufferView[addr];
     }
 }
@@ -72,4 +80,28 @@ function tryToAcquireCyclicalLock(
 
 function releaseCyclicalLock(bufferView: Int32Array, lockIndex: number) {
     Atomics.store(bufferView, lockIndex, LockStates.READY_FOR_UI_THREAD);
+}
+
+export class FallbackEmulatorWorkerInput implements EmulatorWorkerInput {
+    constructor(config: EmulatorWorkerFallbackInputConfig) {
+        // TODO
+    }
+
+    idleWait(timeout: number) {
+        // TODO
+    }
+
+    acquireInputLock(): number {
+        // TODO
+        return 1;
+    }
+
+    releaseInputLock(): void {
+        // TOOD
+    }
+
+    getInputValue(addr: number): number {
+        // TODO
+        return 0;
+    }
 }

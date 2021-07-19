@@ -35,7 +35,12 @@ export type EmulatorWorkerConfig = {
     audio: EmulatorWorkerAudioConfig;
 };
 
-export type EmulatorWorkerVideoConfig = {
+export type EmulatorWorkerVideoConfig =
+    | EmulatorWorkerSharedMemoryVideoConfig
+    | EmulatorWorkerFallbackVideoConfig;
+
+export type EmulatorWorkerSharedMemoryVideoConfig = {
+    type: "shared-memory";
     screenBuffer: SharedArrayBuffer;
     screenBufferSize: number;
     videoModeBuffer: SharedArrayBuffer;
@@ -44,14 +49,30 @@ export type EmulatorWorkerVideoConfig = {
     screenHeight: number;
 };
 
-export type EmulatorWorkerInputConfig = {
+export type EmulatorWorkerFallbackVideoConfig = {type: "fallback"};
+
+export type EmulatorWorkerInputConfig =
+    | EmulatorWorkerSharedMemoryInputConfig
+    | EmulatorWorkerFallbackInputConfig;
+
+export type EmulatorWorkerSharedMemoryInputConfig = {
+    type: "shared-memory";
     inputBuffer: SharedArrayBuffer;
     inputBufferSize: number;
 };
 
-export type EmulatorWorkerAudioConfig = {
+export type EmulatorWorkerFallbackInputConfig = {type: "fallback"};
+
+export type EmulatorWorkerAudioConfig =
+    | EmulatorWorkerSharedMemoryAudioConfig
+    | EmulatorWorkerFallbackAudioConfig;
+
+export type EmulatorWorkerSharedMemoryAudioConfig = {
+    type: "shared-memory";
     audioDataBuffer: SharedArrayBuffer;
     audioDataBufferSize: number;
     audioBlockBufferSize: number;
     audioBlockChunkSize: number;
 };
+
+export type EmulatorWorkerFallbackAudioConfig = {type: "fallback"};

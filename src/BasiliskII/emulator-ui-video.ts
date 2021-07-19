@@ -1,9 +1,18 @@
-import {EmulatorWorkerVideoConfig} from "./emulator-common";
+import {
+    EmulatorWorkerFallbackVideoConfig,
+    EmulatorWorkerSharedMemoryVideoConfig,
+    EmulatorWorkerVideoConfig,
+} from "./emulator-common";
 import type {EmulatorConfig} from "./emulator-ui";
 
 const VIDEO_MODE_BUFFER_SIZE = 10;
 
-export class EmulatorVideo {
+export interface EmulatorVideo {
+    workerConfig(): EmulatorWorkerVideoConfig;
+    putImageData(imageData: ImageData): void;
+}
+
+export class SharedMemoryEmulatorVideo implements EmulatorVideo {
     #config: EmulatorConfig;
     #screenBuffer: SharedArrayBuffer;
     #screenBufferView: Uint8Array;
@@ -17,8 +26,9 @@ export class EmulatorVideo {
         this.#screenBufferView = new Uint8Array(this.#screenBuffer);
     }
 
-    workerConfig(): EmulatorWorkerVideoConfig {
+    workerConfig(): EmulatorWorkerSharedMemoryVideoConfig {
         return {
+            type: "shared-memory",
             screenBuffer: this.#screenBuffer,
             screenBufferSize: this.#screenBuffer.byteLength,
             videoModeBuffer: this.#videoModeBuffer,
@@ -59,4 +69,14 @@ export class EmulatorVideo {
             }
         }
     }
+}
+
+export class FallbackEmulatorVideo implements EmulatorVideo {
+    constructor(config: EmulatorConfig) {}
+
+    workerConfig(): EmulatorWorkerFallbackVideoConfig {
+        return {type: "fallback"};
+    }
+
+    putImageData(imageData: ImageData): void {}
 }

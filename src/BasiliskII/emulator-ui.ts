@@ -1,10 +1,23 @@
 import {EmulatorWorkerConfig} from "./emulator-common";
 import Worker from "worker-loader!./emulator-worker";
-import {EmulatorAudio} from "./emulator-ui-audio";
-import {EmulatorInput} from "./emulator-ui-input";
-import {EmulatorVideo} from "./emulator-ui-video";
+import {
+    EmulatorAudio,
+    FallbackEmulatorAudio,
+    SharedMemoryEmulatorAudio,
+} from "./emulator-ui-audio";
+import {
+    EmulatorInput,
+    FallbackEmulatorInput,
+    SharedMemoryEmulatorInput,
+} from "./emulator-ui-input";
+import {
+    EmulatorVideo,
+    FallbackEmulatorVideo,
+    SharedMemoryEmulatorVideo,
+} from "./emulator-ui-video";
 
 export type EmulatorConfig = {
+    useSharedMemory: boolean;
     screenWidth: number;
     screenHeight: number;
     screenCanvas: HTMLCanvasElement;
@@ -29,7 +42,12 @@ export class Emulator {
     constructor(config: EmulatorConfig) {
         this.#config = config;
         this.#worker = new Worker();
-        const {screenCanvas: canvas, screenWidth, screenHeight} = this.#config;
+        const {
+            useSharedMemory,
+            screenCanvas: canvas,
+            screenWidth,
+            screenHeight,
+        } = this.#config;
 
         this.#screenCanvasContext = canvas.getContext("2d", {
             desynchronized: true,
@@ -39,9 +57,15 @@ export class Emulator {
             screenHeight
         );
 
-        this.#video = new EmulatorVideo(config);
-        this.#input = new EmulatorInput();
-        this.#audio = new EmulatorAudio();
+        this.#video = useSharedMemory
+            ? new SharedMemoryEmulatorVideo(config)
+            : new FallbackEmulatorVideo(config);
+        this.#input = useSharedMemory
+            ? new SharedMemoryEmulatorInput()
+            : new FallbackEmulatorInput();
+        this.#audio = useSharedMemory
+            ? new SharedMemoryEmulatorAudio()
+            : new FallbackEmulatorAudio();
     }
 
     start() {

@@ -1,10 +1,23 @@
-import {EmulatorWorkerVideoConfig} from "./emulator-common";
+import {
+    EmulatorWorkerFallbackVideoConfig,
+    EmulatorWorkerSharedMemoryVideoConfig,
+} from "./emulator-common";
 
-export class EmulatorWorkerVideo {
+export interface EmulatorWorkerVideo {
+    blit(
+        data: Uint8Array,
+        width: number,
+        height: number,
+        depth: number,
+        usingPalette: number
+    ): void;
+}
+
+export class SharedMemoryEmulatorWorkerVideo implements EmulatorWorkerVideo {
     #screenBufferView: Uint8Array;
     #videoModeBufferView: Int32Array;
 
-    constructor(config: EmulatorWorkerVideoConfig) {
+    constructor(config: EmulatorWorkerSharedMemoryVideoConfig) {
         this.#screenBufferView = new Uint8Array(
             config.screenBuffer,
             0,
@@ -31,5 +44,21 @@ export class EmulatorWorkerVideo {
         this.#videoModeBufferView[3] = usingPalette;
         this.#screenBufferView.set(data);
         postMessage({type: "emulator_blit"});
+    }
+}
+
+export class FallbackEmulatorWorkerVideo implements EmulatorWorkerVideo {
+    constructor(config: EmulatorWorkerFallbackVideoConfig) {
+        // TODO
+    }
+
+    blit(
+        data: Uint8Array,
+        width: number,
+        height: number,
+        depth: number,
+        usingPalette: number
+    ) {
+        // TODO
     }
 }

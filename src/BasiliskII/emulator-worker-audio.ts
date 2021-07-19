@@ -1,11 +1,26 @@
-import {EmulatorWorkerAudioConfig, LockStates} from "./emulator-common";
+import {
+    EmulatorWorkerFallbackAudioConfig,
+    EmulatorWorkerSharedMemoryAudioConfig,
+    LockStates,
+} from "./emulator-common";
 
-export class EmulatorWorkerAudio {
+export interface EmulatorWorkerAudio {
+    openAudio(
+        sampleRate: number,
+        sampleSize: number,
+        channels: number,
+        framesPerBuffer: number
+    ): void;
+
+    enqueueAudio(newAudio: Uint8Array): number;
+}
+
+export class SharedMemoryEmulatorWorkerAudio implements EmulatorWorkerAudio {
     #audioDataBufferView: Uint8Array;
     #nextAudioChunkIndex = 0;
     #audioBlockChunkSize: number;
 
-    constructor(config: EmulatorWorkerAudioConfig) {
+    constructor(config: EmulatorWorkerSharedMemoryAudioConfig) {
         this.#audioDataBufferView = new Uint8Array(
             config.audioDataBuffer,
             0,
@@ -61,5 +76,25 @@ export class EmulatorWorkerAudio {
 
         this.#nextAudioChunkIndex = nextNextChunkIndex;
         return newAudio.length;
+    }
+}
+
+export class FallbackEmulatorWorkerAudio implements EmulatorWorkerAudio {
+    constructor(config: EmulatorWorkerFallbackAudioConfig) {
+        // TODO
+    }
+
+    openAudio(
+        sampleRate: number,
+        sampleSize: number,
+        channels: number,
+        framesPerBuffer: number
+    ): void {
+        // TODO
+    }
+
+    enqueueAudio(newAudio: Uint8Array): number {
+        // TODO
+        return 0;
     }
 }
