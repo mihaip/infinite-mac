@@ -1,4 +1,8 @@
-import {EmulatorWorkerConfig, InputBufferAddresses} from "./emulator-common";
+import {
+    EmulatorWorkerConfig,
+    EmulatorWorkerVideoBlit,
+    InputBufferAddresses,
+} from "./emulator-common";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 import {
@@ -41,10 +45,14 @@ class EmulatorWorkerApi {
             input: inputConfig,
             audio: audioConfig,
         } = config;
+        const blitSender = (
+            data: EmulatorWorkerVideoBlit,
+            transfer: Transferable[] = []
+        ) => postMessage({type: "emulator_blit", data}, transfer);
         this.#video =
             videoConfig.type === "shared-memory"
-                ? new SharedMemoryEmulatorWorkerVideo(videoConfig)
-                : new FallbackEmulatorWorkerVideo(videoConfig);
+                ? new SharedMemoryEmulatorWorkerVideo(videoConfig, blitSender)
+                : new FallbackEmulatorWorkerVideo(videoConfig, blitSender);
         this.#input =
             inputConfig.type === "shared-memory"
                 ? new SharedMemoryEmulatorWorkerInput(inputConfig)
