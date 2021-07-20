@@ -1,22 +1,22 @@
-import {
+import type {
     EmulatorWorkerConfig,
     EmulatorWorkerVideoBlit,
-    InputBufferAddresses,
 } from "./emulator-common";
+import {InputBufferAddresses} from "./emulator-common";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
+import type {EmulatorWorkerAudio} from "./emulator-worker-audio";
 import {
-    EmulatorWorkerAudio,
     FallbackEmulatorWorkerAudio,
     SharedMemoryEmulatorWorkerAudio,
 } from "./emulator-worker-audio";
+import type {EmulatorWorkerInput} from "./emulator-worker-input";
 import {
-    EmulatorWorkerInput,
     FallbackEmulatorWorkerInput,
     SharedMemoryEmulatorWorkerInput,
 } from "./emulator-worker-input";
+import type {EmulatorWorkerVideo} from "./emulator-worker-video";
 import {
-    EmulatorWorkerVideo,
     FallbackEmulatorWorkerVideo,
     SharedMemoryEmulatorWorkerVideo,
 } from "./emulator-worker-video";

@@ -1,17 +1,20 @@
-import {EmulatorWorkerConfig, EmulatorWorkerVideoBlit} from "./emulator-common";
+import type {
+    EmulatorWorkerConfig,
+    EmulatorWorkerVideoBlit,
+} from "./emulator-common";
 import Worker from "worker-loader!./emulator-worker";
+import type {EmulatorAudio} from "./emulator-ui-audio";
 import {
-    EmulatorAudio,
     FallbackEmulatorAudio,
     SharedMemoryEmulatorAudio,
 } from "./emulator-ui-audio";
+import type {EmulatorInput} from "./emulator-ui-input";
 import {
-    EmulatorInput,
     FallbackEmulatorInput,
     SharedMemoryEmulatorInput,
 } from "./emulator-ui-input";
+import type {EmulatorVideo} from "./emulator-ui-video";
 import {
-    EmulatorVideo,
     FallbackEmulatorVideo,
     SharedMemoryEmulatorVideo,
 } from "./emulator-ui-video";

@@ -1,9 +1,9 @@
-import {
+import type {
     EmulatorWorkerAudioConfig,
     EmulatorWorkerFallbackAudioConfig,
     EmulatorWorkerSharedMemoryAudioConfig,
-    LockStates,
 } from "./emulator-common";
+import {LockStates} from "./emulator-common";
 
 // SDL Audio Formats
 enum EmulatorAudioFormat {

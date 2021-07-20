@@ -1,11 +1,10 @@
-import {
+import type {
     EmulatorInputEvent,
     EmulatorWorkerFallbackInputConfig,
     EmulatorWorkerInputConfig,
     EmulatorWorkerSharedMemoryInputConfig,
-    InputBufferAddresses,
-    LockStates,
 } from "./emulator-common";
+import {InputBufferAddresses, LockStates} from "./emulator-common";
 
 const INPUT_BUFFER_SIZE = 100;
 
