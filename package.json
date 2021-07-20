@@ -39,7 +39,13 @@
             "no-var": "error",
             "prefer-const": "error",
             "import/no-webpack-loader-syntax": "off",
-            "no-restricted-globals": "off"
+            "no-restricted-globals": "off",
+            "@typescript-eslint/consistent-type-imports": [
+                "error",
+                {
+                    "disallowTypeAnnotations": false
+                }
+            ]
         }
     },
     "browserslist": {
