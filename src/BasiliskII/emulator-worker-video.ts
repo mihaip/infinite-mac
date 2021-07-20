@@ -1,6 +1,7 @@
 import {
     EmulatorWorkerFallbackVideoConfig,
     EmulatorWorkerSharedMemoryVideoConfig,
+    EmulatorWorkerVideoBlit,
 } from "./emulator-common";
 
 export interface EmulatorWorkerVideo {
@@ -13,22 +14,31 @@ export interface EmulatorWorkerVideo {
     ): void;
 }
 
+export type EmulatorWorkerVideoBlitSender = (
+    data: EmulatorWorkerVideoBlit,
+    transfer?: Transferable[]
+) => void;
+
 export class SharedMemoryEmulatorWorkerVideo implements EmulatorWorkerVideo {
     #screenBufferView: Uint8Array;
     #videoModeBufferView: Int32Array;
+    #blitSender: EmulatorWorkerVideoBlitSender;
 
-    constructor(config: EmulatorWorkerSharedMemoryVideoConfig) {
+    constructor(
+        config: EmulatorWorkerSharedMemoryVideoConfig,
+        blitSender: EmulatorWorkerVideoBlitSender
+    ) {
         this.#screenBufferView = new Uint8Array(
             config.screenBuffer,
             0,
             config.screenBufferSize
         );
-
         this.#videoModeBufferView = new Int32Array(
             config.videoModeBuffer,
             0,
             config.videoModeBufferSize
         );
+        this.#blitSender = blitSender;
     }
 
     blit(
@@ -43,13 +53,18 @@ export class SharedMemoryEmulatorWorkerVideo implements EmulatorWorkerVideo {
         this.#videoModeBufferView[2] = depth;
         this.#videoModeBufferView[3] = usingPalette;
         this.#screenBufferView.set(data);
-        postMessage({type: "emulator_blit"});
+        this.#blitSender({type: "shared-memory"});
     }
 }
 
 export class FallbackEmulatorWorkerVideo implements EmulatorWorkerVideo {
-    constructor(config: EmulatorWorkerFallbackVideoConfig) {
-        // TODO
+    #blitSender: EmulatorWorkerVideoBlitSender;
+
+    constructor(
+        config: EmulatorWorkerFallbackVideoConfig,
+        blitSender: EmulatorWorkerVideoBlitSender
+    ) {
+        this.#blitSender = blitSender;
     }
 
     blit(
@@ -59,6 +74,19 @@ export class FallbackEmulatorWorkerVideo implements EmulatorWorkerVideo {
         depth: number,
         usingPalette: number
     ) {
-        // TODO
+        // Can't send the Wasm memory directly, need to make a copy. It's net
+        // neutral because we can use a Transferable for it.
+        data = new Uint8Array(data);
+        this.#blitSender(
+            {
+                type: "fallback",
+                data,
+                width,
+                height,
+                depth,
+                usingPalette,
+            },
+            [data.buffer]
+        );
     }
 }

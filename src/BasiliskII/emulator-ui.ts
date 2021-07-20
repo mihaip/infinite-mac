@@ -1,4 +1,4 @@
-import {EmulatorWorkerConfig} from "./emulator-common";
+import {EmulatorWorkerConfig, EmulatorWorkerVideoBlit} from "./emulator-common";
 import Worker from "worker-loader!./emulator-worker";
 import {
     EmulatorAudio,
@@ -175,6 +175,8 @@ export class Emulator {
             }
             */
         } else if (e.data.type === "emulator_blit") {
+            const blitData: EmulatorWorkerVideoBlit = e.data.data;
+            this.#video.blit(blitData);
             this.#drawScreen();
         }
     };

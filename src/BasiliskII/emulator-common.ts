@@ -51,6 +51,23 @@ export type EmulatorWorkerSharedMemoryVideoConfig = {
 
 export type EmulatorWorkerFallbackVideoConfig = {type: "fallback"};
 
+export type EmulatorWorkerVideoBlit =
+    | EmulatorWorkerSharedMemoryVideoBlit
+    | EmulatorWorkerFallbackVideoBlit;
+
+export type EmulatorWorkerSharedMemoryVideoBlit = {
+    type: "shared-memory";
+};
+
+export type EmulatorWorkerFallbackVideoBlit = {
+    type: "fallback";
+    data: Uint8Array;
+    width: number;
+    height: number;
+    depth: number;
+    usingPalette: number;
+};
+
 export type EmulatorWorkerInputConfig =
     | EmulatorWorkerSharedMemoryInputConfig
     | EmulatorWorkerFallbackInputConfig;
