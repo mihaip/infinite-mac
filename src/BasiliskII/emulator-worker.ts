@@ -1,4 +1,6 @@
 import type {
+    EmulatorFallbackCommand,
+    EmulatorInputEvent,
     EmulatorWorkerConfig,
     EmulatorWorkerVideoBlit,
 } from "./emulator-common";
@@ -22,6 +24,7 @@ import {
 } from "./emulator-worker-video";
 
 declare const Module: EmscriptenModule;
+declare const workerCommands: EmulatorFallbackCommand[];
 
 self.onmessage = function (msg) {
     startEmulator(msg.data);
@@ -56,7 +59,10 @@ class EmulatorWorkerApi {
         this.#input =
             inputConfig.type === "shared-memory"
                 ? new SharedMemoryEmulatorWorkerInput(inputConfig)
-                : new FallbackEmulatorWorkerInput(inputConfig);
+                : new FallbackEmulatorWorkerInput(
+                      inputConfig,
+                      new EmulatorFallbackCommandReceiver()
+                  );
         this.#audio =
             audioConfig.type === "shared-memory"
                 ? new SharedMemoryEmulatorWorkerAudio(audioConfig)
@@ -128,6 +134,35 @@ class EmulatorWorkerApi {
 
     getInputValue(addr: number): number {
         return this.#input.getInputValue(addr);
+    }
+}
+
+export class EmulatorFallbackCommandReceiver {
+    #commandQueue: EmulatorFallbackCommand[] = [];
+
+    consumeInputEvents(): EmulatorInputEvent[] {
+        this.#fetchCommands();
+        const remainingCommands: EmulatorFallbackCommand[] = [];
+        const inputEvents: EmulatorInputEvent[] = [];
+        for (const command of this.#commandQueue) {
+            if (command.type === "input") {
+                inputEvents.push(command.event);
+            } else {
+                remainingCommands.push(command);
+            }
+        }
+        this.#commandQueue = remainingCommands;
+        return inputEvents;
+    }
+
+    #fetchCommands() {
+        importScripts(`./worker-commands.js?t=${Date.now()}`);
+        if (typeof workerCommands !== "undefined") {
+            const commands = workerCommands;
+            this.#commandQueue = this.#commandQueue.concat(commands);
+        } else {
+            console.warn("Could not load worker commands");
+        }
     }
 }
 

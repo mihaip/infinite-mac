@@ -4,7 +4,9 @@ import type {
     EmulatorWorkerInputConfig,
     EmulatorWorkerSharedMemoryInputConfig,
 } from "./emulator-common";
+import {updateInputBufferWithEvents} from "./emulator-common";
 import {InputBufferAddresses, LockStates} from "./emulator-common";
+import type {EmulatorFallbackCommandSender} from "./emulator-ui";
 
 const INPUT_BUFFER_SIZE = 100;
 
@@ -39,59 +41,11 @@ export class SharedMemoryEmulatorInput implements EmulatorInput {
             this.#tryToSendInputLater();
             return;
         }
-        let hasMouseMove = false;
-        let mouseMoveX = 0;
-        let mouseMoveY = 0;
-        let mouseButtonState = -1;
-        let hasKeyEvent = false;
-        let keyCode = -1;
-        let keyState = -1;
-        // currently only one key event can be sent per sync
-        // TODO: better key handling code
-        const remainingKeyEvents = [];
-        for (const inputEvent of this.#inputQueue) {
-            switch (inputEvent.type) {
-                case "mousemove":
-                    if (hasMouseMove) {
-                        break;
-                    }
-                    hasMouseMove = true;
-                    mouseMoveX += inputEvent.dx;
-                    mouseMoveY += inputEvent.dy;
-                    break;
-                case "mousedown":
-                case "mouseup":
-                    mouseButtonState = inputEvent.type === "mousedown" ? 1 : 0;
-                    break;
-                case "keydown":
-                case "keyup":
-                    if (hasKeyEvent) {
-                        remainingKeyEvents.push(inputEvent);
-                        break;
-                    }
-                    hasKeyEvent = true;
-                    keyState = inputEvent.type === "keydown" ? 1 : 0;
-                    keyCode = inputEvent.keyCode;
-                    break;
-            }
-        }
-        const inputBufferView = this.#inputBufferView;
-        if (hasMouseMove) {
-            inputBufferView[InputBufferAddresses.mouseMoveFlagAddr] = 1;
-            inputBufferView[InputBufferAddresses.mouseMoveXDeltaAddr] =
-                mouseMoveX;
-            inputBufferView[InputBufferAddresses.mouseMoveYDeltaAddr] =
-                mouseMoveY;
-        }
-        inputBufferView[InputBufferAddresses.mouseButtonStateAddr] =
-            mouseButtonState;
-        if (hasKeyEvent) {
-            inputBufferView[InputBufferAddresses.keyEventFlagAddr] = 1;
-            inputBufferView[InputBufferAddresses.keyCodeAddr] = keyCode;
-            inputBufferView[InputBufferAddresses.keyStateAddr] = keyState;
-        }
+        this.#inputQueue = updateInputBufferWithEvents(
+            this.#inputQueue,
+            this.#inputBufferView
+        );
         this.#releaseInputLock();
-        this.#inputQueue = remainingKeyEvents;
         if (this.#inputQueue.length) {
             this.#tryToSendInputLater();
         }
@@ -132,9 +86,16 @@ function releaseLock(bufferView: Int32Array, lockIndex: number) {
 }
 
 export class FallbackEmulatorInput implements EmulatorInput {
+    #commandSender: EmulatorFallbackCommandSender;
+
+    constructor(commandSender: EmulatorFallbackCommandSender) {
+        this.#commandSender = commandSender;
+    }
     workerConfig(): EmulatorWorkerFallbackInputConfig {
-        return {type: "fallback"};
+        return {type: "fallback", inputBufferSize: INPUT_BUFFER_SIZE};
     }
 
-    handleInput(inputEvent: EmulatorInputEvent): void {}
+    handleInput(inputEvent: EmulatorInputEvent): void {
+        this.#commandSender({type: "input", event: inputEvent});
+    }
 }

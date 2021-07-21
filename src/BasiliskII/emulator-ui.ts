@@ -1,8 +1,12 @@
 import type {
+    EmulatorFallbackCommand,
     EmulatorWorkerConfig,
     EmulatorWorkerVideoBlit,
 } from "./emulator-common";
 import Worker from "worker-loader!./emulator-worker";
+import registerServiceWorker, {
+    ServiceWorkerNoSupportError,
+} from "service-worker-loader!./emulator-fallback-service-worker";
 import type {EmulatorAudio} from "./emulator-ui-audio";
 import {
     FallbackEmulatorAudio,
@@ -30,6 +34,10 @@ export type EmulatorConfig = {
     disk2Path: string;
 };
 
+export type EmulatorFallbackCommandSender = (
+    command: EmulatorFallbackCommand
+) => Promise<void>;
+
 export class Emulator {
     #config: EmulatorConfig;
     #worker: Worker;
@@ -42,6 +50,9 @@ export class Emulator {
     #audio: EmulatorAudio;
     #startedAudio: boolean = false;
 
+    #fallbackServiceWorker?: ServiceWorker;
+    #fallbackServiceWorkerReady?: Promise<boolean>;
+
     constructor(config: EmulatorConfig) {
         this.#config = config;
         this.#worker = new Worker();
@@ -51,6 +62,20 @@ export class Emulator {
             screenWidth,
             screenHeight,
         } = this.#config;
+
+        let fallbackCommandSender: EmulatorFallbackCommandSender;
+        if (!useSharedMemory) {
+            this.#initFallbackServiceWorker();
+            fallbackCommandSender = async (
+                command: EmulatorFallbackCommand
+            ) => {
+                await this.#fallbackServiceWorkerReady!;
+                this.#fallbackServiceWorker!.postMessage({
+                    type: "worker-command",
+                    command,
+                });
+            };
+        }
 
         this.#screenCanvasContext = canvas.getContext("2d", {
             desynchronized: true,
@@ -65,14 +90,14 @@ export class Emulator {
             : new FallbackEmulatorVideo(config);
         this.#input = useSharedMemory
             ? new SharedMemoryEmulatorInput()
-            : new FallbackEmulatorInput();
+            : new FallbackEmulatorInput(fallbackCommandSender!);
         this.#audio = useSharedMemory
             ? new SharedMemoryEmulatorAudio()
             : new FallbackEmulatorAudio();
     }
 
-    start() {
-        const {screenCanvas: canvas} = this.#config;
+    async start() {
+        const {useSharedMemory, screenCanvas: canvas} = this.#config;
         canvas.addEventListener("mousemove", this.#handleMouseMove);
         canvas.addEventListener("mousedown", this.#handleMouseDown);
         canvas.addEventListener("mouseup", this.#handleMouseUp);
@@ -99,6 +124,10 @@ export class Emulator {
             input: this.#input.workerConfig(),
             audio: this.#audio.workerConfig(),
         };
+
+        if (!useSharedMemory) {
+            await this.#fallbackServiceWorkerReady;
+        }
         this.#worker.postMessage(config);
     }
 
@@ -194,5 +223,52 @@ export class Emulator {
         }
         this.#video.putImageData(this.#screenImageData);
         this.#screenCanvasContext.putImageData(this.#screenImageData, 0, 0);
+    }
+
+    #initFallbackServiceWorker() {
+        this.#fallbackServiceWorkerReady = new Promise((resolve, reject) => {
+            registerServiceWorker()
+                .then(registration => {
+                    const handleStateChange = (event: Event) => {
+                        const {state} = this.#fallbackServiceWorker!;
+                        console.log(
+                            `Service worker stage changed to "${state}"`
+                        );
+                        if (state === "activated") {
+                            resolve(true);
+                        }
+                    };
+                    console.log("Service worker registered");
+                    if (registration.installing) {
+                        console.log("Service worker installing");
+                        this.#fallbackServiceWorker = registration.installing;
+                        registration.installing.addEventListener(
+                            "statechange",
+                            handleStateChange
+                        );
+                    } else if (registration.waiting) {
+                        console.log("Service worker installed, waiting");
+                        this.#fallbackServiceWorker = registration.waiting;
+                        registration.waiting.addEventListener(
+                            "statechange",
+                            handleStateChange
+                        );
+                    } else if (registration.active) {
+                        this.#fallbackServiceWorker = registration.active;
+                        registration.active.addEventListener(
+                            "statechange",
+                            handleStateChange
+                        );
+                        console.log("Service worker active");
+                        resolve(true);
+                    }
+                })
+                .catch(err => {
+                    if (err instanceof ServiceWorkerNoSupportError) {
+                        console.error("Service workers are not supported");
+                    }
+                    reject(err);
+                });
+        });
     }
 }
