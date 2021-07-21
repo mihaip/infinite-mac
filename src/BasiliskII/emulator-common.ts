@@ -78,7 +78,10 @@ export type EmulatorWorkerSharedMemoryInputConfig = {
     inputBufferSize: number;
 };
 
-export type EmulatorWorkerFallbackInputConfig = {type: "fallback"};
+export type EmulatorWorkerFallbackInputConfig = {
+    type: "fallback";
+    inputBufferSize: number;
+};
 
 export type EmulatorWorkerAudioConfig =
     | EmulatorWorkerSharedMemoryAudioConfig
@@ -93,3 +96,65 @@ export type EmulatorWorkerSharedMemoryAudioConfig = {
 };
 
 export type EmulatorWorkerFallbackAudioConfig = {type: "fallback"};
+
+export type EmulatorFallbackCommand = EmulatorFallbackInputCommand;
+
+export type EmulatorFallbackInputCommand = {
+    type: "input";
+    event: EmulatorInputEvent;
+};
+
+export function updateInputBufferWithEvents(
+    inputEvents: EmulatorInputEvent[],
+    inputBufferView: Int32Array
+): EmulatorInputEvent[] {
+    let hasMouseMove = false;
+    let mouseMoveX = 0;
+    let mouseMoveY = 0;
+    let mouseButtonState = -1;
+    let hasKeyEvent = false;
+    let keyCode = -1;
+    let keyState = -1;
+    // currently only one key event can be sent per sync
+    // TODO: better key handling code
+    const remainingKeyEvents = [];
+    for (const inputEvent of inputEvents) {
+        switch (inputEvent.type) {
+            case "mousemove":
+                if (hasMouseMove) {
+                    break;
+                }
+                hasMouseMove = true;
+                mouseMoveX += inputEvent.dx;
+                mouseMoveY += inputEvent.dy;
+                break;
+            case "mousedown":
+            case "mouseup":
+                mouseButtonState = inputEvent.type === "mousedown" ? 1 : 0;
+                break;
+            case "keydown":
+            case "keyup":
+                if (hasKeyEvent) {
+                    remainingKeyEvents.push(inputEvent);
+                    break;
+                }
+                hasKeyEvent = true;
+                keyState = inputEvent.type === "keydown" ? 1 : 0;
+                keyCode = inputEvent.keyCode;
+                break;
+        }
+    }
+    if (hasMouseMove) {
+        inputBufferView[InputBufferAddresses.mouseMoveFlagAddr] = 1;
+        inputBufferView[InputBufferAddresses.mouseMoveXDeltaAddr] = mouseMoveX;
+        inputBufferView[InputBufferAddresses.mouseMoveYDeltaAddr] = mouseMoveY;
+    }
+    inputBufferView[InputBufferAddresses.mouseButtonStateAddr] =
+        mouseButtonState;
+    if (hasKeyEvent) {
+        inputBufferView[InputBufferAddresses.keyEventFlagAddr] = 1;
+        inputBufferView[InputBufferAddresses.keyCodeAddr] = keyCode;
+        inputBufferView[InputBufferAddresses.keyStateAddr] = keyState;
+    }
+    return remainingKeyEvents;
+}

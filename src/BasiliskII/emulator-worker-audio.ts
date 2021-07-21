@@ -1,8 +1,8 @@
-import {
+import type {
     EmulatorWorkerFallbackAudioConfig,
     EmulatorWorkerSharedMemoryAudioConfig,
-    LockStates,
 } from "./emulator-common";
+import {LockStates} from "./emulator-common";
 
 export interface EmulatorWorkerAudio {
     openAudio(

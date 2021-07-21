@@ -1,9 +1,11 @@
-import {
+import type {
+    EmulatorInputEvent,
     EmulatorWorkerFallbackInputConfig,
     EmulatorWorkerSharedMemoryInputConfig,
-    InputBufferAddresses,
-    LockStates,
 } from "./emulator-common";
+import {updateInputBufferWithEvents} from "./emulator-common";
+import {InputBufferAddresses, LockStates} from "./emulator-common";
+import type {EmulatorFallbackCommandReceiver} from "./emulator-worker";
 
 export interface EmulatorWorkerInput {
     idleWait(timeout: number): void;
@@ -42,14 +44,7 @@ export class SharedMemoryEmulatorWorkerInput implements EmulatorWorkerInput {
     }
 
     releaseInputLock() {
-        // reset
-        this.#inputBufferView[InputBufferAddresses.mouseMoveFlagAddr] = 0;
-        this.#inputBufferView[InputBufferAddresses.mouseMoveXDeltaAddr] = 0;
-        this.#inputBufferView[InputBufferAddresses.mouseMoveYDeltaAddr] = 0;
-        this.#inputBufferView[InputBufferAddresses.mouseButtonStateAddr] = 0;
-        this.#inputBufferView[InputBufferAddresses.keyEventFlagAddr] = 0;
-        this.#inputBufferView[InputBufferAddresses.keyCodeAddr] = 0;
-        this.#inputBufferView[InputBufferAddresses.keyStateAddr] = 0;
+        resetInputBuffer(this.#inputBufferView);
 
         releaseCyclicalLock(
             this.#inputBufferView,
@@ -83,25 +78,48 @@ function releaseCyclicalLock(bufferView: Int32Array, lockIndex: number) {
 }
 
 export class FallbackEmulatorWorkerInput implements EmulatorWorkerInput {
-    constructor(config: EmulatorWorkerFallbackInputConfig) {
-        // TODO
+    #commandReceiver: EmulatorFallbackCommandReceiver;
+    #inputBuffer: Int32Array;
+    #inputQueue: EmulatorInputEvent[] = [];
+
+    constructor(
+        config: EmulatorWorkerFallbackInputConfig,
+        commandReceiver: EmulatorFallbackCommandReceiver
+    ) {
+        this.#commandReceiver = commandReceiver;
+        this.#inputBuffer = new Int32Array(config.inputBufferSize);
     }
 
     idleWait(timeout: number) {
-        // TODO
+        // Not possible with the fallback mode
     }
 
     acquireInputLock(): number {
-        // TODO
+        this.#inputQueue = this.#inputQueue.concat(
+            this.#commandReceiver.consumeInputEvents()
+        );
+        this.#inputQueue = updateInputBufferWithEvents(
+            this.#inputQueue,
+            this.#inputBuffer
+        );
         return 1;
     }
 
     releaseInputLock(): void {
-        // TOOD
+        resetInputBuffer(this.#inputBuffer);
     }
 
     getInputValue(addr: number): number {
-        // TODO
-        return 0;
+        return this.#inputBuffer[addr];
     }
+}
+
+function resetInputBuffer(inputBuffer: Int32Array) {
+    inputBuffer[InputBufferAddresses.mouseMoveFlagAddr] = 0;
+    inputBuffer[InputBufferAddresses.mouseMoveXDeltaAddr] = 0;
+    inputBuffer[InputBufferAddresses.mouseMoveYDeltaAddr] = 0;
+    inputBuffer[InputBufferAddresses.mouseButtonStateAddr] = 0;
+    inputBuffer[InputBufferAddresses.keyEventFlagAddr] = 0;
+    inputBuffer[InputBufferAddresses.keyCodeAddr] = 0;
+    inputBuffer[InputBufferAddresses.keyStateAddr] = 0;
 }

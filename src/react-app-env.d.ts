@@ -29,6 +29,14 @@ declare module "worker-loader!*" {
     export default WebpackWorker;
 }
 
+declare module "service-worker-loader!*" {
+    const register: import("service-worker-loader/types").ServiceWorkerRegister;
+    const ServiceWorkerNoSupportError: import("service-worker-loader/types").ServiceWorkerNoSupportError;
+    const scriptUrl: import("service-worker-loader/types").ScriptUrl;
+    export default register;
+    export {ServiceWorkerNoSupportError, scriptUrl};
+}
+
 declare interface EmscriptenModule {
     // Not part of the default type definitions for some reason
     monitorRunDependencies(left: number): void;
