@@ -24,6 +24,7 @@ import {
 } from "./emulator-ui-video";
 
 export type EmulatorConfig = {
+    useTouchEvents: boolean;
     useSharedMemory: boolean;
     screenWidth: number;
     screenHeight: number;
@@ -97,10 +98,20 @@ export class Emulator {
     }
 
     async start() {
-        const {useSharedMemory, screenCanvas: canvas} = this.#config;
-        canvas.addEventListener("mousemove", this.#handleMouseMove);
-        canvas.addEventListener("mousedown", this.#handleMouseDown);
-        canvas.addEventListener("mouseup", this.#handleMouseUp);
+        const {
+            useTouchEvents,
+            useSharedMemory,
+            screenCanvas: canvas,
+        } = this.#config;
+        if (useTouchEvents) {
+            canvas.addEventListener("touchmove", this.#handleTouchMove);
+            canvas.addEventListener("touchstart", this.#handleTouchStart);
+            canvas.addEventListener("touchend", this.#handleTouchEnd);
+        } else {
+            canvas.addEventListener("mousemove", this.#handleMouseMove);
+            canvas.addEventListener("mousedown", this.#handleMouseDown);
+            canvas.addEventListener("mouseup", this.#handleMouseUp);
+        }
         window.addEventListener("keydown", this.#handleKeyDown);
         window.addEventListener("keyup", this.#handleKeyUp);
         window.addEventListener("beforeunload", this.#handleBeforeUnload);
@@ -133,10 +144,16 @@ export class Emulator {
     }
 
     stop() {
-        const {screenCanvas: canvas} = this.#config;
-        canvas.removeEventListener("mousemove", this.#handleMouseMove);
-        canvas.removeEventListener("mousedown", this.#handleMouseDown);
-        canvas.removeEventListener("mouseup", this.#handleMouseUp);
+        const {useTouchEvents, screenCanvas: canvas} = this.#config;
+        if (useTouchEvents) {
+            canvas.removeEventListener("touchmove", this.#handleTouchMove);
+            canvas.removeEventListener("touchstart", this.#handleTouchStart);
+            canvas.removeEventListener("touchend", this.#handleTouchEnd);
+        } else {
+            canvas.removeEventListener("mousemove", this.#handleMouseMove);
+            canvas.removeEventListener("mousedown", this.#handleMouseDown);
+            canvas.removeEventListener("mouseup", this.#handleMouseUp);
+        }
         window.removeEventListener("keydown", this.#handleKeyDown);
         window.removeEventListener("keyup", this.#handleKeyUp);
         window.removeEventListener("beforeunload", this.#handleBeforeUnload);
@@ -168,6 +185,44 @@ export class Emulator {
     };
 
     #handleMouseUp = (event: MouseEvent) => {
+        this.#input.handleInput({type: "mouseup"});
+    };
+
+    #handleTouchMove = (event: TouchEvent) => {
+        this.#sendTouchLocation(event);
+    };
+
+    #handleTouchStart = (event: TouchEvent) => {
+        if (!this.#startedAudio) {
+            this.#audio.start();
+            this.#startedAudio = true;
+        }
+        // Don't allow the page to scroll as we drag the finger
+        event.preventDefault();
+        // We need to make sure that the mouse is first moved to the current
+        // location and then we send the mousedown, otherwise the Mac thinks
+        // that the mouse was moved with the button down, and interprets it as
+        // a drag. 20 milliseconds is enough to end up in different reads of the
+        // input buffer.
+        this.#sendTouchLocation(event);
+        self.setTimeout(() => {
+            this.#input.handleInput({type: "mousedown"});
+        }, 20);
+    };
+
+    #sendTouchLocation(event: TouchEvent) {
+        const touch = event.touches[0];
+        const targetBounds = (
+            touch.target as HTMLElement
+        ).getBoundingClientRect();
+        this.#input.handleInput({
+            type: "mousemove",
+            dx: touch.clientX - targetBounds.left,
+            dy: touch.clientY - targetBounds.top,
+        });
+    }
+
+    #handleTouchEnd = (event: TouchEvent) => {
         this.#input.handleInput({type: "mouseup"});
     };
 
