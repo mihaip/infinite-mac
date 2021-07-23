@@ -61,7 +61,7 @@ class EmulatorWorkerApi {
                 ? new SharedMemoryEmulatorWorkerInput(inputConfig)
                 : new FallbackEmulatorWorkerInput(
                       inputConfig,
-                      new EmulatorFallbackCommandReceiver()
+                      new EmulatorFallbackEndpoint()
                   );
         this.#audio =
             audioConfig.type === "shared-memory"
@@ -137,8 +137,14 @@ class EmulatorWorkerApi {
     }
 }
 
-export class EmulatorFallbackCommandReceiver {
+export class EmulatorFallbackEndpoint {
     #commandQueue: EmulatorFallbackCommand[] = [];
+
+    idleWait(timeout: number) {
+        importScripts(
+            `./worker-idlewait.js?timeout=${timeout}&t=${Date.now()}`
+        );
+    }
 
     consumeInputEvents(): EmulatorInputEvent[] {
         this.#fetchCommands();

@@ -5,7 +5,7 @@ import type {
 } from "./emulator-common";
 import {updateInputBufferWithEvents} from "./emulator-common";
 import {InputBufferAddresses, LockStates} from "./emulator-common";
-import type {EmulatorFallbackCommandReceiver} from "./emulator-worker";
+import type {EmulatorFallbackEndpoint} from "./emulator-worker";
 
 export interface EmulatorWorkerInput {
     idleWait(timeout: number): void;
@@ -78,25 +78,25 @@ function releaseCyclicalLock(bufferView: Int32Array, lockIndex: number) {
 }
 
 export class FallbackEmulatorWorkerInput implements EmulatorWorkerInput {
-    #commandReceiver: EmulatorFallbackCommandReceiver;
+    #fallbackEndpoint: EmulatorFallbackEndpoint;
     #inputBuffer: Int32Array;
     #inputQueue: EmulatorInputEvent[] = [];
 
     constructor(
         config: EmulatorWorkerFallbackInputConfig,
-        commandReceiver: EmulatorFallbackCommandReceiver
+        fallbackEndpoint: EmulatorFallbackEndpoint
     ) {
-        this.#commandReceiver = commandReceiver;
+        this.#fallbackEndpoint = fallbackEndpoint;
         this.#inputBuffer = new Int32Array(config.inputBufferSize);
     }
 
     idleWait(timeout: number) {
-        // Not possible with the fallback mode
+        this.#fallbackEndpoint.idleWait(timeout);
     }
 
     acquireInputLock(): number {
         this.#inputQueue = this.#inputQueue.concat(
-            this.#commandReceiver.consumeInputEvents()
+            this.#fallbackEndpoint.consumeInputEvents()
         );
         this.#inputQueue = updateInputBufferWithEvents(
             this.#inputQueue,
