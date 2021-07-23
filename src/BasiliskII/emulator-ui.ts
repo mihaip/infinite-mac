@@ -103,6 +103,7 @@ export class Emulator {
         canvas.addEventListener("mouseup", this.#handleMouseUp);
         window.addEventListener("keydown", this.#handleKeyDown);
         window.addEventListener("keyup", this.#handleKeyUp);
+        window.addEventListener("beforeunload", this.#handleBeforeUnload);
 
         document.addEventListener(
             "visibilitychange",
@@ -138,6 +139,7 @@ export class Emulator {
         canvas.removeEventListener("mouseup", this.#handleMouseUp);
         window.removeEventListener("keydown", this.#handleKeyDown);
         window.removeEventListener("keyup", this.#handleKeyUp);
+        window.removeEventListener("beforeunload", this.#handleBeforeUnload);
 
         document.removeEventListener(
             "visibilitychange",
@@ -146,9 +148,7 @@ export class Emulator {
 
         this.#worker.removeEventListener("message", this.#handleWorkerMessage);
 
-        this.#worker.postMessage({
-            // TODO
-        });
+        this.#worker.terminate();
     }
 
     #handleMouseMove = (event: MouseEvent) => {
@@ -177,6 +177,12 @@ export class Emulator {
 
     #handleKeyUp = (event: KeyboardEvent) => {
         this.#input.handleInput({type: "keyup", keyCode: event.keyCode});
+    };
+
+    #handleBeforeUnload = () => {
+        // Mostly necessary for the fallback mode, otherwise the page can hang
+        // during reload because the worker is not yielding.
+        this.stop();
     };
 
     #handleWorkerMessage = (e: MessageEvent) => {
