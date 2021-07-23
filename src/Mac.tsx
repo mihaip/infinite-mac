@@ -15,6 +15,7 @@ export function Mac() {
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const emulator = new Emulator({
+            useTouchEvents: "ontouchstart" in window,
             useSharedMemory:
                 typeof SharedArrayBuffer !== "undefined" &&
                 searchParams.get("use_shared_memory") !== "false",
