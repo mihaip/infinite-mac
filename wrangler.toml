@@ -13,4 +13,4 @@ entry-point = "workers-site"
 
 [env.production]
 zone_id = "768b712e6dad883eb4c3aefbd5df8c80"
-route = "transparent-mac.persistent.info/*"
+route = "mac.persistent.info/*"
