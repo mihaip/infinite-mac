@@ -189,7 +189,10 @@ export class Emulator {
     };
 
     #handleTouchMove = (event: TouchEvent) => {
-        this.#sendTouchLocation(event);
+        this.#input.handleInput({
+            type: "mousemove",
+            ...this.#getTouchLocation(event),
+        });
     };
 
     #handleTouchStart = (event: TouchEvent) => {
@@ -199,27 +202,24 @@ export class Emulator {
         }
         // Don't allow the page to scroll as we drag the finger
         event.preventDefault();
-        // We need to make sure that the mouse is first moved to the current
-        // location and then we send the mousedown, otherwise the Mac thinks
-        // that the mouse was moved with the button down, and interprets it as
-        // a drag. 20 milliseconds is enough to end up in different reads of the
-        // input buffer.
-        this.#sendTouchLocation(event);
-        self.setTimeout(() => {
-            this.#input.handleInput({type: "mousedown"});
-        }, 20);
+        // Though we want to treat this as a mouse down, we haven't gotten the
+        // move to the current location yet, so we need to send the coordinates
+        // as well.
+        this.#input.handleInput({
+            type: "touchstart",
+            ...this.#getTouchLocation(event),
+        });
     };
 
-    #sendTouchLocation(event: TouchEvent) {
+    #getTouchLocation(event: TouchEvent): {dx: number; dy: number} {
         const touch = event.touches[0];
         const targetBounds = (
             touch.target as HTMLElement
         ).getBoundingClientRect();
-        this.#input.handleInput({
-            type: "mousemove",
+        return {
             dx: touch.clientX - targetBounds.left,
             dy: touch.clientY - targetBounds.top,
-        });
+        };
     }
 
     #handleTouchEnd = (event: TouchEvent) => {
