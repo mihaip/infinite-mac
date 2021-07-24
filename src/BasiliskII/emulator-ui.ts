@@ -35,12 +35,18 @@ export type EmulatorConfig = {
     disk2Path: string;
 };
 
+export interface EmulatorDelegate {
+    emulatorDidMakeLoadingProgress?(emulator: Emulator, progress: number): void;
+    emulatorDidDidFinishLoading?(emulator: Emulator): void;
+}
+
 export type EmulatorFallbackCommandSender = (
     command: EmulatorFallbackCommand
 ) => Promise<void>;
 
 export class Emulator {
     #config: EmulatorConfig;
+    #delegate?: EmulatorDelegate;
     #worker: Worker;
 
     #screenCanvasContext: CanvasRenderingContext2D;
@@ -54,8 +60,9 @@ export class Emulator {
     #fallbackServiceWorker?: ServiceWorker;
     #fallbackServiceWorkerReady?: Promise<boolean>;
 
-    constructor(config: EmulatorConfig) {
+    constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
         this.#config = config;
+        this.#delegate = delegate;
         this.#worker = new Worker();
         const {
             useSharedMemory,
@@ -241,32 +248,13 @@ export class Emulator {
     };
 
     #handleWorkerMessage = (e: MessageEvent) => {
-        if (
-            e.data.type === "emulator_ready" ||
-            e.data.type === "emulator_loading"
-        ) {
-            document.body.className =
-                e.data.type === "emulator_ready" ? "" : "loading";
-
-            /* TODO: progress
-            const progressElement =
-                basiliskConfig.progressElement ||
-                document.getElementById("progress");
-            if (progressElement) {
-                if (e.data.type === "emulator_loading") {
-                    progressElement.value = Math.max(
-                        10,
-                        e.data.completion * 100
-                    );
-                    progressElement.max = 100;
-                    progressElement.hidden = false;
-                } else {
-                    progressElement.value = null;
-                    progressElement.max = null;
-                    progressElement.hidden = true;
-                }
-            }
-            */
+        if (e.data.type === "emulator_ready") {
+            this.#delegate?.emulatorDidDidFinishLoading?.(this);
+        } else if (e.data.type === "emulator_loading") {
+            this.#delegate?.emulatorDidMakeLoadingProgress?.(
+                this,
+                e.data.completion
+            );
         } else if (e.data.type === "emulator_blit") {
             const blitData: EmulatorWorkerVideoBlit = e.data.data;
             this.#video.blit(blitData);
