@@ -8,11 +8,41 @@
     --screen-outer-chamfer-size: 4px;
     --screen-inner-chamfer-size: 8px;
     --screen-corner-radius: 8px;
+    --screen-underscan: 20px;
+    --screen-apple-logo-display: block;
+    --screen-apple-logo-bottom: -16px;
+    --screen-led-display: block;
+    --screen-led-bottom: -40px;
 
     border: solid var(--screen-bezel-size) var(--screen-bezel-color);
     position: relative;
     background: black;
     user-select: none;
+
+    margin: calc(var(--screen-underscan) * -1);
+}
+
+@media (max-width: 1024px) {
+    .Mac {
+        --screen-bezel-size: 40px;
+        --screen-outer-chamfer-size: 2px;
+        --screen-inner-chamfer-size: 4px;
+        --screen-underscan: 10px;
+        --screen-apple-logo-bottom: -5px;
+        --screen-led-bottom: -28px;
+    }
+}
+
+@media (max-width: 880px) {
+    .Mac {
+        --screen-bezel-size: 10px;
+        --screen-outer-chamfer-size: 1px;
+        --screen-inner-chamfer-size: 1px;
+        --screen-corner-radius: 4px;
+        --screen-underscan: 1px;
+        --screen-apple-logo-display: none;
+        --screen-led-display: none;
+    }
 }
 
 .Mac::before {
@@ -55,7 +85,8 @@
 
 .Mac-Apple-Logo {
     position: absolute;
-    bottom: -16px;
+    bottom: var(--screen-apple-logo-bottom);
+    display: var(--screen-apple-logo-display);
     left: 0;
     color: transparent;
     font-size: 28px;
@@ -99,7 +130,8 @@
 .Mac-Led {
     pointer-events: none;
     position: absolute;
-    bottom: -40px;
+    display: var(--screen-led-display);
+    bottom: var(--screen-led-bottom);
     right: 0;
     width: 28px;
     height: 8px;
@@ -108,6 +140,8 @@
 
 .Mac-Screen {
     position: relative;
+    top: var(--screen-underscan);
+    left: var(--screen-underscan);
     border: 0;
     background-color: black;
     /* The emulator draws the cursor */
