@@ -13,12 +13,16 @@ export type EmulatorMouseEvent =
     | {type: "mousemove"; dx: number; dy: number}
     | {type: "mousedown"}
     | {type: "mouseup"};
+export type EmulatorTouchEvent = {type: "touchstart"; dx: number; dy: number};
 export type EmulatorKeyboardEvent = {
     type: "keydown" | "keyup";
     keyCode: number;
 };
 
-export type EmulatorInputEvent = EmulatorMouseEvent | EmulatorKeyboardEvent;
+export type EmulatorInputEvent =
+    | EmulatorMouseEvent
+    | EmulatorTouchEvent
+    | EmulatorKeyboardEvent;
 
 export enum LockStates {
     READY_FOR_UI_THREAD,
@@ -117,9 +121,19 @@ export function updateInputBufferWithEvents(
     let keyState = -1;
     // currently only one key event can be sent per sync
     // TODO: better key handling code
-    const remainingKeyEvents = [];
+    const remainingEvents: EmulatorInputEvent[] = [];
     for (const inputEvent of inputEvents) {
         switch (inputEvent.type) {
+            case "touchstart":
+                // We need to make sure that the mouse is first moved to the
+                // current location and then we send the mousedown, otherwise
+                // the Mac thinks that the mouse was moved with the button down,
+                // and interprets it as a drag.
+                hasMouseMove = true;
+                mouseMoveX += inputEvent.dx;
+                mouseMoveY += inputEvent.dy;
+                remainingEvents.push({type: "mousedown"});
+                break;
             case "mousemove":
                 if (hasMouseMove) {
                     break;
@@ -135,7 +149,7 @@ export function updateInputBufferWithEvents(
             case "keydown":
             case "keyup":
                 if (hasKeyEvent) {
-                    remainingKeyEvents.push(inputEvent);
+                    remainingEvents.push(inputEvent);
                     break;
                 }
                 hasKeyEvent = true;
@@ -156,5 +170,5 @@ export function updateInputBufferWithEvents(
         inputBufferView[InputBufferAddresses.keyCodeAddr] = keyCode;
         inputBufferView[InputBufferAddresses.keyStateAddr] = keyState;
     }
-    return remainingKeyEvents;
+    return remainingEvents;
 }
