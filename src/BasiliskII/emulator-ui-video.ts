@@ -57,9 +57,12 @@ export class SharedMemoryEmulatorVideo implements EmulatorVideo {
 }
 
 export class FallbackEmulatorVideo implements EmulatorVideo {
+    #config: EmulatorConfig;
     #lastBlitData?: EmulatorWorkerFallbackVideoBlit;
 
-    constructor(config: EmulatorConfig) {}
+    constructor(config: EmulatorConfig) {
+        this.#config = config;
+    }
 
     workerConfig(): EmulatorWorkerFallbackVideoConfig {
         return {type: "fallback"};
