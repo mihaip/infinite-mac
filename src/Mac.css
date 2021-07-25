@@ -45,6 +45,21 @@
     }
 }
 
+/* `@media (display-mode: fullscreen)` does not appear to work in iOS Safari,
+we need to use a manual class name. */
+body.fullscreen {
+    background: black;
+}
+
+body.fullscreen .Mac {
+    --screen-bezel-size: 0;
+    --screen-outer-chamfer-size: 0;
+    --screen-inner-chamfer-size: 0;
+    --screen-underscan: 0;
+    --screen-apple-logo-display: none;
+    --screen-led-display: none;
+}
+
 .Mac::before {
     content: "";
     position: absolute;
@@ -90,7 +105,6 @@
     left: 0;
     color: transparent;
     font-size: 28px;
-    pointer-events: none;
 }
 
 .Mac-Apple-Logo::before,
