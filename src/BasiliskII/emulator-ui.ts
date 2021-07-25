@@ -36,7 +36,11 @@ export type EmulatorConfig = {
 };
 
 export interface EmulatorDelegate {
-    emulatorDidMakeLoadingProgress?(emulator: Emulator, progress: number): void;
+    emulatorDidMakeLoadingProgress?(
+        emulator: Emulator,
+        total: number,
+        left: number
+    ): void;
     emulatorDidDidFinishLoading?(emulator: Emulator): void;
 }
 
@@ -251,7 +255,8 @@ export class Emulator {
         } else if (e.data.type === "emulator_loading") {
             this.#delegate?.emulatorDidMakeLoadingProgress?.(
                 this,
-                e.data.completion
+                e.data.total,
+                e.data.left
             );
         } else if (e.data.type === "emulator_blit") {
             const blitData: EmulatorWorkerVideoBlit = e.data.data;

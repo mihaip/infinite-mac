@@ -175,6 +175,7 @@ export class EmulatorFallbackEndpoint {
 function startEmulator(config: EmulatorWorkerConfig) {
     const workerApi = new EmulatorWorkerApi(config);
 
+    let addedPreloadedFiles = false;
     let totalDependencies = 0;
     const moduleOverrides: Partial<EmscriptenModule> = {
         arguments: config.arguments,
@@ -198,6 +199,7 @@ function startEmulator(config: EmulatorWorkerConfig) {
                         true
                     );
                 }
+                addedPreloadedFiles = true;
             },
         ],
 
@@ -206,6 +208,9 @@ function startEmulator(config: EmulatorWorkerConfig) {
         },
 
         monitorRunDependencies(left: number) {
+            if (!addedPreloadedFiles) {
+                return;
+            }
             totalDependencies = Math.max(totalDependencies, left);
 
             if (left === 0) {
@@ -213,7 +218,8 @@ function startEmulator(config: EmulatorWorkerConfig) {
             } else {
                 postMessage({
                     type: "emulator_loading",
-                    completion: (totalDependencies - left) / totalDependencies,
+                    total: totalDependencies,
+                    left,
                 });
             }
         },

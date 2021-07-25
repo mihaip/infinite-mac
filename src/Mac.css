@@ -164,7 +164,7 @@ body.fullscreen .Mac {
     color: white;
 }
 
-.Mac-Loading-Percent {
+.Mac-Loading-Fraction {
     opacity: 0.5;
     padding-left: 0.5em;
 }
