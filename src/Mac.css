@@ -165,4 +165,7 @@
     cursor: none;
     /* Avoid bluriness on retina screens */
     image-rendering: pixelated;
+    /* Disable touble-tap to zoom, we want double-clicking in the Mac to
+    take precedence. */
+    touch-action: none;
 }

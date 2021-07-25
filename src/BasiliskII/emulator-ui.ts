@@ -207,8 +207,6 @@ export class Emulator {
             this.#audio.start();
             this.#startedAudio = true;
         }
-        // Don't allow the page to scroll as we drag the finger
-        event.preventDefault();
         // Though we want to treat this as a mouse down, we haven't gotten the
         // move to the current location yet, so we need to send the coordinates
         // as well.
