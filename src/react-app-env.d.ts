@@ -41,3 +41,12 @@ declare interface EmscriptenModule {
     // Not part of the default type definitions for some reason
     monitorRunDependencies(left: number): void;
 }
+
+interface Document {
+    webkitFullscreenEnabled?: boolean;
+    webkitFullscreenElement?: HTMLElement;
+}
+
+interface HTMLElement {
+    webkitRequestFullscreen?: () => Promise<void>;
+}

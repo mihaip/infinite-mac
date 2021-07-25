@@ -10,10 +10,15 @@ const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 600;
 
 export function Mac() {
-    const screeRef = useRef<HTMLCanvasElement>(null);
+    const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState(0);
     useEffect(() => {
+        document.addEventListener("fullscreenchange", handleFullScreenChange);
+        document.addEventListener(
+            "webkitfullscreenchange",
+            handleFullScreenChange
+        );
         const searchParams = new URLSearchParams(location.search);
         const emulator = new Emulator(
             {
@@ -23,7 +28,7 @@ export function Mac() {
                     searchParams.get("use_shared_memory") !== "false",
                 screenWidth: SCREEN_WIDTH,
                 screenHeight: SCREEN_HEIGHT,
-                screenCanvas: screeRef.current!,
+                screenCanvas: screenRef.current!,
                 basiliskPrefsPath,
                 romPath: quadraRomPath,
                 disk1Path: macOs753ImagePath,
@@ -43,9 +48,34 @@ export function Mac() {
         );
         emulator.start();
         return () => {
+            document.removeEventListener(
+                "fullscreenchange",
+                handleFullScreenChange
+            );
+            document.removeEventListener(
+                "webkitfullscreenchange",
+                handleFullScreenChange
+            );
             emulator.stop();
         };
     }, []);
+
+    const handleAppleLogoClick = () => {
+        // Make the entire page go fullscreen (instead of just the screen
+        // canvas) because iOS Safari does not maintain the aspect ratio of the
+        // canvas.
+        document.body.requestFullscreen?.() ||
+            document.body.webkitRequestFullscreen?.();
+    };
+    const handleFullScreenChange = () => {
+        document.body.classList.toggle(
+            "fullscreen",
+            Boolean(
+                document.fullscreenElement || document.webkitFullscreenElement
+            )
+        );
+    };
+
     let progress;
     if (!emulatorLoaded) {
         progress = (
@@ -58,6 +88,7 @@ export function Mac() {
             </div>
         );
     }
+
     return (
         <div
             className="Mac"
@@ -65,11 +96,11 @@ export function Mac() {
                 width: `calc(${SCREEN_WIDTH}px + 2 * var(--screen-underscan))`,
                 height: `calc(${SCREEN_HEIGHT}px + 2 * var(--screen-underscan))`,
             }}>
-            <div className="Mac-Apple-Logo" />
+            <div className="Mac-Apple-Logo" onClick={handleAppleLogoClick} />
             <div className="Mac-Led" />
             <canvas
                 className="Mac-Screen"
-                ref={screeRef}
+                ref={screenRef}
                 width={SCREEN_WIDTH}
                 height={SCREEN_HEIGHT}
                 onContextMenu={e => e.preventDefault()}
