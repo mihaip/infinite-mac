@@ -12,7 +12,9 @@ const SCREEN_HEIGHT = 600;
 export function Mac() {
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
-    const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState(0);
+    const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
+        0, 0,
+    ]);
     useEffect(() => {
         document.addEventListener("fullscreenchange", handleFullScreenChange);
         document.addEventListener(
@@ -40,9 +42,10 @@ export function Mac() {
                 },
                 emulatorDidMakeLoadingProgress(
                     emulator: Emulator,
-                    progress: number
+                    total: number,
+                    left: number
                 ) {
-                    setEmulatorLoadingProgress(progress);
+                    setEmulatorLoadingProgress([total, left]);
                 },
             }
         );
@@ -78,12 +81,12 @@ export function Mac() {
 
     let progress;
     if (!emulatorLoaded) {
+        const [total, left] = emulatorLoadingProgress;
         progress = (
             <div className="Mac-Loading">
                 Loading data files…
-                <span className="Mac-Loading-Percent">
-                    ({(emulatorLoadingProgress * 100).toFixed(1)}
-                    %)
+                <span className="Mac-Loading-Fraction">
+                    ({total - left}/{total})
                 </span>
             </div>
         );
