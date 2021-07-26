@@ -52,6 +52,9 @@ class EmulatorWorkerApi {
             data: EmulatorWorkerVideoBlit,
             transfer: Transferable[] = []
         ) => postMessage({type: "emulator_blit", data}, transfer);
+        const audioSender = (data: Uint8Array) =>
+            postMessage({type: "emulator_audio", data}, [data.buffer]);
+
         this.#video =
             videoConfig.type === "shared-memory"
                 ? new SharedMemoryEmulatorWorkerVideo(videoConfig, blitSender)
@@ -66,7 +69,7 @@ class EmulatorWorkerApi {
         this.#audio =
             audioConfig.type === "shared-memory"
                 ? new SharedMemoryEmulatorWorkerAudio(audioConfig)
-                : new FallbackEmulatorWorkerAudio(audioConfig);
+                : new FallbackEmulatorWorkerAudio(audioConfig, audioSender);
     }
 
     blit(

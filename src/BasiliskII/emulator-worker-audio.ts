@@ -79,9 +79,16 @@ export class SharedMemoryEmulatorWorkerAudio implements EmulatorWorkerAudio {
     }
 }
 
+export type EmulatorWorkerAudioFallbackSender = (data: Uint8Array) => void;
+
 export class FallbackEmulatorWorkerAudio implements EmulatorWorkerAudio {
-    constructor(config: EmulatorWorkerFallbackAudioConfig) {
-        // TODO
+    #sender: EmulatorWorkerAudioFallbackSender;
+
+    constructor(
+        config: EmulatorWorkerFallbackAudioConfig,
+        sender: EmulatorWorkerAudioFallbackSender
+    ) {
+        this.#sender = sender;
     }
 
     openAudio(
@@ -94,7 +101,9 @@ export class FallbackEmulatorWorkerAudio implements EmulatorWorkerAudio {
     }
 
     enqueueAudio(newAudio: Uint8Array): number {
-        // TODO
-        return 0;
+        // Can't send the Wasm memory directly, need to make a copy. It's net
+        // neutral because we can use a Transferable for it.
+        this.#sender(new Uint8Array(newAudio));
+        return newAudio.length;
     }
 }

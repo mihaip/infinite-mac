@@ -262,6 +262,10 @@ export class Emulator {
             const blitData: EmulatorWorkerVideoBlit = e.data.data;
             this.#video.blit(blitData);
             this.#drawScreen();
+        } else if (e.data.type === "emulator_audio") {
+            if (this.#audio instanceof FallbackEmulatorAudio) {
+                this.#audio.handleData(e.data.data);
+            }
         }
     };
 
