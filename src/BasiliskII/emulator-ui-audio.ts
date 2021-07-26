@@ -17,7 +17,7 @@ export interface EmulatorAudio {
     start(): void;
 }
 
-export class SharedMemoryEmulatorAudio implements EmulatorAudio {
+abstract class BaseEmulatorAudio {
     #channels = 1;
     #samples = 4096;
     #freq = 22050; // could also be 11025 or 44100
@@ -33,9 +33,6 @@ export class SharedMemoryEmulatorAudio implements EmulatorAudio {
         this.#bufferSize / this.#bytesPerSample / this.#channels / this.#freq; // Duration of a single queued buffer in seconds.
     #bufferingDelay = 50 / 1000; // Audio samples are played with a constant delay of this many seconds to account for browser and jitter.
 
-    #gotFirstBlock = false;
-    #nextChunkIndex = 0;
-    #maxBuffersInSharedMemory = 5;
     #nextPlayTime = 0;
     #timeout: number;
     #numAudioTimersPending: 1;
@@ -50,12 +47,6 @@ export class SharedMemoryEmulatorAudio implements EmulatorAudio {
 
     #paused: boolean = false;
 
-    #audioBlockChunkSize = this.#bufferSize + 2;
-    #audioDataBufferSize =
-        this.#audioBlockChunkSize * this.#maxBuffersInSharedMemory;
-    #audioDataBuffer = new SharedArrayBuffer(this.#audioDataBufferSize);
-    #audioDataBufferView = new Uint8Array(this.#audioDataBuffer);
-
     constructor() {
         this.#numAudioTimersPending = 1;
         this.#timeout = window.setTimeout(this.#callback, 1);
@@ -68,16 +59,6 @@ export class SharedMemoryEmulatorAudio implements EmulatorAudio {
 
     start() {
         this.#audioContext.resume();
-    }
-
-    workerConfig(): EmulatorWorkerSharedMemoryAudioConfig {
-        return {
-            type: "shared-memory",
-            audioDataBuffer: this.#audioDataBuffer,
-            audioDataBufferSize: this.#audioDataBufferSize,
-            audioBlockBufferSize: this.#bufferSize,
-            audioBlockChunkSize: this.#audioBlockChunkSize,
-        };
     }
 
     #pushAudio(
@@ -130,36 +111,7 @@ export class SharedMemoryEmulatorAudio implements EmulatorAudio {
         this.#nextPlayTime = playtime + this.#bufferDurationSecs;
     }
 
-    #getBlockBuffer() {
-        // audio chunk layout
-        // 0: lock state
-        // 1: pointer to next chunk
-        // 2->buffersize+2: audio buffer
-        const curChunkIndex = this.#nextChunkIndex;
-        const curChunkAddr = curChunkIndex * this.#audioBlockChunkSize;
-
-        if (
-            this.#audioDataBufferView[curChunkAddr] !==
-            LockStates.UI_THREAD_LOCK
-        ) {
-            if (this.#gotFirstBlock) {
-                // TODO: UI thread tried to read audio data from worker-locked chunk
-            }
-            return null;
-        }
-        this.#gotFirstBlock = true;
-
-        const blockBuffer = this.#audioDataBufferView.slice(
-            curChunkAddr + 2,
-            curChunkAddr + 2 + this.#bufferSize
-        );
-        this.#nextChunkIndex = this.#audioDataBufferView[curChunkAddr + 1];
-        // console.assert(audio.nextChunkIndex != curChunkIndex, `curChunkIndex=${curChunkIndex} == nextChunkIndex=${audio.nextChunkIndex}`)
-        this.#audioDataBufferView[curChunkAddr] = LockStates.EMUL_THREAD_LOCK;
-        // debugger
-        // console.log(`got buffer=${curChunkIndex}, next=${audio.nextChunkIndex}`)
-        return blockBuffer;
-    }
+    protected abstract getBlockBuffer(): Uint8Array | null;
 
     #fillWebAudioBufferFromChunk(
         blockBuffer: Uint8Array,
@@ -204,7 +156,7 @@ export class SharedMemoryEmulatorAudio implements EmulatorAudio {
             )
                 return;
 
-            const blockBuffer = this.#getBlockBuffer();
+            const blockBuffer = this.getBlockBuffer();
             if (!blockBuffer) {
                 return;
             }
@@ -250,12 +202,83 @@ export class SharedMemoryEmulatorAudio implements EmulatorAudio {
             }
         }
     };
+
+    protected getBufferSize(): number {
+        return this.#bufferSize;
+    }
 }
 
-export class FallbackEmulatorAudio implements EmulatorAudio {
+export class SharedMemoryEmulatorAudio
+    extends BaseEmulatorAudio
+    implements EmulatorAudio
+{
+    #gotFirstBlock: boolean = false;
+    #nextChunkIndex = 0;
+    #maxBuffersInSharedMemory = 5;
+    #audioBlockChunkSize = this.getBufferSize() + 2;
+    #audioDataBufferSize =
+        this.#audioBlockChunkSize * this.#maxBuffersInSharedMemory;
+    #audioDataBuffer = new SharedArrayBuffer(this.#audioDataBufferSize);
+    #audioDataBufferView = new Uint8Array(this.#audioDataBuffer);
+
+    workerConfig(): EmulatorWorkerSharedMemoryAudioConfig {
+        return {
+            type: "shared-memory",
+            audioDataBuffer: this.#audioDataBuffer,
+            audioDataBufferSize: this.#audioDataBufferSize,
+            audioBlockBufferSize: this.getBufferSize(),
+            audioBlockChunkSize: this.#audioBlockChunkSize,
+        };
+    }
+
+    protected getBlockBuffer(): Uint8Array | null {
+        // audio chunk layout
+        // 0: lock state
+        // 1: pointer to next chunk
+        // 2->buffersize+2: audio buffer
+        const curChunkIndex = this.#nextChunkIndex;
+        const curChunkAddr = curChunkIndex * this.#audioBlockChunkSize;
+
+        if (
+            this.#audioDataBufferView[curChunkAddr] !==
+            LockStates.UI_THREAD_LOCK
+        ) {
+            if (this.#gotFirstBlock) {
+                // TODO: UI thread tried to read audio data from worker-locked chunk
+            }
+            return null;
+        }
+        this.#gotFirstBlock = true;
+
+        const blockBuffer = this.#audioDataBufferView.slice(
+            curChunkAddr + 2,
+            curChunkAddr + 2 + this.getBufferSize()
+        );
+        this.#nextChunkIndex = this.#audioDataBufferView[curChunkAddr + 1];
+        // console.assert(audio.nextChunkIndex != curChunkIndex, `curChunkIndex=${curChunkIndex} == nextChunkIndex=${audio.nextChunkIndex}`)
+        this.#audioDataBufferView[curChunkAddr] = LockStates.EMUL_THREAD_LOCK;
+        // debugger
+        // console.log(`got buffer=${curChunkIndex}, next=${audio.nextChunkIndex}`)
+        return blockBuffer;
+    }
+}
+
+export class FallbackEmulatorAudio
+    extends BaseEmulatorAudio
+    implements EmulatorAudio
+{
+    #lastData: Uint8Array | null = null;
     workerConfig(): EmulatorWorkerFallbackAudioConfig {
         return {type: "fallback"};
     }
 
-    start(): void {}
+    protected getBlockBuffer(): Uint8Array | null {
+        const data = this.#lastData;
+        this.#lastData = null;
+        return data;
+    }
+
+    handleData(data: Uint8Array) {
+        this.#lastData = data;
+    }
 }
