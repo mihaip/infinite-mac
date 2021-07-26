@@ -236,6 +236,7 @@ export class Emulator {
     };
 
     #handleKeyDown = (event: KeyboardEvent) => {
+        event.preventDefault();
         this.#input.handleInput({type: "keydown", keyCode: event.keyCode});
     };
 
