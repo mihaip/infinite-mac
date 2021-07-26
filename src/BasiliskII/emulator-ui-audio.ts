@@ -51,7 +51,7 @@ abstract class BaseEmulatorAudio {
         this.#numAudioTimersPending = 1;
         this.#timeout = window.setTimeout(this.#callback, 1);
 
-        this.#audioContext = new AudioContext();
+        this.#audioContext = new AudioContext({latencyHint: "interactive"});
         this.#gainNode = this.#audioContext.createGain();
         this.#gainNode.gain.value = 1;
         this.#gainNode.connect(this.#audioContext.destination);
@@ -96,7 +96,11 @@ abstract class BaseEmulatorAudio {
 
         // assertion
         if (curtime > this.#nextPlayTime && this.#nextPlayTime !== 0) {
-            // console.log('warning: Audio callback had starved sending audio by ' + (curtime - audio.nextPlayTime) + ' seconds.');
+            console.log(
+                "warning: Audio callback had starved sending audio by " +
+                    (curtime - this.#nextPlayTime) +
+                    " seconds."
+            );
         }
 
         // Don't ever start buffer playbacks earlier from current time than a given constant 'audio.bufferingDelay', since a browser
