@@ -22,6 +22,11 @@ import {
     FallbackEmulatorVideo,
     SharedMemoryEmulatorVideo,
 } from "./emulator-ui-video";
+import type {EmulatorFiles} from "./emulator-ui-files";
+import {
+    FallbackEmulatorFiles,
+    SharedMemoryEmulatorFiles,
+} from "./emulator-ui-files";
 
 export type EmulatorConfig = {
     useTouchEvents: boolean;
@@ -60,6 +65,7 @@ export class Emulator {
     #input: EmulatorInput;
     #audio: EmulatorAudio;
     #startedAudio: boolean = false;
+    #files: EmulatorFiles;
 
     #fallbackServiceWorker?: ServiceWorker;
     #fallbackServiceWorkerReady?: Promise<boolean>;
@@ -106,6 +112,9 @@ export class Emulator {
         this.#audio = useSharedMemory
             ? new SharedMemoryEmulatorAudio()
             : new FallbackEmulatorAudio();
+        this.#files = useSharedMemory
+            ? new SharedMemoryEmulatorFiles()
+            : new FallbackEmulatorFiles(fallbackCommandSender!);
     }
 
     async start() {
@@ -146,12 +155,13 @@ export class Emulator {
             video: this.#video.workerConfig(),
             input: this.#input.workerConfig(),
             audio: this.#audio.workerConfig(),
+            files: this.#files.workerConfig(),
         };
 
         if (!useSharedMemory) {
             await this.#fallbackServiceWorkerReady;
         }
-        this.#worker.postMessage(config);
+        this.#worker.postMessage({type: "start", config});
     }
 
     stop() {
@@ -177,6 +187,13 @@ export class Emulator {
         this.#worker.removeEventListener("message", this.#handleWorkerMessage);
 
         this.#worker.terminate();
+    }
+
+    uploadFile(file: File) {
+        this.#files.uploadFile({
+            name: file.name,
+            url: URL.createObjectURL(file),
+        });
     }
 
     #handleMouseMove = (event: MouseEvent) => {
