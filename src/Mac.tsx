@@ -15,6 +15,7 @@ export function Mac() {
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
         0, 0,
     ]);
+    const emulatorRef = useRef<Emulator>();
     useEffect(() => {
         document.addEventListener("fullscreenchange", handleFullScreenChange);
         document.addEventListener(
@@ -49,6 +50,7 @@ export function Mac() {
                 },
             }
         );
+        emulatorRef.current = emulator;
         emulator.start();
         return () => {
             document.removeEventListener(
@@ -60,6 +62,7 @@ export function Mac() {
                 handleFullScreenChange
             );
             emulator.stop();
+            emulatorRef.current = undefined;
         };
     }, []);
 
@@ -92,13 +95,43 @@ export function Mac() {
         );
     }
 
+    const [hasDrag, setHasDrag] = useState(false);
+    function handleDragOver(event: React.DragEvent) {
+        event.preventDefault();
+    }
+    function handleDragEnter(event: React.DragEvent) {
+        setHasDrag(true);
+    }
+    function handleDragLeave(event: React.DragEvent) {
+        setHasDrag(false);
+    }
+    function handleDrop(event: React.DragEvent) {
+        event.preventDefault();
+        setHasDrag(false);
+        if (event.dataTransfer.items) {
+            for (const item of event.dataTransfer.items) {
+                if (item.kind === "file") {
+                    emulatorRef.current?.uploadFile(item.getAsFile()!);
+                }
+            }
+        } else if (event.dataTransfer.files) {
+            for (const file of event.dataTransfer.files) {
+                emulatorRef.current?.uploadFile(file);
+            }
+        }
+    }
+
     return (
         <div
             className="Mac"
             style={{
                 width: `calc(${SCREEN_WIDTH}px + 2 * var(--screen-underscan))`,
                 height: `calc(${SCREEN_HEIGHT}px + 2 * var(--screen-underscan))`,
-            }}>
+            }}
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}>
             <div className="Mac-Apple-Logo" onClick={handleAppleLogoClick} />
             <div className="Mac-Led" />
             <canvas
@@ -109,6 +142,7 @@ export function Mac() {
                 onContextMenu={e => e.preventDefault()}
             />
             {progress}
+            {hasDrag && <div className="Mac-Drag-Overlay" />}
         </div>
     );
 }

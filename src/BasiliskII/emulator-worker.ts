@@ -1,5 +1,8 @@
 import type {
     EmulatorFallbackCommand,
+    EmulatorFallbackInputCommand,
+    EmulatorFallbackUploadFileCommand,
+    EmulatorFileUpload,
     EmulatorInputEvent,
     EmulatorWorkerConfig,
     EmulatorWorkerVideoBlit,
@@ -22,12 +25,21 @@ import {
     FallbackEmulatorWorkerVideo,
     SharedMemoryEmulatorWorkerVideo,
 } from "./emulator-worker-video";
+import type {EmulatorWorkerFiles} from "./emulator-worker-files";
+import {
+    FallbackEmulatorWorkerFiles,
+    SharedMemoryEmulatorWorkerFiles,
+} from "./emulator-worker-files";
 
 declare const Module: EmscriptenModule;
 declare const workerCommands: EmulatorFallbackCommand[];
 
-self.onmessage = function (msg) {
-    startEmulator(msg.data);
+self.onmessage = function (event) {
+    const {data} = event;
+    const {type} = data;
+    if (type === "start") {
+        startEmulator(data.config);
+    }
 };
 
 class EmulatorWorkerApi {
@@ -36,6 +48,7 @@ class EmulatorWorkerApi {
     #video: EmulatorWorkerVideo;
     #input: EmulatorWorkerInput;
     #audio: EmulatorWorkerAudio;
+    #files: EmulatorWorkerFiles;
 
     #lastBlitFrameId = 0;
     #lastBlitFrameHash = 0;
@@ -47,6 +60,7 @@ class EmulatorWorkerApi {
             video: videoConfig,
             input: inputConfig,
             audio: audioConfig,
+            files: filesConfig,
         } = config;
         const blitSender = (
             data: EmulatorWorkerVideoBlit,
@@ -54,6 +68,14 @@ class EmulatorWorkerApi {
         ) => postMessage({type: "emulator_blit", data}, transfer);
         const audioSender = (data: Uint8Array) =>
             postMessage({type: "emulator_audio", data}, [data.buffer]);
+
+        let fallbackEndpoint: EmulatorFallbackEndpoint | undefined;
+        function getFallbackEndpoint(): EmulatorFallbackEndpoint {
+            if (!fallbackEndpoint) {
+                fallbackEndpoint = new EmulatorFallbackEndpoint();
+            }
+            return fallbackEndpoint;
+        }
 
         this.#video =
             videoConfig.type === "shared-memory"
@@ -64,12 +86,19 @@ class EmulatorWorkerApi {
                 ? new SharedMemoryEmulatorWorkerInput(inputConfig)
                 : new FallbackEmulatorWorkerInput(
                       inputConfig,
-                      new EmulatorFallbackEndpoint()
+                      getFallbackEndpoint()
                   );
         this.#audio =
             audioConfig.type === "shared-memory"
                 ? new SharedMemoryEmulatorWorkerAudio(audioConfig)
                 : new FallbackEmulatorWorkerAudio(audioConfig, audioSender);
+        this.#files =
+            filesConfig.type === "shared-memory"
+                ? new SharedMemoryEmulatorWorkerFiles(filesConfig)
+                : new FallbackEmulatorWorkerFiles(
+                      filesConfig,
+                      getFallbackEndpoint()
+                  );
     }
 
     blit(
@@ -125,6 +154,42 @@ class EmulatorWorkerApi {
         this.#input.idleWait(
             this.#nextExpectedBlitTime - performance.now() - 2
         );
+
+        // TODO: better place to poll for this? On the other hand, only doing it
+        // when the machine is idle seems reasonable.
+        this.#handleFileUploads();
+    }
+
+    #handleFileUploads() {
+        const fileUploads = this.#files.fileUploads();
+        for (const upload of fileUploads) {
+            // We can't use FS.createLazyFile on blob URLs because Emcripten's
+            // implementation tries to do a HEAD request on them, which is not
+            // supported. Eagerly create those files instead (this should be
+            // cheap because there's no network round-trip for it).
+            if (upload.url.startsWith("blob:")) {
+                const xhr = new XMLHttpRequest();
+                xhr.responseType = "arraybuffer";
+                xhr.open("GET", upload.url, false);
+                xhr.send();
+                const data = new Uint8Array(xhr.response as ArrayBuffer);
+
+                const stream = FS.open(
+                    "/Shared/Downloads/" + upload.name,
+                    "w+"
+                );
+                FS.write(stream, data, 0, data.length, 0);
+                FS.close(stream);
+            } else {
+                FS.createLazyFile(
+                    "/Shared/Downloads/",
+                    upload.name,
+                    upload.url,
+                    true,
+                    true
+                );
+            }
+        }
     }
 
     acquireInputLock(): number {
@@ -150,18 +215,36 @@ export class EmulatorFallbackEndpoint {
     }
 
     consumeInputEvents(): EmulatorInputEvent[] {
+        return this.#consumeCommands(
+            (c): c is EmulatorFallbackInputCommand => c.type === "input",
+            c => c.event
+        );
+    }
+
+    consumeFileUploads(): EmulatorFileUpload[] {
+        return this.#consumeCommands(
+            (c): c is EmulatorFallbackUploadFileCommand =>
+                c.type === "upload_file",
+            c => c.upload
+        );
+    }
+
+    #consumeCommands<T extends EmulatorFallbackCommand, V>(
+        filter: (command: EmulatorFallbackCommand) => command is T,
+        extractor: (command: T) => V
+    ): V[] {
         this.#fetchCommands();
         const remainingCommands: EmulatorFallbackCommand[] = [];
-        const inputEvents: EmulatorInputEvent[] = [];
+        const result: V[] = [];
         for (const command of this.#commandQueue) {
-            if (command.type === "input") {
-                inputEvents.push(command.event);
+            if (filter(command)) {
+                result.push(extractor(command as T));
             } else {
                 remainingCommands.push(command);
             }
         }
         this.#commandQueue = remainingCommands;
-        return inputEvents;
+        return result;
     }
 
     #fetchCommands() {
@@ -191,6 +274,9 @@ function startEmulator(config: EmulatorWorkerConfig) {
 
         preRun: [
             function () {
+                FS.mkdir("/Shared");
+                FS.mkdir("/Shared/Downloads");
+
                 for (const [name, path] of Object.entries(
                     config.autoloadFiles
                 )) {

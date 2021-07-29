@@ -183,3 +183,31 @@ body.fullscreen .Mac {
     take precedence. */
     touch-action: none;
 }
+
+.Mac-Drag-Overlay {
+    position: absolute;
+    top: var(--screen-underscan);
+    left: var(--screen-underscan);
+    bottom: var(--screen-underscan);
+    right: var(--screen-underscan);
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.Mac-Drag-Overlay:before {
+    content: "Copy to Mac";
+    font-size: 48px;
+    font-weight: bold;
+    display: block;
+}
+
+.Mac-Drag-Overlay:after {
+    content: "Files will be placed in the “Downloads” folder.";
+    font-size: 16px;
+    display: block;
+}

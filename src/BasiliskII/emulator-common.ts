@@ -37,6 +37,7 @@ export type EmulatorWorkerConfig = {
     video: EmulatorWorkerVideoConfig;
     input: EmulatorWorkerInputConfig;
     audio: EmulatorWorkerAudioConfig;
+    files: EmulatorWorkerFilesConfig;
 };
 
 export type EmulatorWorkerVideoConfig =
@@ -101,11 +102,38 @@ export type EmulatorWorkerSharedMemoryAudioConfig = {
 
 export type EmulatorWorkerFallbackAudioConfig = {type: "fallback"};
 
-export type EmulatorFallbackCommand = EmulatorFallbackInputCommand;
+export type EmulatorWorkerFilesConfig =
+    | EmulatorWorkerSharedMemoryFilesConfig
+    | EmulatorWorkerFallbackFilesConfig;
+
+export type EmulatorWorkerSharedMemoryFilesConfig = {
+    type: "shared-memory";
+    filesBuffer: SharedArrayBuffer;
+    filesBufferSize: number;
+};
+
+export type EmulatorFileActions = {
+    uploads: EmulatorFileUpload[];
+};
+
+export type EmulatorWorkerFallbackFilesConfig = {
+    type: "fallback";
+};
+
+export type EmulatorFileUpload = {name: string; url: string};
+
+export type EmulatorFallbackCommand =
+    | EmulatorFallbackInputCommand
+    | EmulatorFallbackUploadFileCommand;
 
 export type EmulatorFallbackInputCommand = {
     type: "input";
     event: EmulatorInputEvent;
+};
+
+export type EmulatorFallbackUploadFileCommand = {
+    type: "upload_file";
+    upload: EmulatorFileUpload;
 };
 
 export function updateInputBufferWithEvents(
