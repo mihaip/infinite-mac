@@ -30,6 +30,8 @@ import {
     FallbackEmulatorWorkerFiles,
     SharedMemoryEmulatorWorkerFiles,
 } from "./emulator-worker-files";
+import {extractDirectory} from "./emulator-worker-extractor";
+import {loadLibrary} from "./emulator-worker-library";
 
 declare const Module: EmscriptenModule;
 declare const workerCommands: EmulatorFallbackCommand[];
@@ -289,11 +291,15 @@ function startEmulator(config: EmulatorWorkerConfig) {
                     );
                 }
                 addedPreloadedFiles = true;
+
+                loadLibrary(config.library);
             },
         ],
 
         onRuntimeInitialized() {
-            (globalThis as any).workerApi = workerApi;
+            const globalScope = globalThis as any;
+            globalScope.workerApi = workerApi;
+            globalScope.extractDirectory = extractDirectory;
         },
 
         monitorRunDependencies(left: number) {

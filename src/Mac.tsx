@@ -3,7 +3,6 @@ import "./Mac.css";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import quadraRomPath from "./Data/Quadra-650.rom.gz";
 import macOs753ImagePath from "./Data/MacOS753.img.gz";
-import gamesImagePath from "./Data/Games.img.gz";
 import {Emulator} from "./BasiliskII/emulator-ui";
 
 const SCREEN_WIDTH = 800;
@@ -34,8 +33,7 @@ export function Mac() {
                 screenCanvas: screenRef.current!,
                 basiliskPrefsPath,
                 romPath: quadraRomPath,
-                disk1Path: macOs753ImagePath,
-                disk2Path: gamesImagePath,
+                diskPath: macOs753ImagePath,
             },
             {
                 emulatorDidDidFinishLoading(emulator: Emulator) {

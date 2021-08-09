@@ -1,5 +1,4 @@
 disk MacOS753
-disk Games.img
 extfs /Shared/
 screen win/800/600
 seriala
