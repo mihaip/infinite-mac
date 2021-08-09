@@ -27,6 +27,8 @@ import {
     FallbackEmulatorFiles,
     SharedMemoryEmulatorFiles,
 } from "./emulator-ui-files";
+import {handleDirectoryExtraction} from "./emulator-ui-extractor";
+import {loadLibrary} from "./emulator-ui-library";
 
 export type EmulatorConfig = {
     useTouchEvents: boolean;
@@ -36,8 +38,7 @@ export type EmulatorConfig = {
     screenCanvas: HTMLCanvasElement;
     basiliskPrefsPath: string;
     romPath: string;
-    disk1Path: string;
-    disk2Path: string;
+    diskPath: string;
 };
 
 export interface EmulatorDelegate {
@@ -145,8 +146,7 @@ export class Emulator {
 
         const config: EmulatorWorkerConfig = {
             autoloadFiles: {
-                "MacOS753": this.#config.disk1Path,
-                "Games.img": this.#config.disk2Path,
+                "MacOS753": this.#config.diskPath,
                 "Quadra-650.rom": this.#config.romPath,
                 "prefs": this.#config.basiliskPrefsPath,
             },
@@ -156,6 +156,7 @@ export class Emulator {
             input: this.#input.workerConfig(),
             audio: this.#audio.workerConfig(),
             files: this.#files.workerConfig(),
+            library: await loadLibrary(),
         };
 
         if (!useSharedMemory) {
@@ -284,6 +285,10 @@ export class Emulator {
             if (this.#audio instanceof FallbackEmulatorAudio) {
                 this.#audio.handleData(e.data.data);
             }
+        } else if (e.data.type === "emulator_extract_directory") {
+            handleDirectoryExtraction(e.data.extraction);
+        } else {
+            console.warn("Unexpected postMessage event", e);
         }
     };
 

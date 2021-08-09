@@ -42,6 +42,19 @@ declare interface EmscriptenModule {
     monitorRunDependencies(left: number): void;
 }
 
+declare namespace FS {
+    function analyzePath(path: string): {
+        exists: boolean;
+        name: string;
+        object: FS.FSNode;
+    };
+
+    interface FSNode {
+        id: number;
+        mode: number;
+    }
+}
+
 interface Document {
     webkitFullscreenEnabled?: boolean;
     webkitFullscreenElement?: HTMLElement;

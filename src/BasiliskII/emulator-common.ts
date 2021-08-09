@@ -38,6 +38,7 @@ export type EmulatorWorkerConfig = {
     input: EmulatorWorkerInputConfig;
     audio: EmulatorWorkerAudioConfig;
     files: EmulatorWorkerFilesConfig;
+    library: EmulatorLibraryDef;
 };
 
 export type EmulatorWorkerVideoConfig =
@@ -200,3 +201,16 @@ export function updateInputBufferWithEvents(
     }
     return remainingEvents;
 }
+export type EmulatorWorkerDirectorExtractionEntry =
+    | {
+          name: string;
+          contents: ArrayBuffer;
+      }
+    | {name: string; contents: EmulatorWorkerDirectorExtractionEntry[]};
+
+export type EmulatorWorkerDirectorExtraction = {
+    name: string;
+    contents: EmulatorWorkerDirectorExtractionEntry[];
+};
+
+export type EmulatorLibraryDef = {[path: string]: string[]};

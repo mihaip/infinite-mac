@@ -1,4 +1,5 @@
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
+import JSZip from "jszip";
 
 /**
  * The DEBUG flag will do two things that help during development:
@@ -26,7 +27,7 @@ addEventListener("fetch", event => {
 
 async function handleEvent(event) {
     const url = new URL(event.request.url);
-    let options = {};
+    const options = {};
 
     try {
         if (DEBUG) {
@@ -37,7 +38,35 @@ async function handleEvent(event) {
         }
         const page = await getAssetFromKV(event, options);
 
-        let response = new Response(page.body, page);
+        let response;
+
+        // Serve individual files from library .zip archives.
+        if (
+            url.pathname.startsWith("/Library") &&
+            url.pathname.endsWith(".zip") &&
+            url.searchParams.get("item")
+        ) {
+            const item = url.searchParams.get("item");
+            const data = await page.arrayBuffer();
+            const zip = await JSZip.loadAsync(data);
+            const file = zip.file(item.substring(1));
+            if (file) {
+                const body = await file.async("arraybuffer");
+                response = new Response(body, {status: 200});
+                response.headers.set(
+                    "Content-Type",
+                    "application/octet-stream"
+                );
+            } else {
+                response = new Response(`Could not find ${item}`, {
+                    status: 404,
+                });
+                response.headers.set("Content-Type", "text/plain");
+            }
+            response.headers.set("X-Content-Type-Options", "nosniff");
+        } else {
+            response = new Response(page.body, page);
+        }
 
         // Make sure that pre-gzipped static content is passed through (see
         // https://stackoverflow.com/a/64849685/343108)
@@ -73,7 +102,10 @@ async function handleEvent(event) {
 
         // Static content uses a content hash in the URL, so it can be cached
         // for a while (30 days).
-        if (url.pathname.startsWith("/static")) {
+        if (
+            url.pathname.startsWith("/static") ||
+            url.pathname.startsWith("/Library")
+        ) {
             response.headers.set(
                 "Cache-Control",
                 `max-age=${60 * 60 * 24 * 30}`
@@ -85,7 +117,7 @@ async function handleEvent(event) {
         // if an error is thrown try to serve the asset at 404.html
         if (!DEBUG) {
             try {
-                let notFoundResponse = await getAssetFromKV(event, {
+                const notFoundResponse = await getAssetFromKV(event, {
                     mapRequestToAsset: req =>
                         new Request(`${new URL(req.url).origin}/404.html`, req),
                 });

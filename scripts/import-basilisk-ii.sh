@@ -15,5 +15,5 @@ cp "${BASILISK_II_DIR}/BasiliskII.wasm" "${BASILISK_II_DESTINATION_DIR}/Basilisk
 cp "${BASILISK_II_DIR}/BasiliskII.wasm.map" "${BASILISK_II_DESTINATION_DIR}/BasiliskII.wasm.map"
 
 # ROM and disk images
-gzip -k "${BASILISK_II_DIR}/Quadra-650.rom" "${BASILISK_II_DIR}/MacOS753.img" "${BASILISK_II_DIR}/Games.img"
-mv "${BASILISK_II_DIR}/Quadra-650.rom.gz" "${BASILISK_II_DIR}/MacOS753.img.gz" "${BASILISK_II_DIR}/Games.img.gz" "${DATA_DIR}/"
+gzip -k "${BASILISK_II_DIR}/Quadra-650.rom" "${BASILISK_II_DIR}/MacOS753.img"
+mv "${BASILISK_II_DIR}/Quadra-650.rom.gz" "${BASILISK_II_DIR}/MacOS753.img.gz" "${DATA_DIR}/"
