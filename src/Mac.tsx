@@ -134,6 +134,9 @@ export function Mac() {
             <div className="Mac-Led" />
             <canvas
                 className="Mac-Screen"
+                style={{
+                    pointerEvents: hasDrag ? "none" : undefined,
+                }}
                 ref={screenRef}
                 width={SCREEN_WIDTH}
                 height={SCREEN_HEIGHT}
