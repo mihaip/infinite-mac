@@ -1,4 +1,4 @@
-# Transparent Mac
+# Infinite Mac
 
 TODO
 

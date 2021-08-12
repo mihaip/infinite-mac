@@ -4,6 +4,6 @@ import App from "./App";
 
 test("renders something", () => {
     render(<App />);
-    const titleElement = screen.getByText(/Inside Macintosh/i);
+    const titleElement = screen.getByText(/Infinite Mac/i);
     expect(titleElement).toBeInTheDocument();
 });
