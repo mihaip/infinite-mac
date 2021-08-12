@@ -204,7 +204,7 @@ export function updateInputBufferWithEvents(
 export type EmulatorWorkerDirectorExtractionEntry =
     | {
           name: string;
-          contents: ArrayBuffer;
+          contents: Uint8Array;
       }
     | {name: string; contents: EmulatorWorkerDirectorExtractionEntry[]};
 
@@ -213,4 +213,11 @@ export type EmulatorWorkerDirectorExtraction = {
     contents: EmulatorWorkerDirectorExtractionEntry[];
 };
 
-export type EmulatorLibraryDef = {[path: string]: string[]};
+export type EmulatorLibraryDef = {
+    [path: string]: EmulatorLibraryManifest;
+};
+
+export type EmulatorLibraryManifest = {
+    version: number;
+    items: string[];
+};

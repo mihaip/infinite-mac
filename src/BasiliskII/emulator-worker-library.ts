@@ -1,7 +1,8 @@
 import type {EmulatorLibraryDef} from "./emulator-common";
 
 export function loadLibrary(def: EmulatorLibraryDef) {
-    for (const [path, items] of Object.entries(def)) {
+    for (const [path, contents] of Object.entries(def)) {
+        const {version, items} = contents;
         for (const item of items) {
             const itemPath = path + item;
             const itemPathPieces = itemPath.split("/");
@@ -17,7 +18,7 @@ export function loadLibrary(def: EmulatorLibraryDef) {
             FS.createLazyFile(
                 itemDirPath,
                 itemFileName,
-                `${path}.zip?item=${encodeURIComponent(item)}`,
+                `${path}.zip?item=${encodeURIComponent(item)}&v=${version}`,
                 true,
                 true
             );
