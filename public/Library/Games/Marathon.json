@@ -1,1 +1,23 @@
-["/Icon\r","/.finf/Icon\r","/.finf/Map","/.finf/Marathon v1.2","/.finf/Music","/.finf/Shapes","/.finf/Sounds","/.rsrc/Icon\r","/.rsrc/Map","/.rsrc/Marathon v1.2","/.rsrc/Music","/.rsrc/Shapes","/.rsrc/Sounds","/Map","/Marathon v1.2","/Music","/Shapes","/Sounds"]
+{
+    "version": 2,
+    "items": [
+        "/Icon\r",
+        "/.finf/Icon\r",
+        "/.finf/Map",
+        "/.finf/Marathon v1.2",
+        "/.finf/Music",
+        "/.finf/Shapes",
+        "/.finf/Sounds",
+        "/.rsrc/Icon\r",
+        "/.rsrc/Map",
+        "/.rsrc/Marathon v1.2",
+        "/.rsrc/Music",
+        "/.rsrc/Shapes",
+        "/.rsrc/Sounds",
+        "/Map",
+        "/Marathon v1.2",
+        "/Music",
+        "/Shapes",
+        "/Sounds"
+    ]
+}

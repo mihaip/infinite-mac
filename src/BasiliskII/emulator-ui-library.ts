@@ -1,4 +1,7 @@
-import type {EmulatorLibraryDef} from "./emulator-common";
+import type {
+    EmulatorLibraryDef,
+    EmulatorLibraryManifest,
+} from "./emulator-common";
 
 const FILES = {
     "Games": ["Maelstrom", "Marathon"],
@@ -12,10 +15,11 @@ export async function loadLibrary(): Promise<EmulatorLibraryDef> {
         for (const item of items) {
             const path = `/Library/${directory}/${item}`;
             paths.push(path);
-            const manifestPath = `${path}.json`;
+            const manifestPath = `${path}.json?v=${Date.now()}`;
             manifestFetches.push(
                 fetch(manifestPath).then(
-                    response => response.json() as Promise<string[]>
+                    response =>
+                        response.json() as Promise<EmulatorLibraryManifest>
                 )
             );
         }
