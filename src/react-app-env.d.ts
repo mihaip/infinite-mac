@@ -47,6 +47,8 @@ declare namespace FS {
         exists: boolean;
         name: string;
         object: FS.FSNode;
+        parentPath: string;
+        parentObject: FS.FSNode;
     };
 
     interface FSNode {

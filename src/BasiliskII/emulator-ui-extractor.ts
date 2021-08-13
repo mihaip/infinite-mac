@@ -58,6 +58,12 @@ export async function handleDirectoryExtraction(
                             fInfoView.setInt16(12, y - 20000);
                         }
                     }
+                } else if (entry.name === "DInfo") {
+                    // Clear location so that the Finder positions things
+                    // automatically for us.
+                    const dInfoView = new DataView(contents.buffer);
+                    dInfoView.setInt16(10, -1); // x
+                    dInfoView.setInt16(12, -1); // y
                 }
                 zip.file(entry.name, contents);
                 manifest.items.push(path + "/" + entry.name);
