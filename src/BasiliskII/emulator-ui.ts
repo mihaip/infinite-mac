@@ -146,7 +146,7 @@ export class Emulator {
 
         const config: EmulatorWorkerConfig = {
             autoloadFiles: {
-                "MacOS753": this.#config.diskPath,
+                "Macintosh HD": this.#config.diskPath,
                 "Quadra-650.rom": this.#config.romPath,
                 "prefs": this.#config.basiliskPrefsPath,
             },

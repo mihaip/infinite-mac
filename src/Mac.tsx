@@ -2,7 +2,7 @@ import {useEffect, useState, useRef} from "react";
 import "./Mac.css";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import quadraRomPath from "./Data/Quadra-650.rom.gz";
-import macOs753ImagePath from "./Data/MacOS753.img.gz";
+import macintoshHdPath from "./Data/Macintosh HD.dsk.gz";
 import {Emulator} from "./BasiliskII/emulator-ui";
 
 const SCREEN_WIDTH = 800;
@@ -33,7 +33,7 @@ export function Mac() {
                 screenCanvas: screenRef.current!,
                 basiliskPrefsPath,
                 romPath: quadraRomPath,
-                diskPath: macOs753ImagePath,
+                diskPath: macintoshHdPath,
             },
             {
                 emulatorDidDidFinishLoading(emulator: Emulator) {
