@@ -5,6 +5,23 @@ export function loadLibrary(def: EmulatorLibraryDef) {
         const {version, items} = contents;
         for (const item of items) {
             const itemPath = path + item;
+            const itemUrl = `${path}.zip?item=${encodeURIComponent(
+                item
+            )}&v=${version}`;
+            // Write the DInfo struct for this folder in the parent's .finf
+            // directory.
+            if (item === "/DInfo") {
+                const pathPieces = path.split("/");
+                const dirName = pathPieces.slice(-1)[0];
+                pathPieces[pathPieces.length - 1] = ".finf";
+                const dinfoDir = `/Shared/${pathPieces.join("/")}`;
+                const {exists} = FS.analyzePath(dinfoDir);
+                if (!exists) {
+                    FS.mkdir(dinfoDir);
+                }
+                FS.createLazyFile(dinfoDir, dirName, itemUrl, true, true);
+                continue;
+            }
             const itemPathPieces = itemPath.split("/");
             const itemFileName = itemPathPieces.slice(-1)[0];
             let itemDirPath = "/Shared";
@@ -15,13 +32,7 @@ export function loadLibrary(def: EmulatorLibraryDef) {
                     FS.mkdir(itemDirPath);
                 }
             }
-            FS.createLazyFile(
-                itemDirPath,
-                itemFileName,
-                `${path}.zip?item=${encodeURIComponent(item)}&v=${version}`,
-                true,
-                true
-            );
+            FS.createLazyFile(itemDirPath, itemFileName, itemUrl, true, true);
         }
     }
 }

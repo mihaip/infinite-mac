@@ -1,5 +1,5 @@
 {
-    "version": 1098243737,
+    "version": 1388853152,
     "items": [
         "/Documentation/Ambrosia FAQ.text",
         "/Documentation/.finf/Ambrosia FAQ.text",
@@ -48,6 +48,7 @@
         "/Web Site URLs/.finf/Icon\r",
         "/Web Site URLs/Ambrosia�s Web Site (NS)",
         "/Web Site URLs/Icon\r",
-        "/Web Site URLs/.rsrc/Icon\r"
+        "/Web Site URLs/.rsrc/Icon\r",
+        "/DInfo"
     ]
 }

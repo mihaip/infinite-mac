@@ -1,5 +1,5 @@
 {
-    "version": 2,
+    "version": -1902206816,
     "items": [
         "/About ResEdit 2.1.3",
         "/.finf/About ResEdit 2.1.3",
@@ -14,7 +14,6 @@
         "/Examples/CExamples/.finf/MakeEditor",
         "/Examples/CExamples/.finf/MakeLDEF",
         "/Examples/CExamples/.finf/MakePicker",
-        "/Examples/CExamples/.finf/Obj",
         "/Examples/CExamples/.finf/Source",
         "/Examples/CExamples/.rsrc/BuildEditor",
         "/Examples/CExamples/.rsrc/BuildLDEF",
@@ -61,7 +60,6 @@
         "/Examples/PExamples/.finf/MakeEditor",
         "/Examples/PExamples/.finf/MakeLDEF",
         "/Examples/PExamples/.finf/MakePicker",
-        "/Examples/PExamples/.finf/Obj",
         "/Examples/PExamples/.finf/Source",
         "/Examples/PExamples/.rsrc/BuildEditor",
         "/Examples/PExamples/.rsrc/BuildLDEF",
@@ -86,6 +84,7 @@
         "/Examples/PExamples/Source/ICON.Pick.p",
         "/Examples/PExamples/Source/ResEd.p",
         "/Examples/PExamples/Source/XXXX.Edit.p",
-        "/ResEdit"
+        "/ResEdit",
+        "/DInfo"
     ]
 }

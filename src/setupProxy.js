@@ -26,49 +26,56 @@ module.exports = function (app) {
         ) {
             const item = req.query.item;
             // Not secure, allows path traversal.
-            fs.readFile(`public${req.path}`, (err, data) => {
-                if (err) {
-                    throw err;
-                }
-                JSZip.loadAsync(data).then(zip => {
-                    const file = zip.file(item.substring(1));
-                    if (file) {
-                        res.status(200);
-                        if (req.query.debug) {
-                            res.setHeader("Content-Type", "text/plain");
-                            file.async("nodebuffer").then(buffer => {
-                                const debugInfo = {
-                                    length: buffer.length,
-                                };
-                                if (item.includes("/.finf/")) {
-                                    debugInfo.finderInfo =
-                                        getDebugFinderInfo(buffer);
-                                }
-                                res.send(
-                                    JSON.stringify(debugInfo, undefined, 4)
-                                );
-                                res.end();
-                                res.end();
-                            });
-                        } else {
-                            res.setHeader(
-                                "Content-Type",
-                                "application/octet-stream"
-                            );
-                            file.async("nodebuffer").then(buffer => {
-                                res.send(buffer);
-                                res.end();
-                            });
-                        }
-                    } else {
-                        res.status(404);
-                        res.setHeader("Content-Type", "text/plain");
-                        // Not secure, allows XSS
-                        res.send(`Could not find ${item}`);
-                        res.end();
+            fs.readFile(
+                `public${decodeURIComponent(req.path)}`,
+                (err, data) => {
+                    if (err) {
+                        throw err;
                     }
-                });
-            });
+                    JSZip.loadAsync(data).then(zip => {
+                        const file = zip.file(item.substring(1));
+                        if (file) {
+                            res.status(200);
+                            if (req.query.debug) {
+                                res.setHeader("Content-Type", "text/plain");
+                                file.async("nodebuffer").then(buffer => {
+                                    const debugInfo = {
+                                        length: buffer.length,
+                                    };
+                                    if (item.includes("/.finf/")) {
+                                        debugInfo.finderInfo =
+                                            getDebugFinderInfo(buffer);
+                                    } else if (item === "/DInfo") {
+                                        debugInfo.folderInfo =
+                                            getDebugFolderInfo(buffer);
+                                    }
+
+                                    res.send(
+                                        JSON.stringify(debugInfo, undefined, 4)
+                                    );
+                                    res.end();
+                                    res.end();
+                                });
+                            } else {
+                                res.setHeader(
+                                    "Content-Type",
+                                    "application/octet-stream"
+                                );
+                                file.async("nodebuffer").then(buffer => {
+                                    res.send(buffer);
+                                    res.end();
+                                });
+                            }
+                        } else {
+                            res.status(404);
+                            res.setHeader("Content-Type", "text/plain");
+                            // Not secure, allows XSS
+                            res.send(`Could not find ${item}`);
+                            res.end();
+                        }
+                    });
+                }
+            );
             return;
         }
 
@@ -94,25 +101,48 @@ function getDebugFinderInfo(buffer) {
             String.fromCharCode((long >> 0) & 0xff)
         );
     }
-    function toFlags(flags) {
-        const result = [];
-        for (const [flagName, flag] of Object.entries(FinderFlags)) {
-            if (flags & flag) {
-                result.push(flagName);
-            }
-        }
-        return result;
-    }
     return {
         typeCode: toChars(buffer.readInt32BE(0)),
         creatorCode: toChars(buffer.readInt32BE(4)),
-        flags: toFlags(buffer.readInt16BE(8)),
+        flags: getDebugFinderFlags(buffer.readInt16BE(8)),
         location: {
             x: buffer.readInt16BE(10),
             y: buffer.readInt16BE(12),
         },
         folder: buffer.readInt16BE(14),
     };
+}
+
+/**
+ * Decodes a DInfo file containing an DInfo struct based on the encoding
+ * specified in BasiliskII/src/include/extfs_defs.h and
+ * https://web.archive.org/web/20040711004644if_/http://developer.apple.com/documentation/Carbon/Reference/Finder_Interface/finder_interface/data_type_4.html
+ */
+function getDebugFolderInfo(buffer) {
+    return {
+        rect: {
+            x: buffer.readInt16BE(0),
+            y: buffer.readInt16BE(2),
+            width: buffer.readInt16BE(4),
+            height: buffer.readInt16BE(6),
+        },
+        flags: getDebugFinderFlags(buffer.readInt16BE(8)),
+        location: {
+            x: buffer.readInt16BE(10),
+            y: buffer.readInt16BE(12),
+        },
+        view: buffer.readInt16BE(14),
+    };
+}
+
+function getDebugFinderFlags(flags) {
+    const result = [];
+    for (const [flagName, flag] of Object.entries(FinderFlags)) {
+        if (flags & flag) {
+            result.push(flagName);
+        }
+    }
+    return result;
 }
 
 const FinderFlags = {

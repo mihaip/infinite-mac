@@ -8,6 +8,7 @@ export function extractDirectory(dirPath: string) {
         exists: dirExists,
         name: dirName,
         object: dirFsObject,
+        parentPath: dirParentPath,
     } = FS.analyzePath(dirPath);
     if (!dirExists) {
         console.error(`${dirPath} does not exist`);
@@ -55,6 +56,20 @@ export function extractDirectory(dirPath: string) {
     }
 
     extract(dirPath, extraction.contents);
+
+    // Preserve information about the folder itself (e.g. location on screen
+    // and custom icon bit). The Finder stores this in a DInfo struct, but
+    // Basilisk puts it the finf directory.
+    const dInfoPath = `${dirParentPath}/.finf/${dirName}`;
+    const {exists: dInfoExists} = FS.analyzePath(dInfoPath);
+    if (dInfoExists) {
+        extraction.contents.push({
+            name: "DInfo",
+            contents: FS.readFile(dInfoPath, {
+                encoding: "binary",
+            }),
+        });
+    }
 
     self.postMessage(
         {type: "emulator_extract_directory", extraction},

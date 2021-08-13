@@ -5,7 +5,7 @@ import type {
 
 const FILES = {
     "Games": ["Maelstrom", "Marathon"],
-    "Tools": ["ResEdit"],
+    "Tools": ["Disk Copy", "ResEdit"],
 };
 
 export async function loadLibrary(): Promise<EmulatorLibraryDef> {
