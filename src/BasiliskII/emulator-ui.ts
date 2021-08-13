@@ -156,7 +156,7 @@ export class Emulator {
             input: this.#input.workerConfig(),
             audio: this.#audio.workerConfig(),
             files: this.#files.workerConfig(),
-            library: await loadLibrary(),
+            library: loadLibrary(),
         };
 
         if (!useSharedMemory) {
