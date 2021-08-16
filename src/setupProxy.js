@@ -1,6 +1,3 @@
-const JSZip = require("jszip");
-const fs = require("fs");
-
 // Changes to this file should generally be reflected in the Cloudflare Worker
 // (workers-site/index.js)
 module.exports = function (app) {
@@ -18,142 +15,10 @@ module.exports = function (app) {
             res.setHeader("Content-Encoding", "gzip");
         }
 
-        // Serve individual files from library .zip archives.
-        if (
-            req.path.startsWith("/Library") &&
-            req.path.endsWith(".zip") &&
-            req.query.item
-        ) {
-            const item = req.query.item;
-            // Not secure, allows path traversal.
-            fs.readFile(
-                `public${decodeURIComponent(req.path)}`,
-                (err, data) => {
-                    if (err) {
-                        throw err;
-                    }
-                    JSZip.loadAsync(data).then(zip => {
-                        const file = zip.file(item.substring(1));
-                        if (file) {
-                            res.status(200);
-                            if (req.query.debug) {
-                                res.setHeader("Content-Type", "text/plain");
-                                file.async("nodebuffer").then(buffer => {
-                                    const debugInfo = {
-                                        length: buffer.length,
-                                    };
-                                    if (item.includes("/.finf/")) {
-                                        debugInfo.finderInfo =
-                                            getDebugFinderInfo(buffer);
-                                    } else if (item === "/DInfo") {
-                                        debugInfo.folderInfo =
-                                            getDebugFolderInfo(buffer);
-                                    }
-
-                                    res.send(
-                                        JSON.stringify(debugInfo, undefined, 4)
-                                    );
-                                    res.end();
-                                    res.end();
-                                });
-                            } else {
-                                res.setHeader(
-                                    "Content-Type",
-                                    "application/octet-stream"
-                                );
-                                file.async("nodebuffer").then(buffer => {
-                                    res.send(buffer);
-                                    res.end();
-                                });
-                            }
-                        } else {
-                            res.status(404);
-                            res.setHeader("Content-Type", "text/plain");
-                            // Not secure, allows XSS
-                            res.send(`Could not find ${item}`);
-                            res.end();
-                        }
-                    });
-                }
-            );
-            return;
-        }
-
         // Allow SharedArrayBuffer to work locally
         res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
         res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
 
         next();
     });
-};
-
-/**
- * Decodes a .finfo file containing an FInfo struct based on the encoding
- * specified in BasiliskII/src/include/extfs_defs.h and
- * https://web.archive.org/web/20040918142656/http://developer.apple.com/documentation/Carbon/Reference/Finder_Interface/finder_interface/data_type_8.html
- */
-function getDebugFinderInfo(buffer) {
-    function toChars(long) {
-        return (
-            String.fromCharCode((long >> 24) & 0xff) +
-            String.fromCharCode((long >> 16) & 0xff) +
-            String.fromCharCode((long >> 8) & 0xff) +
-            String.fromCharCode((long >> 0) & 0xff)
-        );
-    }
-    return {
-        typeCode: toChars(buffer.readInt32BE(0)),
-        creatorCode: toChars(buffer.readInt32BE(4)),
-        flags: getDebugFinderFlags(buffer.readInt16BE(8)),
-        location: {
-            x: buffer.readInt16BE(10),
-            y: buffer.readInt16BE(12),
-        },
-        folder: buffer.readInt16BE(14),
-    };
-}
-
-/**
- * Decodes a DInfo file containing an DInfo struct based on the encoding
- * specified in BasiliskII/src/include/extfs_defs.h and
- * https://web.archive.org/web/20040711004644if_/http://developer.apple.com/documentation/Carbon/Reference/Finder_Interface/finder_interface/data_type_4.html
- */
-function getDebugFolderInfo(buffer) {
-    return {
-        rect: {
-            x: buffer.readInt16BE(0),
-            y: buffer.readInt16BE(2),
-            width: buffer.readInt16BE(4),
-            height: buffer.readInt16BE(6),
-        },
-        flags: getDebugFinderFlags(buffer.readInt16BE(8)),
-        location: {
-            x: buffer.readInt16BE(10),
-            y: buffer.readInt16BE(12),
-        },
-        view: buffer.readInt16BE(14),
-    };
-}
-
-function getDebugFinderFlags(flags) {
-    const result = [];
-    for (const [flagName, flag] of Object.entries(FinderFlags)) {
-        if (flags & flag) {
-            result.push(flagName);
-        }
-    }
-    return result;
-}
-
-const FinderFlags = {
-    kIsOnDesk: 0x0001,
-    kColor: 0x000e,
-    kIsShared: 0x0040,
-    kHasBeenInited: 0x0100,
-    kHasCustomIcon: 0x0400,
-    kIsStationery: 0x0800,
-    kNameLocked: 0x1000,
-    kHasBundle: 0x2000,
-    kIsInvisible: 0x4000,
-    kIsAlias: 0x8000,
 };
