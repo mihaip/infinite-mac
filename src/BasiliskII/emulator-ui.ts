@@ -6,7 +6,7 @@ import type {
 import Worker from "worker-loader!./emulator-worker";
 import registerServiceWorker, {
     ServiceWorkerNoSupportError,
-} from "service-worker-loader!./emulator-fallback-service-worker";
+} from "service-worker-loader!./emulator-service-worker";
 import type {EmulatorAudio} from "./emulator-ui-audio";
 import {
     FallbackEmulatorAudio,
@@ -68,8 +68,8 @@ export class Emulator {
     #startedAudio: boolean = false;
     #files: EmulatorFiles;
 
-    #fallbackServiceWorker?: ServiceWorker;
-    #fallbackServiceWorkerReady?: Promise<boolean>;
+    #serviceWorker?: ServiceWorker;
+    #serviceWorkerReady?: Promise<boolean>;
 
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
         this.#config = config;
@@ -82,14 +82,15 @@ export class Emulator {
             screenHeight,
         } = this.#config;
 
+        this.#initServiceWorker();
+
         let fallbackCommandSender: EmulatorFallbackCommandSender;
         if (!useSharedMemory) {
-            this.#initFallbackServiceWorker();
             fallbackCommandSender = async (
                 command: EmulatorFallbackCommand
             ) => {
-                await this.#fallbackServiceWorkerReady!;
-                this.#fallbackServiceWorker!.postMessage({
+                await this.#serviceWorkerReady!;
+                this.#serviceWorker!.postMessage({
                     type: "worker-command",
                     command,
                 });
@@ -160,7 +161,7 @@ export class Emulator {
         };
 
         if (!useSharedMemory) {
-            await this.#fallbackServiceWorkerReady;
+            await this.#serviceWorkerReady;
         }
         this.#worker.postMessage({type: "start", config});
     }
@@ -304,12 +305,12 @@ export class Emulator {
         this.#screenCanvasContext.putImageData(this.#screenImageData, 0, 0);
     }
 
-    #initFallbackServiceWorker() {
-        this.#fallbackServiceWorkerReady = new Promise((resolve, reject) => {
+    #initServiceWorker() {
+        this.#serviceWorkerReady = new Promise((resolve, reject) => {
             registerServiceWorker()
                 .then(registration => {
                     const handleStateChange = (event: Event) => {
-                        const {state} = this.#fallbackServiceWorker!;
+                        const {state} = this.#serviceWorker!;
                         console.log(
                             `Service worker stage changed to "${state}"`
                         );
@@ -320,20 +321,20 @@ export class Emulator {
                     console.log("Service worker registered");
                     if (registration.installing) {
                         console.log("Service worker installing");
-                        this.#fallbackServiceWorker = registration.installing;
+                        this.#serviceWorker = registration.installing;
                         registration.installing.addEventListener(
                             "statechange",
                             handleStateChange
                         );
                     } else if (registration.waiting) {
                         console.log("Service worker installed, waiting");
-                        this.#fallbackServiceWorker = registration.waiting;
+                        this.#serviceWorker = registration.waiting;
                         registration.waiting.addEventListener(
                             "statechange",
                             handleStateChange
                         );
                     } else if (registration.active) {
-                        this.#fallbackServiceWorker = registration.active;
+                        this.#serviceWorker = registration.active;
                         registration.active.addEventListener(
                             "statechange",
                             handleStateChange

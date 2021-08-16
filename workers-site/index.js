@@ -1,5 +1,4 @@
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
-import JSZip from "jszip";
 
 /**
  * The DEBUG flag will do two things that help during development:
@@ -38,35 +37,7 @@ async function handleEvent(event) {
         }
         const page = await getAssetFromKV(event, options);
 
-        let response;
-
-        // Serve individual files from library .zip archives.
-        if (
-            url.pathname.startsWith("/Library") &&
-            url.pathname.endsWith(".zip") &&
-            url.searchParams.get("item")
-        ) {
-            const item = url.searchParams.get("item");
-            const data = await page.arrayBuffer();
-            const zip = await JSZip.loadAsync(data);
-            const file = zip.file(item.substring(1));
-            if (file) {
-                const body = await file.async("arraybuffer");
-                response = new Response(body, {status: 200});
-                response.headers.set(
-                    "Content-Type",
-                    "application/octet-stream"
-                );
-            } else {
-                response = new Response(`Could not find ${item}`, {
-                    status: 404,
-                });
-                response.headers.set("Content-Type", "text/plain");
-            }
-            response.headers.set("X-Content-Type-Options", "nosniff");
-        } else {
-            response = new Response(page.body, page);
-        }
+        let response = new Response(page.body, page);
 
         // Make sure that pre-gzipped static content is passed through (see
         // https://stackoverflow.com/a/64849685/343108)
@@ -104,7 +75,7 @@ async function handleEvent(event) {
         // for a while (30 days).
         if (
             url.pathname.startsWith("/static") ||
-            url.pathname.startsWith("/Library")
+            (url.pathname.startsWith("/Library") && url.searchParams.has("v"))
         ) {
             response.headers.set(
                 "Cache-Control",
