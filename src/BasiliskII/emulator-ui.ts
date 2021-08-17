@@ -48,6 +48,20 @@ export interface EmulatorDelegate {
         left: number
     ): void;
     emulatorDidDidFinishLoading?(emulator: Emulator): void;
+    emulatorDidDidStartLoadingLibraryFile?(
+        emulator: Emulator,
+        name: string
+    ): void;
+    emulatorDidDidMakeProgressLoadingLibraryFile?(
+        emulator: Emulator,
+        name: string,
+        totalBytes: number,
+        bytesReceived: number
+    ): void;
+    emulatorDidDidFinishLoadingLibraryFile?(
+        emulator: Emulator,
+        name: string
+    ): void;
 }
 
 export type EmulatorFallbackCommandSender = (
@@ -293,6 +307,28 @@ export class Emulator {
         }
     };
 
+    #handleServiceWorkerMessage = (e: MessageEvent) => {
+        const {data} = e;
+        if (data.type === "library_zip_fetch_start") {
+            this.#delegate?.emulatorDidDidStartLoadingLibraryFile?.(
+                this,
+                data.name
+            );
+        } else if (data.type === "library_zip_fetch_progress") {
+            this.#delegate?.emulatorDidDidMakeProgressLoadingLibraryFile?.(
+                this,
+                data.name,
+                data.totalBytes,
+                data.bytesReceived
+            );
+        } else if (data.type === "library_zip_complete") {
+            this.#delegate?.emulatorDidDidFinishLoadingLibraryFile?.(
+                this,
+                data.name
+            );
+        }
+    };
+
     #handleVisibilityChange = () => {
         this.#drawScreen();
     };
@@ -309,6 +345,13 @@ export class Emulator {
         this.#serviceWorkerReady = new Promise((resolve, reject) => {
             registerServiceWorker()
                 .then(registration => {
+                    const init = (serviceWorker: ServiceWorker) => {
+                        this.#serviceWorker = serviceWorker;
+                        serviceWorker.addEventListener(
+                            "statechange",
+                            handleStateChange
+                        );
+                    };
                     const handleStateChange = (event: Event) => {
                         const {state} = this.#serviceWorker!;
                         console.log(
@@ -321,25 +364,13 @@ export class Emulator {
                     console.log("Service worker registered");
                     if (registration.installing) {
                         console.log("Service worker installing");
-                        this.#serviceWorker = registration.installing;
-                        registration.installing.addEventListener(
-                            "statechange",
-                            handleStateChange
-                        );
+                        init(registration.installing);
                     } else if (registration.waiting) {
                         console.log("Service worker installed, waiting");
-                        this.#serviceWorker = registration.waiting;
-                        registration.waiting.addEventListener(
-                            "statechange",
-                            handleStateChange
-                        );
+                        init(registration.waiting);
                     } else if (registration.active) {
-                        this.#serviceWorker = registration.active;
-                        registration.active.addEventListener(
-                            "statechange",
-                            handleStateChange
-                        );
                         console.log("Service worker active");
+                        init(registration.active);
                         resolve(true);
                     }
                 })
@@ -350,5 +381,9 @@ export class Emulator {
                     reject(err);
                 });
         });
+        navigator.serviceWorker.addEventListener(
+            "message",
+            this.#handleServiceWorkerMessage
+        );
     }
 }

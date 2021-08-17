@@ -79,14 +79,8 @@ async function handleLibraryFile(event: FetchEvent): Promise<Response> {
         // ZIPs on the client. For now an in-memory cache is good enough to
         // serve all of the files (that are likely to be requested in quick
         // succession)
-        console.time(`fetch ${zipPath}`);
         const zipVersion = requestUrl.searchParams.get("v")!;
-        zipPromise = fetch(`${zipPath}?v=${zipVersion}`)
-            .then(response => response.arrayBuffer())
-            .then(zipData => {
-                console.timeEnd(`fetch ${zipPath}`);
-                return JSZip.loadAsync(zipData);
-            });
+        zipPromise = fetchZip(zipPath, zipVersion);
         libraryZipPromises.set(zipPath, zipPromise);
     }
     const zip = await zipPromise;
@@ -130,6 +124,53 @@ async function handleLibraryFile(event: FetchEvent): Promise<Response> {
             "Content-Type": "application/octet-stream",
         },
     });
+}
+
+async function fetchZip(path: string, version: string): Promise<JSZip> {
+    async function postMessage(data: any) {
+        const clients = await self.clients.matchAll({type: "window"});
+        clients.forEach(client => client.postMessage(data));
+    }
+    const name = decodeURIComponent(path.split("/").slice(-1)[0].split(".")[0]);
+    postMessage({type: "library_zip_fetch_start", name});
+
+    const response = await fetch(`${path}?v=${version}`);
+    const totalBytes = response.headers.has("Content-Length")
+        ? parseInt(response.headers.get("content-Length")!, 10)
+        : -1;
+    postMessage({
+        type: "library_zip_fetch_progress",
+        name,
+        bytesReceived: 0,
+        totalBytes,
+    });
+
+    const reader = response.body!.getReader();
+    let bytesReceived = 0;
+    const responseChunks = [];
+    while (true) {
+        const result = await reader.read();
+
+        if (result.done) {
+            break;
+        }
+        bytesReceived += result.value.length;
+        postMessage({
+            type: "library_zip_fetch_progress",
+            name,
+            bytesReceived,
+            totalBytes,
+        });
+        responseChunks.push(result.value);
+    }
+
+    const responseBlob = new Blob(responseChunks);
+
+    const zip = await JSZip.loadAsync(responseBlob);
+
+    postMessage({type: "library_zip_complete", name});
+
+    return zip;
 }
 
 // Boilerplate to make sure we're running as quickly as possible.
