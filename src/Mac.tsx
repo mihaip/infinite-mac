@@ -14,6 +14,12 @@ export function Mac() {
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
         0, 0,
     ]);
+    const [emulatorLibraryFileLoading, setEmulatorLibraryFileLoading] =
+        useState<string | undefined>(undefined);
+    const [
+        emulatorLibraryFileLoadingProgress,
+        setEmulatorLibraryFileLoadingProgress,
+    ] = useState([0, 0]);
     const emulatorRef = useRef<Emulator>();
     useEffect(() => {
         document.addEventListener("fullscreenchange", handleFullScreenChange);
@@ -45,6 +51,30 @@ export function Mac() {
                     left: number
                 ) {
                     setEmulatorLoadingProgress([total, left]);
+                },
+                emulatorDidDidStartLoadingLibraryFile(
+                    emulator: Emulator,
+                    name: string
+                ) {
+                    setEmulatorLibraryFileLoading(name);
+                    setEmulatorLibraryFileLoadingProgress([0, 0]);
+                },
+                emulatorDidDidMakeProgressLoadingLibraryFile(
+                    emulator: Emulator,
+                    name: string,
+                    totalBytes: number,
+                    bytesReceived: number
+                ) {
+                    setEmulatorLibraryFileLoadingProgress([
+                        totalBytes,
+                        bytesReceived,
+                    ]);
+                },
+                emulatorDidDidFinishLoadingLibraryFile(
+                    emulator: Emulator,
+                    name: string
+                ) {
+                    setEmulatorLibraryFileLoading(undefined);
                 },
             }
         );
@@ -89,6 +119,34 @@ export function Mac() {
                 <span className="Mac-Loading-Fraction">
                     ({total - left}/{total})
                 </span>
+            </div>
+        );
+    }
+
+    let libraryFileProgress;
+    if (emulatorLibraryFileLoading) {
+        const [totalBytes, bytesReceived] = emulatorLibraryFileLoadingProgress;
+        let fraction;
+        const numberFormat = new Intl.NumberFormat();
+        function formatKb(bytes: number): string {
+            return numberFormat.format(Math.round(bytes / 1024));
+        }
+        if (totalBytes !== -1) {
+            fraction = (
+                <span className="Mac-Loading-Library-Fraction">
+                    ({formatKb(bytesReceived)}/{formatKb(totalBytes)}KB)
+                </span>
+            );
+        } else {
+            fraction = (
+                <span className="Mac-Loading-Library-Fraction">
+                    ({formatKb(bytesReceived)}KB)
+                </span>
+            );
+        }
+        libraryFileProgress = (
+            <div className="Mac-Loading-Library">
+                Loading {emulatorLibraryFileLoading}…{fraction}
             </div>
         );
     }
@@ -143,6 +201,7 @@ export function Mac() {
                 onContextMenu={e => e.preventDefault()}
             />
             {progress}
+            {libraryFileProgress}
             {hasDrag && <div className="Mac-Drag-Overlay" />}
         </div>
     );
