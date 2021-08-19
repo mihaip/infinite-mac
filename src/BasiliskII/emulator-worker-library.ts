@@ -2,15 +2,15 @@ import type {EmulatorLibraryDef} from "./emulator-common";
 
 export function loadLibrary(def: EmulatorLibraryDef) {
     for (const [path, contents] of Object.entries(def)) {
-        const {version, items} = contents;
+        const {version, items, data_urls: dataUrls} = contents;
         for (const item of items) {
-            const itemPath = path + item;
-            const itemUrl = `${path}.zip?item=${encodeURIComponent(
-                item
-            )}&v=${version}`;
+            const itemPath = `${path}/${item}`;
+            const itemUrl =
+                dataUrls[item] ??
+                `${path}.zip?item=${encodeURIComponent(item)}&v=${version}`;
             // Write the DInfo struct for this folder in the parent's .finf
             // directory.
-            if (item === "/DInfo") {
+            if (item === "DInfo") {
                 const pathPieces = path.split("/");
                 const dirName = pathPieces.slice(-1)[0];
                 pathPieces[pathPieces.length - 1] = ".finf";
