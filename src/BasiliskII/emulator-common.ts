@@ -220,4 +220,5 @@ export type EmulatorLibraryDef = {
 export type EmulatorLibraryManifest = {
     version: number;
     items: string[];
+    data_urls: {[path: string]: string};
 };

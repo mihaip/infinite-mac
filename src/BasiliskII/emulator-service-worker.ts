@@ -85,7 +85,7 @@ async function handleLibraryFile(event: FetchEvent): Promise<Response> {
     }
     const zip = await zipPromise;
 
-    const file = zip.file(item.substring(1));
+    const file = zip.file(item);
     if (!file) {
         return new Response(`Could not find ${item}`, {
             status: 200,
@@ -102,9 +102,9 @@ async function handleLibraryFile(event: FetchEvent): Promise<Response> {
         const debugInfo: {[key: string]: any} = {
             length: fileBuffer.byteLength,
         };
-        if (item.includes("/.finf/")) {
+        if (item.includes(".finf/")) {
             debugInfo.finderInfo = getDebugFinderInfo(fileBuffer);
-        } else if (item === "/DInfo") {
+        } else if (item === "DInfo") {
             debugInfo.folderInfo = getDebugFolderInfo(fileBuffer);
         }
 

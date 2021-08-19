@@ -1,7 +1,6 @@
 import JSZip from "jszip";
 import {saveAs} from "file-saver";
 import type {
-    EmulatorLibraryManifest,
     EmulatorWorkerDirectorExtraction,
     EmulatorWorkerDirectorExtractionEntry,
 } from "./emulator-common";
@@ -11,7 +10,6 @@ export async function handleDirectoryExtraction(
     extraction: EmulatorWorkerDirectorExtraction
 ) {
     const zip = new JSZip();
-    const manifest: EmulatorLibraryManifest = {version: 0, items: []};
 
     function addToZip(
         path: string,
@@ -62,7 +60,6 @@ export async function handleDirectoryExtraction(
                     dInfoView.setInt16(DInfoFields.frLocation + 2, -1); // y
                 }
                 zip.file(entry.name, contents);
-                manifest.items.push(path + "/" + entry.name);
             }
         }
     }
@@ -77,17 +74,4 @@ export async function handleDirectoryExtraction(
     const zipName = extraction.name + ".zip";
 
     saveAs(zipBlob, zipName);
-
-    // Use a content hash as the version, so that we can generate new URLs
-    // as the archive contents change.
-    const zipDigest = await crypto.subtle.digest(
-        "SHA-1",
-        await zipBlob.arrayBuffer()
-    );
-    manifest.version = new DataView(zipDigest).getInt32(0);
-
-    const manifestBlob = new Blob([JSON.stringify(manifest, undefined, 4)]);
-    const manifestName = extraction.name + ".json";
-
-    saveAs(manifestBlob, manifestName);
 }
