@@ -9,6 +9,10 @@ import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
  */
 const DEBUG = false;
 
+// Large files are served directly from the Git repo, since Worker Sites/the
+// KV store has a 25MB size limit.
+const GIT_REPO = "https://github.com/mihaip/infinite-mac";
+
 addEventListener("fetch", event => {
     try {
         event.respondWith(handleEvent(event));
@@ -35,9 +39,22 @@ async function handleEvent(event) {
                 bypassCache: true,
             };
         }
-        const page = await getAssetFromKV(event, options);
-
-        let response = new Response(page.body, page);
+        let response;
+        if (url.pathname.startsWith("/Library")) {
+            // TODO: cache in Cloudflare if GitHub gets mad about serving?
+            // Though the response should end up being cached too.
+            const gitHubResponse = await fetch(
+                `${GIT_REPO}/raw/main/public/${url.pathname}`
+            );
+            response = new Response(gitHubResponse.body, {
+                status: gitHubResponse.status,
+                statusText: gitHubResponse.statusText,
+                headers: new Headers(gitHubResponse.headers),
+            });
+        } else {
+            const page = await getAssetFromKV(event, options);
+            response = new Response(page.body, page);
+        }
 
         // Make sure that pre-gzipped static content is passed through (see
         // https://stackoverflow.com/a/64849685/343108)

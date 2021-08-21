@@ -10,6 +10,7 @@ target_type = "webpack"
 [site]
 bucket = "./build"
 entry-point = "workers-site"
+exclude = ["Library/**/*.zip"]
 
 [env.production]
 zone_id = "768b712e6dad883eb4c3aefbd5df8c80"

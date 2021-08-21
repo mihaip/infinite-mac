@@ -1,8 +1,9 @@
 import type {EmulatorLibraryDef} from "./emulator-common";
 
 export function loadLibrary(def: EmulatorLibraryDef) {
-    for (const [path, contents] of Object.entries(def)) {
-        const {version, items, data_urls: dataUrls} = contents;
+    const paths = Object.keys(def).sort();
+    for (const path of paths) {
+        const {version, items, data_urls: dataUrls} = def[path];
         for (const item of items) {
             const itemPath = `${path}/${item}`;
             const itemUrl =
