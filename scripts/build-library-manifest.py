@@ -15,7 +15,7 @@ for zip_path in glob.iglob(os.path.join(public_dir, "Library", "**", "*.zip")):
 
     with zipfile.ZipFile(zip_path, "r") as zip:
         items = []
-        version = 0
+        version = 1
         data_urls = {}
         for zip_info in zip.infolist():
             version = version ^ zip_info.CRC
