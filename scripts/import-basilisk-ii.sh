@@ -15,5 +15,5 @@ cp "${BASILISK_II_DIR}/BasiliskII.wasm" "${BASILISK_II_DESTINATION_DIR}/Basilisk
 cp "${BASILISK_II_DIR}/BasiliskII.wasm.map" "${BASILISK_II_DESTINATION_DIR}/BasiliskII.wasm.map"
 
 # ROM and disk images
-gzip -k "${BASILISK_II_DIR}/Quadra-650.rom" "${BASILISK_II_DIR}/Macintosh HD.dsk"
-mv "${BASILISK_II_DIR}/Quadra-650.rom.gz" "${BASILISK_II_DIR}/Macintosh HD.dsk.gz" "${DATA_DIR}/"
+brotli -q 11 -k "${BASILISK_II_DIR}/Quadra-650.rom" "${BASILISK_II_DIR}/Macintosh HD.dsk"
+mv "${BASILISK_II_DIR}/Quadra-650.rom.br" "${BASILISK_II_DIR}/Macintosh HD.dsk.br" "${DATA_DIR}/"

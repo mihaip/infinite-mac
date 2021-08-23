@@ -11,8 +11,8 @@ module.exports = function (app) {
         }
 
         // Handle pre-gzipped files
-        if (req.path.endsWith(".gz")) {
-            res.setHeader("Content-Encoding", "gzip");
+        if (req.path.endsWith(".br")) {
+            res.setHeader("Content-Encoding", "br");
         }
 
         // Allow SharedArrayBuffer to work locally
