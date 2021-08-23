@@ -56,20 +56,19 @@ async function handleEvent(event) {
             response = new Response(page.body, page);
         }
 
-        // Make sure that pre-gzipped static content is passed through (see
+        // Make sure that pre-compressed static content is passed through (see
         // https://stackoverflow.com/a/64849685/343108)
-        if (url.pathname.endsWith(".gz")) {
+        if (url.pathname.endsWith(".br")) {
             response = new Response(response.body, {
                 status: response.status,
                 headers: response.headers,
                 encodeBody: "manual",
             });
 
-            response.headers.set("Content-Encoding", "gzip");
-            // Ensure that the final response is still compressed when sent to
-            // the browser, compressible MIME types are listed at
-            // https://support.cloudflare.com/hc/en-us/articles/200168396-What-will-Cloudflare-compress-
-            response.headers.set("Content-Type", "multipart/bag");
+            response.headers.set("Content-Encoding", "br");
+            // Content-type ends up being text/plain by default, switch to a
+            // more sensible value.
+            response.headers.set("Content-Type", "application/octet-stream");
         }
 
         // Mirror MIME type overriding done by setupProxy.js

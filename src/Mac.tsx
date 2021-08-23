@@ -1,8 +1,8 @@
 import {useEffect, useState, useRef} from "react";
 import "./Mac.css";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
-import quadraRomPath from "./Data/Quadra-650.rom.gz";
-import macintoshHdPath from "./Data/Macintosh HD.dsk.gz";
+import quadraRomPath from "./Data/Quadra-650.rom.br";
+import macintoshHdPath from "./Data/Macintosh HD.dsk.br";
 import {Emulator} from "./BasiliskII/emulator-ui";
 
 const SCREEN_WIDTH = 800;
