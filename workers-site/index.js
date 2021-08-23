@@ -74,7 +74,7 @@ async function handleEvent(event) {
         // Mirror MIME type overriding done by setupProxy.js
         if (url.pathname.endsWith(".jsz")) {
             response.headers.set("Content-Type", "text/javascript");
-        } else if (url.pathname.endsWith(".jsz")) {
+        } else if (url.pathname.endsWith(".wasmz")) {
             response.headers.set("Content-Type", "application/wasm");
         }
 
