@@ -32,6 +32,7 @@ import {
 } from "./emulator-worker-files";
 import {extractDirectory} from "./emulator-worker-extractor";
 import {loadLibrary} from "./emulator-worker-library";
+import {createLazyFile} from "./emulator-worker-lazy-file";
 
 declare const Module: EmscriptenModule;
 declare const workerCommands: EmulatorFallbackCommand[];
@@ -183,7 +184,7 @@ class EmulatorWorkerApi {
                 FS.write(stream, data, 0, data.length, 0);
                 FS.close(stream);
             } else {
-                FS.createLazyFile(
+                createLazyFile(
                     "/Shared/Downloads/",
                     upload.name,
                     upload.url,
