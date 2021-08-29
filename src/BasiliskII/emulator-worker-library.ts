@@ -1,14 +1,35 @@
 import type {EmulatorLibraryDef} from "./emulator-common";
+import {createLazyFile} from "./emulator-worker-lazy-file";
 
 export function loadLibrary(def: EmulatorLibraryDef) {
     const paths = Object.keys(def).sort();
     for (const path of paths) {
-        const {version, items, data_urls: dataUrls} = def[path];
+        const {version, items, inline_data: inlineData} = def[path];
         for (const item of items) {
             const itemPath = `${path}/${item}`;
-            const itemUrl =
-                dataUrls[item] ??
-                `${path}.zip?item=${encodeURIComponent(item)}&v=${version}`;
+
+            // eslint-disable-next-line no-loop-func
+            function createFile(parent: string, name: string): FS.FSNode {
+                if (item in inlineData) {
+                    const itemData = Uint8Array.from(
+                        atob(inlineData[item]),
+                        c => c.charCodeAt(0)
+                    );
+                    return FS.createDataFile(
+                        parent,
+                        name,
+                        itemData,
+                        true,
+                        true,
+                        true
+                    );
+                }
+                const itemUrl = `${path}.zip?item=${encodeURIComponent(
+                    item
+                )}&v=${version}`;
+                return createLazyFile(parent, name, itemUrl, true, true);
+            }
+
             // Write the DInfo struct for this folder in the parent's .finf
             // directory.
             if (item === "DInfo") {
@@ -20,7 +41,7 @@ export function loadLibrary(def: EmulatorLibraryDef) {
                 if (!exists) {
                     FS.mkdir(dinfoDir);
                 }
-                FS.createLazyFile(dinfoDir, dirName, itemUrl, true, true);
+                createFile(dinfoDir, dirName);
                 continue;
             }
             const itemPathPieces = itemPath.split("/");
@@ -33,7 +54,7 @@ export function loadLibrary(def: EmulatorLibraryDef) {
                     FS.mkdir(itemDirPath);
                 }
             }
-            FS.createLazyFile(itemDirPath, itemFileName, itemUrl, true, true);
+            createFile(itemDirPath, itemFileName);
         }
     }
 }

@@ -51,6 +51,13 @@ declare namespace FS {
         parentObject: FS.FSNode;
     };
 
+    function createFile(
+        parent: string | FS.FSNode,
+        name: string,
+        canRead: boolean,
+        canWrite: boolean
+    ): FS.FSNode;
+
     interface FSNode {
         id: number;
         mode: number;

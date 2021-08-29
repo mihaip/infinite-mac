@@ -16,7 +16,7 @@ for zip_path in glob.iglob(os.path.join(public_dir, "Library", "**", "*.zip")):
     with zipfile.ZipFile(zip_path, "r") as zip:
         items = []
         version = 1
-        data_urls = {}
+        inline_data = {}
         for zip_info in zip.infolist():
             version = version ^ zip_info.CRC
             if not zip_info.filename.endswith("/"):
@@ -29,14 +29,12 @@ for zip_path in glob.iglob(os.path.join(public_dir, "Library", "**", "*.zip")):
                     ".rsrc/Icon\r",
                     ".finf/Icon\r",
             ]:
-                data = zip.read(zip_info)
-                data_url = ("data:application/octet-stream;base64,%s" %
-                            base64.b64encode(data))
-                data_urls[zip_info.filename] = data_url
+                file_data = zip.read(zip_info)
+                inline_data[zip_info.filename] = base64.b64encode(file_data)
         manifest = {
             "items": items,
             "version": version,
-            "data_urls": data_urls,
+            "inline_data": inline_data,
         }
         combined_manifest["/" + library_path] = manifest
 
