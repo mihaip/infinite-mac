@@ -5,7 +5,7 @@ export function loadLibrary(def: EmulatorLibraryDef) {
     const paths = Object.keys(def).sort();
     for (const path of paths) {
         const {version, items, inline_data: inlineData} = def[path];
-        for (const item of items) {
+        for (const [item, itemSize] of Object.entries(items)) {
             const itemPath = `${path}/${item}`;
 
             // eslint-disable-next-line no-loop-func
@@ -27,7 +27,14 @@ export function loadLibrary(def: EmulatorLibraryDef) {
                 const itemUrl = `${path}.zip?item=${encodeURIComponent(
                     item
                 )}&v=${version}`;
-                return createLazyFile(parent, name, itemUrl, true, true);
+                return createLazyFile(
+                    parent,
+                    name,
+                    itemUrl,
+                    itemSize,
+                    true,
+                    true
+                );
             }
 
             // Write the DInfo struct for this folder in the parent's .finf

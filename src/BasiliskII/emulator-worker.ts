@@ -166,32 +166,14 @@ class EmulatorWorkerApi {
     #handleFileUploads() {
         const fileUploads = this.#files.fileUploads();
         for (const upload of fileUploads) {
-            // We can't use FS.createLazyFile on blob URLs because Emcripten's
-            // implementation tries to do a HEAD request on them, which is not
-            // supported. Eagerly create those files instead (this should be
-            // cheap because there's no network round-trip for it).
-            if (upload.url.startsWith("blob:")) {
-                const xhr = new XMLHttpRequest();
-                xhr.responseType = "arraybuffer";
-                xhr.open("GET", upload.url, false);
-                xhr.send();
-                const data = new Uint8Array(xhr.response as ArrayBuffer);
-
-                const stream = FS.open(
-                    "/Shared/Downloads/" + upload.name,
-                    "w+"
-                );
-                FS.write(stream, data, 0, data.length, 0);
-                FS.close(stream);
-            } else {
-                createLazyFile(
-                    "/Shared/Downloads/",
-                    upload.name,
-                    upload.url,
-                    true,
-                    true
-                );
-            }
+            createLazyFile(
+                "/Shared/Downloads/",
+                upload.name,
+                upload.url,
+                upload.size,
+                true,
+                true
+            );
         }
     }
 

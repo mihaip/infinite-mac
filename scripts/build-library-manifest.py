@@ -14,13 +14,13 @@ for zip_path in glob.iglob(os.path.join(public_dir, "Library", "**", "*.zip")):
     library_path, _ = os.path.splitext(os.path.relpath(zip_path, public_dir))
 
     with zipfile.ZipFile(zip_path, "r") as zip:
-        items = []
+        items = {}
         version = 1
         inline_data = {}
         for zip_info in zip.infolist():
             version = version ^ zip_info.CRC
             if not zip_info.filename.endswith("/"):
-                items.append(zip_info.filename)
+                items[zip_info.filename] = zip_info.file_size
             # Inline files that are read as part of displaying the folder, so
             # that we don't need to download/parse the zip for them.
             if zip_info.filename in [
