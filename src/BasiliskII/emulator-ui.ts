@@ -209,6 +209,7 @@ export class Emulator {
         this.#files.uploadFile({
             name: file.name,
             url: URL.createObjectURL(file),
+            size: file.size,
         });
     }
 

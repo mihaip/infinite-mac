@@ -121,7 +121,7 @@ export type EmulatorWorkerFallbackFilesConfig = {
     type: "fallback";
 };
 
-export type EmulatorFileUpload = {name: string; url: string};
+export type EmulatorFileUpload = {name: string; url: string; size: number};
 
 export type EmulatorFallbackCommand =
     | EmulatorFallbackInputCommand
@@ -219,6 +219,7 @@ export type EmulatorLibraryDef = {
 
 export type EmulatorLibraryManifest = {
     version: number;
-    items: string[];
+    // Map of file name to size
+    items: {[path: string]: number};
     inline_data: {[path: string]: string};
 };
