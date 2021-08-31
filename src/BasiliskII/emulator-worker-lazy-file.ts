@@ -28,12 +28,18 @@ export function createLazyFile(
             const data = new Uint8Array(xhr.response as ArrayBuffer);
             if (data.byteLength !== size) {
                 console.warn(
-                    `Lazy file from URL ${url} was expected to have size ${size} but instead had ${data.byteLength}`
+                    `Lazy file from URL ${url} was expected to have size ` +
+                        `${size} but instead had ${data.byteLength}`
                 );
             }
             contents.set(data);
+            // Ideally we'd just reset the stream_ops for the file to the
+            // default, but any already-opened streams have saved a copy to
+            // our modified ones, so we also need to restore the version of
+            // read in our modified copy.
+            file.stream_ops.read = defaultStreamOps.read;
             file.stream_ops = defaultStreamOps;
-            return defaultStreamOps["read"].apply(this, args);
+            return defaultStreamOps.read.apply(this, args);
         },
     };
 
