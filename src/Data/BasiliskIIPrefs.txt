@@ -29,5 +29,4 @@ mousewheelmode 1
 mousewheellines 3
 dsp /dev/dsp
 mixer /dev/mixer
-ignoresegv false
 idlewait true
