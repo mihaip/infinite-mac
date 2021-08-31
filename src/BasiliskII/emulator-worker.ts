@@ -30,9 +30,12 @@ import {
     FallbackEmulatorWorkerFiles,
     SharedMemoryEmulatorWorkerFiles,
 } from "./emulator-worker-files";
-import {extractDirectory} from "./emulator-worker-extractor";
 import {loadLibrary} from "./emulator-worker-library";
 import {createLazyFile} from "./emulator-worker-lazy-file";
+import {
+    handleExtractionRequests,
+    initializeExtractor,
+} from "./emulator-worker-extractor";
 
 declare const Module: EmscriptenModule;
 declare const workerCommands: EmulatorFallbackCommand[];
@@ -58,12 +61,15 @@ class EmulatorWorkerApi {
     #nextExpectedBlitTime = 0;
     #lastIdleWaitFrameId = 0;
 
+    #enableExtractor: boolean;
+
     constructor(config: EmulatorWorkerConfig) {
         const {
             video: videoConfig,
             input: inputConfig,
             audio: audioConfig,
             files: filesConfig,
+            enableExtractor,
         } = config;
         const blitSender = (
             data: EmulatorWorkerVideoBlit,
@@ -102,6 +108,7 @@ class EmulatorWorkerApi {
                       filesConfig,
                       getFallbackEndpoint()
                   );
+        this.#enableExtractor = enableExtractor;
     }
 
     blit(
@@ -161,6 +168,10 @@ class EmulatorWorkerApi {
         // TODO: better place to poll for this? On the other hand, only doing it
         // when the machine is idle seems reasonable.
         this.#handleFileUploads();
+
+        if (this.#enableExtractor) {
+            handleExtractionRequests();
+        }
     }
 
     #handleFileUploads() {
@@ -262,6 +273,10 @@ function startEmulator(config: EmulatorWorkerConfig) {
                 FS.mkdir("/Shared");
                 FS.mkdir("/Shared/Downloads");
 
+                if (config.enableExtractor) {
+                    initializeExtractor();
+                }
+
                 for (const [name, path] of Object.entries(
                     config.autoloadFiles
                 )) {
@@ -282,7 +297,6 @@ function startEmulator(config: EmulatorWorkerConfig) {
         onRuntimeInitialized() {
             const globalScope = globalThis as any;
             globalScope.workerApi = workerApi;
-            globalScope.extractDirectory = extractDirectory;
         },
 
         monitorRunDependencies(left: number) {

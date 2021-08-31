@@ -34,6 +34,7 @@ export function Mac() {
                 useSharedMemory:
                     typeof SharedArrayBuffer !== "undefined" &&
                     searchParams.get("use_shared_memory") !== "false",
+                enableExtractor: searchParams.get("extractor") === "true",
                 screenWidth: SCREEN_WIDTH,
                 screenHeight: SCREEN_HEIGHT,
                 screenCanvas: screenRef.current!,

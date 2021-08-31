@@ -39,6 +39,7 @@ export type EmulatorWorkerConfig = {
     audio: EmulatorWorkerAudioConfig;
     files: EmulatorWorkerFilesConfig;
     library: EmulatorLibraryDef;
+    enableExtractor: boolean;
 };
 
 export type EmulatorWorkerVideoConfig =
