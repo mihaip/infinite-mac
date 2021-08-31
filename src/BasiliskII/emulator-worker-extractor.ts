@@ -3,7 +3,37 @@ import type {
     EmulatorWorkerDirectorExtractionEntry,
 } from "./emulator-common";
 
-export function extractDirectory(dirPath: string) {
+export function initializeExtractor() {
+    FS.mkdir(EXTRACTOR_DIRECTORY);
+}
+
+export function handleExtractionRequests() {
+    // Give file system a chance to settle (e.g. if copying a folder in). We
+    // can't use setTimeout to schedule an extraction in the future because we
+    // don't have an event loop.
+    const MAX_MTIME = Date.now() - 2000;
+
+    for (const childName of FS.readdir(EXTRACTOR_DIRECTORY)) {
+        if (childName.startsWith(".")) {
+            continue;
+        }
+        const childPath = EXTRACTOR_DIRECTORY + "/" + childName;
+        const {object: fsObject} = FS.analyzePath(childPath);
+        if (FS.isDir(fsObject.mode) && !extractedDirectories.has(childPath)) {
+            const stat = FS.stat(childPath);
+            if (stat.mtime.getTime() < MAX_MTIME) {
+                extractedDirectories.add(childPath);
+                extractDirectory(childPath);
+            }
+        }
+    }
+}
+
+const EXTRACTOR_DIRECTORY = "/Shared/To Be Extracted";
+
+const extractedDirectories = new Set<string>();
+
+function extractDirectory(dirPath: string) {
     const {
         exists: dirExists,
         name: dirName,

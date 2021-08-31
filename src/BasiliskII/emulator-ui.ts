@@ -33,6 +33,7 @@ import {loadLibrary} from "./emulator-ui-library";
 export type EmulatorConfig = {
     useTouchEvents: boolean;
     useSharedMemory: boolean;
+    enableExtractor: boolean;
     screenWidth: number;
     screenHeight: number;
     screenCanvas: HTMLCanvasElement;
@@ -138,6 +139,7 @@ export class Emulator {
             useTouchEvents,
             useSharedMemory,
             screenCanvas: canvas,
+            enableExtractor,
         } = this.#config;
         if (useTouchEvents) {
             canvas.addEventListener("touchmove", this.#handleTouchMove);
@@ -172,6 +174,7 @@ export class Emulator {
             audio: this.#audio.workerConfig(),
             files: this.#files.workerConfig(),
             library: loadLibrary(),
+            enableExtractor,
         };
 
         if (!useSharedMemory) {
