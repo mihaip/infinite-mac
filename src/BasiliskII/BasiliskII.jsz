@@ -1424,20 +1424,20 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  120696: function() {workerApi.idleWait();},  
- 120722: function($0) {workerApi.debugPointer($0);},  
- 120754: function($0, $1, $2, $3, $4, $5) {workerApi.blit($0, $1, $2, $3, $4, $5);},  
- 120798: function() {return workerApi.acquireInputLock();},  
- 120839: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
- 120928: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
- 121014: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
- 121102: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
- 121190: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
- 121275: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
- 121355: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
- 121436: function() {workerApi.releaseInputLock();},  
- 121470: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
- 121511: function($0, $1, $2) {return workerApi.enqueueAudio($0, $1, $2);}
+  120744: function() {workerApi.idleWait();},  
+ 120770: function($0) {workerApi.debugPointer($0);},  
+ 120802: function($0, $1, $2, $3, $4, $5) {workerApi.blit($0, $1, $2, $3, $4, $5);},  
+ 120846: function() {return workerApi.acquireInputLock();},  
+ 120887: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
+ 120976: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
+ 121062: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
+ 121150: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
+ 121238: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
+ 121323: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
+ 121403: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
+ 121484: function() {workerApi.releaseInputLock();},  
+ 121518: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
+ 121559: function($0, $1, $2) {return workerApi.enqueueAudio($0, $1, $2);}
 };
 
 
