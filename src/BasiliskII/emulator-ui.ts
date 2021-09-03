@@ -29,6 +29,8 @@ import {
 } from "./emulator-ui-files";
 import {handleDirectoryExtraction} from "./emulator-ui-extractor";
 import {loadLibrary} from "./emulator-ui-library";
+import BasiliskIIPath from "./BasiliskII.jsz";
+import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 
 export type EmulatorConfig = {
     useTouchEvents: boolean;
@@ -165,11 +167,32 @@ export class Emulator {
 
         this.#worker.addEventListener("message", this.#handleWorkerMessage);
 
+        // Fetch all of the dependent files ourselves, to avoid a waterfall
+        // if we let Emscripten handle it (it would first load the JS, and
+        // then that would load the WASM and data files).
+        const [[jsBlobUrl, wasmBlobUrl], [disk, rom, prefs]] = await load(
+            [BasiliskIIPath, BasiliskIIWasmPath],
+            [
+                this.#config.diskPath,
+                this.#config.romPath,
+                this.#config.basiliskPrefsPath,
+            ],
+            (total, left) => {
+                this.#delegate?.emulatorDidMakeLoadingProgress?.(
+                    this,
+                    total,
+                    left
+                );
+            }
+        );
+
         const config: EmulatorWorkerConfig = {
+            jsUrl: jsBlobUrl,
+            wasmUrl: wasmBlobUrl,
             autoloadFiles: {
-                "Macintosh HD": this.#config.diskPath,
-                "Quadra-650.rom": this.#config.romPath,
-                "prefs": this.#config.basiliskPrefsPath,
+                "Macintosh HD": disk,
+                "Quadra-650.rom": rom,
+                "prefs": prefs,
             },
             arguments: ["--config", "prefs"],
 
@@ -184,7 +207,7 @@ export class Emulator {
         if (!useSharedMemory) {
             await this.#serviceWorkerReady;
         }
-        this.#worker.postMessage({type: "start", config});
+        this.#worker.postMessage({type: "start", config}, [disk, rom, prefs]);
     }
 
     stop() {
@@ -294,12 +317,6 @@ export class Emulator {
     #handleWorkerMessage = (e: MessageEvent) => {
         if (e.data.type === "emulator_ready") {
             this.#delegate?.emulatorDidDidFinishLoading?.(this);
-        } else if (e.data.type === "emulator_loading") {
-            this.#delegate?.emulatorDidMakeLoadingProgress?.(
-                this,
-                e.data.total,
-                e.data.left
-            );
         } else if (e.data.type === "emulator_blit") {
             if (!this.#gotFirstBlit) {
                 this.#gotFirstBlit = true;
@@ -398,4 +415,34 @@ export class Emulator {
             this.#handleServiceWorkerMessage
         );
     }
+}
+
+async function load(
+    blobUrlPaths: string[],
+    arrayBufferPaths: string[],
+    progress: (total: number, left: number) => any
+): Promise<[string[], ArrayBuffer[]]> {
+    const paths = blobUrlPaths.concat(arrayBufferPaths);
+    let left = paths.length;
+    progress(paths.length, left);
+
+    const blobUrls: string[] = [];
+    const arrayBuffers: ArrayBuffer[] = [];
+
+    await Promise.all(
+        paths.map(async path => {
+            const response = await fetch(path);
+            const blobUrlIndex = blobUrlPaths.indexOf(path);
+            if (blobUrlIndex !== -1) {
+                const blobUrl = URL.createObjectURL(await response.blob());
+                blobUrls[blobUrlIndex] = blobUrl;
+            } else {
+                const arrayBufferIndex = arrayBufferPaths.indexOf(path);
+                arrayBuffers[arrayBufferIndex] = await response.arrayBuffer();
+            }
+            progress(paths.length, --left);
+        })
+    );
+
+    return [blobUrls, arrayBuffers];
 }
