@@ -16,3 +16,6 @@
 .env.production.local
 
 npm-debug.log*
+
+# generated source map with local paths
+public/BasiliskII.wasm.map
