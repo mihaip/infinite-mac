@@ -86,7 +86,11 @@ export class Emulator {
     #serviceWorker?: ServiceWorker;
     #serviceWorkerReady?: Promise<boolean>;
 
+    #gotFirstBlit = false;
+
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
+        console.time("Emulator first blit");
+
         this.#config = config;
         this.#delegate = delegate;
         this.#worker = new Worker();
@@ -297,6 +301,10 @@ export class Emulator {
                 e.data.left
             );
         } else if (e.data.type === "emulator_blit") {
+            if (!this.#gotFirstBlit) {
+                this.#gotFirstBlit = true;
+                console.timeEnd("Emulator first blit");
+            }
             const blitData: EmulatorWorkerVideoBlit = e.data.data;
             this.#video.blit(blitData);
             this.#drawScreen();
