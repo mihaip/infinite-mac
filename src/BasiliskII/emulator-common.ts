@@ -32,7 +32,9 @@ export enum LockStates {
 }
 
 export type EmulatorWorkerConfig = {
-    autoloadFiles: {[name: string]: string};
+    jsUrl: string;
+    wasmUrl: string;
+    autoloadFiles: {[name: string]: ArrayBuffer};
     arguments: string[];
     video: EmulatorWorkerVideoConfig;
     input: EmulatorWorkerInputConfig;

@@ -8,8 +8,6 @@ import type {
     EmulatorWorkerVideoBlit,
 } from "./emulator-common";
 import {InputBufferAddresses} from "./emulator-common";
-import BasiliskIIPath from "./BasiliskII.jsz";
-import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 import type {EmulatorWorkerAudio} from "./emulator-worker-audio";
 import {
     FallbackEmulatorWorkerAudio,
@@ -257,13 +255,12 @@ export class EmulatorFallbackEndpoint {
 function startEmulator(config: EmulatorWorkerConfig) {
     const workerApi = new EmulatorWorkerApi(config);
 
-    let addedPreloadedFiles = false;
-    let totalDependencies = 0;
     const moduleOverrides: Partial<EmscriptenModule> = {
         arguments: config.arguments,
         locateFile(path: string, scriptDirectory: string) {
+            console.log("locateFile", path);
             if (path === "BasiliskII.wasm") {
-                return BasiliskIIWasmPath;
+                return config.wasmUrl;
             }
             return scriptDirectory + path;
         },
@@ -277,18 +274,18 @@ function startEmulator(config: EmulatorWorkerConfig) {
                     initializeExtractor();
                 }
 
-                for (const [name, path] of Object.entries(
+                for (const [name, buffer] of Object.entries(
                     config.autoloadFiles
                 )) {
-                    FS.createPreloadedFile(
+                    FS.createDataFile(
                         "/",
                         name,
-                        path as string,
+                        new Uint8Array(buffer),
+                        true,
                         true,
                         true
                     );
                 }
-                addedPreloadedFiles = true;
 
                 loadLibrary(config.library);
             },
@@ -297,23 +294,7 @@ function startEmulator(config: EmulatorWorkerConfig) {
         onRuntimeInitialized() {
             const globalScope = globalThis as any;
             globalScope.workerApi = workerApi;
-        },
-
-        monitorRunDependencies(left: number) {
-            if (!addedPreloadedFiles) {
-                return;
-            }
-            totalDependencies = Math.max(totalDependencies, left);
-
-            if (left === 0) {
-                postMessage({type: "emulator_ready"});
-            } else {
-                postMessage({
-                    type: "emulator_loading",
-                    total: totalDependencies,
-                    left,
-                });
-            }
+            postMessage({type: "emulator_ready"});
         },
 
         print: console.log.bind(console),
@@ -322,5 +303,5 @@ function startEmulator(config: EmulatorWorkerConfig) {
     };
     (self as any).Module = moduleOverrides;
 
-    importScripts(BasiliskIIPath);
+    importScripts(config.jsUrl);
 }
