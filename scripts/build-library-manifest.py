@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 import base64
 import glob
@@ -30,7 +30,8 @@ for zip_path in glob.iglob(os.path.join(public_dir, "Library", "**", "*.zip")):
                     ".finf/Icon\r",
             ]:
                 file_data = zip.read(zip_info)
-                inline_data[zip_info.filename] = base64.b64encode(file_data)
+                inline_data[zip_info.filename] = \
+                    base64.b64encode(file_data).decode("utf8")
         manifest = {
             "items": items,
             "version": version,

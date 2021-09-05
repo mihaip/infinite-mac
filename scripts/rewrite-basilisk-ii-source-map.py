@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 
 import json
 import os
@@ -6,8 +6,6 @@ import sys
 
 input_path = sys.argv[1]
 output_path = sys.argv[2]
-
-print input_path, output_path
 
 with open(input_path, "r") as input_file:
     source_map = json.load(input_file)
