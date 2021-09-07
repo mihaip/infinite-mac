@@ -1,4 +1,5 @@
 import type {EmulatorLibraryDef} from "./emulator-common";
+import {DInfoFields} from "./emulator-finder";
 import {createLazyFile} from "./emulator-worker-lazy-file";
 
 export function loadLibrary(def: EmulatorLibraryDef) {
@@ -15,6 +16,13 @@ export function loadLibrary(def: EmulatorLibraryDef) {
                         atob(inlineData[item]),
                         c => c.charCodeAt(0)
                     );
+                    if (item === "DInfo") {
+                        // Clear location so that the Finder positions things
+                        // automatically for us.
+                        const dInfoView = new DataView(itemData.buffer);
+                        dInfoView.setInt16(DInfoFields.frLocation, -1); // x
+                        dInfoView.setInt16(DInfoFields.frLocation + 2, -1); // y
+                    }
                     return FS.createDataFile(
                         parent,
                         name,
