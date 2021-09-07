@@ -1,6 +1,11 @@
 import JSZip from "jszip";
 import type {EmulatorFallbackCommand} from "./emulator-common";
-import {getDebugFinderInfo, getDebugFolderInfo} from "./emulator-finder";
+import {
+    FInfoFields,
+    FinderFlags,
+    getDebugFinderInfo,
+    getDebugFolderInfo,
+} from "./emulator-finder";
 
 declare const self: ServiceWorkerGlobalScope;
 
@@ -117,7 +122,29 @@ async function handleLibraryFile(event: FetchEvent): Promise<Response> {
         });
     }
 
-    return new Response(await file.async("arraybuffer"), {
+    const buffer = await file.async("arraybuffer");
+    if (item.includes(".finf/")) {
+        const fInfoView = new DataView(buffer);
+        let flags = fInfoView.getUint16(FInfoFields.fdFlags);
+        // Clear the kHasBeenInited flag so that applications
+        // are registered (and thus their icons are set correctly
+        // based on BNDL resources).
+        if (flags & FinderFlags.kHasBeenInited) {
+            flags &= ~FinderFlags.kHasBeenInited;
+            fInfoView.setUint16(FInfoFields.fdFlags, flags);
+            // If we clear kHasBeenInited then the location is
+            // ignored unless we position it in a "magic rectangle"
+            // (see https://web.archive.org/web/20080514070617/http://developer.apple.com/technotes/tb/tb_42.html)
+            const x = fInfoView.getInt16(FInfoFields.fdLocation);
+            const y = fInfoView.getInt16(FInfoFields.fdLocation + 2);
+            if (x > 0 || y > 0) {
+                fInfoView.setInt16(FInfoFields.fdLocation, x - 20000);
+                fInfoView.setInt16(FInfoFields.fdLocation + 2, y - 20000);
+            }
+        }
+    }
+
+    return new Response(buffer, {
         status: 200,
         statusText: "OK",
         headers: {
