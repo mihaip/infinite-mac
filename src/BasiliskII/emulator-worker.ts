@@ -258,7 +258,6 @@ function startEmulator(config: EmulatorWorkerConfig) {
     const moduleOverrides: Partial<EmscriptenModule> = {
         arguments: config.arguments,
         locateFile(path: string, scriptDirectory: string) {
-            console.log("locateFile", path);
             if (path === "BasiliskII.wasm") {
                 return config.wasmUrl;
             }
@@ -297,7 +296,22 @@ function startEmulator(config: EmulatorWorkerConfig) {
             postMessage({type: "emulator_ready"});
         },
 
-        print: console.log.bind(console),
+        print(...args: any[]) {
+            // Chrome's console.groupCollapsed works like a log statement,
+            // so we can use it to wrap the current stack trace, which is
+            // handy for debugging.
+            if (
+                navigator.userAgent.indexOf("Chrome") !== -1 &&
+                args.length === 1 &&
+                typeof args[0] === "string"
+            ) {
+                console.groupCollapsed(`%c${args[0]}`, "font-weight:normal");
+                console.trace();
+                console.groupEnd();
+            } else {
+                console.log(...args);
+            }
+        },
 
         printErr: console.warn.bind(console),
     };
