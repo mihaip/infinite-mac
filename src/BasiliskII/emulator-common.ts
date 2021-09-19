@@ -31,9 +31,26 @@ export enum LockStates {
     EMUL_THREAD_LOCK,
 }
 
+export type EmulatorChunkedFileSpec = {
+    baseUrl: string;
+    totalSize: number;
+    chunkCount: number;
+    chunkSize: number;
+    version: string;
+    prefetchChunks: number[];
+};
+
+export function generateChunkUrl(
+    spec: EmulatorChunkedFileSpec,
+    chunk: number
+): string {
+    return `${spec.baseUrl}.${chunk}.br?v=${spec.version}`;
+}
+
 export type EmulatorWorkerConfig = {
     jsUrl: string;
     wasmUrl: string;
+    disk: EmulatorChunkedFileSpec;
     autoloadFiles: {[name: string]: ArrayBuffer};
     arguments: string[];
     video: EmulatorWorkerVideoConfig;

@@ -59,6 +59,10 @@ declare namespace FS {
         usedBytes: number;
         stream_ops: {[name: string]: Function};
     }
+
+    interface FSStream {
+        node: FSNode;
+    }
 }
 
 interface Document {

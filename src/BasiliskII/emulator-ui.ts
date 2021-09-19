@@ -1,4 +1,5 @@
 import type {
+    EmulatorChunkedFileSpec,
     EmulatorFallbackCommand,
     EmulatorWorkerConfig,
     EmulatorWorkerVideoBlit,
@@ -41,7 +42,7 @@ export type EmulatorConfig = {
     screenCanvas: HTMLCanvasElement;
     basiliskPrefsPath: string;
     romPath: string;
-    diskPath: string;
+    disk: EmulatorChunkedFileSpec;
 };
 
 export interface EmulatorDelegate {
@@ -144,7 +145,6 @@ export class Emulator {
     async start() {
         const {
             useTouchEvents,
-            useSharedMemory,
             screenCanvas: canvas,
             enableExtractor,
         } = this.#config;
@@ -171,13 +171,9 @@ export class Emulator {
         // Fetch all of the dependent files ourselves, to avoid a waterfall
         // if we let Emscripten handle it (it would first load the JS, and
         // then that would load the WASM and data files).
-        const [[jsBlobUrl, wasmBlobUrl], [disk, rom, prefs]] = await load(
+        const [[jsBlobUrl, wasmBlobUrl], [rom, prefs]] = await load(
             [BasiliskIIPath, BasiliskIIWasmPath],
-            [
-                this.#config.diskPath,
-                this.#config.romPath,
-                this.#config.basiliskPrefsPath,
-            ],
+            [this.#config.romPath, this.#config.basiliskPrefsPath],
             (total, left) => {
                 this.#delegate?.emulatorDidMakeLoadingProgress?.(
                     this,
@@ -190,8 +186,8 @@ export class Emulator {
         const config: EmulatorWorkerConfig = {
             jsUrl: jsBlobUrl,
             wasmUrl: wasmBlobUrl,
+            disk: this.#config.disk,
             autoloadFiles: {
-                "Macintosh HD": disk,
                 "Quadra-650.rom": rom,
                 "prefs": prefs,
             },
@@ -205,10 +201,12 @@ export class Emulator {
             enableExtractor,
         };
 
-        if (!useSharedMemory) {
-            await this.#serviceWorkerReady;
-        }
-        this.#worker.postMessage({type: "start", config}, [disk, rom, prefs]);
+        await this.#serviceWorkerReady;
+        this.#serviceWorker!.postMessage({
+            type: "init-disk-cache",
+            spec: config.disk,
+        });
+        this.#worker.postMessage({type: "start", config}, [rom, prefs]);
     }
 
     stop() {

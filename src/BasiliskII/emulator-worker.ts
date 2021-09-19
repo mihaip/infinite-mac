@@ -1,4 +1,5 @@
 import type {
+    EmulatorChunkedFileSpec,
     EmulatorFallbackCommand,
     EmulatorFallbackInputCommand,
     EmulatorFallbackUploadFileCommand,
@@ -34,6 +35,10 @@ import {
     handleExtractionRequests,
     initializeExtractor,
 } from "./emulator-worker-extractor";
+import {
+    createChunkedFile,
+    validateSpecPrefetchChunks,
+} from "./emulator-worker-chunked-file";
 
 declare const Module: EmscriptenModule;
 declare const workerCommands: EmulatorFallbackCommand[];
@@ -61,6 +66,7 @@ class EmulatorWorkerApi {
 
     #enableExtractor: boolean;
     #gotFirstIdleWait = false;
+    #diskSpec: EmulatorChunkedFileSpec;
 
     constructor(config: EmulatorWorkerConfig) {
         const {
@@ -69,6 +75,7 @@ class EmulatorWorkerApi {
             audio: audioConfig,
             files: filesConfig,
             enableExtractor,
+            disk,
         } = config;
         const blitSender = (
             data: EmulatorWorkerVideoBlit,
@@ -108,6 +115,7 @@ class EmulatorWorkerApi {
                       getFallbackEndpoint()
                   );
         this.#enableExtractor = enableExtractor;
+        this.#diskSpec = disk;
     }
 
     blit(
@@ -155,6 +163,7 @@ class EmulatorWorkerApi {
         if (!this.#gotFirstIdleWait) {
             this.#gotFirstIdleWait = true;
             postMessage({type: "emulator_first_idlewait"});
+            validateSpecPrefetchChunks(this.#diskSpec);
         }
         // Don't do more than one call per frame, otherwise we end up skipping
         // frames.
@@ -290,6 +299,8 @@ function startEmulator(config: EmulatorWorkerConfig) {
                         true
                     );
                 }
+
+                createChunkedFile("/", "Macintosh HD", config.disk, true, true);
 
                 loadLibrary(config.library);
             },
