@@ -60,6 +60,7 @@ class EmulatorWorkerApi {
     #lastIdleWaitFrameId = 0;
 
     #enableExtractor: boolean;
+    #gotFirstIdleWait = false;
 
     constructor(config: EmulatorWorkerConfig) {
         const {
@@ -151,6 +152,10 @@ class EmulatorWorkerApi {
     }
 
     idleWait() {
+        if (!this.#gotFirstIdleWait) {
+            this.#gotFirstIdleWait = true;
+            postMessage({type: "emulator_first_idlewait"});
+        }
         // Don't do more than one call per frame, otherwise we end up skipping
         // frames.
         // TOOD: understand why IdleWait is called multiple times in a row
