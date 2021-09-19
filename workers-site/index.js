@@ -91,7 +91,9 @@ async function handleEvent(event) {
         // for a while (30 days).
         if (
             url.pathname.startsWith("/static") ||
-            (url.pathname.startsWith("/Library") && url.searchParams.has("v"))
+            (url.pathname.startsWith("/Library") &&
+                url.searchParams.has("v")) ||
+            (url.pathname.startsWith("/Disk") && url.searchParams.has("v"))
         ) {
             response.headers.set(
                 "Cache-Control",

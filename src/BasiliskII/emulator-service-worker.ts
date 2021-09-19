@@ -1,5 +1,9 @@
 import JSZip from "jszip";
-import type {EmulatorFallbackCommand} from "./emulator-common";
+import type {
+    EmulatorChunkedFileSpec,
+    EmulatorFallbackCommand,
+} from "./emulator-common";
+import {generateChunkUrl} from "./emulator-common";
 import {
     FInfoFields,
     FinderFlags,
@@ -21,10 +25,34 @@ function constructJsResponse(js: string) {
     });
 }
 
+const DISK_CACHE_NAME = "disk-cache";
+const diskCacheSpecs: EmulatorChunkedFileSpec[] = [];
+
 self.addEventListener("message", event => {
     const {data} = event;
     if (data.type === "worker-command") {
         workerCommands.push(data.command);
+    } else if (data.type === "init-disk-cache") {
+        const diskFileSpec = data.spec as EmulatorChunkedFileSpec;
+        diskCacheSpecs.push(diskFileSpec);
+        event.waitUntil(
+            (async function () {
+                const cache = await caches.open(DISK_CACHE_NAME);
+                const prefetchChunkUrls = [];
+                for (const chunk of diskFileSpec.prefetchChunks) {
+                    const chunkUrl = generateChunkUrl(diskFileSpec, chunk);
+                    const cachedResponse = await cache.match(
+                        new Request(chunkUrl)
+                    );
+                    if (!cachedResponse) {
+                        prefetchChunkUrls.push(chunkUrl);
+                    }
+                }
+                if (prefetchChunkUrls.length) {
+                    return cache.addAll(prefetchChunkUrls);
+                }
+            })()
+        );
     }
 });
 
@@ -40,6 +68,12 @@ self.addEventListener("fetch", (event: FetchEvent) => {
         requestUrl.searchParams.has("item")
     ) {
         event.respondWith(handleLibraryFile(event));
+    } else if (
+        diskCacheSpecs.some(spec =>
+            decodeURIComponent(requestUrl.pathname).startsWith(spec.baseUrl)
+        )
+    ) {
+        event.respondWith(handleDiskCacheRequest(event.request));
     }
 });
 
@@ -198,6 +232,17 @@ async function fetchZip(path: string, version: string): Promise<JSZip> {
     postMessage({type: "library_zip_complete", name});
 
     return zip;
+}
+
+async function handleDiskCacheRequest(request: Request): Promise<Response> {
+    const cache = await caches.open(DISK_CACHE_NAME);
+    const match = await cache.match(request);
+    if (match) {
+        return match;
+    }
+    const response = await fetch(request);
+    cache.put(request, response.clone());
+    return response;
 }
 
 // Boilerplate to make sure we're running as quickly as possible.

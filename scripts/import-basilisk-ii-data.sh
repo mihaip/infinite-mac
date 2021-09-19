@@ -6,7 +6,10 @@
 ROOT_DIR="`dirname "${BASH_SOURCE[0]}"`/.."
 BASILISK_II_DIR="${ROOT_DIR}/../macemu/BasiliskII/src/Unix"
 DATA_DIR="${ROOT_DIR}/src/Data"
+PUBLIC_DIR="${ROOT_DIR}/public"
 
-# ROM and disk images
-brotli -q 11 -k "${BASILISK_II_DIR}/Quadra-650.rom" "${BASILISK_II_DIR}/Macintosh HD.dsk"
-mv "${BASILISK_II_DIR}/Quadra-650.rom.br" "${BASILISK_II_DIR}/Macintosh HD.dsk.br" "${DATA_DIR}/"
+# ROM
+#brotli -q 11 -k "${BASILISK_II_DIR}/Quadra-650.rom"
+#mv "${BASILISK_II_DIR}/Quadra-650.rom.br"  "${DATA_DIR}/"
+
+scripts/import-disk-image.py "${BASILISK_II_DIR}/Macintosh HD.dsk" "${PUBLIC_DIR}/Disk" "${DATA_DIR}/"
