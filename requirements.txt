@@ -1,2 +1,2 @@
-git+https://github.com/mihaip/machfs.git@5992e174ed569f7929985cf35d4467b2b1e093f1#egg=machfs
+git+https://github.com/mihaip/machfs.git@2dde60a4032019fc86a00a51ce69db9702fcd5b4#egg=machfs
 brotli==1.0.9

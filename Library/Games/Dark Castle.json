@@ -1,0 +1,4 @@
+{
+    "src_url": "https://archive.org/download/mac_DarkCastle_1_2/DarkCastle_1_2.dsk",
+    "src_denylist": ["System", "Finder"]
+}

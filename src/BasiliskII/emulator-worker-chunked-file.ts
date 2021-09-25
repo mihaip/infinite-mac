@@ -104,16 +104,23 @@ export function validateSpecPrefetchChunks(spec: EmulatorChunkedFileSpec) {
             extraPrefetch.push(chunk);
         }
     }
-    if (extraPrefetch.length) {
+    const numberCompare = (a: number, b: number): number => a - b;
+    if (extraPrefetch.length || needsPrefetch.length) {
+        if (extraPrefetch.length) {
+            console.warn(
+                `Chunked file ${spec.baseUrl} had unncessary chunks prefetched:`,
+                extraPrefetch.sort(numberCompare)
+            );
+        }
+        if (needsPrefetch.length) {
+            console.warn(
+                `Chunked file ${spec.baseUrl} needs more chunks prefetched:`,
+                needsPrefetch.sort(numberCompare)
+            );
+        }
         console.warn(
-            `Chunked file ${spec.baseUrl} had unncessary chunks prefetched:`,
-            extraPrefetch
-        );
-    }
-    if (needsPrefetch.length) {
-        console.warn(
-            `Chunked file ${spec.baseUrl} had needs more chunks prefetched:`,
-            needsPrefetch
+            `Chunked file ${spec.baseUrl} complete set of ideal prefetch chunks:`,
+            Array.from(loadedChunks).sort(numberCompare)
         );
     }
 }
