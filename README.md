@@ -8,7 +8,7 @@ Common development tasks, all done via `npm run`:
 
 -   `start`: Run local dev server (will be running at http://localhost:3127)
 -   `import-basilisk-ii`: Copy generated WebAssembly from a https://github.com/mihaip/macemu checkout (assumed to be in a sibling directory to this repo).
--   `import-basilisk-ii-data`: Variant of the above for the data files.
+-   `import-basilisk-ii-data`: Variant of the above for the data files. Also imports other disk images into the main disk image and chunks it for serving.
 -   `build-library-manifest`: Rebuild the combined manifest file used for the software library (should be done when updating the contents of `public/Library`)
 
 Common deployment tasks (also done via `npm run`)

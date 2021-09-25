@@ -12,4 +12,4 @@ PUBLIC_DIR="${ROOT_DIR}/public"
 #brotli -q 11 -k "${BASILISK_II_DIR}/Quadra-650.rom"
 #mv "${BASILISK_II_DIR}/Quadra-650.rom.br"  "${DATA_DIR}/"
 
-scripts/import-disk-image.py "${BASILISK_II_DIR}/Macintosh HD.dsk" "${PUBLIC_DIR}/Disk" "${DATA_DIR}/"
+scripts/build-disk-image.py "${BASILISK_II_DIR}/Macintosh HD.dsk" "${PUBLIC_DIR}/Disk" "${DATA_DIR}/"
