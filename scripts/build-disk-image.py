@@ -14,6 +14,7 @@ import zipfile
 
 LIBRARY_DIR = os.path.join(os.path.dirname(__file__), "..", "Library")
 CACHE_DIR = os.path.join("/tmp", "infinite-mac-cache")
+DEBUG = os.getenv("DEBUG", "0") == "1"
 
 input_path = sys.argv[1]
 output_dir = sys.argv[2]
@@ -182,10 +183,11 @@ with open(input_path, "rb") as input_file:
         bootable=True,
     )
 
+    brotli_quality = 0 if DEBUG else 11
     for i in range(0, DISK_SIZE, CHUNK_SIZE):
         chunk = flat[i:i + CHUNK_SIZE]
         total_size += len(chunk)
-        chunk_compressed = brotli.compress(chunk, quality=11)
+        chunk_compressed = brotli.compress(chunk, quality=brotli_quality)
         chunk_path = os.path.join(output_dir,
                                   f"{input_file_name}.{chunk_count}.br")
         # Use compressed version for the version hash so that if we change the
