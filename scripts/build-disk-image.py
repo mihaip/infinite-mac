@@ -169,7 +169,7 @@ sys.stderr.flush()
 with open(input_path, "rb") as input_file:
     v = machfs.Volume()
     v.read(input_file.read(), preserve_desktopdb=True)
-    v.name = "Macintosh HD"
+    v.name = "Infinite HD"
 
     for folder_path, folder in import_folders.items():
         parent_folder_path, folder_name = os.path.split(folder_path)
