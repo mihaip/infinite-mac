@@ -37,11 +37,6 @@ declare module "service-worker-loader!*" {
     export {ServiceWorkerNoSupportError, scriptUrl};
 }
 
-declare interface EmscriptenModule {
-    // Not part of the default type definitions for some reason
-    monitorRunDependencies(left: number): void;
-}
-
 declare namespace FS {
     function analyzePath(path: string): {
         exists: boolean;
