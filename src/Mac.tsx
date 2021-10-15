@@ -55,7 +55,7 @@ export function Mac() {
                 },
             },
             {
-                emulatorDidDidFinishLoading(emulator: Emulator) {
+                emulatorDidFinishLoading(emulator: Emulator) {
                     setEmulatorLoaded(true);
                 },
                 emulatorDidMakeLoadingProgress(

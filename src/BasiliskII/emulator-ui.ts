@@ -50,7 +50,7 @@ export interface EmulatorDelegate {
         total: number,
         left: number
     ): void;
-    emulatorDidDidFinishLoading?(emulator: Emulator): void;
+    emulatorDidFinishLoading?(emulator: Emulator): void;
     emulatorDidStartToLoadDiskChunk?(emulator: Emulator): void;
     emulatorDidFinishLoadingDiskChunk?(emulator: Emulator): void;
 }
@@ -301,7 +301,7 @@ export class Emulator {
 
     #handleWorkerMessage = (e: MessageEvent) => {
         if (e.data.type === "emulator_ready") {
-            this.#delegate?.emulatorDidDidFinishLoading?.(this);
+            this.#delegate?.emulatorDidFinishLoading?.(this);
         } else if (e.data.type === "emulator_blit") {
             if (!this.#gotFirstBlit) {
                 this.#gotFirstBlit = true;
