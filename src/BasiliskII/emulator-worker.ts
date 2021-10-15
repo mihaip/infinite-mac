@@ -29,7 +29,6 @@ import {
     FallbackEmulatorWorkerFiles,
     SharedMemoryEmulatorWorkerFiles,
 } from "./emulator-worker-files";
-import {loadLibrary} from "./emulator-worker-library";
 import {createLazyFile} from "./emulator-worker-lazy-file";
 import {
     handleExtractionRequests,
@@ -301,8 +300,6 @@ function startEmulator(config: EmulatorWorkerConfig) {
                 }
 
                 createChunkedFile("/", "Macintosh HD", config.disk, true, true);
-
-                loadLibrary(config.library);
             },
         ],
 

@@ -29,7 +29,6 @@ import {
     SharedMemoryEmulatorFiles,
 } from "./emulator-ui-files";
 import {handleDirectoryExtraction} from "./emulator-ui-extractor";
-import {loadLibrary} from "./emulator-ui-library";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 
@@ -52,20 +51,6 @@ export interface EmulatorDelegate {
         left: number
     ): void;
     emulatorDidDidFinishLoading?(emulator: Emulator): void;
-    emulatorDidDidStartLoadingLibraryFile?(
-        emulator: Emulator,
-        name: string
-    ): void;
-    emulatorDidDidMakeProgressLoadingLibraryFile?(
-        emulator: Emulator,
-        name: string,
-        totalBytes: number,
-        bytesReceived: number
-    ): void;
-    emulatorDidDidFinishLoadingLibraryFile?(
-        emulator: Emulator,
-        name: string
-    ): void;
 }
 
 export type EmulatorFallbackCommandSender = (
@@ -197,7 +182,6 @@ export class Emulator {
             input: this.#input.workerConfig(),
             audio: this.#audio.workerConfig(),
             files: this.#files.workerConfig(),
-            library: loadLibrary(),
             enableExtractor,
         };
 
@@ -339,24 +323,7 @@ export class Emulator {
 
     #handleServiceWorkerMessage = (e: MessageEvent) => {
         const {data} = e;
-        if (data.type === "library_zip_fetch_start") {
-            this.#delegate?.emulatorDidDidStartLoadingLibraryFile?.(
-                this,
-                data.name
-            );
-        } else if (data.type === "library_zip_fetch_progress") {
-            this.#delegate?.emulatorDidDidMakeProgressLoadingLibraryFile?.(
-                this,
-                data.name,
-                data.totalBytes,
-                data.bytesReceived
-            );
-        } else if (data.type === "library_zip_complete") {
-            this.#delegate?.emulatorDidDidFinishLoadingLibraryFile?.(
-                this,
-                data.name
-            );
-        }
+        // TODO: chunk progress
     };
 
     #handleVisibilityChange = () => {
