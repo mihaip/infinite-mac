@@ -51,6 +51,8 @@ export interface EmulatorDelegate {
         left: number
     ): void;
     emulatorDidDidFinishLoading?(emulator: Emulator): void;
+    emulatorDidStartToLoadDiskChunk?(emulator: Emulator): void;
+    emulatorDidFinishLoadingDiskChunk?(emulator: Emulator): void;
 }
 
 export type EmulatorFallbackCommandSender = (
@@ -323,7 +325,17 @@ export class Emulator {
 
     #handleServiceWorkerMessage = (e: MessageEvent) => {
         const {data} = e;
-        // TODO: chunk progress
+        switch (data.type) {
+            case "disk_chunk_fetch_start":
+                this.#delegate?.emulatorDidStartToLoadDiskChunk?.(this);
+                break;
+            case "disk_chunk_fetch_end":
+                this.#delegate?.emulatorDidFinishLoadingDiskChunk?.(this);
+                break;
+            default:
+                console.warn("Unexpected message from service worker", data);
+                break;
+        }
     };
 
     #handleVisibilityChange = () => {

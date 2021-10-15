@@ -98,8 +98,15 @@ async function handleDiskCacheRequest(request: Request): Promise<Response> {
     if (match) {
         return match;
     }
+    async function postMessage(data: any) {
+        const clients = await self.clients.matchAll({type: "window"});
+        clients.forEach(client => client.postMessage(data));
+    }
+
+    postMessage({type: "disk_chunk_fetch_start"});
     const response = await fetch(request);
     cache.put(request, response.clone());
+    postMessage({type: "disk_chunk_fetch_end"});
     return response;
 }
 

@@ -152,6 +152,19 @@ body.fullscreen .Mac {
     background: #00ff00;
 }
 
+.Mac-Led-Loading {
+    animation: Mac-Led-Blink 0.1s infinite;
+}
+
+@keyframes Mac-Led-Blink {
+    from {
+        background: #00ff00;
+    }
+    to {
+        background: #000000;
+    }
+}
+
 .Mac-Loading {
     position: absolute;
     top: 0;
