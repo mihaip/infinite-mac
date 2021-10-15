@@ -39,22 +39,8 @@ async function handleEvent(event) {
                 bypassCache: true,
             };
         }
-        let response;
-        if (url.pathname.startsWith("/Library")) {
-            // TODO: cache in Cloudflare if GitHub gets mad about serving?
-            // Though the response should end up being cached too.
-            const gitHubResponse = await fetch(
-                `${GIT_REPO}/raw/main/public/${url.pathname}`
-            );
-            response = new Response(gitHubResponse.body, {
-                status: gitHubResponse.status,
-                statusText: gitHubResponse.statusText,
-                headers: new Headers(gitHubResponse.headers),
-            });
-        } else {
-            const page = await getAssetFromKV(event, options);
-            response = new Response(page.body, page);
-        }
+        const page = await getAssetFromKV(event, options);
+        let response = new Response(page.body, page);
 
         // Make sure that pre-compressed static content is passed through (see
         // https://stackoverflow.com/a/64849685/343108)
