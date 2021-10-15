@@ -169,23 +169,6 @@ body.fullscreen .Mac {
     padding-left: 0.5em;
 }
 
-.Mac-Loading-Library {
-    position: absolute;
-    bottom: calc((var(--screen-bezel-size) + 48px) * -1);
-    left: 0;
-    height: 48px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-}
-
-.Mac-Loading-Library-Fraction {
-    opacity: 0.5;
-    padding-left: 0.5em;
-}
-
 .Mac-Screen {
     position: relative;
     top: var(--screen-underscan);

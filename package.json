@@ -28,7 +28,6 @@
     "scripts": {
         "import-basilisk-ii": "scripts/import-basilisk-ii.sh",
         "import-basilisk-ii-data": "scripts/import-basilisk-ii-data.sh",
-        "build-library-manifest": "scripts/build-library-manifest.py",
         "start": "PORT=3127 react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",

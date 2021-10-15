@@ -57,7 +57,6 @@ export type EmulatorWorkerConfig = {
     input: EmulatorWorkerInputConfig;
     audio: EmulatorWorkerAudioConfig;
     files: EmulatorWorkerFilesConfig;
-    library: EmulatorLibraryDef;
     enableExtractor: boolean;
 };
 
@@ -231,15 +230,4 @@ export type EmulatorWorkerDirectorExtractionEntry =
 export type EmulatorWorkerDirectorExtraction = {
     name: string;
     contents: EmulatorWorkerDirectorExtractionEntry[];
-};
-
-export type EmulatorLibraryDef = {
-    [path: string]: EmulatorLibraryManifest;
-};
-
-export type EmulatorLibraryManifest = {
-    version: number;
-    // Map of file name to size
-    items: {[path: string]: number};
-    inline_data: {[path: string]: string};
 };
