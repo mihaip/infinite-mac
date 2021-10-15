@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Assumes that https://github.com/mihaip/macemu is in a sibling directory and
-# it has been built
+# Assumes that the https://github.com/mihaip/macemu submodule has been fetched
+# and it has been built.
 
 ROOT_DIR="`dirname "${BASH_SOURCE[0]}"`/.."
-BASILISK_II_DIR="${ROOT_DIR}/../macemu/BasiliskII/src/Unix"
+BASILISK_II_DIR="${ROOT_DIR}/macemu/BasiliskII/src/Unix"
 SRC_DIR="${ROOT_DIR}/src"
 DATA_DIR="${SRC_DIR}/Data"
 PUBLIC_DIR="${ROOT_DIR}/public"
