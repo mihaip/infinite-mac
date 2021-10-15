@@ -29,7 +29,7 @@ export function handleExtractionRequests() {
     }
 }
 
-const EXTRACTOR_DIRECTORY = "/Shared/To Be Extracted";
+const EXTRACTOR_DIRECTORY = "/Shared/Uploads";
 
 const extractedDirectories = new Set<string>();
 
