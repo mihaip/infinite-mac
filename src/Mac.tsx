@@ -166,7 +166,9 @@ export function Mac() {
             <div
                 className={
                     "Mac-Led" +
-                    (emulatorLoadingDiskChunk ? " Mac-Led-Loading" : "")
+                    (!emulatorLoaded || emulatorLoadingDiskChunk
+                        ? " Mac-Led-Loading"
+                        : "")
                 }
             />
             <canvas
