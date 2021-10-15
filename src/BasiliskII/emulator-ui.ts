@@ -35,7 +35,6 @@ import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 export type EmulatorConfig = {
     useTouchEvents: boolean;
     useSharedMemory: boolean;
-    enableExtractor: boolean;
     screenWidth: number;
     screenHeight: number;
     screenCanvas: HTMLCanvasElement;
@@ -130,11 +129,7 @@ export class Emulator {
     }
 
     async start() {
-        const {
-            useTouchEvents,
-            screenCanvas: canvas,
-            enableExtractor,
-        } = this.#config;
+        const {useTouchEvents, screenCanvas: canvas} = this.#config;
         if (useTouchEvents) {
             canvas.addEventListener("touchmove", this.#handleTouchMove);
             canvas.addEventListener("touchstart", this.#handleTouchStart);
@@ -184,7 +179,6 @@ export class Emulator {
             input: this.#input.workerConfig(),
             audio: this.#audio.workerConfig(),
             files: this.#files.workerConfig(),
-            enableExtractor,
         };
 
         await this.#serviceWorkerReady;

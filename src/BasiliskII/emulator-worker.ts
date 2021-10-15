@@ -63,7 +63,6 @@ class EmulatorWorkerApi {
     #nextExpectedBlitTime = 0;
     #lastIdleWaitFrameId = 0;
 
-    #enableExtractor: boolean;
     #gotFirstIdleWait = false;
     #diskSpec: EmulatorChunkedFileSpec;
 
@@ -73,7 +72,6 @@ class EmulatorWorkerApi {
             input: inputConfig,
             audio: audioConfig,
             files: filesConfig,
-            enableExtractor,
             disk,
         } = config;
         const blitSender = (
@@ -113,7 +111,6 @@ class EmulatorWorkerApi {
                       filesConfig,
                       getFallbackEndpoint()
                   );
-        this.#enableExtractor = enableExtractor;
         this.#diskSpec = disk;
     }
 
@@ -179,10 +176,7 @@ class EmulatorWorkerApi {
         // TODO: better place to poll for this? On the other hand, only doing it
         // when the machine is idle seems reasonable.
         this.#handleFileUploads();
-
-        if (this.#enableExtractor) {
-            handleExtractionRequests();
-        }
+        handleExtractionRequests();
     }
 
     #handleFileUploads() {
@@ -282,9 +276,7 @@ function startEmulator(config: EmulatorWorkerConfig) {
                 FS.mkdir("/Shared");
                 FS.mkdir("/Shared/Downloads");
 
-                if (config.enableExtractor) {
-                    initializeExtractor();
-                }
+                initializeExtractor();
 
                 for (const [name, buffer] of Object.entries(
                     config.autoloadFiles
