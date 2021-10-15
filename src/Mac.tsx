@@ -14,6 +14,11 @@ export function Mac() {
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
         0, 0,
     ]);
+    const [emulatorLoadingDiskChunk, setEmulatorLoadingDiskChunk] =
+        useState(false);
+    // Don't clear the loading state immediately, to make it clearer that I/O
+    // is happening and things may be slow.
+    const finishLoadingDiskChunkTimeoutRef = useRef<number>(0);
     const emulatorRef = useRef<Emulator>();
     useEffect(() => {
         document.addEventListener("fullscreenchange", handleFullScreenChange);
@@ -59,6 +64,19 @@ export function Mac() {
                     left: number
                 ) {
                     setEmulatorLoadingProgress([total, left]);
+                },
+                emulatorDidStartToLoadDiskChunk(emulator: Emulator) {
+                    setEmulatorLoadingDiskChunk(true);
+                    clearTimeout(finishLoadingDiskChunkTimeoutRef.current);
+                },
+                emulatorDidFinishLoadingDiskChunk(emulator: Emulator) {
+                    window.clearTimeout(
+                        finishLoadingDiskChunkTimeoutRef.current
+                    );
+                    finishLoadingDiskChunkTimeoutRef.current =
+                        window.setTimeout(() => {
+                            setEmulatorLoadingDiskChunk(false);
+                        }, 200);
                 },
             }
         );
@@ -145,7 +163,12 @@ export function Mac() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}>
             <div className="Mac-Apple-Logo" onClick={handleAppleLogoClick} />
-            <div className="Mac-Led" />
+            <div
+                className={
+                    "Mac-Led" +
+                    (emulatorLoadingDiskChunk ? " Mac-Led-Loading" : "")
+                }
+            />
             <canvas
                 className="Mac-Screen"
                 style={{
