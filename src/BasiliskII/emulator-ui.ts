@@ -62,6 +62,7 @@ export class Emulator {
     #config: EmulatorConfig;
     #delegate?: EmulatorDelegate;
     #worker: Worker;
+    #workerTerminated: boolean = false;
 
     #screenCanvasContext: CanvasRenderingContext2D;
     #screenImageData: ImageData;
@@ -148,6 +149,9 @@ export class Emulator {
             this.#handleVisibilityChange
         );
 
+        if (this.#workerTerminated) {
+            this.#worker = new Worker();
+        }
         this.#worker.addEventListener("message", this.#handleWorkerMessage);
 
         // Fetch all of the dependent files ourselves, to avoid a waterfall
@@ -212,6 +216,7 @@ export class Emulator {
         this.#worker.removeEventListener("message", this.#handleWorkerMessage);
 
         this.#worker.terminate();
+        this.#workerTerminated = true;
     }
 
     uploadFile(file: File) {
