@@ -25,6 +25,12 @@ export function handleExtractionRequests() {
                 extractedDirectories.add(childPath);
                 extractDirectory(childPath);
             }
+        } else if (FS.isFile(fsObject.mode) && !extractedFiles.has(childPath)) {
+            const stat = FS.stat(childPath);
+            if (stat.mtime.getTime() < MAX_MTIME) {
+                extractedFiles.add(childPath);
+                extractFile(childPath);
+            }
         }
     }
 }
@@ -32,23 +38,10 @@ export function handleExtractionRequests() {
 const EXTRACTOR_DIRECTORY = "/Shared/Uploads";
 
 const extractedDirectories = new Set<string>();
+const extractedFiles = new Set<string>();
 
 function extractDirectory(dirPath: string) {
-    const {
-        exists: dirExists,
-        name: dirName,
-        object: dirFsObject,
-        parentPath: dirParentPath,
-    } = FS.analyzePath(dirPath);
-    if (!dirExists) {
-        console.error(`${dirPath} does not exist`);
-        return;
-    }
-    if (!FS.isDir(dirFsObject.mode)) {
-        console.error(`${dirPath} is not a directory`);
-        return;
-    }
-
+    const {name: dirName, parentPath: dirParentPath} = FS.analyzePath(dirPath);
     const arrayBuffers: ArrayBuffer[] = [];
     const extraction: EmulatorWorkerDirectorExtraction = {
         name: dirName,
@@ -100,6 +93,51 @@ function extractDirectory(dirPath: string) {
             }),
         });
     }
+
+    self.postMessage(
+        {type: "emulator_extract_directory", extraction},
+        arrayBuffers
+    );
+}
+
+function extractFile(filePath: string) {
+    const {name: fileName, parentPath: fileParentPath} =
+        FS.analyzePath(filePath);
+    const arrayBuffers: ArrayBuffer[] = [];
+    const extraction: EmulatorWorkerDirectorExtraction = {
+        name: fileName,
+        contents: [],
+    };
+
+    function extract(
+        filePath: string,
+        entries: EmulatorWorkerDirectorExtractionEntry[]
+    ) {
+        const fileContents = FS.readFile(filePath, {
+            encoding: "binary",
+        });
+        entries.push({
+            name: fileName,
+            contents: fileContents,
+        });
+        arrayBuffers.push(fileContents.buffer);
+    }
+
+    extract(filePath, extraction.contents);
+    function extractParentDir(dirName: string) {
+        const dirPath = `${fileParentPath}/${dirName}/${fileName}`;
+        if (FS.analyzePath(dirPath).exists) {
+            const dirEntry: EmulatorWorkerDirectorExtractionEntry = {
+                name: dirName,
+                contents: [],
+            };
+            extraction.contents.push(dirEntry);
+            extract(dirPath, dirEntry.contents);
+        }
+    }
+
+    extractParentDir(".rsrc");
+    extractParentDir(".finf");
 
     self.postMessage(
         {type: "emulator_extract_directory", extraction},
