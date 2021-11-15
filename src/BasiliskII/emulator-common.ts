@@ -7,6 +7,7 @@ export const InputBufferAddresses = {
     keyEventFlagAddr: 5,
     keyCodeAddr: 6,
     keyStateAddr: 7,
+    stopFlagAddr: 8,
 };
 
 export type EmulatorMouseEvent =
@@ -18,11 +19,15 @@ export type EmulatorKeyboardEvent = {
     type: "keydown" | "keyup";
     keyCode: number;
 };
+export type EmulatorStopEvent = {
+    type: "stop";
+};
 
 export type EmulatorInputEvent =
     | EmulatorMouseEvent
     | EmulatorTouchEvent
-    | EmulatorKeyboardEvent;
+    | EmulatorKeyboardEvent
+    | EmulatorStopEvent;
 
 export enum LockStates {
     READY_FOR_UI_THREAD,
@@ -52,6 +57,7 @@ export type EmulatorWorkerConfig = {
     wasmUrl: string;
     disk: EmulatorChunkedFileSpec;
     autoloadFiles: {[name: string]: ArrayBuffer};
+    persistedData?: EmulatorWorkerDirectorExtraction;
     arguments: string[];
     video: EmulatorWorkerVideoConfig;
     input: EmulatorWorkerInputConfig;
@@ -166,6 +172,7 @@ export function updateInputBufferWithEvents(
     let hasKeyEvent = false;
     let keyCode = -1;
     let keyState = -1;
+    let hasStop = false;
     // currently only one key event can be sent per sync
     // TODO: better key handling code
     const remainingEvents: EmulatorInputEvent[] = [];
@@ -203,6 +210,9 @@ export function updateInputBufferWithEvents(
                 keyState = inputEvent.type === "keydown" ? 1 : 0;
                 keyCode = inputEvent.keyCode;
                 break;
+            case "stop":
+                hasStop = true;
+                break;
         }
     }
     if (hasMouseMove) {
@@ -216,6 +226,9 @@ export function updateInputBufferWithEvents(
         inputBufferView[InputBufferAddresses.keyEventFlagAddr] = 1;
         inputBufferView[InputBufferAddresses.keyCodeAddr] = keyCode;
         inputBufferView[InputBufferAddresses.keyStateAddr] = keyState;
+    }
+    if (hasStop) {
+        inputBufferView[InputBufferAddresses.stopFlagAddr] = 1;
     }
     return remainingEvents;
 }

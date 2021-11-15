@@ -40,7 +40,9 @@ const EXTRACTOR_DIRECTORY = "/Shared/Uploads";
 const extractedDirectories = new Set<string>();
 const extractedFiles = new Set<string>();
 
-function extractDirectory(dirPath: string) {
+export function prepareDirectoryExtraction(
+    dirPath: string
+): [EmulatorWorkerDirectorExtraction, ArrayBuffer[]] {
     const {name: dirName, parentPath: dirParentPath} = FS.analyzePath(dirPath);
     const arrayBuffers: ArrayBuffer[] = [];
     const extraction: EmulatorWorkerDirectorExtraction = {
@@ -93,6 +95,12 @@ function extractDirectory(dirPath: string) {
             }),
         });
     }
+
+    return [extraction, arrayBuffers];
+}
+
+function extractDirectory(dirPath: string) {
+    const [extraction, arrayBuffers] = prepareDirectoryExtraction(dirPath);
 
     self.postMessage(
         {type: "emulator_extract_directory", extraction},
