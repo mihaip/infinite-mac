@@ -2,6 +2,7 @@ import type {
     EmulatorChunkedFileSpec,
     EmulatorFallbackCommand,
     EmulatorWorkerConfig,
+    EmulatorWorkerDirectorExtraction,
     EmulatorWorkerVideoBlit,
 } from "./emulator-common";
 import Worker from "worker-loader!./emulator-worker";
@@ -31,6 +32,7 @@ import {
 import {handleDirectoryExtraction} from "./emulator-ui-extractor";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
+import {getPersistedData, persistData} from "./emulator-ui-persistence";
 
 export type EmulatorConfig = {
     useTouchEvents: boolean;
@@ -169,6 +171,8 @@ export class Emulator {
             }
         );
 
+        const extraction = await getPersistedData();
+
         const config: EmulatorWorkerConfig = {
             jsUrl: jsBlobUrl,
             wasmUrl: wasmBlobUrl,
@@ -177,6 +181,7 @@ export class Emulator {
                 "Quadra-650.rom": rom,
                 "prefs": prefs,
             },
+            persistedData: extraction,
             arguments: ["--config", "prefs"],
 
             video: this.#video.workerConfig(),
@@ -213,10 +218,7 @@ export class Emulator {
             this.#handleVisibilityChange
         );
 
-        this.#worker.removeEventListener("message", this.#handleWorkerMessage);
-
-        this.#worker.terminate();
-        this.#workerTerminated = true;
+        this.#input.handleInput({type: "stop"});
     }
 
     uploadFile(file: File) {
@@ -317,6 +319,8 @@ export class Emulator {
             handleDirectoryExtraction(e.data.extraction);
         } else if (e.data.type === "emulator_first_idlewait") {
             console.timeEnd("Emulator first idlewait");
+        } else if (e.data.type === "emulator_stopped") {
+            this.#handleEmulatorStopped(e.data.extraction);
         } else {
             console.warn("Unexpected postMessage event", e);
         }
@@ -393,6 +397,13 @@ export class Emulator {
             "message",
             this.#handleServiceWorkerMessage
         );
+    }
+
+    async #handleEmulatorStopped(extraction: EmulatorWorkerDirectorExtraction) {
+        await persistData(extraction);
+        this.#worker.removeEventListener("message", this.#handleWorkerMessage);
+        this.#worker.terminate();
+        this.#workerTerminated = true;
     }
 }
 

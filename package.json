@@ -14,6 +14,7 @@
         "@types/react-dom": "^17.0.0",
         "file-saver": "^2.0.5",
         "husky": "^6.0.0",
+        "idb-keyval": "^6.0.3",
         "jszip": "^3.7.0",
         "lint-staged": "^11.0.0",
         "prettier": "^2.3.1",

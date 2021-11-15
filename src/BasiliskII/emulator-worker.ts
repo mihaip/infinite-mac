@@ -33,14 +33,18 @@ import {createLazyFile} from "./emulator-worker-lazy-file";
 import {
     handleExtractionRequests,
     initializeExtractor,
+    prepareDirectoryExtraction,
 } from "./emulator-worker-extractor";
 import {
     createChunkedFile,
     validateSpecPrefetchChunks,
 } from "./emulator-worker-chunked-file";
+import {restorePersistedData} from "./emulator-worker-persistence";
 
 declare const Module: EmscriptenModule;
 declare const workerCommands: EmulatorFallbackCommand[];
+
+const PERSISTED_DIRECTORY_PATH = "/Shared/Saved";
 
 self.onmessage = function (event) {
     const {data} = event;
@@ -64,6 +68,7 @@ class EmulatorWorkerApi {
     #lastIdleWaitFrameId = 0;
 
     #gotFirstIdleWait = false;
+    #handledStop = false;
     #diskSpec: EmulatorChunkedFileSpec;
 
     constructor(config: EmulatorWorkerConfig) {
@@ -177,6 +182,10 @@ class EmulatorWorkerApi {
         // when the machine is idle seems reasonable.
         this.#handleFileUploads();
         handleExtractionRequests();
+
+        if (this.getInputValue(InputBufferAddresses.stopFlagAddr)) {
+            this.#handleStop();
+        }
     }
 
     #handleFileUploads() {
@@ -191,6 +200,17 @@ class EmulatorWorkerApi {
                 true
             );
         }
+    }
+
+    #handleStop() {
+        if (this.#handledStop) {
+            return;
+        }
+        this.#handledStop = true;
+        const [extraction, arrayBuffers] = prepareDirectoryExtraction(
+            PERSISTED_DIRECTORY_PATH
+        );
+        postMessage({type: "emulator_stopped", extraction}, arrayBuffers);
     }
 
     acquireInputLock(): number {
@@ -275,7 +295,13 @@ function startEmulator(config: EmulatorWorkerConfig) {
             function () {
                 FS.mkdir("/Shared");
                 FS.mkdir("/Shared/Downloads");
-
+                FS.mkdir(PERSISTED_DIRECTORY_PATH);
+                if (config.persistedData) {
+                    restorePersistedData(
+                        PERSISTED_DIRECTORY_PATH,
+                        config.persistedData
+                    );
+                }
                 initializeExtractor();
 
                 for (const [name, buffer] of Object.entries(
