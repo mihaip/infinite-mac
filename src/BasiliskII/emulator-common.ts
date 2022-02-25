@@ -52,6 +52,16 @@ export function generateChunkUrl(
     return `${spec.baseUrl}.${chunk}.br?v=${spec.version}`;
 }
 
+export function generateNextChunkUrl(url: string): string {
+    const match = url.match(/(.+)\.(\d+)\.br\?v=(.+)$/);
+    if (!match) {
+        throw new Error(`Could not parse chunk URL ${url}`);
+    }
+    const [baseUrl, chunkStr, version] = match.slice(1);
+    const nextChunk = parseInt(chunkStr) + 1;
+    return `${baseUrl}.${nextChunk}.br?v=${version}`;
+}
+
 export type EmulatorWorkerConfig = {
     jsUrl: string;
     wasmUrl: string;

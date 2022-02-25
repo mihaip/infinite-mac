@@ -2,7 +2,7 @@ import type {
     EmulatorChunkedFileSpec,
     EmulatorFallbackCommand,
 } from "./emulator-common";
-import {generateChunkUrl} from "./emulator-common";
+import {generateNextChunkUrl, generateChunkUrl} from "./emulator-common";
 
 declare const self: ServiceWorkerGlobalScope;
 
@@ -94,6 +94,13 @@ function handleIdleWait(event: FetchEvent) {
 
 async function handleDiskCacheRequest(request: Request): Promise<Response> {
     const cache = await caches.open(DISK_CACHE_NAME);
+
+    // Kick off (but don't wait for) a prefetch of the next chunk regardless
+    // of whether this is a cache hit (if prefetching is working, we should
+    // almost always end up with a cache hit, but we want to keep fetching
+    // subsequent chunks).
+    prefetchNextChunk(cache, request.url);
+
     const match = await cache.match(request);
     if (match) {
         return match;
@@ -108,6 +115,15 @@ async function handleDiskCacheRequest(request: Request): Promise<Response> {
     cache.put(request, response.clone());
     postMessage({type: "disk_chunk_fetch_end"});
     return response;
+}
+
+async function prefetchNextChunk(cache: Cache, url: string) {
+    const nextChunkUrl = generateNextChunkUrl(url);
+    const nextChunkRequest = new Request(nextChunkUrl);
+    const cachedResponse = await cache.match(nextChunkRequest);
+    if (!cachedResponse) {
+        await cache.add(nextChunkRequest);
+    }
 }
 
 // Boilerplate to make sure we're running as quickly as possible.
