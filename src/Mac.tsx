@@ -2,7 +2,8 @@ import {useEffect, useState, useRef} from "react";
 import "./Mac.css";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import quadraRomPath from "./Data/Quadra-650.rom.br";
-import macintoshHdManifest from "./Data/Macintosh HD.dsk.json";
+import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
+import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import {Emulator} from "./BasiliskII/emulator-ui";
 
 const SCREEN_WIDTH = 800;
@@ -27,6 +28,35 @@ export function Mac() {
             handleFullScreenChange
         );
         const searchParams = new URLSearchParams(location.search);
+        // prefetchChunks are semi-automatically generated -- we will get a
+        // warning via validateSpecPrefetchChunks() if these are incorrect.
+        const disk = searchParams.has("macos8")
+            ? {
+                  baseUrl: "/Disk/Mac OS 8.1 HD.dsk",
+                  prefetchChunks: [
+                      0, 842, 843, 846, 847, 849, 850, 851, 852, 853, 854, 855,
+                      856, 858, 859, 860, 861, 862, 864, 865, 866, 867, 868,
+                      869, 870, 871, 872, 873, 874, 875, 876, 877, 879, 880,
+                      881, 882, 883, 884, 885, 886, 887, 889, 890, 891, 892,
+                      893, 895, 896, 897, 898, 899, 900, 901, 902, 903, 910,
+                      911, 912, 913, 914, 916, 917, 923, 924, 925, 926, 927,
+                      928, 929, 930, 931, 932, 933, 934, 935, 936, 937, 939,
+                      940, 941, 942, 943, 944, 945, 946, 947, 948, 949, 950,
+                      951, 952, 953, 956, 957,
+                  ],
+                  ...macos81HdManifest,
+              }
+            : {
+                  baseUrl: "/Disk/System 7.5.3 HD.dsk",
+                  prefetchChunks: [
+                      0, 1, 840, 841, 842, 843, 844, 845, 846, 847, 849, 850,
+                      851, 852, 853, 854, 855, 856, 857, 858, 859, 860, 861,
+                      862, 863, 864, 865, 867, 868, 869, 870, 871, 872, 873,
+                      875, 878, 879, 880, 881, 882, 884, 885, 886, 887, 888,
+                      889, 891, 892, 893, 894, 895, 896, 897, 898, 1199,
+                  ],
+                  ...system753HdManifest,
+              };
         const emulator = new Emulator(
             {
                 useTouchEvents: "ontouchstart" in window,
@@ -38,20 +68,7 @@ export function Mac() {
                 screenCanvas: screenRef.current!,
                 basiliskPrefsPath,
                 romPath: quadraRomPath,
-                disk: {
-                    baseUrl: "/Disk/Macintosh HD.dsk",
-                    prefetchChunks: [
-                        // Semi-automatically generated -- we will get a warning
-                        // via validateSpecPrefetchChunks() if these are
-                        // incorrect.
-                        0, 1, 840, 841, 842, 843, 844, 845, 846, 847, 849, 850,
-                        851, 852, 853, 854, 855, 856, 857, 858, 859, 860, 861,
-                        862, 863, 864, 865, 867, 868, 869, 870, 871, 872, 873,
-                        875, 878, 879, 880, 881, 882, 884, 885, 886, 887, 888,
-                        889, 891, 892, 893, 894, 895, 896, 897, 898, 1199,
-                    ],
-                    ...macintoshHdManifest,
-                },
+                disk,
             },
             {
                 emulatorDidFinishLoading(emulator: Emulator) {
