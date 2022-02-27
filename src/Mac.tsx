@@ -28,9 +28,11 @@ export function Mac() {
             handleFullScreenChange
         );
         const searchParams = new URLSearchParams(location.search);
+        const useMacos8 =
+            searchParams.has("macos8") || location.host === "macos8.app";
         // prefetchChunks are semi-automatically generated -- we will get a
         // warning via validateSpecPrefetchChunks() if these are incorrect.
-        const disk = searchParams.has("macos8")
+        const disk = useMacos8
             ? {
                   baseUrl: "/Disk/Mac OS 8.1 HD.dsk",
                   prefetchChunks: [
