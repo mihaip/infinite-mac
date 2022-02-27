@@ -10,7 +10,9 @@ PUBLIC_DIR="${ROOT_DIR}/public"
 
 # ROM
 brotli -q 11 -k "${BASILISK_II_DIR}/Quadra-650.rom"
-mv "${BASILISK_II_DIR}/Quadra-650.rom.br"  "${DATA_DIR}/"
+mv "${BASILISK_II_DIR}/Quadra-650.rom.br" "${DATA_DIR}/"
 
+rm -rf "${PUBLIC_DIR}/Disk"
+mkdir "${PUBLIC_DIR}/Disk"
 scripts/build-disk-image.py "${BASILISK_II_DIR}/System 7.5.3 HD.dsk" "${PUBLIC_DIR}/Disk" "${DATA_DIR}/"
 scripts/build-disk-image.py "${BASILISK_II_DIR}/Mac OS 8.1 HD.dsk" "${PUBLIC_DIR}/Disk" "${DATA_DIR}/"

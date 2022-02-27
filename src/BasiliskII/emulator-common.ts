@@ -39,9 +39,8 @@ export enum LockStates {
 export type EmulatorChunkedFileSpec = {
     baseUrl: string;
     totalSize: number;
-    chunkCount: number;
+    chunks: string[];
     chunkSize: number;
-    version: string;
     prefetchChunks: number[];
 };
 
@@ -49,17 +48,27 @@ export function generateChunkUrl(
     spec: EmulatorChunkedFileSpec,
     chunk: number
 ): string {
-    return `${spec.baseUrl}.${chunk}.br?v=${spec.version}`;
+    // Includ the chunk number in the URL so that we can easily generate the
+    // next chunk URL. By having it in the hash we should still allow chunks
+    // that have the same content hash still be an HTTP cache hit.
+    return `${spec.baseUrl}chunk-${spec.chunks[chunk]}.br#${chunk}`;
 }
 
-export function generateNextChunkUrl(url: string): string {
-    const match = url.match(/(.+)\.(\d+)\.br\?v=(.+)$/);
+export function generateNextChunkUrl(
+    url: string,
+    specs: EmulatorChunkedFileSpec[]
+): string {
+    const match = url.match(/.+chunk-([0-9a-f]+)\.br#(\d+)$/);
     if (!match) {
         throw new Error(`Could not parse chunk URL ${url}`);
     }
-    const [baseUrl, chunkStr, version] = match.slice(1);
-    const nextChunk = parseInt(chunkStr) + 1;
-    return `${baseUrl}.${nextChunk}.br?v=${version}`;
+    const [chunkSignature, chunkStr] = match.slice(1);
+    const chunk = parseInt(chunkStr, 10);
+    const spec = specs.find(spec => spec.chunks[chunk] === chunkSignature);
+    if (!spec) {
+        throw new Error(`Could not find spec that served ${url}`);
+    }
+    return generateChunkUrl(spec, chunk + 1);
 }
 
 export type EmulatorWorkerConfig = {

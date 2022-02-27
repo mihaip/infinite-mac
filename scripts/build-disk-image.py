@@ -161,11 +161,6 @@ def fix_name(name: str) -> str:
 
 import_folders = get_import_folders()
 
-hash = hashlib.sha256()
-
-sys.stderr.write("Chunking and compressing %s" % input_file_name)
-sys.stderr.flush()
-
 with open(input_path, "rb") as input_file:
     v = machfs.Volume()
     v.read(input_file.read(), preserve_desktopdb=True)
@@ -183,21 +178,32 @@ with open(input_path, "rb") as input_file:
         bootable=True,
     )
 
+    chunks = []
+    chunk_signatures = set()
     brotli_quality = 0 if DEBUG else 11
+    # Include compression quality in the salt so that if we change it we will
+    # end up with new chunk paths.
+    salt = b'brotli-%d' % (brotli_quality, )
     for i in range(0, DISK_SIZE, CHUNK_SIZE):
+        sys.stderr.write("Chunking and compressing %s: %.1f%%\r" %
+                         (input_file_name,
+                          ((i + CHUNK_SIZE) / DISK_SIZE) * 100))
         chunk = flat[i:i + CHUNK_SIZE]
         total_size += len(chunk)
+        chunk_signature = hashlib.blake2b(chunk, digest_size=16,
+                                          salt=salt).hexdigest()
+        chunks.append(chunk_signature)
+        if chunk_signature in chunk_signatures:
+            continue
+        chunk_signatures.add(chunk_signature)
+        chunk_path = os.path.join(output_dir, f"chunk-{chunk_signature}.br")
+        if os.path.exists(chunk_path):
+            # An earlier run of this script (e.g. for a different base image)
+            # may have already created this file.
+            continue
         chunk_compressed = brotli.compress(chunk, quality=brotli_quality)
-        chunk_path = os.path.join(output_dir,
-                                  f"{input_file_name}.{chunk_count}.br")
-        # Use compressed version for the version hash so that if we change the
-        # compression quality we can trigger a re-download.
-        hash.update(chunk_compressed)
         with open(chunk_path, "wb+") as chunk_file:
             chunk_file.write(chunk_compressed)
-        chunk_count += 1
-        sys.stderr.write(".")
-        sys.stderr.flush()
 
 sys.stderr.write("\n")
 
@@ -206,9 +212,8 @@ with open(manifest_path, "w+") as manifest_file:
     json.dump(
         {
             "totalSize": total_size,
-            "chunkCount": chunk_count,
+            "chunks": chunks,
             "chunkSize": CHUNK_SIZE,
-            "version": hash.hexdigest()
         },
         manifest_file,
         indent=4)
