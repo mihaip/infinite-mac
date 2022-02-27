@@ -34,7 +34,7 @@ export function Mac() {
         // warning via validateSpecPrefetchChunks() if these are incorrect.
         const disk = useMacos8
             ? {
-                  baseUrl: "/Disk/Mac OS 8.1 HD.dsk",
+                  baseUrl: "/Disk/",
                   prefetchChunks: [
                       0, 842, 843, 846, 847, 849, 850, 851, 852, 853, 854, 855,
                       856, 858, 859, 860, 861, 862, 864, 865, 866, 867, 868,
@@ -49,7 +49,7 @@ export function Mac() {
                   ...macos81HdManifest,
               }
             : {
-                  baseUrl: "/Disk/System 7.5.3 HD.dsk",
+                  baseUrl: "/Disk/",
                   prefetchChunks: [
                       0, 1, 840, 841, 842, 843, 844, 845, 846, 847, 849, 850,
                       851, 852, 853, 854, 855, 856, 857, 858, 859, 860, 861,
