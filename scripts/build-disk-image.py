@@ -1,6 +1,5 @@
 #!/usr/local/bin/python3
 
-import brotli
 import glob
 import hashlib
 import json
@@ -14,7 +13,6 @@ import zipfile
 
 LIBRARY_DIR = os.path.join(os.path.dirname(__file__), "..", "Library")
 CACHE_DIR = os.path.join("/tmp", "infinite-mac-cache")
-DEBUG = os.getenv("DEBUG", "0") == "1"
 
 input_path = sys.argv[1]
 output_dir = sys.argv[2]
@@ -180,12 +178,9 @@ with open(input_path, "rb") as input_file:
 
     chunks = []
     chunk_signatures = set()
-    brotli_quality = 0 if DEBUG else 11
-    # Include compression quality in the salt so that if we change it we will
-    # end up with new chunk paths.
-    salt = b'brotli-%d' % (brotli_quality, )
+    salt = b'raw'
     for i in range(0, DISK_SIZE, CHUNK_SIZE):
-        sys.stderr.write("Chunking and compressing %s: %.1f%%\r" %
+        sys.stderr.write("Chunking %s: %.1f%%\r" %
                          (input_file_name,
                           ((i + CHUNK_SIZE) / DISK_SIZE) * 100))
         chunk = flat[i:i + CHUNK_SIZE]
@@ -196,14 +191,13 @@ with open(input_path, "rb") as input_file:
         if chunk_signature in chunk_signatures:
             continue
         chunk_signatures.add(chunk_signature)
-        chunk_path = os.path.join(output_dir, f"chunk-{chunk_signature}.br")
+        chunk_path = os.path.join(output_dir, f"{chunk_signature}.chunk")
         if os.path.exists(chunk_path):
             # An earlier run of this script (e.g. for a different base image)
             # may have already created this file.
             continue
-        chunk_compressed = brotli.compress(chunk, quality=brotli_quality)
         with open(chunk_path, "wb+") as chunk_file:
-            chunk_file.write(chunk_compressed)
+            chunk_file.write(chunk)
 
 sys.stderr.write("\n")
 
