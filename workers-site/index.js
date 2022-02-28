@@ -57,6 +57,13 @@ async function handleEvent(event) {
             response.headers.set("Content-Type", "application/octet-stream");
         }
 
+        // Force a MIME type from the list at
+        // https://support.cloudflare.com/hc/en-us/articles/200168396 to ensure
+        // that chunks get compressed.
+        if (url.pathname.endsWith(".chunk")) {
+            response.headers.set("Content-Type", "multipart/mixed");
+        }
+
         // Mirror MIME type overriding done by setupProxy.js
         if (url.pathname.endsWith(".jsz")) {
             response.headers.set("Content-Type", "text/javascript");
@@ -77,9 +84,8 @@ async function handleEvent(event) {
         // for a while (30 days).
         if (
             url.pathname.startsWith("/static") ||
-            (url.pathname.startsWith("/Library") &&
-                url.searchParams.has("v")) ||
-            (url.pathname.startsWith("/Disk") && url.searchParams.has("v"))
+            (url.pathname.startsWith("/Disk") &&
+                url.pathname.endsWith(".chunk"))
         ) {
             response.headers.set(
                 "Cache-Control",

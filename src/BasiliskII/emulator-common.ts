@@ -51,14 +51,14 @@ export function generateChunkUrl(
     // Includ the chunk number in the URL so that we can easily generate the
     // next chunk URL. By having it in the hash we should still allow chunks
     // that have the same content hash still be an HTTP cache hit.
-    return `${spec.baseUrl}chunk-${spec.chunks[chunk]}.br#${chunk}`;
+    return `${spec.baseUrl}/${spec.chunks[chunk]}.chunk#${chunk}`;
 }
 
 export function generateNextChunkUrl(
     url: string,
     specs: EmulatorChunkedFileSpec[]
 ): string {
-    const match = url.match(/.+chunk-([0-9a-f]+)\.br#(\d+)$/);
+    const match = url.match(/.*\/([0-9a-f]+)\.chunk#(\d+)$/);
     if (!match) {
         throw new Error(`Could not parse chunk URL ${url}`);
     }
