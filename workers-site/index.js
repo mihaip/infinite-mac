@@ -40,34 +40,20 @@ async function handleEvent(event) {
             };
         }
         const page = await getAssetFromKV(event, options);
-        let response = new Response(page.body, page);
-
-        // Make sure that pre-compressed static content is passed through (see
-        // https://stackoverflow.com/a/64849685/343108)
-        if (url.pathname.endsWith(".br")) {
-            response = new Response(response.body, {
-                status: response.status,
-                headers: response.headers,
-                encodeBody: "manual",
-            });
-
-            response.headers.set("Content-Encoding", "br");
-            // Content-type ends up being text/plain by default, switch to a
-            // more sensible value.
-            response.headers.set("Content-Type", "application/octet-stream");
-        }
+        const response = new Response(page.body, page);
+        const {pathname} = url;
 
         // Force a MIME type from the list at
         // https://support.cloudflare.com/hc/en-us/articles/200168396 to ensure
-        // that chunks get compressed.
-        if (url.pathname.endsWith(".chunk")) {
+        // that the ROM and chunks get compressed.
+        if (pathname.endsWith(".rom") || pathname.endsWith(".chunk")) {
             response.headers.set("Content-Type", "multipart/mixed");
         }
 
         // Mirror MIME type overriding done by setupProxy.js
-        if (url.pathname.endsWith(".jsz")) {
+        if (pathname.endsWith(".jsz")) {
             response.headers.set("Content-Type", "text/javascript");
-        } else if (url.pathname.endsWith(".wasmz")) {
+        } else if (pathname.endsWith(".wasmz")) {
             response.headers.set("Content-Type", "application/wasm");
         }
 
@@ -83,9 +69,8 @@ async function handleEvent(event) {
         // Static content uses a content hash in the URL, so it can be cached
         // for a while (30 days).
         if (
-            url.pathname.startsWith("/static") ||
-            (url.pathname.startsWith("/Disk") &&
-                url.pathname.endsWith(".chunk"))
+            pathname.startsWith("/static") ||
+            (pathname.startsWith("/Disk") && pathname.endsWith(".chunk"))
         ) {
             response.headers.set(
                 "Cache-Control",

@@ -10,11 +10,6 @@ module.exports = function (app) {
             res.setHeader("Content-Type", "application/wasm");
         }
 
-        // Handle pre-gzipped files
-        if (req.path.endsWith(".br")) {
-            res.setHeader("Content-Encoding", "br");
-        }
-
         // Allow SharedArrayBuffer to work locally
         res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
         res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");

@@ -1,6 +1,6 @@
 # Infinite Mac
 
-TODO
+A Mac with everything you'd want in 1995. Available in both [System 7](https://system7.app/) and [Mac OS 8](https://macos8.app/) flavors.
 
 ## Development
 
@@ -25,7 +25,6 @@ Dependencies can be installed with:
 ```
 npm install
 pip3 install -r requirements.txt
-brew install brotli
 ```
 
 ### Building Basilisk II

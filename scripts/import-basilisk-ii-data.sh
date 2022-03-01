@@ -9,8 +9,7 @@ DATA_DIR="${ROOT_DIR}/src/Data"
 PUBLIC_DIR="${ROOT_DIR}/public"
 
 # ROM
-brotli -q 11 -k "${BASILISK_II_DIR}/Quadra-650.rom"
-mv "${BASILISK_II_DIR}/Quadra-650.rom.br" "${DATA_DIR}/"
+cp "${BASILISK_II_DIR}/Quadra-650.rom" "${DATA_DIR}/"
 
 rm -rf "${PUBLIC_DIR}/Disk"
 mkdir "${PUBLIC_DIR}/Disk"
