@@ -1,7 +1,7 @@
 import {useEffect, useState, useRef} from "react";
 import "./Mac.css";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
-import quadraRomPath from "./Data/Quadra-650.rom.br";
+import quadraRomPath from "./Data/Quadra-650.rom";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import {Emulator} from "./BasiliskII/emulator-ui";

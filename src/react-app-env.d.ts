@@ -6,7 +6,7 @@ declare module "*.txt" {
     export default path;
 }
 
-declare module "*.br" {
+declare module "*.rom" {
     const path: string;
     export default path;
 }
