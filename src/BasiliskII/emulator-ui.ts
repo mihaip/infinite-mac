@@ -33,6 +33,7 @@ import {handleDirectoryExtraction} from "./emulator-ui-extractor";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 import {getPersistedData, persistData} from "./emulator-ui-persistence";
+import {JS_CODE_TO_ADB_KEYCODE} from "./emulator-key-codes";
 
 export type EmulatorConfig = {
     useTouchEvents: boolean;
@@ -287,11 +288,25 @@ export class Emulator {
 
     #handleKeyDown = (event: KeyboardEvent) => {
         event.preventDefault();
-        this.#input.handleInput({type: "keydown", keyCode: event.keyCode});
+        const {code} = event;
+        if (code in JS_CODE_TO_ADB_KEYCODE) {
+            this.#input.handleInput({
+                type: "keydown",
+                keyCode: JS_CODE_TO_ADB_KEYCODE[code],
+            });
+        } else {
+            console.warn(`Unhandled key: ${code}`);
+        }
     };
 
     #handleKeyUp = (event: KeyboardEvent) => {
-        this.#input.handleInput({type: "keyup", keyCode: event.keyCode});
+        const {code} = event;
+        if (code in JS_CODE_TO_ADB_KEYCODE) {
+            this.#input.handleInput({
+                type: "keyup",
+                keyCode: JS_CODE_TO_ADB_KEYCODE[code],
+            });
+        }
     };
 
     #handleBeforeUnload = () => {
