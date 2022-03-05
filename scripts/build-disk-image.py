@@ -18,7 +18,7 @@ input_path = sys.argv[1]
 output_dir = sys.argv[2]
 manifest_dir = sys.argv[3]
 
-DISK_SIZE = 300 * 1024 * 1024
+DISK_SIZE = 500 * 1024 * 1024
 CHUNK_SIZE = 256 * 1024
 chunk_count = 0
 total_size = 0
