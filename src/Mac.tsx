@@ -12,6 +12,7 @@ const SCREEN_HEIGHT = 600;
 export function Mac() {
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
+    const [scale, setScale] = useState<number | undefined>(undefined);
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
         0, 0,
     ]);
@@ -126,12 +127,18 @@ export function Mac() {
             document.body.webkitRequestFullscreen?.();
     };
     const handleFullScreenChange = () => {
-        document.body.classList.toggle(
-            "fullscreen",
-            Boolean(
-                document.fullscreenElement || document.webkitFullscreenElement
-            )
+        const isFullScreen = Boolean(
+            document.fullscreenElement || document.webkitFullscreenElement
         );
+
+        document.body.classList.toggle("fullscreen", isFullScreen);
+        if (isFullScreen) {
+            const heightScale = window.screen.height / SCREEN_HEIGHT;
+            const widthScale = window.screen.width / SCREEN_WIDTH;
+            setScale(Math.min(heightScale, widthScale));
+        } else {
+            setScale(undefined);
+        }
     };
 
     let progress;
@@ -179,6 +186,7 @@ export function Mac() {
             style={{
                 width: `calc(${SCREEN_WIDTH}px + 2 * var(--screen-underscan))`,
                 height: `calc(${SCREEN_HEIGHT}px + 2 * var(--screen-underscan))`,
+                transform: scale === undefined ? undefined : `scale(${scale})`,
             }}
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}

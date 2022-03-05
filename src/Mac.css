@@ -45,6 +45,20 @@
     }
 }
 
+/* Scale up to take up the whole screen. On retina screens we can also use a
+1.5 factor and still keep things pixel-perfect. */
+@media (min-width: 1460px) and (max-width: 1939px) and (-webkit-device-pixel-ratio: 2) {
+    .Mac {
+        transform: scale(1.5);
+    }
+}
+
+@media (min-width: 1940px) {
+    .Mac {
+        transform: scale(2);
+    }
+}
+
 /* `@media (display-mode: fullscreen)` does not appear to work in iOS Safari,
 we need to use a manual class name. */
 body.fullscreen {
