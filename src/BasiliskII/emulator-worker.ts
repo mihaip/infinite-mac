@@ -161,6 +161,17 @@ class EmulatorWorkerApi {
     }
 
     idleWait() {
+        try {
+            this.#idleWait();
+        } catch (err) {
+            // idleWait is the main place where we invoke JS during the emulator
+            // loop, make sure that we return control so that it can keep
+            // running.
+            console.error("Error during idlewait", err);
+        }
+    }
+
+    #idleWait() {
         if (!this.#gotFirstIdleWait) {
             this.#gotFirstIdleWait = true;
             postMessage({type: "emulator_first_idlewait"});
