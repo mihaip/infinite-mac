@@ -154,19 +154,21 @@ export function Mac() {
         );
     }
 
-    const [hasDrag, setHasDrag] = useState(false);
+    // Use count instead of just a boolean because we'll get dragenter and
+    // dragleave events for child elements of the Mac container too.
+    const [dragCount, setDragCount] = useState(0);
     function handleDragOver(event: React.DragEvent) {
         event.preventDefault();
     }
     function handleDragEnter(event: React.DragEvent) {
-        setHasDrag(true);
+        setDragCount(value => value + 1);
     }
     function handleDragLeave(event: React.DragEvent) {
-        setHasDrag(false);
+        setDragCount(value => value - 1);
     }
     function handleDrop(event: React.DragEvent) {
         event.preventDefault();
-        setHasDrag(false);
+        setDragCount(0);
         if (event.dataTransfer.items) {
             for (const item of event.dataTransfer.items) {
                 if (item.kind === "file") {
@@ -203,16 +205,13 @@ export function Mac() {
             />
             <canvas
                 className="Mac-Screen"
-                style={{
-                    pointerEvents: hasDrag ? "none" : undefined,
-                }}
                 ref={screenRef}
                 width={SCREEN_WIDTH}
                 height={SCREEN_HEIGHT}
                 onContextMenu={e => e.preventDefault()}
             />
             {progress}
-            {hasDrag && <div className="Mac-Drag-Overlay" />}
+            {dragCount > 0 && <div className="Mac-Drag-Overlay" />}
         </div>
     );
 }
