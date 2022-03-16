@@ -2,3 +2,9 @@
 	path = macemu
 	url = https://github.com/mihaip/macemu
 	branch = bas-emscripten-release
+[submodule "XADMaster"]
+	path = XADMaster
+	url = https://github.com/mihaip/XADMaster
+[submodule "UniversalDetector"]
+	path = UniversalDetector
+	url = https://github.com/MacPaw/universal-detector

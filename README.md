@@ -25,6 +25,7 @@ Dependencies can be installed with:
 ```
 npm install
 pip3 install -r requirements.txt
+npm run build-xadmaster
 ```
 
 ### Building Basilisk II
