@@ -9,10 +9,6 @@ import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
  */
 const DEBUG = false;
 
-// Large files are served directly from the Git repo, since Worker Sites/the
-// KV store has a 25MB size limit.
-const GIT_REPO = "https://github.com/mihaip/infinite-mac";
-
 addEventListener("fetch", event => {
     try {
         event.respondWith(handleEvent(event));
