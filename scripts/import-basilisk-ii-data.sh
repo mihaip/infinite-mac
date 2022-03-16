@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Assumes that the https://github.com/mihaip/macemu submodule has been fetched
 # and it has been built.
 
