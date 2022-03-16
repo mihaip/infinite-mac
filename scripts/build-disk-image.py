@@ -1,5 +1,6 @@
 #!/usr/local/bin/python3
 
+import datetime
 import glob
 import hashlib
 import json
@@ -7,12 +8,19 @@ import machfs
 import os
 import struct
 import sys
+import tempfile
 import typing
 import urllib.request
 import zipfile
+import subprocess
+import time
 
-LIBRARY_DIR = os.path.join(os.path.dirname(__file__), "..", "Library")
+ROOT_DIR = os.path.join(os.path.dirname(__file__), "..")
+LIBRARY_DIR = os.path.join(ROOT_DIR, "Library")
 CACHE_DIR = os.path.join("/tmp", "infinite-mac-cache")
+XADMASTER_PATH = os.path.join(ROOT_DIR, "XADMaster-build", "Release")
+UNAR_PATH = os.path.join(XADMASTER_PATH, "unar")
+LSAR_PATH = os.path.join(XADMASTER_PATH, "lsar")
 
 input_path = sys.argv[1]
 output_dir = sys.argv[2]
@@ -27,17 +35,21 @@ input_file_name = os.path.basename(input_path)
 
 
 def read_url(url: str) -> bytes:
+    cache_path = read_url_to_path(url)
+    return open(cache_path, "rb").read()
+
+
+def read_url_to_path(url: str) -> str:
     if not os.path.exists(CACHE_DIR):
         os.makedirs(CACHE_DIR)
     cache_key = hashlib.sha256(url.encode()).hexdigest()
     cache_path = os.path.join(CACHE_DIR, cache_key)
-    if os.path.exists(cache_path):
-        return open(cache_path, "rb").read()
-    response = urllib.request.urlopen(url)
-    response_body = response.read()
-    with open(cache_path, "wb+") as f:
-        f.write(response_body)
-    return response_body
+    if not os.path.exists(cache_path):
+        response = urllib.request.urlopen(url)
+        response_body = response.read()
+        with open(cache_path, "wb+") as f:
+            f.write(response_body)
+    return cache_path
 
 
 def get_import_folders() -> typing.Dict[str, machfs.Folder]:
@@ -56,29 +68,177 @@ def import_manifests() -> typing.Dict[str, machfs.Folder]:
         sys.stderr.write("  Importing %s\n" % folder_path)
         with open(manifest_path, "r") as manifest:
             manifest_json = json.load(manifest)
-        v = machfs.Volume()
-        v.read(read_url(manifest_json["src_url"]))
-        if "src_folder" in manifest_json:
-            folder = v[manifest_json["src_folder"]]
-            # Clear x/y position so that the Finder computes a layout for us.
-            (rect_x, rect_y, rect_width, rect_height, flags, window_x,
-             window_y, view) = struct.unpack(">hhhhHhhH", folder.usrInfo)
-            window_x = -1
-            window_y = -1
-            folder.usrInfo = struct.pack(">hhhhHhhH", rect_x, rect_y,
-                                         rect_width, rect_height, flags,
-                                         window_x, window_y, view)
-        elif "src_denylist" in manifest_json:
-            denylist = manifest_json["src_denylist"]
-            folder = machfs.Folder()
-            for name, item in v.items():
-                if name not in denylist:
-                    folder[name] = item
+        src_url = manifest_json["src_url"]
+        _, src_ext = os.path.splitext(src_url)
+        if src_ext in [".img", ".dsk"]:
+            folder = import_disk_image(manifest_json)
+        elif src_ext in [".hqx", ".sit"]:
+            folder = import_archive(manifest_json)
         else:
-            assert False, "Unexpected manifest format: %s" % json.dumps(
-                manifest_json)
+            assert False, "Unexpected manifest URL extension: %s" % src_ext
+
         import_folders[folder_path] = folder
     return import_folders
+
+
+def import_disk_image(
+        manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:
+    v = machfs.Volume()
+    v.read(read_url(manifest_json["src_url"]))
+    if "src_folder" in manifest_json:
+        folder = v[manifest_json["src_folder"]]
+        clear_folder_window_position(folder)
+    elif "src_denylist" in manifest_json:
+        denylist = manifest_json["src_denylist"]
+        folder = machfs.Folder()
+        for name, item in v.items():
+            if name not in denylist:
+                folder[name] = item
+    else:
+        assert False, "Unexpected manifest format: %s" % json.dumps(
+            manifest_json)
+    return folder
+
+
+def import_archive(
+        manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:
+    src_url = manifest_json["src_url"]
+    archive_path = read_url_to_path(src_url)
+    root_folder = machfs.Folder()
+    with tempfile.TemporaryDirectory() as tmp_dir_path:
+        unar_code = subprocess.call(
+            [UNAR_PATH, "-output-directory", tmp_dir_path, archive_path],
+            stdout=subprocess.DEVNULL)
+        if unar_code != 0:
+            assert False, "Could not unpack archive: %s:" % src_url
+
+        # While unar does set some Finder metadata, it appears to be a lossy
+        # process (e.g. locations are not preserved). Get the full parsed
+        # information for each file in the archive from lsar and use that to
+        # populate the HFS file and folder metadata.
+        lsar_output = subprocess.check_output(
+            [LSAR_PATH, "-json", archive_path])
+        lsar_json = json.loads(lsar_output)
+        lsar_entries_by_path = {}
+        for entry in lsar_json["lsarContents"]:
+            lsar_entries_by_path[entry["XADFileName"]] = entry
+
+        def get_lsar_entry(
+                path: str) -> typing.Optional[typing.Dict[str, typing.Any]]:
+            return lsar_entries_by_path[os.path.relpath(path, tmp_dir_path)]
+
+        # We should end up with exactly one folder that's created when
+        # unarchiving, prefer that (over skipping it) because it has Finder
+        # metadata that we want to preserve.
+        tmp_dir_contents = os.listdir(tmp_dir_path)
+        if len(tmp_dir_contents) != 1:
+            assert False, "Got unexpected files (%s) when unpacking archive: %s" % (
+                tmp_dir_contents, src_url)
+        root_dir_name = tmp_dir_contents[0]
+        root_dir_path = os.path.join(tmp_dir_path, root_dir_name)
+
+        update_folder_from_lsar_entry(root_folder,
+                                      get_lsar_entry(root_dir_path))
+        clear_folder_window_position(root_folder)
+
+        for dir_path, dir_names, file_names in os.walk(root_dir_path):
+            # Ignore Spotlight disabling directory that appears in some archives
+            # and/or when running on modern Mac OS.
+            if ".FBCLockFolder" in dir_names:
+                dir_names.remove(".FBCLockFolder")
+            folder = root_folder
+            dir_rel_path = os.path.relpath(dir_path, root_dir_path)
+            if dir_rel_path != ".":
+                folder_path_pieces = []
+                for folder_name in dir_rel_path.split(os.path.sep):
+                    folder_path_pieces.append(folder_name)
+                    if folder_name not in folder:
+                        new_folder = folder[folder_name] = machfs.Folder()
+                        update_folder_from_lsar_entry(
+                            new_folder,
+                            get_lsar_entry(
+                                os.path.join(root_dir_path,
+                                             *folder_path_pieces)))
+                    folder = folder[folder_name]
+            for file_name in file_names:
+                # Ignore hidden files used for extra metadata storage that did
+                # not exit in the Classic Mac days.
+                if file_name in [".DS_Store"]:
+                    continue
+                file_path = os.path.join(dir_path, file_name)
+                file = machfs.File()
+                with open(file_path, "rb") as f:
+                    file.data = f.read()
+                resource_fork_path = os.path.join(file_path, "..namedfork",
+                                                  "rsrc")
+                if os.path.exists(resource_fork_path):
+                    with open(resource_fork_path, "rb") as f:
+                        file.rsrc = f.read()
+
+                update_file_from_lsar_entry(file, get_lsar_entry(file_path))
+
+                folder[file_name] = file
+    return root_folder
+
+
+def update_file_from_lsar_entry(file: machfs.File,
+                                entry: typing.Dict[str, typing.Any]) -> None:
+    update_file_or_folder_from_lsar_entry(file, entry)
+
+    def convert_os_type(os_type: int) -> bytes:
+        return os_type.to_bytes(4, byteorder="big")
+
+    file.type = convert_os_type(entry["XADFileType"])
+    file.creator = convert_os_type(entry["XADFileCreator"])
+
+    file.flags = entry["XADFinderFlags"]
+    if "XADFinderLocationX" in entry:
+        file.x = entry["XADFinderLocationX"]
+        file.y = entry["XADFinderLocationY"]
+    else:
+        file.x = file.y = 0
+
+
+def update_folder_from_lsar_entry(folder: machfs.Folder,
+                                  entry: typing.Dict[str, typing.Any]) -> None:
+    update_file_or_folder_from_lsar_entry(folder, entry)
+
+    flags = entry["XADFinderFlags"]
+    if "XADFinderWindowTop" in entry:
+        rect_top = entry["XADFinderWindowTop"]
+        rect_left = entry["XADFinderWindowLeft"]
+        rect_bottom = entry["XADFinderWindowBottom"]
+        rect_right = entry["XADFinderWindowRight"]
+    else:
+        rect_top = rect_left = rect_bottom = rect_right = 0
+    if "XADFinderLocationX" in entry:
+        window_x = entry["XADFinderLocationX"]
+        window_y = entry["XADFinderLocationY"]
+    else:
+        window_x = window_y = 0
+
+    # 0x127 appears to be the default icon view
+    view = entry.get("XADFinderWindowView", 0x127)
+    folder.usrInfo = struct.pack(">hhhhHhhH", rect_top, rect_left, rect_bottom,
+                                 rect_right, flags, window_y, window_x, view)
+
+
+def update_file_or_folder_from_lsar_entry(
+        file_or_folder: typing.Union[machfs.File, machfs.Folder],
+        entry: typing.Dict[str, typing.Any]) -> None:
+    def convert_date(date_str: str) -> int:
+        # Dates produced by lsar/XADMaster are not quite ISO 8601 compliant in
+        # the way they represent timezones.
+        date_str = date_str.replace(" +0000", " +00:00")
+        parsed = datetime.datetime.fromisoformat(date_str)
+        t = int(min(time.time(), parsed.timestamp()))
+        # 2082844800 is the number of seconds between the Mac epoch (January 1 1904)
+        # and the Unix epoch (January 1 1970). See
+        # http://justsolve.archiveteam.org/wiki/HFS/HFS%2B_timestamp
+        return t + 2082844800
+
+    file_or_folder.mddate = convert_date(entry["XADLastModificationDate"])
+    file_or_folder.crdate = convert_date(entry["XADCreationDate"])
 
 
 def import_zips() -> typing.Dict[str, machfs.Folder]:
@@ -126,7 +286,7 @@ def import_zips() -> typing.Dict[str, machfs.Folder]:
                     except KeyError:
                         pass
                     file = files_by_path.setdefault(path, machfs.File())
-                    (file.type, file.creator, file.flags, file.x, file.y, _,
+                    (file.type, file.creator, file.flags, file.y, file.x, _,
                      file.fndrInfo) = struct.unpack('>4s4sHhhH16s', file_data)
                     continue
                 files_by_path.setdefault(path, machfs.File()).data = file_data
@@ -155,6 +315,16 @@ def traverse_folders(parent: machfs.Folder, folder_path: str) -> machfs.Folder:
 
 def fix_name(name: str) -> str:
     return name.replace(":", "/")
+
+
+def clear_folder_window_position(folder: machfs.Folder) -> None:
+    # Clear x/y position so that the Finder computes a layout for us.
+    (rect_top, rect_left, rect_bottom, rect_right, flags, window_y, window_x,
+     view) = struct.unpack(">hhhhHhhH", folder.usrInfo)
+    window_x = -1
+    window_y = -1
+    folder.usrInfo = struct.pack(">hhhhHhhH", rect_top, rect_left, rect_bottom,
+                                 rect_right, flags, window_y, window_x, view)
 
 
 import_folders = get_import_folders()
