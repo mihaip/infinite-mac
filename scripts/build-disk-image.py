@@ -106,9 +106,11 @@ def import_archive(
     archive_path = read_url_to_path(src_url)
     root_folder = machfs.Folder()
     with tempfile.TemporaryDirectory() as tmp_dir_path:
-        unar_code = subprocess.call(
-            [UNAR_PATH, "-output-directory", tmp_dir_path, archive_path],
-            stdout=subprocess.DEVNULL)
+        unar_code = subprocess.call([
+            UNAR_PATH, "-no-directory", "-output-directory", tmp_dir_path,
+            archive_path
+        ],
+                                    stdout=subprocess.DEVNULL)
         if unar_code != 0:
             assert False, "Could not unpack archive: %s:" % src_url
 
@@ -127,19 +129,20 @@ def import_archive(
                 path: str) -> typing.Optional[typing.Dict[str, typing.Any]]:
             return lsar_entries_by_path[os.path.relpath(path, tmp_dir_path)]
 
-        # We should end up with exactly one folder that's created when
-        # unarchiving, prefer that (over skipping it) because it has Finder
-        # metadata that we want to preserve.
+        # Most archives are of a folder, detect that and add the folder
+        # directly, preserving its Finder metadata.
+        root_dir_path = None
         tmp_dir_contents = os.listdir(tmp_dir_path)
-        if len(tmp_dir_contents) != 1:
-            assert False, "Got unexpected files (%s) when unpacking archive: %s" % (
-                tmp_dir_contents, src_url)
-        root_dir_name = tmp_dir_contents[0]
-        root_dir_path = os.path.join(tmp_dir_path, root_dir_name)
+        if len(tmp_dir_contents) == 1:
+            single_item_path = os.path.join(tmp_dir_path, tmp_dir_contents[0])
+            if os.path.isdir(single_item_path):
+                root_dir_path = single_item_path
+                update_folder_from_lsar_entry(root_folder,
+                                              get_lsar_entry(root_dir_path))
+                clear_folder_window_position(root_folder)
 
-        update_folder_from_lsar_entry(root_folder,
-                                      get_lsar_entry(root_dir_path))
-        clear_folder_window_position(root_folder)
+        if root_dir_path is None:
+            root_dir_path = tmp_dir_path
 
         for dir_path, dir_names, file_names in os.walk(root_dir_path):
             # Ignore Spotlight disabling directory that appears in some archives
