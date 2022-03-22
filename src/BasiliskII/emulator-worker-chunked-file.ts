@@ -34,50 +34,83 @@ export function createChunkedFile(
         contents.set(data, chunkIndex * chunkSize);
     }
 
+    function ensureChunksAreLoaded(position: number, length: number): number {
+        const readSize = Math.min(contents.length - position, length);
+
+        const startChunk = Math.floor(position / chunkSize);
+        const endChunk = Math.floor((position + readSize - 1) / chunkSize);
+        for (
+            let chunkIndex = startChunk;
+            chunkIndex <= endChunk;
+            chunkIndex++
+        ) {
+            if (!loadedChunks.has(chunkIndex)) {
+                loadChunk(chunkIndex);
+                loadedChunks.add(chunkIndex);
+            }
+        }
+        return readSize;
+    }
+
     const defaultStreamOps = file.stream_ops;
+    function read(
+        this: typeof defaultStreamOps,
+        stream: FS.FSStream,
+        buffer: Uint8Array,
+        offset: number,
+        length: number,
+        position: number
+    ) {
+        if (position >= contents.length) {
+            return 0;
+        }
+        if (stream.node.contents.buffer !== contents.buffer) {
+            // If Emscripten somehow changes the contents out from under us,
+            // we should go back to normal reading.
+            return defaultStreamOps.read.call(
+                this,
+                stream,
+                buffer,
+                offset,
+                length,
+                position
+            );
+        }
+
+        const readSize = ensureChunksAreLoaded(position, length);
+
+        buffer.set(contents.slice(position, position + readSize), offset);
+        return readSize;
+    }
+    function write(
+        this: typeof defaultStreamOps,
+        stream: FS.FSStream,
+        buffer: Uint8Array,
+        offset: number,
+        length: number,
+        position: number,
+        canOwn?: boolean
+    ) {
+        // If we get a write before a read, ensure that the backing contents
+        // are populated and we don't try to load chunks later (overwriting
+        // the writes).
+        ensureChunksAreLoaded(position, length);
+
+        return defaultStreamOps.write.call(
+            this,
+            stream,
+            buffer,
+            offset,
+            length,
+            position,
+            canOwn
+        );
+    }
+
     file.stream_ops = {
         ...defaultStreamOps,
-        read(
-            stream: FS.FSStream,
-            buffer: Uint8Array,
-            offset: number,
-            length: number,
-            position: number
-        ) {
-            if (position >= contents.length) {
-                return 0;
-            }
-            if (stream.node.contents.buffer !== contents.buffer) {
-                // If Emscripten somehow changes the contents out from under us,
-                // we should go back to normal reading.
-                return defaultStreamOps.read.call(
-                    this,
-                    stream,
-                    buffer,
-                    offset,
-                    length,
-                    position
-                );
-            }
-
-            const readSize = Math.min(contents.length - position, length);
-
-            const startChunk = Math.floor(position / chunkSize);
-            const endChunk = Math.floor((position + readSize - 1) / chunkSize);
-            for (
-                let chunkIndex = startChunk;
-                chunkIndex <= endChunk;
-                chunkIndex++
-            ) {
-                if (!loadedChunks.has(chunkIndex)) {
-                    loadChunk(chunkIndex);
-                    loadedChunks.add(chunkIndex);
-                }
-            }
-
-            buffer.set(contents.slice(position, position + readSize), offset);
-            return readSize;
-        },
+        read,
+        write,
     };
 
     return file;
