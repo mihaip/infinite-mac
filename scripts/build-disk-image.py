@@ -14,6 +14,7 @@ import urllib.request
 import zipfile
 import subprocess
 import time
+import unicodedata
 
 ROOT_DIR = os.path.join(os.path.dirname(__file__), "..")
 LIBRARY_DIR = os.path.join(ROOT_DIR, "Library")
@@ -72,7 +73,7 @@ def import_manifests() -> typing.Dict[str, machfs.Folder]:
         _, src_ext = os.path.splitext(src_url)
         if src_ext in [".img", ".dsk"]:
             folder = import_disk_image(manifest_json)
-        elif src_ext in [".hqx", ".sit"]:
+        elif src_ext in [".hqx", ".sit", ".bin"]:
             folder = import_archive(manifest_json)
         else:
             assert False, "Unexpected manifest URL extension: %s" % src_ext
@@ -102,6 +103,14 @@ def import_disk_image(
 
 def import_archive(
         manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:
+    def normalize(name: str) -> str:
+        # Replaces : with /, to undo the escaping that unar does for path
+        # separators.
+        # Normalizes accented characters to their combined form, since only
+        # those have an equivalent in the MacRoman encoding that HFS ends up
+        # using.
+        return unicodedata.normalize("NFC", name.replace(":", "/"))
+
     src_url = manifest_json["src_url"]
     archive_path = read_url_to_path(src_url)
     root_folder = machfs.Folder()
@@ -155,6 +164,7 @@ def import_archive(
                 folder_path_pieces = []
                 for folder_name in dir_rel_path.split(os.path.sep):
                     folder_path_pieces.append(folder_name)
+                    folder_name = normalize(folder_name)
                     if folder_name not in folder:
                         new_folder = folder[folder_name] = machfs.Folder()
                         update_folder_from_lsar_entry(
@@ -180,7 +190,7 @@ def import_archive(
 
                 update_file_from_lsar_entry(file, get_lsar_entry(file_path))
 
-                folder[file_name] = file
+                folder[normalize(file_name)] = file
     return root_folder
 
 
