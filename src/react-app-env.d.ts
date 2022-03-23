@@ -68,3 +68,11 @@ interface Document {
 interface HTMLElement {
     webkitRequestFullscreen?: () => Promise<void>;
 }
+
+interface Navigator {
+    keyboard?: Keyboard;
+}
+
+interface Keyboard {
+    lock?(keyCodes?: string[]): Promise<void>;
+}
