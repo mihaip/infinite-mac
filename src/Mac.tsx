@@ -131,6 +131,10 @@ export function Mac() {
             document.fullscreenElement || document.webkitFullscreenElement
         );
 
+        if (isFullScreen) {
+            navigator.keyboard?.lock?.();
+        }
+
         document.body.classList.toggle("fullscreen", isFullScreen);
         if (isFullScreen) {
             const heightScale = window.screen.height / SCREEN_HEIGHT;
