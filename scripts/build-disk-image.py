@@ -153,6 +153,13 @@ def import_archive(
         if root_dir_path is None:
             root_dir_path = tmp_dir_path
 
+        if "src_folder" in manifest_json:
+            src_folder_name = manifest_json["src_folder"]
+            root_dir_path = os.path.join(root_dir_path, src_folder_name)
+            update_folder_from_lsar_entry(root_folder,
+                                          get_lsar_entry(root_dir_path))
+            clear_folder_window_position(root_folder)
+
         for dir_path, dir_names, file_names in os.walk(root_dir_path):
             # Ignore Spotlight disabling directory that appears in some archives
             # and/or when running on modern Mac OS.
