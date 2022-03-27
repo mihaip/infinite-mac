@@ -1,0 +1,20 @@
+.Footer {
+    font-family: Geneva, Helvetica, sans-serif;
+    font-size: 9px;
+    color: #fff;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: #282c3422;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.Footer a {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.fullscreen .Footer {
+    display: none;
+}
