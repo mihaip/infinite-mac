@@ -27,7 +27,7 @@ input_path = sys.argv[1]
 output_dir = sys.argv[2]
 manifest_dir = sys.argv[3]
 
-DISK_SIZE = 500 * 1024 * 1024
+DISK_SIZE = 1024 * 1024 * 1024
 CHUNK_SIZE = 256 * 1024
 chunk_count = 0
 total_size = 0
@@ -71,7 +71,7 @@ def import_manifests() -> typing.Dict[str, machfs.Folder]:
             manifest_json = json.load(manifest)
         src_url = manifest_json["src_url"]
         _, src_ext = os.path.splitext(src_url)
-        if src_ext in [".img", ".dsk"]:
+        if src_ext in [".img", ".dsk", ".iso"]:
             folder = import_disk_image(manifest_json)
         elif src_ext in [".hqx", ".sit", ".bin"]:
             folder = import_archive(manifest_json)
@@ -136,7 +136,14 @@ def import_archive(
 
         def get_lsar_entry(
                 path: str) -> typing.Optional[typing.Dict[str, typing.Any]]:
-            return lsar_entries_by_path[os.path.relpath(path, tmp_dir_path)]
+            rel_path = os.path.relpath(path, tmp_dir_path)
+            if rel_path not in lsar_entries_by_path:
+                rel_path = normalize(rel_path)
+            if rel_path not in lsar_entries_by_path:
+                sys.stderr.write(
+                    "Could not find lsar entry for %s, all entries:\n%s\n" %
+                    (rel_path, "\n".join(lsar_entries_by_path.keys())))
+            return lsar_entries_by_path[rel_path]
 
         # Most archives are of a folder, detect that and add the folder
         # directly, preserving its Finder metadata.
