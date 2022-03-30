@@ -84,8 +84,15 @@ def import_manifests() -> typing.Dict[str, machfs.Folder]:
 
 def import_disk_image(
         manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:
+    return import_disk_image_data(read_url(manifest_json["src_url"]),
+                                  manifest_json)
+
+
+def import_disk_image_data(
+        data: bytes, manifest_json: typing.Dict[str,
+                                                typing.Any]) -> machfs.Folder:
     v = machfs.Volume()
-    v.read(read_url(manifest_json["src_url"]))
+    v.read(data)
     if "src_folder" in manifest_json:
         folder = v[manifest_json["src_folder"]]
         clear_folder_window_position(folder)
@@ -96,8 +103,9 @@ def import_disk_image(
             if name not in denylist:
                 folder[name] = item
     else:
-        assert False, "Unexpected manifest format: %s" % json.dumps(
-            manifest_json)
+        folder = machfs.Folder()
+        for name, item in v.items():
+            folder[name] = item
     return folder
 
 
@@ -156,6 +164,11 @@ def import_archive(
                 update_folder_from_lsar_entry(root_folder,
                                               get_lsar_entry(root_dir_path))
                 clear_folder_window_position(root_folder)
+
+        if "src_image" in manifest_json:
+            with open(os.path.join(tmp_dir_path, manifest_json["src_image"]),
+                      "rb") as f:
+                return import_disk_image_data(f.read(), manifest_json)
 
         if root_dir_path is None:
             root_dir_path = tmp_dir_path
