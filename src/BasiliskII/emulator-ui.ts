@@ -102,11 +102,18 @@ export class Emulator {
             fallbackCommandSender = async (
                 command: EmulatorFallbackCommand
             ) => {
-                await this.#serviceWorkerReady!;
-                this.#serviceWorker!.postMessage({
-                    type: "worker-command",
-                    command,
-                });
+                const serviceWorkerAvailable = await this.#serviceWorkerReady;
+                if (serviceWorkerAvailable) {
+                    this.#serviceWorker!.postMessage({
+                        type: "worker-command",
+                        command,
+                    });
+                } else {
+                    console.error(
+                        "Service worker is not available, cannot send command",
+                        command
+                    );
+                }
             };
         }
 
@@ -191,11 +198,17 @@ export class Emulator {
             files: this.#files.workerConfig(),
         };
 
-        await this.#serviceWorkerReady;
-        this.#serviceWorker!.postMessage({
-            type: "init-disk-cache",
-            spec: config.disk,
-        });
+        const serviceWorkerAvailable = await this.#serviceWorkerReady;
+        if (serviceWorkerAvailable) {
+            this.#serviceWorker!.postMessage({
+                type: "init-disk-cache",
+                spec: config.disk,
+            });
+        } else {
+            console.warn(
+                "Could not initialize service worker, things will be slower"
+            );
+        }
         this.#worker.postMessage({type: "start", config}, [rom, prefs]);
     }
 
@@ -404,11 +417,13 @@ export class Emulator {
                 .catch(err => {
                     if (err instanceof ServiceWorkerNoSupportError) {
                         console.error("Service workers are not supported");
+                    } else {
+                        console.error("Other service worker error", err);
                     }
-                    reject(err);
+                    resolve(false);
                 });
         });
-        navigator.serviceWorker.addEventListener(
+        navigator.serviceWorker?.addEventListener(
             "message",
             this.#handleServiceWorkerMessage
         );
