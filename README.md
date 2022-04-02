@@ -1,6 +1,6 @@
 # Infinite Mac
 
-A Mac with everything you'd want in 1995. Available in both [System 7](https://system7.app/) and [Mac OS 8](https://macos8.app/) flavors.
+A Mac with everything you'd want in 1995. Available in both [System 7](https://system7.app/) and [Mac OS 8](https://macos8.app/) flavors. For a high-level overview and the backstory, see [this blog post](https://blog.persistent.info/2022/03/blog-post.html).
 
 ## Development
 
