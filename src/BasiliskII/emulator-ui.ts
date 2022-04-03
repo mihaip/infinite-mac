@@ -36,7 +36,6 @@ import {getPersistedData, persistData} from "./emulator-ui-persistence";
 import {JS_CODE_TO_ADB_KEYCODE} from "./emulator-key-codes";
 
 export type EmulatorConfig = {
-    useTouchEvents: boolean;
     useSharedMemory: boolean;
     screenWidth: number;
     screenHeight: number;
@@ -140,16 +139,13 @@ export class Emulator {
     }
 
     async start() {
-        const {useTouchEvents, screenCanvas: canvas} = this.#config;
-        if (useTouchEvents) {
-            canvas.addEventListener("touchmove", this.#handleTouchMove);
-            canvas.addEventListener("touchstart", this.#handleTouchStart);
-            canvas.addEventListener("touchend", this.#handleTouchEnd);
-        } else {
-            canvas.addEventListener("mousemove", this.#handleMouseMove);
-            canvas.addEventListener("mousedown", this.#handleMouseDown);
-            canvas.addEventListener("mouseup", this.#handleMouseUp);
-        }
+        const {screenCanvas: canvas} = this.#config;
+        canvas.addEventListener("touchmove", this.#handleTouchMove);
+        canvas.addEventListener("touchstart", this.#handleTouchStart);
+        canvas.addEventListener("touchend", this.#handleTouchEnd);
+        canvas.addEventListener("mousemove", this.#handleMouseMove);
+        canvas.addEventListener("mousedown", this.#handleMouseDown);
+        canvas.addEventListener("mouseup", this.#handleMouseUp);
         window.addEventListener("keydown", this.#handleKeyDown);
         window.addEventListener("keyup", this.#handleKeyUp);
         window.addEventListener("beforeunload", this.#handleBeforeUnload);
@@ -213,16 +209,13 @@ export class Emulator {
     }
 
     stop() {
-        const {useTouchEvents, screenCanvas: canvas} = this.#config;
-        if (useTouchEvents) {
-            canvas.removeEventListener("touchmove", this.#handleTouchMove);
-            canvas.removeEventListener("touchstart", this.#handleTouchStart);
-            canvas.removeEventListener("touchend", this.#handleTouchEnd);
-        } else {
-            canvas.removeEventListener("mousemove", this.#handleMouseMove);
-            canvas.removeEventListener("mousedown", this.#handleMouseDown);
-            canvas.removeEventListener("mouseup", this.#handleMouseUp);
-        }
+        const {screenCanvas: canvas} = this.#config;
+        canvas.removeEventListener("touchmove", this.#handleTouchMove);
+        canvas.removeEventListener("touchstart", this.#handleTouchStart);
+        canvas.removeEventListener("touchend", this.#handleTouchEnd);
+        canvas.removeEventListener("mousemove", this.#handleMouseMove);
+        canvas.removeEventListener("mousedown", this.#handleMouseDown);
+        canvas.removeEventListener("mouseup", this.#handleMouseUp);
         window.removeEventListener("keydown", this.#handleKeyDown);
         window.removeEventListener("keyup", this.#handleKeyUp);
         window.removeEventListener("beforeunload", this.#handleBeforeUnload);
@@ -271,6 +264,8 @@ export class Emulator {
     };
 
     #handleTouchStart = (event: TouchEvent) => {
+        // Avoid mouse events also being dispatched for the touch.
+        event.preventDefault();
         if (!this.#startedAudio) {
             this.#audio.start();
             this.#startedAudio = true;
