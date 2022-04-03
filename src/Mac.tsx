@@ -1,4 +1,4 @@
-import {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import "./Mac.css";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import quadraRomPath from "./Data/Quadra-650.rom";
@@ -66,7 +66,6 @@ export function Mac() {
               };
         const emulator = new Emulator(
             {
-                useTouchEvents: "ontouchstart" in window,
                 useSharedMemory:
                     typeof SharedArrayBuffer !== "undefined" &&
                     searchParams.get("use_shared_memory") !== "false",
@@ -158,6 +157,11 @@ export function Mac() {
         );
     }
 
+    function handleDragStart(event: React.DragEvent) {
+        // Don't allow the screen to be dragged off when using a touchpad on
+        // the iPad.
+        event.preventDefault();
+    }
     // Use count instead of just a boolean because we'll get dragenter and
     // dragleave events for child elements of the Mac container too.
     const [dragCount, setDragCount] = useState(0);
@@ -194,6 +198,7 @@ export function Mac() {
                 height: `calc(${SCREEN_HEIGHT}px + 2 * var(--screen-underscan))`,
                 transform: scale === undefined ? undefined : `scale(${scale})`,
             }}
+            onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
