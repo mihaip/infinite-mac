@@ -136,8 +136,8 @@ export function Mac() {
 
         document.body.classList.toggle("fullscreen", isFullScreen);
         if (isFullScreen) {
-            const heightScale = window.screen.height / SCREEN_HEIGHT;
-            const widthScale = window.screen.width / SCREEN_WIDTH;
+            const heightScale = window.screen.availHeight / SCREEN_HEIGHT;
+            const widthScale = window.screen.availWidth / SCREEN_WIDTH;
             setScale(Math.min(heightScale, widthScale));
         } else {
             setScale(undefined);
