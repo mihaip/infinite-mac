@@ -377,6 +377,11 @@ with open(input_path, "rb") as input_file:
     for folder_path, folder in import_folders.items():
         parent_folder_path, folder_name = os.path.split(folder_path)
         parent = traverse_folders(v["Library"], parent_folder_path)
+        if folder_name in parent:
+            sys.stderr.write(
+                "  Skipping %s, already installed in the image\n" %
+                folder_path)
+            continue
         parent[folder_name] = folder
 
     flat = v.write(
