@@ -211,7 +211,7 @@ body.fullscreen .Mac {
     touch-action: none;
 }
 
-.Mac-Drag-Overlay {
+.Mac-Overlay {
     position: absolute;
     top: var(--screen-underscan);
     left: var(--screen-underscan);
@@ -226,15 +226,44 @@ body.fullscreen .Mac {
     flex-direction: column;
 }
 
-.Mac-Drag-Overlay:before {
-    content: "Copy to Mac";
+.Mac-Overlay:before {
     font-size: 48px;
     font-weight: bold;
     display: block;
 }
 
-.Mac-Drag-Overlay:after {
-    content: "Files will be placed in the “Downloads” folder.";
+.Mac-Overlay:after {
     font-size: 16px;
     display: block;
+}
+
+.Mac-Drag-Overlay:before {
+    content: "Copy to Mac";
+}
+
+.Mac-Drag-Overlay:after {
+    content: "Files will be placed in the “Downloads” folder.";
+}
+
+.Mac-Uploading-Disk-Image-Overlay:after {
+    content: "Uploading disk image…";
+}
+
+.Mac-Pending-Disk-Image {
+    position: absolute;
+    bottom: calc(var(--screen-underscan) + 8px);
+    right: calc(var(--screen-underscan) + 8px);
+    font-size: 16px;
+    padding: 8px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+.Mac-Pending-Disk-Image button {
+    margin-left: 8px;
+    background: #fff;
+    border: solid 1px #000;
+    color: #000;
+    border-radius: 8px;
 }

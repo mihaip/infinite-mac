@@ -5,6 +5,7 @@ import quadraRomPath from "./Data/Quadra-650.rom";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import {Emulator} from "./BasiliskII/emulator-ui";
+import {isDiskImageFile} from "./BasiliskII/emulator-common";
 
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 600;
@@ -18,6 +19,8 @@ export function Mac() {
     ]);
     const [emulatorLoadingDiskChunk, setEmulatorLoadingDiskChunk] =
         useState(false);
+    const [uploadingDiskImage, setUploadingDiskImage] = useState(false);
+    const [hasPendingDiskImage, setHasPendingDiskImage] = useState(false);
     // Don't clear the loading state immediately, to make it clearer that I/O
     // is happening and things may be slow.
     const finishLoadingDiskChunkTimeoutRef = useRef<number>(0);
@@ -174,19 +177,43 @@ export function Mac() {
     function handleDragLeave(event: React.DragEvent) {
         setDragCount(value => value - 1);
     }
-    function handleDrop(event: React.DragEvent) {
+
+    async function handleDrop(event: React.DragEvent) {
         event.preventDefault();
         setDragCount(0);
+        const emulator = emulatorRef.current;
+        if (!emulator) {
+            return;
+        }
+        const files = [];
+
         if (event.dataTransfer.items) {
             for (const item of event.dataTransfer.items) {
                 if (item.kind === "file") {
-                    emulatorRef.current?.uploadFile(item.getAsFile()!);
+                    files.push(item.getAsFile()!);
                 }
             }
         } else if (event.dataTransfer.files) {
             for (const file of event.dataTransfer.files) {
-                emulatorRef.current?.uploadFile(file);
+                files.push(file);
             }
+        }
+
+        const diskImages = [];
+        for (const file of files) {
+            if (isDiskImageFile(file.name)) {
+                diskImages.push(file);
+            } else {
+                emulator.uploadFile(file);
+            }
+        }
+        if (diskImages.length) {
+            setUploadingDiskImage(true);
+            await Promise.all(
+                diskImages.map(file => emulator.uploadDiskImage(file))
+            );
+            setUploadingDiskImage(false);
+            setHasPendingDiskImage(true);
         }
     }
 
@@ -220,7 +247,22 @@ export function Mac() {
                 onContextMenu={e => e.preventDefault()}
             />
             {progress}
-            {dragCount > 0 && <div className="Mac-Drag-Overlay" />}
+            {dragCount > 0 && <div className="Mac-Overlay Mac-Drag-Overlay" />}
+            {uploadingDiskImage && (
+                <div className="Mac-Overlay Mac-Uploading-Disk-Image-Overlay" />
+            )}
+            {hasPendingDiskImage && (
+                <div className="Mac-Pending-Disk-Image">
+                    The Mac needs to be restarted to pick up the new disk image.
+                    <button
+                        onClick={() => {
+                            setHasPendingDiskImage(false);
+                            emulatorRef.current?.restart();
+                        }}>
+                        Restart
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
