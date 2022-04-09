@@ -80,6 +80,8 @@ export class Emulator {
 
     #gotFirstBlit = false;
 
+    #diskImages: {[name: string]: ArrayBuffer} = {};
+
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
         console.time("Emulator first blit");
         console.time("Emulator first idlewait");
@@ -155,6 +157,10 @@ export class Emulator {
             this.#handleVisibilityChange
         );
 
+        await this.#startWorker();
+    }
+
+    async #startWorker() {
         if (this.#workerTerminated) {
             this.#worker = new Worker();
         }
@@ -177,13 +183,31 @@ export class Emulator {
 
         const extraction = await getPersistedData();
 
+        const diskImagePrefsAddition = Object.keys(this.#diskImages)
+            .map(diskImageName => `cdrom /${diskImageName}`)
+            .join("\n");
+
+        let overridePrefs;
+        if (diskImagePrefsAddition) {
+            const diskImagePrefsAdditionBytes = new TextEncoder().encode(
+                diskImagePrefsAddition + "\n"
+            );
+            const newPrefsBytes = new Uint8Array(
+                prefs.byteLength + diskImagePrefsAdditionBytes.length
+            );
+            newPrefsBytes.set(new Uint8Array(prefs), 0);
+            newPrefsBytes.set(diskImagePrefsAdditionBytes, prefs.byteLength);
+            overridePrefs = newPrefsBytes.buffer;
+        }
+
         const config: EmulatorWorkerConfig = {
             jsUrl: jsBlobUrl,
             wasmUrl: wasmBlobUrl,
             disk: this.#config.disk,
             autoloadFiles: {
                 "Quadra-650.rom": rom,
-                "prefs": prefs,
+                "prefs": overridePrefs ?? prefs,
+                ...this.#diskImages,
             },
             persistedData: extraction,
             arguments: ["--config", "prefs"],
@@ -228,11 +252,42 @@ export class Emulator {
         this.#input.handleInput({type: "stop"});
     }
 
+    restart(): Promise<void> {
+        this.#input.handleInput({type: "stop"});
+        // Wait for handleEmulatorStopped to be invoked, so that data is
+        // persisted.
+        return new Promise(resolve => {
+            const interval = setInterval(() => {
+                if (this.#workerTerminated) {
+                    clearInterval(interval);
+                    this.#startWorker();
+                    // Make sure we clear the "stopped" bit set above
+                    this.#input.handleInput({type: "start"});
+                    resolve();
+                }
+            }, 100);
+        });
+    }
+
     uploadFile(file: File) {
         this.#files.uploadFile({
             name: file.name,
             url: URL.createObjectURL(file),
             size: file.size,
+        });
+    }
+
+    uploadDiskImage(file: File): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                this.#diskImages[file.name] = reader.result as ArrayBuffer;
+                resolve();
+            };
+            reader.onerror = () => {
+                reject(reader.error);
+            };
+            reader.readAsArrayBuffer(file);
         });
     }
 

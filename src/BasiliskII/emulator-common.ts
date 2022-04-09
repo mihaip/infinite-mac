@@ -23,11 +23,16 @@ export type EmulatorStopEvent = {
     type: "stop";
 };
 
+export type EmulatorStartEvent = {
+    type: "start";
+};
+
 export type EmulatorInputEvent =
     | EmulatorMouseEvent
     | EmulatorTouchEvent
     | EmulatorKeyboardEvent
-    | EmulatorStopEvent;
+    | EmulatorStopEvent
+    | EmulatorStartEvent;
 
 export enum LockStates {
     READY_FOR_UI_THREAD,
@@ -192,6 +197,7 @@ export function updateInputBufferWithEvents(
     let keyCode = -1;
     let keyState = -1;
     let hasStop = false;
+    let hasStart = false;
     // currently only one key event can be sent per sync
     // TODO: better key handling code
     const remainingEvents: EmulatorInputEvent[] = [];
@@ -232,6 +238,9 @@ export function updateInputBufferWithEvents(
             case "stop":
                 hasStop = true;
                 break;
+            case "start":
+                hasStart = true;
+                break;
         }
     }
     if (hasMouseMove) {
@@ -249,6 +258,9 @@ export function updateInputBufferWithEvents(
     if (hasStop) {
         inputBufferView[InputBufferAddresses.stopFlagAddr] = 1;
     }
+    if (hasStart) {
+        inputBufferView[InputBufferAddresses.stopFlagAddr] = 0;
+    }
     return remainingEvents;
 }
 export type EmulatorWorkerDirectorExtractionEntry =
@@ -262,3 +274,12 @@ export type EmulatorWorkerDirectorExtraction = {
     name: string;
     contents: EmulatorWorkerDirectorExtractionEntry[];
 };
+
+export function isDiskImageFile(name: string): boolean {
+    return (
+        name.endsWith(".iso") ||
+        name.endsWith(".dsk") ||
+        name.endsWith(".img") ||
+        name.endsWith(".toast")
+    );
+}
