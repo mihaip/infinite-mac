@@ -69,7 +69,7 @@ class EmulatorWorkerApi {
 
     #gotFirstIdleWait = false;
     #handledStop = false;
-    #diskSpec: EmulatorChunkedFileSpec;
+    #diskSpecs: EmulatorChunkedFileSpec[];
 
     constructor(config: EmulatorWorkerConfig) {
         const {
@@ -77,7 +77,7 @@ class EmulatorWorkerApi {
             input: inputConfig,
             audio: audioConfig,
             files: filesConfig,
-            disk,
+            disks,
         } = config;
         const blitSender = (
             data: EmulatorWorkerVideoBlit,
@@ -116,7 +116,7 @@ class EmulatorWorkerApi {
                       filesConfig,
                       getFallbackEndpoint()
                   );
-        this.#diskSpec = disk;
+        this.#diskSpecs = disks;
     }
 
     blit(
@@ -175,7 +175,9 @@ class EmulatorWorkerApi {
         if (!this.#gotFirstIdleWait) {
             this.#gotFirstIdleWait = true;
             postMessage({type: "emulator_first_idlewait"});
-            validateSpecPrefetchChunks(this.#diskSpec);
+            for (const spec of this.#diskSpecs) {
+                validateSpecPrefetchChunks(spec);
+            }
         }
         // Don't do more than one call per frame, otherwise we end up skipping
         // frames.
@@ -328,7 +330,9 @@ function startEmulator(config: EmulatorWorkerConfig) {
                     );
                 }
 
-                createChunkedFile("/", "Macintosh HD", config.disk, true, true);
+                for (const spec of config.disks) {
+                    createChunkedFile("/", spec.name, spec, true, true);
+                }
             },
         ],
 

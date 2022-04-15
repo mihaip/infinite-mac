@@ -42,6 +42,7 @@ export enum LockStates {
 }
 
 export type EmulatorChunkedFileSpec = {
+    name: string;
     baseUrl: string;
     totalSize: number;
     chunks: string[];
@@ -79,7 +80,7 @@ export function generateNextChunkUrl(
 export type EmulatorWorkerConfig = {
     jsUrl: string;
     wasmUrl: string;
-    disk: EmulatorChunkedFileSpec;
+    disks: EmulatorChunkedFileSpec[];
     autoloadFiles: {[name: string]: ArrayBuffer};
     persistedData?: EmulatorWorkerDirectorExtraction;
     arguments: string[];

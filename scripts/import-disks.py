@@ -6,6 +6,7 @@ import hashlib
 import json
 import machfs
 import os
+import shutil
 import struct
 import sys
 import tempfile
@@ -17,22 +18,17 @@ import time
 import unicodedata
 
 ROOT_DIR = os.path.join(os.path.dirname(__file__), "..")
+BASILISK_II_DIR = os.path.join(ROOT_DIR, "macemu", "BasiliskII", "src", "Unix")
 LIBRARY_DIR = os.path.join(ROOT_DIR, "Library")
+DISK_DIR = os.path.join(ROOT_DIR, "public", "Disk")
+DATA_DIR = os.path.join(ROOT_DIR, "src", "Data")
 CACHE_DIR = os.path.join("/tmp", "infinite-mac-cache")
 XADMASTER_PATH = os.path.join(ROOT_DIR, "XADMaster-build", "Release")
 UNAR_PATH = os.path.join(XADMASTER_PATH, "unar")
 LSAR_PATH = os.path.join(XADMASTER_PATH, "lsar")
 
-input_path = sys.argv[1]
-output_dir = sys.argv[2]
-manifest_dir = sys.argv[3]
-
 DISK_SIZE = 1024 * 1024 * 1024
 CHUNK_SIZE = 256 * 1024
-chunk_count = 0
-total_size = 0
-
-input_file_name = os.path.basename(input_path)
 
 
 def read_url(url: str) -> bytes:
@@ -367,38 +363,16 @@ def clear_folder_window_position(folder: machfs.Folder) -> None:
                                  rect_right, flags, window_y, window_x, view)
 
 
-import_folders = get_import_folders()
-
-with open(input_path, "rb") as input_file:
-    v = machfs.Volume()
-    v.read(input_file.read(), preserve_desktopdb=True)
-    v.name = "Infinite HD"
-
-    for folder_path, folder in import_folders.items():
-        parent_folder_path, folder_name = os.path.split(folder_path)
-        parent = traverse_folders(v["Library"], parent_folder_path)
-        if folder_name in parent:
-            sys.stderr.write(
-                "  Skipping %s, already installed in the image\n" %
-                folder_path)
-            continue
-        parent[folder_name] = folder
-
-    flat = v.write(
-        size=DISK_SIZE,
-        align=512,
-        desktopdb=False,
-        bootable=True,
-    )
-
+def write_chunked_image(image: bytes, input_file_name: str) -> None:
+    total_size = 0
     chunks = []
     chunk_signatures = set()
     salt = b'raw'
-    for i in range(0, DISK_SIZE, CHUNK_SIZE):
+    for i in range(0, len(image), CHUNK_SIZE):
         sys.stderr.write("Chunking %s: %.1f%%\r" %
                          (input_file_name,
                           ((i + CHUNK_SIZE) / DISK_SIZE) * 100))
-        chunk = flat[i:i + CHUNK_SIZE]
+        chunk = image[i:i + CHUNK_SIZE]
         total_size += len(chunk)
         chunk_signature = hashlib.blake2b(chunk, digest_size=16,
                                           salt=salt).hexdigest()
@@ -406,7 +380,7 @@ with open(input_path, "rb") as input_file:
         if chunk_signature in chunk_signatures:
             continue
         chunk_signatures.add(chunk_signature)
-        chunk_path = os.path.join(output_dir, f"{chunk_signature}.chunk")
+        chunk_path = os.path.join(DISK_DIR, f"{chunk_signature}.chunk")
         if os.path.exists(chunk_path):
             # An earlier run of this script (e.g. for a different base image)
             # may have already created this file.
@@ -414,15 +388,57 @@ with open(input_path, "rb") as input_file:
         with open(chunk_path, "wb+") as chunk_file:
             chunk_file.write(chunk)
 
-sys.stderr.write("\n")
+    sys.stderr.write("\n")
 
-manifest_path = os.path.join(manifest_dir, f"{input_file_name}.json")
-with open(manifest_path, "w+") as manifest_file:
-    json.dump(
-        {
-            "totalSize": total_size,
-            "chunks": chunks,
-            "chunkSize": CHUNK_SIZE,
-        },
-        manifest_file,
-        indent=4)
+    manifest_path = os.path.join(DATA_DIR, f"{input_file_name}.json")
+    with open(manifest_path, "w+") as manifest_file:
+        json.dump(
+            {
+                "name": os.path.splitext(input_file_name)[0],
+                "totalSize": total_size,
+                "chunks": chunks,
+                "chunkSize": CHUNK_SIZE,
+            },
+            manifest_file,
+            indent=4)
+
+
+def copy_system_image(name: str) -> None:
+    input_path = os.path.join(BASILISK_II_DIR, name)
+    with open(input_path, "rb") as image:
+        write_chunked_image(image.read(), name)
+
+
+def build_library_image(base_name: str) -> None:
+    import_folders = get_import_folders()
+
+    v = machfs.Volume()
+    with open(os.path.join(BASILISK_II_DIR, base_name), "rb") as base:
+        v.read(base.read(), preserve_desktopdb=True)
+    v.name = "Infinite HD"
+
+    for folder_path, folder in import_folders.items():
+        parent_folder_path, folder_name = os.path.split(folder_path)
+        parent = traverse_folders(v, parent_folder_path)
+        if folder_name in parent:
+            sys.stderr.write(
+                "  Skipping %s, already installed in the image\n" %
+                folder_path)
+            continue
+        parent[folder_name] = folder
+
+    image = v.write(
+        size=DISK_SIZE,
+        align=512,
+        desktopdb=False,
+        bootable=False,
+    )
+    write_chunked_image(image, base_name)
+
+
+if __name__ == "__main__":
+    shutil.rmtree(DISK_DIR, ignore_errors=False)
+    os.mkdir(DISK_DIR)
+    copy_system_image("System 7.5.3 HD.dsk")
+    copy_system_image("Mac OS 8.1 HD.dsk")
+    build_library_image("Infinite HD.dsk")

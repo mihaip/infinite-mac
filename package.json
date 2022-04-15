@@ -28,7 +28,7 @@
     },
     "scripts": {
         "import-basilisk-ii": "scripts/import-basilisk-ii.sh",
-        "import-basilisk-ii-data": "scripts/import-basilisk-ii-data.sh",
+        "import-disks": "scripts/import-disks.py",
         "build-xadmaster": "scripts/build-xadmaster.sh",
         "start": "PORT=3127 react-scripts start",
         "build": "react-scripts build",
