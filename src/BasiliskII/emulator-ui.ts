@@ -42,7 +42,7 @@ export type EmulatorConfig = {
     screenCanvas: HTMLCanvasElement;
     basiliskPrefsPath: string;
     romPath: string;
-    disk: EmulatorChunkedFileSpec;
+    disks: EmulatorChunkedFileSpec[];
 };
 
 export interface EmulatorDelegate {
@@ -169,7 +169,7 @@ export class Emulator {
         // Fetch all of the dependent files ourselves, to avoid a waterfall
         // if we let Emscripten handle it (it would first load the JS, and
         // then that would load the WASM and data files).
-        const [[jsBlobUrl, wasmBlobUrl], [rom, prefs]] = await load(
+        const [[jsBlobUrl, wasmBlobUrl], [rom, basePrefs]] = await load(
             [BasiliskIIPath, BasiliskIIWasmPath],
             [this.#config.romPath, this.#config.basiliskPrefsPath],
             (total, left) => {
@@ -183,30 +183,22 @@ export class Emulator {
 
         const extraction = await getPersistedData();
 
-        const diskImagePrefsAddition = Object.keys(this.#diskImages)
-            .map(diskImageName => `cdrom /${diskImageName}`)
-            .join("\n");
-
-        let overridePrefs;
-        if (diskImagePrefsAddition) {
-            const diskImagePrefsAdditionBytes = new TextEncoder().encode(
-                diskImagePrefsAddition + "\n"
-            );
-            const newPrefsBytes = new Uint8Array(
-                prefs.byteLength + diskImagePrefsAdditionBytes.length
-            );
-            newPrefsBytes.set(new Uint8Array(prefs), 0);
-            newPrefsBytes.set(diskImagePrefsAdditionBytes, prefs.byteLength);
-            overridePrefs = newPrefsBytes.buffer;
+        let prefsStr = new TextDecoder().decode(basePrefs);
+        for (const spec of this.#config.disks) {
+            prefsStr = `disk ${spec.name}\n` + prefsStr;
         }
+        for (const diskImage of Object.keys(this.#diskImages)) {
+            prefsStr += `cdrom /${diskImage}\n`;
+        }
+        const prefs = new TextEncoder().encode(prefsStr).buffer;
 
         const config: EmulatorWorkerConfig = {
             jsUrl: jsBlobUrl,
             wasmUrl: wasmBlobUrl,
-            disk: this.#config.disk,
+            disks: this.#config.disks,
             autoloadFiles: {
                 "Quadra-650.rom": rom,
-                "prefs": overridePrefs ?? prefs,
+                "prefs": prefs,
                 ...this.#diskImages,
             },
             persistedData: extraction,
@@ -220,16 +212,22 @@ export class Emulator {
 
         const serviceWorkerAvailable = await this.#serviceWorkerReady;
         if (serviceWorkerAvailable) {
-            this.#serviceWorker!.postMessage({
-                type: "init-disk-cache",
-                spec: config.disk,
-            });
+            for (const spec of config.disks) {
+                this.#serviceWorker!.postMessage({
+                    type: "init-disk-cache",
+                    spec,
+                });
+            }
         } else {
             console.warn(
                 "Could not initialize service worker, things will be slower"
             );
         }
-        this.#worker.postMessage({type: "start", config}, [rom, prefs]);
+        this.#worker.postMessage({type: "start", config}, [
+            rom,
+            prefs,
+            ...Object.values(this.#diskImages),
+        ]);
     }
 
     stop() {

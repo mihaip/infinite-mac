@@ -10,7 +10,7 @@ Common development tasks, all done via `npm run`:
 
 -   `start`: Run local dev server (will be running at http://localhost:3127).
 -   `import-basilisk-ii`: Copy generated WebAssembly from the https://github.com/mihaip/macemu submodule.
--   `import-basilisk-ii-data`: Variant of the above for the data files. Also imports other disk images and extracted files from `Library/` into the main disk image and chunks it for serving.
+-   `import-disks`: Build disk images for serving. Copies base OS images from the above, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving.
 
 Common deployment tasks (also done via `npm run`)
 

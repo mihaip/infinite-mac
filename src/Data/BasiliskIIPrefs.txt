@@ -1,4 +1,3 @@
-disk Macintosh HD
 extfs /Shared/
 screen win/800/600
 seriala
