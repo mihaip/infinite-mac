@@ -27,7 +27,6 @@ XADMASTER_PATH = os.path.join(ROOT_DIR, "XADMaster-build", "Release")
 UNAR_PATH = os.path.join(XADMASTER_PATH, "unar")
 LSAR_PATH = os.path.join(XADMASTER_PATH, "lsar")
 
-DISK_SIZE = 1024 * 1024 * 1024
 CHUNK_SIZE = 256 * 1024
 
 
@@ -368,10 +367,11 @@ def write_chunked_image(image: bytes, input_file_name: str) -> None:
     chunks = []
     chunk_signatures = set()
     salt = b'raw'
-    for i in range(0, len(image), CHUNK_SIZE):
+    disk_size = len(image)
+    for i in range(0, disk_size, CHUNK_SIZE):
         sys.stderr.write("Chunking %s: %.1f%%\r" %
                          (input_file_name,
-                          ((i + CHUNK_SIZE) / DISK_SIZE) * 100))
+                          ((i + CHUNK_SIZE) / disk_size) * 100))
         chunk = image[i:i + CHUNK_SIZE]
         total_size += len(chunk)
         chunk_signature = hashlib.blake2b(chunk, digest_size=16,
@@ -428,7 +428,7 @@ def build_library_image(base_name: str) -> None:
         parent[folder_name] = folder
 
     image = v.write(
-        size=DISK_SIZE,
+        size=1024 * 1024 * 1024,
         align=512,
         desktopdb=False,
         bootable=False,
