@@ -3,9 +3,11 @@ import "./Mac.css";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import quadraRomPath from "./Data/Quadra-650.rom";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
+import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
 import {Emulator} from "./BasiliskII/emulator-ui";
+import type {EmulatorChunkedFileSpec} from "./BasiliskII/emulator-common";
 import {isDiskImageFile} from "./BasiliskII/emulator-common";
 
 const SCREEN_WIDTH = 800;
@@ -33,37 +35,10 @@ export function Mac() {
             handleFullScreenChange
         );
         const searchParams = new URLSearchParams(location.search);
-        const useMacos8 =
-            searchParams.has("macos8") || location.host === "macos8.app";
+        const domain = searchParams.get("domain") ?? location.host;
         // prefetchChunks are semi-automatically generated -- we will get a
         // warning via validateSpecPrefetchChunks() if these are incorrect.
-        const disk = useMacos8
-            ? {
-                  baseUrl: "/Disk",
-                  prefetchChunks: [
-                      0, 3, 6, 12, 13, 14, 17, 21, 22, 23, 24, 25, 26, 27, 28,
-                      29, 30, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 43, 44,
-                      45, 46, 48, 49, 50, 51, 52, 53, 54, 56, 57, 58, 59, 60,
-                      62, 63, 64, 65, 66, 67, 69, 70, 71, 72, 73, 74, 75, 77,
-                      78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90, 91, 92,
-                      99, 100, 101, 103, 104, 106, 107, 108, 109, 110, 111, 112,
-                      113, 114, 115, 120, 121, 124, 125, 126, 127, 128, 129,
-                      130, 131, 132, 133, 134, 135, 136, 138, 139, 140, 141,
-                      142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152,
-                  ],
-                  ...macos81HdManifest,
-              }
-            : {
-                  baseUrl: "/Disk",
-                  prefetchChunks: [
-                      0, 3, 6, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-                      21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35,
-                      38, 39, 41, 44, 45, 46, 47, 48, 49, 50, 51, 52, 54, 55,
-                      56, 57, 58, 59, 61, 62, 65, 66, 68, 69, 70, 71, 72, 73,
-                      74, 75, 92, 93, 95, 96, 97, 98, 99, 100, 101,
-                  ],
-                  ...system753HdManifest,
-              };
+        const disk = DISKS_BY_DOMAIN[domain] ?? DISKS_BY_DOMAIN["system7.app"];
         const libraryDisk = {
             baseUrl: "/Disk",
             prefetchChunks: [0],
@@ -268,3 +243,43 @@ export function Mac() {
         </div>
     );
 }
+
+const DISKS_BY_DOMAIN: {[domain: string]: EmulatorChunkedFileSpec} = {
+    "system7.app": {
+        baseUrl: "/Disk",
+        prefetchChunks: [
+            0, 3, 6, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+            24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 38, 39, 41, 44, 45, 46,
+            47, 48, 49, 50, 51, 52, 54, 55, 56, 57, 58, 59, 61, 62, 65, 66, 68,
+            69, 70, 71, 72, 73, 74, 75, 92, 93, 95, 96, 97, 98, 99, 100, 101,
+        ],
+        ...system753HdManifest,
+    },
+    "kanjitalk7.app": {
+        baseUrl: "/Disk",
+        prefetchChunks: [
+            0, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22,
+            26, 27, 28, 29, 30, 31, 32, 33, 34, 42, 44, 45, 46, 48, 49, 50, 51,
+            53, 61, 62, 63, 64, 65, 66, 68, 69, 70, 71, 72, 75, 76, 77, 78, 79,
+            80, 81, 82, 83, 84, 89, 90, 94, 114, 116, 142, 146, 147, 158, 159,
+            161, 167, 169, 170, 171, 172, 174, 175, 176, 177, 179, 180, 181,
+            182, 183, 184, 185, 186, 187, 189, 190, 191, 192, 193, 194, 195,
+            203,
+        ],
+        ...kanjiTalk753HdManifest,
+    },
+    "macos8.app": {
+        baseUrl: "/Disk",
+        prefetchChunks: [
+            0, 3, 6, 12, 13, 14, 17, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32,
+            33, 34, 35, 36, 37, 38, 39, 40, 41, 43, 44, 45, 46, 48, 49, 50, 51,
+            52, 53, 54, 56, 57, 58, 59, 60, 62, 63, 64, 65, 66, 67, 69, 70, 71,
+            72, 73, 74, 75, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90,
+            91, 92, 99, 100, 101, 103, 104, 106, 107, 108, 109, 110, 111, 112,
+            113, 114, 115, 120, 121, 124, 125, 126, 127, 128, 129, 130, 131,
+            132, 133, 134, 135, 136, 138, 139, 140, 141, 142, 143, 144, 145,
+            146, 147, 148, 149, 150, 151, 152,
+        ],
+        ...macos81HdManifest,
+    },
+};
