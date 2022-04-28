@@ -238,7 +238,7 @@ def update_folder_from_lsar_entry(folder: machfs.Folder,
                                   entry: typing.Dict[str, typing.Any]) -> None:
     update_file_or_folder_from_lsar_entry(folder, entry)
 
-    flags = entry["XADFinderFlags"]
+    flags = entry.get("XADFinderFlags", 0)
     if "XADFinderWindowTop" in entry:
         rect_top = entry["XADFinderWindowTop"]
         rect_left = entry["XADFinderWindowLeft"]
@@ -272,8 +272,11 @@ def update_file_or_folder_from_lsar_entry(
         # http://justsolve.archiveteam.org/wiki/HFS/HFS%2B_timestamp
         return t + 2082844800
 
-    file_or_folder.mddate = convert_date(entry["XADLastModificationDate"])
-    file_or_folder.crdate = convert_date(entry["XADCreationDate"])
+    if "XADLastModificationDate" in entry:
+        file_or_folder.mddate = convert_date(entry["XADLastModificationDate"])
+
+    if "XADCreationDate" in entry:
+        file_or_folder.crdate = convert_date(entry["XADCreationDate"])
 
 
 def import_zips() -> typing.Dict[str, machfs.Folder]:
