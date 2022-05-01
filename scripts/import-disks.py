@@ -417,7 +417,7 @@ def build_library_image(base_name: str) -> None:
 
     v = machfs.Volume()
     with open(os.path.join(BASILISK_II_DIR, base_name), "rb") as base:
-        v.read(base.read(), preserve_desktopdb=True)
+        v.read(base.read())
     v.name = "Infinite HD"
 
     for folder_path, folder in import_folders.items():
@@ -436,6 +436,42 @@ def build_library_image(base_name: str) -> None:
         desktopdb=False,
         bootable=False,
     )
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = os.path.join(temp_dir, base_name)
+        with open(temp_path, "wb") as image_file:
+            image_file.write(image)
+        sys.stderr.write("Rebuilding Desktop DB for %s...\n" % base_name)
+        boot_disk_path = os.path.join(ROOT_DIR, "Data",
+                                      "Desktop DB Rebuilder.dsk")
+        rom_path = os.path.join(BASILISK_II_DIR, "Quadra-650.rom")
+        basilisk_ii_args = [
+            ("--config", "none"),
+            ("--disk", f"*{boot_disk_path}"),
+            ("--disk", temp_path),
+            ("--extfs", "none"),
+            ("--rom", rom_path),
+            ("--screen", "win/640/480"),
+            ("--ramsize", "16777216"),
+            ("--frameskip", "0"),
+            ("--modelid", "14"),
+            ("--cpu", "4"),
+            ("--fpu", "true"),
+            ("--nocdrom", "true"),
+            ("--nosound", "true"),
+            ("--noclipconversion", "true"),
+            ("--idlewait", "true"),
+        ]
+        subprocess.check_call([
+            "open",
+            "-a",
+            "BasiliskII",
+            "-W",
+            "--args",
+        ] + [a for arg in basilisk_ii_args for a in arg])
+        with open(temp_path, "rb") as image_file:
+            image = image_file.read()
+
     write_chunked_image(image, base_name)
 
 
