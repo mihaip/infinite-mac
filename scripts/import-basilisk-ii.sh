@@ -6,12 +6,8 @@
 ROOT_DIR="`dirname "${BASH_SOURCE[0]}"`/.."
 BASILISK_II_DIR="${ROOT_DIR}/macemu/BasiliskII/src/Unix"
 SRC_DIR="${ROOT_DIR}/src"
-DATA_DIR="${SRC_DIR}/Data"
 PUBLIC_DIR="${ROOT_DIR}/public"
 BASILISK_II_DESTINATION_DIR="${SRC_DIR}/BasiliskII"
-
-# ROM
-cp "${BASILISK_II_DIR}/Quadra-650.rom" "${DATA_DIR}/"
 
 # Build output
 cp "${BASILISK_II_DIR}/BasiliskII" "${BASILISK_II_DESTINATION_DIR}/BasiliskII.jsz"

@@ -18,7 +18,7 @@ import time
 import unicodedata
 
 ROOT_DIR = os.path.join(os.path.dirname(__file__), "..")
-BASILISK_II_DIR = os.path.join(ROOT_DIR, "macemu", "BasiliskII", "src", "Unix")
+IMAGES_DIR = os.path.join(ROOT_DIR, "Images")
 LIBRARY_DIR = os.path.join(ROOT_DIR, "Library")
 DISK_DIR = os.path.join(ROOT_DIR, "public", "Disk")
 DATA_DIR = os.path.join(ROOT_DIR, "src", "Data")
@@ -407,7 +407,7 @@ def write_chunked_image(image: bytes, input_file_name: str) -> None:
 
 
 def copy_system_image(name: str) -> None:
-    input_path = os.path.join(BASILISK_II_DIR, name)
+    input_path = os.path.join(IMAGES_DIR, name)
     with open(input_path, "rb") as image:
         write_chunked_image(image.read(), name)
 
@@ -416,7 +416,7 @@ def build_library_image(base_name: str) -> None:
     import_folders = get_import_folders()
 
     v = machfs.Volume()
-    with open(os.path.join(BASILISK_II_DIR, base_name), "rb") as base:
+    with open(os.path.join(IMAGES_DIR, base_name), "rb") as base:
         v.read(base.read())
     v.name = "Infinite HD"
 
@@ -442,9 +442,8 @@ def build_library_image(base_name: str) -> None:
         with open(temp_path, "wb") as image_file:
             image_file.write(image)
         sys.stderr.write("Rebuilding Desktop DB for %s...\n" % base_name)
-        boot_disk_path = os.path.join(ROOT_DIR, "Data",
-                                      "Desktop DB Rebuilder.dsk")
-        rom_path = os.path.join(BASILISK_II_DIR, "Quadra-650.rom")
+        boot_disk_path = os.path.join(IMAGES_DIR, "Desktop DB Rebuilder.dsk")
+        rom_path = os.path.join(DATA_DIR, "Quadra-650.rom")
         basilisk_ii_args = [
             ("--config", "none"),
             ("--disk", f"*{boot_disk_path}"),
