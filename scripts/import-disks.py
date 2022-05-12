@@ -442,7 +442,7 @@ def build_library_image(base_name: str) -> None:
         with open(temp_path, "wb") as image_file:
             image_file.write(image)
         sys.stderr.write("Rebuilding Desktop DB for %s...\n" % base_name)
-        boot_disk_path = os.path.join(IMAGES_DIR, "Desktop DB Rebuilder.dsk")
+        boot_disk_path = os.path.join(IMAGES_DIR, "Mac OS 8.1 HD.dsk")
         rom_path = os.path.join(DATA_DIR, "Quadra-650.rom")
         basilisk_ii_args = [
             ("--config", "none"),
