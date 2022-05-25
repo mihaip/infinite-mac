@@ -76,3 +76,14 @@ interface Navigator {
 interface Keyboard {
     lock?(keyCodes?: string[]): Promise<void>;
 }
+
+declare module "ringbuf.js" {
+    export class RingBuffer<T extends TypedArray> {
+        constructor(sab: SharedArrayBuffer, type: typeof T);
+        push(elements: T, length?: number, offset: number = 0): number;
+        pop(elements: T, length?: number, offset: number = 0): number;
+        empty(): boolean;
+        full(): boolean;
+        capacity(): number;
+    }
+}

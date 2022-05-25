@@ -1434,20 +1434,24 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  246756: function() {workerApi.idleWait();},  
- 246782: function($0) {workerApi.debugPointer($0);},  
- 246814: function($0, $1, $2, $3, $4, $5) {workerApi.blit($0, $1, $2, $3, $4, $5);},  
- 246858: function() {return workerApi.acquireInputLock();},  
- 246899: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
- 246988: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
- 247074: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
- 247162: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
- 247250: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
- 247335: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
- 247415: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
- 247496: function() {workerApi.releaseInputLock();},  
- 247530: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
- 247571: function($0, $1, $2) {return workerApi.enqueueAudio($0, $1, $2);}
+  246772: function() {workerApi.idleWait();},  
+ 246798: function($0) {workerApi.debugPointer($0);},  
+ 246830: function($0, $1, $2, $3, $4, $5) {workerApi.blit($0, $1, $2, $3, $4, $5);},  
+ 246874: function() {return workerApi.acquireInputLock();},  
+ 246915: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
+ 247004: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
+ 247090: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
+ 247178: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
+ 247266: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
+ 247351: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
+ 247431: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
+ 247512: function() {workerApi.releaseInputLock();},  
+ 247546: function() {return workerApi.etherSeed();},  
+ 247580: function($0) {workerApi.etherInit(UTF8ToString($0));},  
+ 247623: function($0, $1, $2) {workerApi.etherWrite(UTF8ToString($0), $1, $2);},  
+ 247675: function($0) {return workerApi.etherRead($0, 1514);},  
+ 247717: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
+ 247758: function($0, $1, $2) {return workerApi.enqueueAudio($0, $1, $2);}
 };
 
 

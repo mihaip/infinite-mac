@@ -6,6 +6,10 @@ import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
+import type {
+    EmulatorEthernetProvider,
+    EmulatorEthernetProviderDelegate,
+} from "./BasiliskII/emulator-ui";
 import {Emulator} from "./BasiliskII/emulator-ui";
 import type {EmulatorChunkedFileSpec} from "./BasiliskII/emulator-common";
 import {isDiskImageFile} from "./BasiliskII/emulator-common";
@@ -55,6 +59,7 @@ export function Mac() {
                 basiliskPrefsPath,
                 romPath: quadraRomPath,
                 disks: [disk, libraryDisk],
+                ethernetProvider: new BroadcastChannelEthernetProvider(),
             },
             {
                 emulatorDidFinishLoading(emulator: Emulator) {
@@ -284,3 +289,35 @@ const DISKS_BY_DOMAIN: {[domain: string]: EmulatorChunkedFileSpec} = {
         ...macos81HdManifest,
     },
 };
+
+class BroadcastChannelEthernetProvider implements EmulatorEthernetProvider {
+    #broadcastChannel = new BroadcastChannel("ethernet");
+    #macAddress?: string;
+    #delegate?: EmulatorEthernetProviderDelegate;
+
+    constructor() {
+        this.#broadcastChannel.addEventListener("message", this.#handleMessage);
+    }
+
+    init(macAddress: string): void {
+        this.#macAddress = macAddress;
+    }
+
+    send(destination: string, packet: Uint8Array): void {
+        this.#broadcastChannel.postMessage({
+            destination,
+            packet,
+        });
+    }
+
+    setDelegate(delegate: EmulatorEthernetProviderDelegate): void {
+        this.#delegate = delegate;
+    }
+
+    #handleMessage = (event: MessageEvent): void => {
+        const {destination, packet} = event.data;
+        if (destination === this.#macAddress || destination === "*") {
+            this.#delegate?.receive(packet);
+        }
+    };
+}

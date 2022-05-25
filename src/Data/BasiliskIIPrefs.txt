@@ -2,8 +2,7 @@ extfs /Shared/
 screen win/800/600
 seriala
 serialb
-udptunnel false
-udpport 6066
+ether js
 rom Quadra-650.rom
 bootdrive 0
 bootdriver 0
