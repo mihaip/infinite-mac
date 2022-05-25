@@ -88,6 +88,7 @@ export type EmulatorWorkerConfig = {
     input: EmulatorWorkerInputConfig;
     audio: EmulatorWorkerAudioConfig;
     files: EmulatorWorkerFilesConfig;
+    ethernet: EmulatorWorkerEthernetConfig;
 };
 
 export type EmulatorWorkerVideoConfig =
@@ -170,11 +171,25 @@ export type EmulatorWorkerFallbackFilesConfig = {
     type: "fallback";
 };
 
+export type EmulatorWorkerEthernetConfig =
+    | EmulatorWorkerSharedMemoryEthernetConfig
+    | EmulatorWorkerFallbackEthernetConfig;
+
+export type EmulatorWorkerSharedMemoryEthernetConfig = {
+    type: "shared-memory";
+    receiveBuffer: SharedArrayBuffer;
+};
+
+export type EmulatorWorkerFallbackEthernetConfig = {
+    type: "fallback";
+};
+
 export type EmulatorFileUpload = {name: string; url: string; size: number};
 
 export type EmulatorFallbackCommand =
     | EmulatorFallbackInputCommand
-    | EmulatorFallbackUploadFileCommand;
+    | EmulatorFallbackUploadFileCommand
+    | EmulatorFallbackEthernetReceiveCommand;
 
 export type EmulatorFallbackInputCommand = {
     type: "input";
@@ -184,6 +199,12 @@ export type EmulatorFallbackInputCommand = {
 export type EmulatorFallbackUploadFileCommand = {
     type: "upload_file";
     upload: EmulatorFileUpload;
+};
+
+export type EmulatorFallbackEthernetReceiveCommand = {
+    type: "ethernet_receive";
+    // Needs to be a string to be JSON-serializable.
+    packetDataUrl: string;
 };
 
 export function updateInputBufferWithEvents(

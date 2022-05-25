@@ -1,6 +1,7 @@
 import type {
     EmulatorChunkedFileSpec,
     EmulatorFallbackCommand,
+    EmulatorFallbackEthernetReceiveCommand,
     EmulatorFallbackInputCommand,
     EmulatorFallbackUploadFileCommand,
     EmulatorFileUpload,
@@ -40,6 +41,11 @@ import {
     validateSpecPrefetchChunks,
 } from "./emulator-worker-chunked-file";
 import {restorePersistedData} from "./emulator-worker-persistence";
+import type {EmulatorWorkerEthernet} from "./emulator-worker-ethernet";
+import {
+    FallbackEmulatorWorkerEthernet,
+    SharedMemoryEmulatorWorkerEthernet,
+} from "./emulator-worker-ethernet";
 
 declare const Module: EmscriptenModule;
 declare const workerCommands: EmulatorFallbackCommand[];
@@ -61,6 +67,7 @@ class EmulatorWorkerApi {
     #input: EmulatorWorkerInput;
     #audio: EmulatorWorkerAudio;
     #files: EmulatorWorkerFiles;
+    #ethernet: EmulatorWorkerEthernet;
 
     #lastBlitFrameId = 0;
     #lastBlitFrameHash = 0;
@@ -77,6 +84,7 @@ class EmulatorWorkerApi {
             input: inputConfig,
             audio: audioConfig,
             files: filesConfig,
+            ethernet: ethernetConfig,
             disks,
         } = config;
         const blitSender = (
@@ -116,6 +124,14 @@ class EmulatorWorkerApi {
                       filesConfig,
                       getFallbackEndpoint()
                   );
+        this.#ethernet =
+            ethernetConfig.type === "shared-memory"
+                ? new SharedMemoryEmulatorWorkerEthernet(ethernetConfig)
+                : new FallbackEmulatorWorkerEthernet(
+                      ethernetConfig,
+                      getFallbackEndpoint()
+                  );
+
         this.#diskSpecs = disks;
     }
 
@@ -237,6 +253,40 @@ class EmulatorWorkerApi {
     getInputValue(addr: number): number {
         return this.#input.getInputValue(addr);
     }
+
+    etherSeed(): number {
+        const seed = new Uint32Array(1);
+        crypto.getRandomValues(seed);
+        console.log("etherSeed", seed[0]);
+        return seed[0];
+    }
+
+    etherInit(macAddress: string) {
+        postMessage({type: "emulator_ethernet_init", macAddress});
+    }
+
+    etherWrite(destination: string, packetPtr: number, packetLength: number) {
+        // No point in using shared memory if we have to use postMessage to
+        // notify the UI -- the actual packet is small.
+        const packet = Module.HEAPU8.slice(packetPtr, packetPtr + packetLength);
+        postMessage(
+            {
+                type: "emulator_ethernet_write",
+                destination,
+                packet,
+            },
+            [packet.buffer]
+        );
+    }
+
+    etherRead(packetPtr: number, packetMaxLength: number): number {
+        const packet = new Uint8Array(
+            Module.HEAPU8.buffer,
+            Module.HEAPU8.byteOffset + packetPtr,
+            packetMaxLength
+        );
+        return this.#ethernet.read(packet);
+    }
 }
 
 export class EmulatorFallbackEndpoint {
@@ -260,6 +310,14 @@ export class EmulatorFallbackEndpoint {
             (c): c is EmulatorFallbackUploadFileCommand =>
                 c.type === "upload_file",
             c => c.upload
+        );
+    }
+
+    consumeEthernetReceives(): Uint8Array[] {
+        return this.#consumeCommands(
+            (c): c is EmulatorFallbackEthernetReceiveCommand =>
+                c.type === "ethernet_receive",
+            c => dataUrlToUint8Array(c.packetDataUrl)
         );
     }
 
@@ -364,4 +422,18 @@ function startEmulator(config: EmulatorWorkerConfig) {
     (self as any).Module = moduleOverrides;
 
     importScripts(config.jsUrl);
+}
+
+const BASE64_MARKER = ";base64,";
+
+function dataUrlToUint8Array(dataUrl: string): Uint8Array {
+    const base64Index = dataUrl.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+    const base64 = dataUrl.substring(base64Index);
+    const raw = atob(base64);
+    const rawLength = raw.length;
+    const array = new Uint8Array(new ArrayBuffer(rawLength));
+    for (let i = 0; i < rawLength; i++) {
+        array[i] = raw.charCodeAt(i);
+    }
+    return array;
 }

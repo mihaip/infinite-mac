@@ -34,6 +34,11 @@ import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 import {getPersistedData, persistData} from "./emulator-ui-persistence";
 import {JS_CODE_TO_ADB_KEYCODE} from "./emulator-key-codes";
+import type {EmulatorEthernet} from "./emulator-ui-ethernet";
+import {
+    FallbackEmulatorEthernet,
+    SharedMemoryEmulatorEthernet,
+} from "./emulator-ui-ethernet";
 
 export type EmulatorConfig = {
     useSharedMemory: boolean;
@@ -43,7 +48,18 @@ export type EmulatorConfig = {
     basiliskPrefsPath: string;
     romPath: string;
     disks: EmulatorChunkedFileSpec[];
+    ethernetProvider: EmulatorEthernetProvider;
 };
+
+export interface EmulatorEthernetProvider {
+    init(macAddress: string): void;
+    send(destination: string, packet: Uint8Array): void;
+    setDelegate(delegate: EmulatorEthernetProviderDelegate): void;
+}
+
+export interface EmulatorEthernetProviderDelegate {
+    receive(packet: Uint8Array): void;
+}
 
 export interface EmulatorDelegate {
     emulatorDidMakeLoadingProgress?(
@@ -74,6 +90,7 @@ export class Emulator {
     #audio: EmulatorAudio;
     #startedAudio: boolean = false;
     #files: EmulatorFiles;
+    #ethernet: EmulatorEthernet;
 
     #serviceWorker?: ServiceWorker;
     #serviceWorkerReady?: Promise<boolean>;
@@ -138,6 +155,9 @@ export class Emulator {
         this.#files = useSharedMemory
             ? new SharedMemoryEmulatorFiles()
             : new FallbackEmulatorFiles(fallbackCommandSender!);
+        this.#ethernet = useSharedMemory
+            ? new SharedMemoryEmulatorEthernet(config)
+            : new FallbackEmulatorEthernet(config, fallbackCommandSender!);
     }
 
     async start() {
@@ -208,6 +228,7 @@ export class Emulator {
             input: this.#input.workerConfig(),
             audio: this.#audio.workerConfig(),
             files: this.#files.workerConfig(),
+            ethernet: this.#ethernet.workerConfig(),
         };
 
         const serviceWorkerAvailable = await this.#serviceWorkerReady;
@@ -397,6 +418,11 @@ export class Emulator {
             console.timeEnd("Emulator first idlewait");
         } else if (e.data.type === "emulator_stopped") {
             this.#handleEmulatorStopped(e.data.extraction);
+        } else if (e.data.type === "emulator_ethernet_init") {
+            this.#config.ethernetProvider.init(e.data.macAddress);
+        } else if (e.data.type === "emulator_ethernet_write") {
+            const {destination, packet} = e.data;
+            this.#config.ethernetProvider.send(destination, packet);
         } else {
             console.warn("Unexpected postMessage event", e);
         }
