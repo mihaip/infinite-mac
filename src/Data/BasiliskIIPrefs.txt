@@ -3,6 +3,7 @@ screen win/800/600
 seriala
 serialb
 ether js
+appletalk true
 rom Quadra-650.rom
 bootdrive 0
 bootdriver 0
