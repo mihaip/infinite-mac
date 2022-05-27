@@ -316,7 +316,11 @@ class BroadcastChannelEthernetProvider implements EmulatorEthernetProvider {
 
     #handleMessage = (event: MessageEvent): void => {
         const {destination, packet} = event.data;
-        if (destination === this.#macAddress || destination === "*") {
+        if (
+            destination === this.#macAddress ||
+            destination === "*" ||
+            destination === "AT"
+        ) {
             this.#delegate?.receive(packet);
         }
     };
