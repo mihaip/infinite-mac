@@ -48,6 +48,10 @@ export function Mac() {
             prefetchChunks: [0],
             ...infiniteHdManifest,
         };
+        let ethernetProvider;
+        if (searchParams.get("ethernet")) {
+            ethernetProvider = new BroadcastChannelEthernetProvider();
+        }
         const emulator = new Emulator(
             {
                 useSharedMemory:
@@ -59,7 +63,7 @@ export function Mac() {
                 basiliskPrefsPath,
                 romPath: quadraRomPath,
                 disks: [disk, libraryDisk],
-                ethernetProvider: new BroadcastChannelEthernetProvider(),
+                ethernetProvider,
             },
             {
                 emulatorDidFinishLoading(emulator: Emulator) {
