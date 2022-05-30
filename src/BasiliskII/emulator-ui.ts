@@ -35,6 +35,7 @@ import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 import {getPersistedData, persistData} from "./emulator-ui-persistence";
 import {JS_CODE_TO_ADB_KEYCODE} from "./emulator-key-codes";
 import type {EmulatorEthernet} from "./emulator-ui-ethernet";
+import {handleEthernetWrite} from "./emulator-ui-ethernet";
 import {
     FallbackEmulatorEthernet,
     SharedMemoryEmulatorEthernet,
@@ -156,8 +157,9 @@ export class Emulator {
             ? new SharedMemoryEmulatorFiles()
             : new FallbackEmulatorFiles(fallbackCommandSender!);
         this.#ethernet = useSharedMemory
-            ? new SharedMemoryEmulatorEthernet(config)
-            : new FallbackEmulatorEthernet(config, fallbackCommandSender!);
+            ? new SharedMemoryEmulatorEthernet()
+            : new FallbackEmulatorEthernet(fallbackCommandSender!);
+        config.ethernetProvider.setDelegate(this.#ethernet);
     }
 
     async start() {
@@ -422,7 +424,12 @@ export class Emulator {
             this.#config.ethernetProvider.init(e.data.macAddress);
         } else if (e.data.type === "emulator_ethernet_write") {
             const {destination, packet} = e.data;
-            this.#config.ethernetProvider.send(destination, packet);
+            const localResponse = handleEthernetWrite(destination, packet);
+            if (localResponse) {
+                this.#ethernet.receive(localResponse);
+            } else {
+                this.#config.ethernetProvider.send(destination, packet);
+            }
         } else {
             console.warn("Unexpected postMessage event", e);
         }
