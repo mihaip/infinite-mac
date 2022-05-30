@@ -49,7 +49,7 @@ export type EmulatorConfig = {
     basiliskPrefsPath: string;
     romPath: string;
     disks: EmulatorChunkedFileSpec[];
-    ethernetProvider: EmulatorEthernetProvider;
+    ethernetProvider?: EmulatorEthernetProvider;
 };
 
 export interface EmulatorEthernetProvider {
@@ -159,7 +159,7 @@ export class Emulator {
         this.#ethernet = useSharedMemory
             ? new SharedMemoryEmulatorEthernet()
             : new FallbackEmulatorEthernet(fallbackCommandSender!);
-        config.ethernetProvider.setDelegate(this.#ethernet);
+        config.ethernetProvider?.setDelegate(this.#ethernet);
     }
 
     async start() {
@@ -211,6 +211,9 @@ export class Emulator {
         }
         for (const diskImage of Object.keys(this.#diskImages)) {
             prefsStr += `cdrom /${diskImage}\n`;
+        }
+        if (this.#config.ethernetProvider) {
+            prefsStr += "appletalk true\n";
         }
         const prefs = new TextEncoder().encode(prefsStr).buffer;
 
@@ -421,14 +424,14 @@ export class Emulator {
         } else if (e.data.type === "emulator_stopped") {
             this.#handleEmulatorStopped(e.data.extraction);
         } else if (e.data.type === "emulator_ethernet_init") {
-            this.#config.ethernetProvider.init(e.data.macAddress);
+            this.#config.ethernetProvider?.init(e.data.macAddress);
         } else if (e.data.type === "emulator_ethernet_write") {
             const {destination, packet} = e.data;
             const localResponse = handleEthernetWrite(destination, packet);
             if (localResponse) {
                 this.#ethernet.receive(localResponse);
             } else {
-                this.#config.ethernetProvider.send(destination, packet);
+                this.#config.ethernetProvider?.send(destination, packet);
             }
         } else {
             console.warn("Unexpected postMessage event", e);
