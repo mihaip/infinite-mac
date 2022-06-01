@@ -6,10 +6,12 @@ import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
+import type {EmulatorEthernetProvider} from "./BasiliskII/emulator-ui";
 import {Emulator} from "./BasiliskII/emulator-ui";
 import type {EmulatorChunkedFileSpec} from "./BasiliskII/emulator-common";
 import {isDiskImageFile} from "./BasiliskII/emulator-common";
 import {BroadcastChannelEthernetProvider} from "./BroadcastChannelEthernetProvider";
+import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 600;
@@ -45,9 +47,12 @@ export function Mac() {
             prefetchChunks: [0],
             ...infiniteHdManifest,
         };
-        let ethernetProvider;
+        let ethernetProvider: EmulatorEthernetProvider | undefined;
         if (searchParams.get("ethernet")) {
-            ethernetProvider = new BroadcastChannelEthernetProvider();
+            const zoneName = searchParams.get("ethernet_zone");
+            ethernetProvider = zoneName
+                ? new CloudflareWorkerEthernetProvider(zoneName)
+                : new BroadcastChannelEthernetProvider();
         }
         const emulator = new Emulator(
             {
@@ -101,6 +106,7 @@ export function Mac() {
             );
             emulator.stop();
             emulatorRef.current = undefined;
+            ethernetProvider?.close?.();
         };
     }, []);
 
