@@ -54,6 +54,7 @@ export type EmulatorConfig = {
 
 export interface EmulatorEthernetProvider {
     init(macAddress: string): void;
+    close?(): void;
     send(destination: string, packet: Uint8Array): void;
     setDelegate(delegate: EmulatorEthernetProviderDelegate): void;
 }

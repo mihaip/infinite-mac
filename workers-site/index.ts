@@ -5,10 +5,12 @@ const manifest = JSON.parse(manifestJSON);
 
 type Env = {
     __STATIC_CONTENT: string;
+    ETHERNET_ZONE: DurableObjectNamespace;
 };
 const handler: ExportedHandler<Env> = {fetch: handleRequest};
 
 export default handler;
+export {EthernetZone} from "./ethernet-zone";
 
 async function handleRequest(
     request: Request,
@@ -16,6 +18,16 @@ async function handleRequest(
     ctx: ExecutionContext
 ) {
     const url = new URL(request.url);
+    const path = url.pathname.slice(1).split("/");
+    if (path[0] === "zone") {
+        const zoneName = path[1];
+        const zoneId = env.ETHERNET_ZONE.idFromName(zoneName);
+        const zone = env.ETHERNET_ZONE.get(zoneId);
+        const zoneUrl = new URL(request.url);
+        zoneUrl.pathname = "/" + path.slice(2).join("/");
+        return zone.fetch(zoneUrl.toString(), request);
+    }
+
     const fetchEvent = {
         request,
         waitUntil(promise: Promise<any>) {
