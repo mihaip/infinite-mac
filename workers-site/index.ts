@@ -1,41 +1,34 @@
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
+// @ts-expect-error
+import manifestJSON from "__STATIC_CONTENT_MANIFEST";
+const manifest = JSON.parse(manifestJSON);
 
-/**
- * The DEBUG flag will do two things that help during development:
- * 1. we will skip caching on the edge, which makes it easier to
- *    debug.
- * 2. we will return an error message on exception in your Response rather
- *    than the default 404.html page.
- */
-const DEBUG = false;
+type Env = {
+    __STATIC_CONTENT: string;
+};
+const handler: ExportedHandler<Env> = {fetch: handleRequest};
 
-addEventListener("fetch", event => {
-    try {
-        event.respondWith(handleEvent(event));
-    } catch (e) {
-        if (DEBUG) {
-            return event.respondWith(
-                new Response(e.message || e.toString(), {
-                    status: 500,
-                })
-            );
-        }
-        event.respondWith(new Response("Internal Error", {status: 500}));
-    }
-});
+export default handler;
 
-async function handleEvent(event) {
-    const url = new URL(event.request.url);
-    const options = {};
+async function handleRequest(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext
+) {
+    const url = new URL(request.url);
+    const fetchEvent = {
+        request,
+        waitUntil(promise: Promise<any>) {
+            return ctx.waitUntil(promise);
+        },
+    };
 
     try {
-        if (DEBUG) {
-            // customize caching
-            options.cacheControl = {
-                bypassCache: true,
-            };
-        }
-        const page = await getAssetFromKV(event, options);
+        const page = await getAssetFromKV(fetchEvent, {
+            mapRequestToAsset,
+            ASSET_NAMESPACE: env.__STATIC_CONTENT,
+            ASSET_MANIFEST: manifest,
+        });
         const response = new Response(page.body, page);
         const {pathname} = url;
 
@@ -77,20 +70,33 @@ async function handleEvent(event) {
         return response;
     } catch (e) {
         // if an error is thrown try to serve the asset at 404.html
-        if (!DEBUG) {
-            try {
-                const notFoundResponse = await getAssetFromKV(event, {
-                    mapRequestToAsset: req =>
-                        new Request(`${new URL(req.url).origin}/404.html`, req),
-                });
+        try {
+            const notFoundResponse = await getAssetFromKV(fetchEvent, {
+                mapRequestToAsset: req =>
+                    new Request(`${new URL(req.url).origin}/404.html`, req),
+            });
 
-                return new Response(notFoundResponse.body, {
-                    ...notFoundResponse,
-                    status: 404,
-                });
-            } catch (e) {}
-        }
+            return new Response(notFoundResponse.body, {
+                ...notFoundResponse,
+                status: 404,
+            });
+        } catch (e) {}
 
         return new Response(e.message || e.toString(), {status: 500});
     }
+}
+
+// Override default mapRequestToAsset to not append index.html to unknown
+// MIME types (which is what some of the extensions like .wasmz and .jsz
+// end up with).
+function mapRequestToAsset(request: Request): Request {
+    const parsedUrl = new URL(request.url);
+    let pathname = parsedUrl.pathname;
+
+    if (pathname.endsWith("/")) {
+        pathname = pathname.concat("index.html");
+    }
+
+    parsedUrl.pathname = pathname;
+    return new Request(parsedUrl.toString(), request);
 }
