@@ -1,12 +1,14 @@
 {
-  "private": true,
-  "name": "worker",
-  "version": "1.0.0",
-  "description": "A template for kick starting a Cloudflare Workers project",
-  "main": "index.js",
-  "author": "Ashley Lewis <ashleymichal@gmail.com>",
-  "license": "MIT",
-  "dependencies": {
-    "@cloudflare/kv-asset-handler": "~0.1.2"
-  }
+    "private": true,
+    "name": "worker",
+    "version": "1.0.0",
+    "description": "Cloudflare Worker for serving Infinite Mac",
+    "main": "index.ts",
+    "license": "Apache",
+    "dependencies": {
+        "@cloudflare/kv-asset-handler": "~0.2.0"
+    },
+    "devDependencies": {
+        "@cloudflare/workers-types": "^3.11.0"
+    }
 }

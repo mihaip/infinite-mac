@@ -35,7 +35,7 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "worker-preview": "wrangler preview --watch",
+        "worker-dev": "wrangler dev --local --port=3128",
         "worker-deploy": "wrangler publish --env production"
     },
     "eslintConfig": {

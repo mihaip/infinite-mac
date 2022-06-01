@@ -15,7 +15,7 @@ Common development tasks, all done via `npm run`:
 Common deployment tasks (also done via `npm run`)
 
 -   `build`: Rebuild for either local use (in the `build/` directory) or for Cloudflare Worker use
--   `worker-preview`: Preview built assets in a Cloudflare Worker (requires a separate `build` invocation)
+-   `worker-dev`: Preview built assets in a local Cloudflare Worker (requires a separate `build` invocation, result will be running at http://localhost:3128)
 -   `worker-deploy`: Deploy built assets to the live version of the Cloudflare Worker (requires a separate `build` invocation)
 
 ### Dependencies
@@ -23,6 +23,7 @@ Common deployment tasks (also done via `npm run`)
 Dependencies can be installed with:
 
 ```
+npm install -g wrangler
 npm install
 pip3 install -r requirements.txt
 npm run build-xadmaster

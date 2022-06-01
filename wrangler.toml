@@ -1,17 +1,17 @@
 name = "transparent-mac"
-type = 'webpack'
-account_id = '2ccb840de076261467812cbc32f8aa47'
-route = ''
-zone_id = ''
-usage_model = ''
-workers_dev = true
-target_type = "webpack"
+account_id = "2ccb840de076261467812cbc32f8aa47"
+workers_dev = false
+compatibility_date = "2021-11-08"
+main = "workers-site/index.ts"
 
 [site]
 bucket = "./build"
-entry-point = "workers-site"
 exclude = ["BasiliskII.wasm.map"]
 
 [env.production]
-zone_id = "768b712e6dad883eb4c3aefbd5df8c80"
-route = "mac.persistent.info/*"
+routes = [
+    {pattern = "system7.app/*", zone_name = "system7.app"},
+    {pattern = "macos8.app/*", zone_name = "macos8.app"},
+    {pattern = "kanjitalk7.app/*", zone_name = "kanjitalk7.app"},
+    {pattern = "mac.persistent.info/*", zone_name = "persistent.info"},
+]
