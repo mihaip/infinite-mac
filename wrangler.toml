@@ -20,8 +20,11 @@ exclude = ["BasiliskII.wasm.map"]
 [env.production]
 routes = [
     {pattern = "system7.app/*", zone_name = "system7.app"},
+    {pattern = "*.system7.app/*", zone_name = "system7.app"},
     {pattern = "macos8.app/*", zone_name = "macos8.app"},
+    {pattern = "*.macos8.app/*", zone_name = "macos8.app"},
     {pattern = "kanjitalk7.app/*", zone_name = "kanjitalk7.app"},
+    {pattern = "*.kanjitalk7.app/*", zone_name = "kanjitalk7.app"},
     {pattern = "mac.persistent.info/*", zone_name = "persistent.info"},
 ]
 durable_objects.bindings = [

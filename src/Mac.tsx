@@ -48,7 +48,16 @@ export function Mac() {
             ...infiniteHdManifest,
         };
         let ethernetProvider: EmulatorEthernetProvider | undefined;
-        if (searchParams.get("ethernet")) {
+        // Use subdomain as the Ethernet Zone in production.
+        if (domain.endsWith(".app")) {
+            const pieces = domain.split(".");
+            if (pieces.length === 3) {
+                ethernetProvider = new CloudflareWorkerEthernetProvider(
+                    pieces[0]
+                );
+            }
+        }
+        if (!ethernetProvider && searchParams.get("ethernet")) {
             const zoneName = searchParams.get("ethernet_zone");
             ethernetProvider = zoneName
                 ? new CloudflareWorkerEthernetProvider(zoneName)
