@@ -1445,13 +1445,14 @@ var ASM_CONSTS = {
  247330: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
  247415: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
  247495: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
- 247576: function() {workerApi.releaseInputLock();},  
- 247610: function() {return workerApi.etherSeed();},  
- 247644: function($0) {workerApi.etherInit(UTF8ToString($0));},  
- 247687: function($0, $1, $2) {workerApi.etherWrite(UTF8ToString($0), $1, $2);},  
- 247739: function($0) {return workerApi.etherRead($0, 1514);},  
- 247781: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
- 247822: function($0, $1, $2) {return workerApi.enqueueAudio($0, $1, $2);}
+ 247576: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
+ 247670: function() {workerApi.releaseInputLock();},  
+ 247704: function() {return workerApi.etherSeed();},  
+ 247738: function($0) {workerApi.etherInit(UTF8ToString($0));},  
+ 247781: function($0, $1, $2) {workerApi.etherWrite(UTF8ToString($0), $1, $2);},  
+ 247833: function($0) {return workerApi.etherRead($0, 1514);},  
+ 247875: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
+ 247916: function($0, $1, $2) {return workerApi.enqueueAudio($0, $1, $2);}
 };
 
 

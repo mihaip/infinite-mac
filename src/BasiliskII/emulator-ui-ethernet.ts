@@ -3,14 +3,12 @@ import type {
     EmulatorWorkerFallbackEthernetConfig,
     EmulatorWorkerSharedMemoryEthernetConfig,
 } from "./emulator-common";
-import type {
-    EmulatorEthernetProviderDelegate,
-    EmulatorFallbackCommandSender,
-} from "./emulator-ui";
+import type {EmulatorFallbackCommandSender} from "./emulator-ui";
 import {RingBuffer} from "ringbuf.js";
 
-export interface EmulatorEthernet extends EmulatorEthernetProviderDelegate {
+export interface EmulatorEthernet {
     workerConfig(): EmulatorWorkerEthernetConfig;
+    receive(packet: Uint8Array): void;
 }
 
 const RECEIVE_BUFFER_SIZE = 1522 * 10;
@@ -34,9 +32,7 @@ export class SharedMemoryEmulatorEthernet implements EmulatorEthernet {
     }
 }
 
-export class FallbackEmulatorEthernet
-    implements EmulatorEthernet, EmulatorEthernetProviderDelegate
-{
+export class FallbackEmulatorEthernet implements EmulatorEthernet {
     #commandSender: EmulatorFallbackCommandSender;
 
     constructor(commandSender: EmulatorFallbackCommandSender) {
