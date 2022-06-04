@@ -8,6 +8,7 @@ export const InputBufferAddresses = {
     keyCodeAddr: 6,
     keyStateAddr: 7,
     stopFlagAddr: 8,
+    ethernetInterruptFlagAddr: 9,
 };
 
 export type EmulatorMouseEvent =
@@ -27,12 +28,17 @@ export type EmulatorStartEvent = {
     type: "start";
 };
 
+export type EmulatorEthernetInterruptEvent = {
+    type: "ethernet-interrupt";
+};
+
 export type EmulatorInputEvent =
     | EmulatorMouseEvent
     | EmulatorTouchEvent
     | EmulatorKeyboardEvent
     | EmulatorStopEvent
-    | EmulatorStartEvent;
+    | EmulatorStartEvent
+    | EmulatorEthernetInterruptEvent;
 
 export enum LockStates {
     READY_FOR_UI_THREAD,
@@ -220,6 +226,7 @@ export function updateInputBufferWithEvents(
     let keyState = -1;
     let hasStop = false;
     let hasStart = false;
+    let hasEthernetInterrupt = false;
     // currently only one key event can be sent per sync
     // TODO: better key handling code
     const remainingEvents: EmulatorInputEvent[] = [];
@@ -263,6 +270,9 @@ export function updateInputBufferWithEvents(
             case "start":
                 hasStart = true;
                 break;
+            case "ethernet-interrupt":
+                hasEthernetInterrupt = true;
+                break;
         }
     }
     if (hasMouseMove) {
@@ -283,6 +293,8 @@ export function updateInputBufferWithEvents(
     if (hasStart) {
         inputBufferView[InputBufferAddresses.stopFlagAddr] = 0;
     }
+    inputBufferView[InputBufferAddresses.ethernetInterruptFlagAddr] =
+        hasEthernetInterrupt ? 1 : 0;
     return remainingEvents;
 }
 export type EmulatorWorkerDirectorExtractionEntry =

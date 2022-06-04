@@ -160,7 +160,15 @@ export class Emulator {
         this.#ethernet = useSharedMemory
             ? new SharedMemoryEmulatorEthernet()
             : new FallbackEmulatorEthernet(fallbackCommandSender!);
-        config.ethernetProvider?.setDelegate(this.#ethernet);
+        config.ethernetProvider?.setDelegate({
+            receive: (packet: Uint8Array) => {
+                this.#ethernet.receive(packet);
+                // Simulate an input event to both make sure we end the idlewait
+                // Atomics.wait and because we can then trigger the Ethernet
+                // interrupt sooner on the Basilisk II side.
+                this.#input.handleInput({type: "ethernet-interrupt"});
+            },
+        });
     }
 
     async start() {
