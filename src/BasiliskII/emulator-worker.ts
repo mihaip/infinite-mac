@@ -317,7 +317,7 @@ export class EmulatorFallbackEndpoint {
         return this.#consumeCommands(
             (c): c is EmulatorFallbackEthernetReceiveCommand =>
                 c.type === "ethernet_receive",
-            c => dataUrlToUint8Array(c.packetDataUrl)
+            c => new Uint8Array(c.packetArray)
         );
     }
 
@@ -422,18 +422,4 @@ function startEmulator(config: EmulatorWorkerConfig) {
     (self as any).Module = moduleOverrides;
 
     importScripts(config.jsUrl);
-}
-
-const BASE64_MARKER = ";base64,";
-
-function dataUrlToUint8Array(dataUrl: string): Uint8Array {
-    const base64Index = dataUrl.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-    const base64 = dataUrl.substring(base64Index);
-    const raw = atob(base64);
-    const rawLength = raw.length;
-    const array = new Uint8Array(new ArrayBuffer(rawLength));
-    for (let i = 0; i < rawLength; i++) {
-        array[i] = raw.charCodeAt(i);
-    }
-    return array;
 }

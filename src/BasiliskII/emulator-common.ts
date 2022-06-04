@@ -209,8 +209,9 @@ export type EmulatorFallbackUploadFileCommand = {
 
 export type EmulatorFallbackEthernetReceiveCommand = {
     type: "ethernet_receive";
-    // Needs to be a string to be JSON-serializable.
-    packetDataUrl: string;
+    // Needs to be a plain array (as opposed to Uint8Array) to be
+    // JSON-serializable.
+    packetArray: number[];
 };
 
 export function updateInputBufferWithEvents(
