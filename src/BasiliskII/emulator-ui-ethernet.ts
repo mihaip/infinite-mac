@@ -44,14 +44,10 @@ export class FallbackEmulatorEthernet implements EmulatorEthernet {
     }
 
     receive(packet: Uint8Array): void {
-        const reader = new FileReader();
-        reader.onload = () => {
-            this.#commandSender({
-                type: "ethernet_receive",
-                packetDataUrl: reader.result as string,
-            });
-        };
-        reader.readAsDataURL(new Blob([packet]));
+        this.#commandSender({
+            type: "ethernet_receive",
+            packetArray: Array.from(packet),
+        });
     }
 }
 
