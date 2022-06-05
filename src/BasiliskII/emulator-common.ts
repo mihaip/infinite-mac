@@ -318,3 +318,22 @@ export function isDiskImageFile(name: string): boolean {
         name.endsWith(".toast")
     );
 }
+
+export function ethernetMacAddressToString(mac: Uint8Array) {
+    return Array.from(mac)
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join(":");
+}
+
+export function ethernetMacAddressFromString(mac: string) {
+    return new Uint8Array(mac.split(":").map(s => parseInt(s, 16)));
+}
+
+export const ETHERNET_PING_HEADER = [112, 105, 110, 103, 80, 73, 78, 71]; // pingPING
+export const ETHERNET_PING_PAYLOAD_LENGTH = ETHERNET_PING_HEADER.length + 4;
+export const ETHERNET_PING_PACKET_LENGTH =
+    6 + 6 + 2 + ETHERNET_PING_PAYLOAD_LENGTH;
+export const ETHERNET_PONG_HEADER = [112, 105, 110, 103, 80, 79, 78, 71, 33]; // pingPONG!
+export const ETHERNET_PONG_PAYLOAD_LENGTH = ETHERNET_PONG_HEADER.length + 4;
+export const ETHERNET_PONG_PACKET_LENGTH =
+    6 + 6 + 2 + ETHERNET_PONG_PAYLOAD_LENGTH;
