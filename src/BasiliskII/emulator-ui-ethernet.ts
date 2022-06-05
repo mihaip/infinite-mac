@@ -3,7 +3,19 @@ import type {
     EmulatorWorkerFallbackEthernetConfig,
     EmulatorWorkerSharedMemoryEthernetConfig,
 } from "./emulator-common";
-import type {EmulatorFallbackCommandSender} from "./emulator-ui";
+import {
+    ETHERNET_PING_HEADER,
+    ETHERNET_PING_PACKET_LENGTH,
+    ETHERNET_PING_PAYLOAD_LENGTH,
+    ETHERNET_PONG_PACKET_LENGTH,
+    ETHERNET_PONG_HEADER,
+    ethernetMacAddressToString,
+    ethernetMacAddressFromString,
+} from "./emulator-common";
+import type {
+    EmulatorEthernetProvider,
+    EmulatorFallbackCommandSender,
+} from "./emulator-ui";
 import {RingBuffer} from "ringbuf.js";
 
 export interface EmulatorEthernet {
@@ -76,10 +88,7 @@ export function handleEthernetWrite(
         return;
     }
     console.group("AppleTalk Broadcast");
-    const macToString = (mac: Uint8Array) =>
-        Array.from(mac)
-            .map(b => b.toString(16).padStart(2, "0"))
-            .join(":");
+    const macToString = ethernetMacAddressToString;
     const displayByte = (byte: number) =>
         "0x" + byte.toString(16).padStart(2, "0");
     const displayShort = (short: number) =>
@@ -151,3 +160,65 @@ export function handleEthernetWrite(
     console.groupEnd();
     return undefined;
 }
+
+export class EthernetPinger {
+    #macAddress?: Uint8Array;
+    #ethernetProvider?: EmulatorEthernetProvider;
+    #interval?: number;
+
+    start(macAddress: string, ethernetProvider: EmulatorEthernetProvider) {
+        this.#macAddress = ethernetMacAddressFromString(macAddress);
+        this.#ethernetProvider = ethernetProvider;
+        this.#interval = window.setInterval(this.#ping, 5000);
+    }
+
+    stop() {
+        if (this.#interval !== undefined) {
+            window.clearInterval(this.#interval);
+            this.#interval = undefined;
+        }
+    }
+
+    handlePongPacket(packet: Uint8Array): boolean {
+        if (packet.byteLength !== ETHERNET_PONG_PACKET_LENGTH) {
+            return false;
+        }
+
+        for (let i = 0; i < ETHERNET_PONG_HEADER.length; i++) {
+            if (packet[14 + i] !== ETHERNET_PONG_HEADER[i]) {
+                return false;
+            }
+        }
+
+        const senderMacAddress = ethernetMacAddressToString(
+            packet.subarray(6, 12)
+        );
+        const packetView = new DataView(packet.buffer, packet.byteOffset);
+        const sendTime = packetView.getUint32(14 + ETHERNET_PONG_HEADER.length);
+        const rtt = performance.now() - sendTime;
+        console.log(`RTT to ${senderMacAddress}: ${rtt.toFixed(1)}ms`);
+
+        return true;
+    }
+
+    #ping = () => {
+        if (!this.#macAddress || !this.#ethernetProvider) {
+            return;
+        }
+        const packet = new Uint8Array(ETHERNET_PING_PACKET_LENGTH);
+        const packetView = new DataView(packet.buffer, packet.byteOffset);
+
+        packet.set(PING_DESTINATION_ADDRESS, 0);
+        packet.set(this.#macAddress, 6);
+        packetView.setUint16(12, ETHERNET_PING_PAYLOAD_LENGTH);
+        packet.set(ETHERNET_PING_HEADER, 14);
+        packetView.setUint32(
+            14 + ETHERNET_PING_HEADER.length,
+            performance.now()
+        );
+
+        this.#ethernetProvider.send("*", packet);
+    };
+}
+
+const PING_DESTINATION_ADDRESS = [0xff, 0xff, 0xff, 0xff, 0xff, 0xff];

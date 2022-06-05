@@ -9,7 +9,10 @@ import type {
     EmulatorWorkerConfig,
     EmulatorWorkerVideoBlit,
 } from "./emulator-common";
-import {InputBufferAddresses} from "./emulator-common";
+import {
+    ethernetMacAddressFromString,
+    InputBufferAddresses,
+} from "./emulator-common";
 import type {EmulatorWorkerAudio} from "./emulator-worker-audio";
 import {
     FallbackEmulatorWorkerAudio,
@@ -45,6 +48,8 @@ import type {EmulatorWorkerEthernet} from "./emulator-worker-ethernet";
 import {
     FallbackEmulatorWorkerEthernet,
     SharedMemoryEmulatorWorkerEthernet,
+    handlePingPacket,
+    sendEthernetPacket,
 } from "./emulator-worker-ethernet";
 
 declare const Module: EmscriptenModule;
@@ -77,6 +82,7 @@ class EmulatorWorkerApi {
     #gotFirstIdleWait = false;
     #handledStop = false;
     #diskSpecs: EmulatorChunkedFileSpec[];
+    #ethernetMacAddress?: Uint8Array;
 
     constructor(config: EmulatorWorkerConfig) {
         const {
@@ -257,26 +263,17 @@ class EmulatorWorkerApi {
     etherSeed(): number {
         const seed = new Uint32Array(1);
         crypto.getRandomValues(seed);
-        console.log("etherSeed", seed[0]);
         return seed[0];
     }
 
     etherInit(macAddress: string) {
+        this.#ethernetMacAddress = ethernetMacAddressFromString(macAddress);
         postMessage({type: "emulator_ethernet_init", macAddress});
     }
 
     etherWrite(destination: string, packetPtr: number, packetLength: number) {
-        // No point in using shared memory if we have to use postMessage to
-        // notify the UI -- the actual packet is small.
         const packet = Module.HEAPU8.slice(packetPtr, packetPtr + packetLength);
-        postMessage(
-            {
-                type: "emulator_ethernet_write",
-                destination,
-                packet,
-            },
-            [packet.buffer]
-        );
+        sendEthernetPacket(destination, packet);
     }
 
     etherRead(packetPtr: number, packetMaxLength: number): number {
@@ -285,7 +282,15 @@ class EmulatorWorkerApi {
             Module.HEAPU8.byteOffset + packetPtr,
             packetMaxLength
         );
-        return this.#ethernet.read(packet);
+        const length = this.#ethernet.read(packet);
+        if (
+            length &&
+            this.#ethernetMacAddress &&
+            handlePingPacket(packet, length, this.#ethernetMacAddress)
+        ) {
+            return 0;
+        }
+        return length;
     }
 }
 

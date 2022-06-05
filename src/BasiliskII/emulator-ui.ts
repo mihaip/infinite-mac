@@ -39,6 +39,7 @@ import {handleEthernetWrite} from "./emulator-ui-ethernet";
 import {
     FallbackEmulatorEthernet,
     SharedMemoryEmulatorEthernet,
+    EthernetPinger,
 } from "./emulator-ui-ethernet";
 
 export type EmulatorConfig = {
@@ -101,6 +102,8 @@ export class Emulator {
 
     #diskImages: {[name: string]: ArrayBuffer} = {};
 
+    #ethernetPinger = new EthernetPinger();
+
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
         console.time("Emulator first blit");
         console.time("Emulator first idlewait");
@@ -162,6 +165,9 @@ export class Emulator {
             : new FallbackEmulatorEthernet(fallbackCommandSender!);
         config.ethernetProvider?.setDelegate({
             receive: (packet: Uint8Array) => {
+                if (this.#ethernetPinger.handlePongPacket(packet)) {
+                    return;
+                }
                 this.#ethernet.receive(packet);
                 // Simulate an input event to both make sure we end the idlewait
                 // Atomics.wait and because we can then trigger the Ethernet
@@ -283,6 +289,7 @@ export class Emulator {
         );
 
         this.#input.handleInput({type: "stop"});
+        this.#ethernetPinger.stop();
     }
 
     restart(): Promise<void> {
@@ -433,7 +440,11 @@ export class Emulator {
         } else if (e.data.type === "emulator_stopped") {
             this.#handleEmulatorStopped(e.data.extraction);
         } else if (e.data.type === "emulator_ethernet_init") {
-            this.#config.ethernetProvider?.init(e.data.macAddress);
+            const {ethernetProvider} = this.#config;
+            if (ethernetProvider) {
+                ethernetProvider.init(e.data.macAddress);
+                this.#ethernetPinger.start(e.data.macAddress, ethernetProvider);
+            }
         } else if (e.data.type === "emulator_ethernet_write") {
             const {destination, packet} = e.data;
             const localResponse = handleEthernetWrite(destination, packet);
