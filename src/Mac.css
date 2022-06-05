@@ -13,6 +13,8 @@
     --screen-apple-logo-bottom: -16px;
     --screen-led-display: block;
     --screen-led-bottom: -40px;
+    --screen-ethernet-status-bottom: -46px;
+    --screen-ethernet-status-display: block;
 
     border: solid var(--screen-bezel-size) var(--screen-bezel-color);
     position: relative;
@@ -30,6 +32,7 @@
         --screen-underscan: 10px;
         --screen-apple-logo-bottom: -5px;
         --screen-led-bottom: -28px;
+        --screen-ethernet-status-bottom: -34px;
     }
 }
 
@@ -42,6 +45,7 @@
         --screen-underscan: 1px;
         --screen-apple-logo-display: none;
         --screen-led-display: none;
+        --screen-ethernet-status-display: none;
     }
 }
 
@@ -72,6 +76,7 @@ body.fullscreen .Mac {
     --screen-underscan: 0;
     --screen-apple-logo-display: none;
     --screen-led-display: none;
+    --screen-ethernet-status-display: none;
 }
 
 .Mac::before {
@@ -119,6 +124,7 @@ body.fullscreen .Mac {
     left: 0;
     color: transparent;
     font-size: 28px;
+    cursor: pointer;
 }
 
 .Mac-Apple-Logo::before,
@@ -266,4 +272,61 @@ body.fullscreen .Mac {
     border: solid 1px #000;
     color: #000;
     border-radius: 8px;
+}
+
+.Mac-Ethernet-Status {
+    position: absolute;
+    bottom: var(--screen-ethernet-status-bottom);
+    display: var(--screen-ethernet-status-display);
+    right: 32px;
+    font-family: Geneva, Helvetica, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.Mac-Ethernet-Status-Text {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.Mac-Ethernet-Status-Text::before,
+.Mac-Ethernet-Status-Text::after {
+    content: attr(data-text);
+    position: absolute;
+}
+
+.Mac-Ethernet-Status-Text::before {
+    top: -1px;
+    left: -1px;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.Mac-Ethernet-Status-Text::after {
+    position: absolute;
+    top: -0.5px;
+    left: -0.5px;
+    color: var(--screen-bezel-color);
+}
+
+.Mac-Ethernet-Status-Details {
+    z-index: 1;
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+    color: #000;
+    font-size: 14px;
+    white-space: nowrap;
+    padding: 8px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+
+.Mac-Ethernet-Status-Peers {
+    margin-top: 8px;
+}
+
+.Mac-Ethernet-Status-Peers ul {
+    margin: 0;
+    padding-left: 16px;
 }
