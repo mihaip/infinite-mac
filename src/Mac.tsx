@@ -6,7 +6,10 @@ import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
-import type {EmulatorEthernetProvider} from "./BasiliskII/emulator-ui";
+import type {
+    EmulatorEthernetProvider,
+    EmulatorEthernetPeer,
+} from "./BasiliskII/emulator-ui";
 import {Emulator} from "./BasiliskII/emulator-ui";
 import type {EmulatorChunkedFileSpec} from "./BasiliskII/emulator-common";
 import {isDiskImageFile} from "./BasiliskII/emulator-common";
@@ -27,10 +30,14 @@ export function Mac() {
         useState(false);
     const [uploadingDiskImage, setUploadingDiskImage] = useState(false);
     const [hasPendingDiskImage, setHasPendingDiskImage] = useState(false);
+    const [ethernetPeers, setEthernetPeers] = useState<
+        ReadonlyArray<EmulatorEthernetPeer>
+    >([]);
     // Don't clear the loading state immediately, to make it clearer that I/O
     // is happening and things may be slow.
     const finishLoadingDiskChunkTimeoutRef = useRef<number>(0);
     const emulatorRef = useRef<Emulator>();
+    const ethernetProviderRef = useRef<EmulatorEthernetProvider>();
     useEffect(() => {
         document.addEventListener("fullscreenchange", handleFullScreenChange);
         document.addEventListener(
@@ -100,9 +107,15 @@ export function Mac() {
                             setEmulatorLoadingDiskChunk(false);
                         }, 200);
                 },
+                emulatorEthernetPeersDidChange(emulator, peers) {
+                    if (ethernetProvider) {
+                        setEthernetPeers(peers);
+                    }
+                },
             }
         );
         emulatorRef.current = emulator;
+        ethernetProviderRef.current = ethernetProvider;
         emulator.start();
         return () => {
             document.removeEventListener(
@@ -261,6 +274,70 @@ export function Mac() {
                     </button>
                 </div>
             )}
+            {ethernetProviderRef.current && (
+                <MacEthernetStatus
+                    provider={ethernetProviderRef.current}
+                    peers={ethernetPeers}
+                />
+            )}
+        </div>
+    );
+}
+
+function MacEthernetStatus({
+    provider,
+    peers,
+}: {
+    provider: EmulatorEthernetProvider;
+    peers: ReadonlyArray<EmulatorEthernetPeer>;
+}) {
+    let text = `Ethernet: ${provider.description()}`;
+    const activePeerCount = peers.filter(
+        peer => Date.now() - peer.lastPingTimeMs < 60000
+    ).length;
+    if (activePeerCount) {
+        text += ` (${activePeerCount} peer${activePeerCount === 1 ? "" : "s"})`;
+    }
+    const [expanded, setExpanded] = useState(false);
+    let details;
+    if (expanded) {
+        let peerDetails;
+        if (peers.length) {
+            peerDetails = (
+                <div className="Mac-Ethernet-Status-Peers">
+                    <b>Peers:</b>
+                    <ul>
+                        {peers.map(peer => (
+                            <li key={peer.macAddress}>
+                                {peer.macAddress} (RTT: {peer.rttMs.toFixed(0)}
+                                ms{" "}
+                                {(
+                                    (Date.now() - peer.lastPingTimeMs) /
+                                    1000
+                                ).toFixed(0)}
+                                s ago)
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        }
+        details = (
+            <div className="Mac-Ethernet-Status-Details">
+                <b>MAC Address:</b> {provider.macAddress()}
+                {peerDetails}
+            </div>
+        );
+    }
+
+    return (
+        <div
+            className="Mac-Ethernet-Status"
+            onClick={() => setExpanded(!expanded)}>
+            <div className="Mac-Ethernet-Status-Text" data-text={text}>
+                {text}
+            </div>
+            {details}
         </div>
     );
 }

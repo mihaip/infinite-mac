@@ -14,6 +14,14 @@ export class BroadcastChannelEthernetProvider
         this.#broadcastChannel.addEventListener("message", this.#handleMessage);
     }
 
+    description(): string {
+        return `Loopback`;
+    }
+
+    macAddress(): string | undefined {
+        return this.#macAddress;
+    }
+
     init(macAddress: string): void {
         this.#macAddress = macAddress;
     }

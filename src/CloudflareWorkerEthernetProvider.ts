@@ -24,6 +24,14 @@ export class CloudflareWorkerEthernetProvider
         this.#webSsocket = this.#connect();
     }
 
+    description(): string {
+        return `Zone ${this.#zoneName}`;
+    }
+
+    macAddress(): string | undefined {
+        return this.#macAddress;
+    }
+
     #connect(): WebSocket {
         const protocol = location.protocol === "https:" ? "wss:" : "ws:";
         const origin = `${protocol}//${location.host}`;

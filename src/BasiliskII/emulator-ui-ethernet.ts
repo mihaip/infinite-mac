@@ -161,10 +161,26 @@ export function handleEthernetWrite(
     return undefined;
 }
 
+export type EthernetPingerPeer = {
+    readonly macAddress: string;
+    rttMs: number;
+    lastPingTimeMs: number;
+};
+
+export interface EthernetPingerDelegate {
+    ethernetPingerDidUpdatePeers(pinger: EthernetPinger): void;
+}
+
 export class EthernetPinger {
+    #delegate: EthernetPingerDelegate;
     #macAddress?: Uint8Array;
     #ethernetProvider?: EmulatorEthernetProvider;
     #interval?: number;
+    #peersByMacAddress = new Map<string, EthernetPingerPeer>();
+
+    constructor(delegate: EthernetPingerDelegate) {
+        this.#delegate = delegate;
+    }
 
     start(macAddress: string, ethernetProvider: EmulatorEthernetProvider) {
         this.#macAddress = ethernetMacAddressFromString(macAddress);
@@ -179,6 +195,10 @@ export class EthernetPinger {
         }
     }
 
+    peers(): ReadonlyArray<EthernetPingerPeer> {
+        return Array.from(this.#peersByMacAddress.values());
+    }
+
     handlePongPacket(packet: Uint8Array): boolean {
         if (packet.byteLength !== ETHERNET_PONG_PACKET_LENGTH) {
             return false;
@@ -190,13 +210,20 @@ export class EthernetPinger {
             }
         }
 
-        const senderMacAddress = ethernetMacAddressToString(
+        const peerMacAddress = ethernetMacAddressToString(
             packet.subarray(6, 12)
         );
         const packetView = new DataView(packet.buffer, packet.byteOffset);
         const sendTime = packetView.getUint32(14 + ETHERNET_PONG_HEADER.length);
         const rtt = performance.now() - sendTime;
-        console.log(`RTT to ${senderMacAddress}: ${rtt.toFixed(1)}ms`);
+
+        this.#peersByMacAddress.set(peerMacAddress, {
+            macAddress: peerMacAddress,
+            rttMs: rtt,
+            lastPingTimeMs: Date.now(),
+        });
+
+        this.#delegate.ethernetPingerDidUpdatePeers(this);
 
         return true;
     }

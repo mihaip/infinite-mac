@@ -34,7 +34,10 @@ import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 import {getPersistedData, persistData} from "./emulator-ui-persistence";
 import {JS_CODE_TO_ADB_KEYCODE} from "./emulator-key-codes";
-import type {EmulatorEthernet} from "./emulator-ui-ethernet";
+import type {
+    EmulatorEthernet,
+    EthernetPingerPeer,
+} from "./emulator-ui-ethernet";
 import {handleEthernetWrite} from "./emulator-ui-ethernet";
 import {
     FallbackEmulatorEthernet,
@@ -58,11 +61,15 @@ export interface EmulatorEthernetProvider {
     close?(): void;
     send(destination: string, packet: Uint8Array): void;
     setDelegate(delegate: EmulatorEthernetProviderDelegate): void;
+    description(): string;
+    macAddress(): string | undefined;
 }
 
 export interface EmulatorEthernetProviderDelegate {
     receive(packet: Uint8Array): void;
 }
+
+export type EmulatorEthernetPeer = EthernetPingerPeer;
 
 export interface EmulatorDelegate {
     emulatorDidMakeLoadingProgress?(
@@ -73,6 +80,10 @@ export interface EmulatorDelegate {
     emulatorDidFinishLoading?(emulator: Emulator): void;
     emulatorDidStartToLoadDiskChunk?(emulator: Emulator): void;
     emulatorDidFinishLoadingDiskChunk?(emulator: Emulator): void;
+    emulatorEthernetPeersDidChange?(
+        emulator: Emulator,
+        peers: ReadonlyArray<EmulatorEthernetPeer>
+    ): void;
 }
 
 export type EmulatorFallbackCommandSender = (
@@ -102,7 +113,7 @@ export class Emulator {
 
     #diskImages: {[name: string]: ArrayBuffer} = {};
 
-    #ethernetPinger = new EthernetPinger();
+    #ethernetPinger: EthernetPinger;
 
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
         console.time("Emulator first blit");
@@ -173,6 +184,14 @@ export class Emulator {
                 // Atomics.wait and because we can then trigger the Ethernet
                 // interrupt sooner on the Basilisk II side.
                 this.#input.handleInput({type: "ethernet-interrupt"});
+            },
+        });
+        this.#ethernetPinger = new EthernetPinger({
+            ethernetPingerDidUpdatePeers: pinger => {
+                this.#delegate?.emulatorEthernetPeersDidChange?.(
+                    this,
+                    pinger.peers()
+                );
             },
         });
     }
