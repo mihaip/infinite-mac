@@ -58,7 +58,11 @@ def get_import_folders() -> typing.Dict[str, machfs.Folder]:
 def import_manifests() -> typing.Dict[str, machfs.Folder]:
     sys.stderr.write("Importing other images\n")
     import_folders = {}
+    debug_filter = os.getenv("DEBUG_LIRARY_FILTER")
+
     for manifest_path in glob.iglob(os.path.join(LIBRARY_DIR, "**", "*.json")):
+        if debug_filter and debug_filter not in manifest_path:
+            continue
         folder_path, _ = os.path.splitext(
             os.path.relpath(manifest_path, LIBRARY_DIR))
         sys.stderr.write("  Importing %s\n" % folder_path)
@@ -282,8 +286,11 @@ def update_file_or_folder_from_lsar_entry(
 def import_zips() -> typing.Dict[str, machfs.Folder]:
     sys.stderr.write("Importing .zips\n")
     import_folders = {}
+    debug_filter = os.getenv("DEBUG_LIRARY_FILTER")
 
     for zip_path in glob.iglob(os.path.join(LIBRARY_DIR, "**", "*.zip")):
+        if debug_filter and debug_filter not in zip_path:
+            continue
         folder_path, _ = os.path.splitext(
             os.path.relpath(zip_path, LIBRARY_DIR))
         sys.stderr.write("  Importing %s\n" % folder_path)
@@ -437,6 +444,13 @@ def build_library_image(base_name: str) -> None:
         bootable=False,
     )
 
+    if not os.getenv("DEBUG_LIRARY_FILTER"):
+        image = build_desktop_db(image, base_name)
+
+    write_chunked_image(image, base_name)
+
+
+def build_desktop_db(image: bytes, base_name: str) -> bytes:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = os.path.join(temp_dir, base_name)
         with open(temp_path, "wb") as image_file:
@@ -470,14 +484,14 @@ def build_library_image(base_name: str) -> None:
         ] + [a for arg in basilisk_ii_args for a in arg])
         with open(temp_path, "rb") as image_file:
             image = image_file.read()
-
-    write_chunked_image(image, base_name)
+    return image
 
 
 if __name__ == "__main__":
     shutil.rmtree(DISK_DIR, ignore_errors=False)
     os.mkdir(DISK_DIR)
-    copy_system_image("System 7.5.3 HD.dsk")
-    copy_system_image("KanjiTalk 7.5.3 HD.dsk")
-    copy_system_image("Mac OS 8.1 HD.dsk")
+    if not os.getenv("DEBUG_LIRARY_FILTER"):
+        copy_system_image("System 7.5.3 HD.dsk")
+        copy_system_image("KanjiTalk 7.5.3 HD.dsk")
+        copy_system_image("Mac OS 8.1 HD.dsk")
     build_library_image("Infinite HD.dsk")
