@@ -5,6 +5,7 @@ import glob
 import hashlib
 import json
 import machfs
+import machfs.main
 import os
 import shutil
 import struct
@@ -235,6 +236,7 @@ def update_file_from_lsar_entry(file: machfs.File,
         file.x = entry["XADFinderLocationX"]
         file.y = entry["XADFinderLocationY"]
     else:
+        file.flags &= ~machfs.main.FinderFlags.kHasBeenInited
         file.x = file.y = 0
 
 
@@ -254,6 +256,7 @@ def update_folder_from_lsar_entry(folder: machfs.Folder,
         window_x = entry["XADFinderLocationX"]
         window_y = entry["XADFinderLocationY"]
     else:
+        flags &= ~machfs.main.FinderFlags.kHasBeenInited
         window_x = window_y = 0
 
     # 0x127 appears to be the default icon view
