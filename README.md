@@ -31,7 +31,9 @@ npm run build-xadmaster
 
 ### Building Basilisk II
 
-Ensure that you have a Docker image built with the Emscripten toolchain and supporting library:
+This is only required when making changes to Basilisk II, the generated files are in `src/BasiliskII` and included in the Git repository.
+
+To begin, ensure that you have a Docker image built with the Emscripten toolchain and supporting library:
 
 ```sh
 docker build -t macemu_emsdk .
