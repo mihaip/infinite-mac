@@ -298,7 +298,9 @@ function MacEthernetStatus({
     if (activePeerCount) {
         text += ` (${activePeerCount} peer${activePeerCount === 1 ? "" : "s"})`;
     }
-    const [expanded, setExpanded] = useState(false);
+    const [expanded, setExpanded] = useState(
+        Boolean(new URLSearchParams(location.search).get("ethernet_status"))
+    );
     let details;
     if (expanded) {
         let peerDetails;
@@ -307,17 +309,20 @@ function MacEthernetStatus({
                 <div className="Mac-Ethernet-Status-Peers">
                     <b>Peers:</b>
                     <ul>
-                        {peers.map(peer => (
-                            <li key={peer.macAddress}>
-                                {peer.macAddress} (RTT: {peer.rttMs.toFixed(0)}
-                                ms{" "}
-                                {(
-                                    (Date.now() - peer.lastPingTimeMs) /
-                                    1000
-                                ).toFixed(0)}
-                                s ago)
-                            </li>
-                        ))}
+                        {peers.map(peer => {
+                            const ageMs = Date.now() - peer.lastPingTimeMs;
+                            let ageStr;
+                            if (ageMs > 30000) {
+                                ageStr = ` ${(ageMs / 1000).toFixed(0)}s ago`;
+                            }
+                            return (
+                                <li key={peer.macAddress}>
+                                    {peer.macAddress} (RTT:{" "}
+                                    {peer.rttMs.toFixed(0)}
+                                    ms{ageStr})
+                                </li>
+                            );
+                        })}
                     </ul>
                 </div>
             );
