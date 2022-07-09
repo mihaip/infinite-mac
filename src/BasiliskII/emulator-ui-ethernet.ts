@@ -185,7 +185,10 @@ export class EthernetPinger {
     start(macAddress: string, ethernetProvider: EmulatorEthernetProvider) {
         this.#macAddress = ethernetMacAddressFromString(macAddress);
         this.#ethernetProvider = ethernetProvider;
-        this.#interval = window.setInterval(this.#ping, 5000);
+        this.#interval = window.setInterval(
+            this.#ping,
+            location.host.startsWith("localhost") ? 500 : 5000
+        );
     }
 
     stop() {
