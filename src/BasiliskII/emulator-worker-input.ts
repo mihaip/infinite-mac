@@ -8,7 +8,7 @@ import {InputBufferAddresses, LockStates} from "./emulator-common";
 import type {EmulatorFallbackEndpoint} from "./emulator-worker";
 
 export interface EmulatorWorkerInput {
-    idleWait(timeout: number): void;
+    idleWait(timeout: number): boolean;
     acquireInputLock(): number;
     releaseInputLock(): void;
     getInputValue(addr: number): number;
@@ -25,15 +25,15 @@ export class SharedMemoryEmulatorWorkerInput implements EmulatorWorkerInput {
         );
     }
 
-    idleWait(timeout: number) {
-        Atomics.wait(
+    idleWait(timeout: number): boolean {
+        const waitResult = Atomics.wait(
             this.#inputBufferView,
             InputBufferAddresses.globalLockAddr,
             LockStates.READY_FOR_UI_THREAD,
-            // Time out such that we don't miss any frames (giving 2 milliseconds
-            // for blit and any CPU emulation to run).
             timeout
         );
+        const hadInput = waitResult === "ok";
+        return hadInput;
     }
 
     acquireInputLock(): number {
@@ -90,8 +90,9 @@ export class FallbackEmulatorWorkerInput implements EmulatorWorkerInput {
         this.#inputBuffer = new Int32Array(config.inputBufferSize);
     }
 
-    idleWait(timeout: number) {
+    idleWait(timeout: number): boolean {
         this.#fallbackEndpoint.idleWait(timeout);
+        return false;
     }
 
     acquireInputLock(): number {
