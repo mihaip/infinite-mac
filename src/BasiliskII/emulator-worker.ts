@@ -182,18 +182,19 @@ class EmulatorWorkerApi {
         console.log("debugPointer", ptr);
     }
 
-    idleWait() {
+    idleWait(): boolean {
         try {
-            this.#idleWait();
+            return this.#idleWait();
         } catch (err) {
             // idleWait is the main place where we invoke JS during the emulator
             // loop, make sure that we return control so that it can keep
             // running.
             console.error("Error during idlewait", err);
+            return false;
         }
     }
 
-    #idleWait() {
+    #idleWait(): boolean {
         if (!this.#gotFirstIdleWait) {
             this.#gotFirstIdleWait = true;
             postMessage({type: "emulator_first_idlewait"});
@@ -206,10 +207,12 @@ class EmulatorWorkerApi {
         // TOOD: understand why IdleWait is called multiple times in a row
         // before VideoRefresh is called again.
         if (this.#lastIdleWaitFrameId === this.#lastBlitFrameId) {
-            return;
+            return false;
         }
         this.#lastIdleWaitFrameId = this.#lastBlitFrameId;
-        this.#input.idleWait(
+        const hadInput = this.#input.idleWait(
+            // Time out such that we don't miss any frames (giving 2 milliseconds
+            // for blit and any CPU emulation to run).
             this.#nextExpectedBlitTime - performance.now() - 2
         );
 
@@ -221,6 +224,7 @@ class EmulatorWorkerApi {
         if (this.getInputValue(InputBufferAddresses.stopFlagAddr)) {
             this.#handleStop();
         }
+        return hadInput;
     }
 
     #handleFileUploads() {
