@@ -45,7 +45,18 @@ export function Mac() {
             handleFullScreenChange
         );
         const searchParams = new URLSearchParams(location.search);
-        const domain = searchParams.get("domain") ?? location.host;
+        let domain = searchParams.get("domain") ?? location.host;
+        // Use subdomain as the Ethernet Zone in production.
+        let ethernetProvider: EmulatorEthernetProvider | undefined;
+        if (domain.endsWith(".app")) {
+            const pieces = domain.split(".");
+            if (pieces.length === 3) {
+                ethernetProvider = new CloudflareWorkerEthernetProvider(
+                    pieces[0]
+                );
+                domain = `${pieces[1]}.app`;
+            }
+        }
         // prefetchChunks are semi-automatically generated -- we will get a
         // warning via validateSpecPrefetchChunks() if these are incorrect.
         const disk = DISKS_BY_DOMAIN[domain] ?? DISKS_BY_DOMAIN["system7.app"];
@@ -54,16 +65,6 @@ export function Mac() {
             prefetchChunks: [0],
             ...infiniteHdManifest,
         };
-        let ethernetProvider: EmulatorEthernetProvider | undefined;
-        // Use subdomain as the Ethernet Zone in production.
-        if (domain.endsWith(".app")) {
-            const pieces = domain.split(".");
-            if (pieces.length === 3) {
-                ethernetProvider = new CloudflareWorkerEthernetProvider(
-                    pieces[0]
-                );
-            }
-        }
         if (!ethernetProvider && searchParams.get("ethernet")) {
             const zoneName = searchParams.get("ethernet_zone");
             ethernetProvider = zoneName
