@@ -50,9 +50,9 @@ Once in that container, you can use this cheat sheet to build (based on [the ori
 ```sh
 cd /macemu/BasiliskII/src/Unix
 # Bootstrap Basilisk II, to generate the CPU emulator code
-macemujs_conf_cpu=1 macemujs_conf_native=1 ./_embuild.sh && make clean && make -j4
+macemujs_conf_native=1 ./_embuild.sh && make clean && make -j6 cpuemu.cpp
 # Switch into building for WASM
-macemujs_conf_cpu=1 macemujs_conf_wasm=1 ./_embuild.sh && make mostlyclean
+./_embuild.sh && make mostlyclean
 # Actually compile Basilisk II targetting WASM
 make -j6
 ```
