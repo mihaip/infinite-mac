@@ -44,6 +44,11 @@ import {
     SharedMemoryEmulatorEthernet,
     EthernetPinger,
 } from "./emulator-ui-ethernet";
+import type {EmulatorClipboard} from "./emulator-ui-clipboard";
+import {
+    FallbackEmulatorClipboard,
+    SharedMemoryEmulatorClipboard,
+} from "./emulator-ui-clipboard";
 
 export type EmulatorConfig = {
     useSharedMemory: boolean;
@@ -105,6 +110,7 @@ export class Emulator {
     #startedAudio: boolean = false;
     #files: EmulatorFiles;
     #ethernet: EmulatorEthernet;
+    #clipboard: EmulatorClipboard;
 
     #serviceWorker?: ServiceWorker;
     #serviceWorkerReady?: Promise<boolean>;
@@ -194,6 +200,9 @@ export class Emulator {
                 );
             },
         });
+        this.#clipboard = useSharedMemory
+            ? new SharedMemoryEmulatorClipboard()
+            : new FallbackEmulatorClipboard(fallbackCommandSender!);
     }
 
     async start() {
@@ -268,6 +277,7 @@ export class Emulator {
             audio: this.#audio.workerConfig(),
             files: this.#files.workerConfig(),
             ethernet: this.#ethernet.workerConfig(),
+            clipboard: this.#clipboard.workerConfig(),
         };
 
         const serviceWorkerAvailable = await this.#serviceWorkerReady;
@@ -412,6 +422,16 @@ export class Emulator {
         event.preventDefault();
         const {code} = event;
         if (code in JS_CODE_TO_ADB_KEYCODE) {
+            // If this is a paste operation, send the updated clipboard contents
+            // to the emulator so that it can be used when executing the paste.
+            // Ideally we would watch for a clipboardchage event, but that's not
+            // supported broadly (see https://crbug.com/933608).
+            if (code === "KeyV" && event.metaKey) {
+                navigator.clipboard.readText().then(
+                    text => this.#clipboard.setClipboardText(text),
+                    error => console.error("Could not read clipboard", error)
+                );
+            }
             this.#input.handleInput({
                 type: "keydown",
                 keyCode: JS_CODE_TO_ADB_KEYCODE[code],
@@ -472,6 +492,16 @@ export class Emulator {
             } else {
                 this.#config.ethernetProvider?.send(destination, packet);
             }
+        } else if (e.data.type === "emulator_set_clipboard_text") {
+            const {text} = e.data;
+            navigator.clipboard.writeText(text).then(
+                () => {
+                    // Success
+                },
+                error => {
+                    console.error("Could not set clipboard text:", error);
+                }
+            );
         } else {
             console.warn("Unexpected postMessage event", e);
         }

@@ -95,6 +95,7 @@ export type EmulatorWorkerConfig = {
     audio: EmulatorWorkerAudioConfig;
     files: EmulatorWorkerFilesConfig;
     ethernet: EmulatorWorkerEthernetConfig;
+    clipboard: EmulatorWorkerClipboardConfig;
 };
 
 export type EmulatorWorkerVideoConfig =
@@ -190,12 +191,31 @@ export type EmulatorWorkerFallbackEthernetConfig = {
     type: "fallback";
 };
 
+export type EmulatorWorkerClipboardConfig =
+    | EmulatorWorkerSharedMemoryClipboardConfig
+    | EmulatorWorkerFallbackClipboardConfig;
+
+export type EmulatorWorkerSharedMemoryClipboardConfig = {
+    type: "shared-memory";
+    clipboardBuffer: SharedArrayBuffer;
+    clipboardBufferSize: number;
+};
+
+export type EmulatorClipboardData = {
+    text?: string;
+};
+
+export type EmulatorWorkerFallbackClipboardConfig = {
+    type: "fallback";
+};
+
 export type EmulatorFileUpload = {name: string; url: string; size: number};
 
 export type EmulatorFallbackCommand =
     | EmulatorFallbackInputCommand
     | EmulatorFallbackUploadFileCommand
-    | EmulatorFallbackEthernetReceiveCommand;
+    | EmulatorFallbackEthernetReceiveCommand
+    | EmlatorFallbackSetClipboardDataCommand;
 
 export type EmulatorFallbackInputCommand = {
     type: "input";
@@ -212,6 +232,11 @@ export type EmulatorFallbackEthernetReceiveCommand = {
     // Needs to be a plain array (as opposed to Uint8Array) to be
     // JSON-serializable.
     packetArray: number[];
+};
+
+export type EmlatorFallbackSetClipboardDataCommand = {
+    type: "set_clipboard_data";
+    data: EmulatorClipboardData;
 };
 
 export function updateInputBufferWithEvents(

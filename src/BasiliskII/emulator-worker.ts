@@ -1,5 +1,7 @@
 import type {
+    EmlatorFallbackSetClipboardDataCommand,
     EmulatorChunkedFileSpec,
+    EmulatorClipboardData,
     EmulatorFallbackCommand,
     EmulatorFallbackEthernetReceiveCommand,
     EmulatorFallbackInputCommand,
@@ -51,6 +53,11 @@ import {
     handlePingPacket,
     sendEthernetPacket,
 } from "./emulator-worker-ethernet";
+import type {EmulatorWorkerClipboard} from "./emulator-worker-clipboard";
+import {
+    FallbackEmulatorWorkerClipboard,
+    SharedMemoryEmulatorWorkerClipboard,
+} from "./emulator-worker-clipboard";
 
 declare const Module: EmscriptenModule;
 declare const workerCommands: EmulatorFallbackCommand[];
@@ -73,6 +80,7 @@ class EmulatorWorkerApi {
     #audio: EmulatorWorkerAudio;
     #files: EmulatorWorkerFiles;
     #ethernet: EmulatorWorkerEthernet;
+    #clipboard: EmulatorWorkerClipboard;
 
     #lastBlitFrameId = 0;
     #lastBlitFrameHash = 0;
@@ -91,6 +99,7 @@ class EmulatorWorkerApi {
             audio: audioConfig,
             files: filesConfig,
             ethernet: ethernetConfig,
+            clipboard: clipboardConfig,
             disks,
         } = config;
         const blitSender = (
@@ -135,6 +144,13 @@ class EmulatorWorkerApi {
                 ? new SharedMemoryEmulatorWorkerEthernet(ethernetConfig)
                 : new FallbackEmulatorWorkerEthernet(
                       ethernetConfig,
+                      getFallbackEndpoint()
+                  );
+        this.#clipboard =
+            clipboardConfig.type === "shared-memory"
+                ? new SharedMemoryEmulatorWorkerClipboard(clipboardConfig)
+                : new FallbackEmulatorWorkerClipboard(
+                      clipboardConfig,
                       getFallbackEndpoint()
                   );
 
@@ -296,6 +312,14 @@ class EmulatorWorkerApi {
         }
         return length;
     }
+
+    setClipboardText(text: string) {
+        postMessage({type: "emulator_set_clipboard_text", text});
+    }
+
+    getClipboardText(): string | undefined {
+        return this.#clipboard.clipboardText();
+    }
 }
 
 export class EmulatorFallbackEndpoint {
@@ -328,6 +352,15 @@ export class EmulatorFallbackEndpoint {
                 c.type === "ethernet_receive",
             c => new Uint8Array(c.packetArray)
         );
+    }
+
+    consumeSetClipboardData(): EmulatorClipboardData | undefined {
+        const datas = this.#consumeCommands(
+            (c): c is EmlatorFallbackSetClipboardDataCommand =>
+                c.type === "set_clipboard_data",
+            c => c.data
+        );
+        return datas[datas.length - 1];
     }
 
     #consumeCommands<T extends EmulatorFallbackCommand, V>(
