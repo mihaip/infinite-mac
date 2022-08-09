@@ -258,6 +258,10 @@ export class Emulator {
         if (this.#config.ethernetProvider) {
             prefsStr += "appletalk true\n";
         }
+        // The fallback path does not support high-frequency calls to reading
+        // the input (we end up making so many service worker network requests
+        // that overall emulation latency suffers).
+        prefsStr += `jsfrequentreadinput ${this.#config.useSharedMemory}\n`;
         const prefs = new TextEncoder().encode(prefsStr).buffer;
 
         const config: EmulatorWorkerConfig = {
