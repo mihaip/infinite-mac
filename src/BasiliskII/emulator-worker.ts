@@ -246,14 +246,20 @@ class EmulatorWorkerApi {
     #handleFileUploads() {
         const fileUploads = this.#files.fileUploads();
         for (const upload of fileUploads) {
-            createLazyFile(
-                "/Shared/Downloads/",
-                upload.name,
-                upload.url,
-                upload.size,
-                true,
-                true
-            );
+            let parent = "/Shared/Downloads/";
+            let name = upload.name;
+            const pathPieces = upload.name.split("/");
+            if (pathPieces.length > 1) {
+                for (let i = 0; i < pathPieces.length - 1; i++) {
+                    const dir = parent + pathPieces.slice(0, i + 1).join("/");
+                    if (!FS.analyzePath(dir).exists) {
+                        FS.mkdir(dir);
+                    }
+                }
+                parent += pathPieces.slice(0, pathPieces.length - 1).join("/");
+                name = pathPieces[pathPieces.length - 1];
+            }
+            createLazyFile(parent, name, upload.url, upload.size, true, true);
         }
     }
 

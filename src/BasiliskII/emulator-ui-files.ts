@@ -7,11 +7,12 @@ import type {
 } from "./emulator-common";
 import type {EmulatorFallbackCommandSender} from "./emulator-ui";
 
-const FILES_BUFFER_SIZE = 10240;
+const FILES_BUFFER_SIZE = 1024 * 1024;
 
 export interface EmulatorFiles {
     workerConfig(): EmulatorWorkerFilesConfig;
     uploadFile(upload: EmulatorFileUpload): void;
+    uploadFiles(upload: EmulatorFileUpload[]): void;
 }
 
 export class SharedMemoryEmulatorFiles implements EmulatorFiles {
@@ -31,17 +32,21 @@ export class SharedMemoryEmulatorFiles implements EmulatorFiles {
         };
     }
 
-    uploadFile(upload: EmulatorFileUpload) {
-        this.#actions.uploads.push(upload);
+    uploadFile(uploads: EmulatorFileUpload) {
+        this.uploadFiles([uploads]);
+    }
+
+    uploadFiles(uploads: EmulatorFileUpload[]) {
+        this.#actions.uploads.push(...uploads);
         this.#updateBuffer();
     }
 
     #updateBuffer() {
         const actionsString = JSON.stringify(this.#actions);
+        this.#actions = {uploads: []};
         const actionsBytes = new TextEncoder().encode(actionsString);
         if (actionsBytes.length > FILES_BUFFER_SIZE) {
             console.warn("Files actions is too large, dropping");
-            this.#actions = {uploads: []};
             return;
         }
         this.#filesBufferView.set(actionsBytes);
@@ -64,5 +69,11 @@ export class FallbackEmulatorFiles implements EmulatorFiles {
             type: "upload_file",
             upload,
         });
+    }
+
+    uploadFiles(uploads: EmulatorFileUpload[]) {
+        for (const upload of uploads) {
+            this.uploadFile(upload);
+        }
     }
 }
