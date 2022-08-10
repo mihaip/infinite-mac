@@ -34,7 +34,7 @@ export class SharedMemoryEmulatorWorkerFiles implements EmulatorWorkerFiles {
             this.#filesBufferView.slice(0, endOfString)
         );
         const actions = JSON.parse(actionsString) as EmulatorFileActions;
-        if (!actions.uploads) {
+        if (!actions.uploads || actions.uploads.length === 0) {
             return [];
         }
         const uploads = Array.from(actions.uploads);

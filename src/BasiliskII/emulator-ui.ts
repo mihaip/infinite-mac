@@ -29,7 +29,10 @@ import {
     FallbackEmulatorFiles,
     SharedMemoryEmulatorFiles,
 } from "./emulator-ui-files";
-import {handleDirectoryExtraction} from "./emulator-ui-extractor";
+import {
+    handleDirectoryExtraction,
+    uploadsFromDirectoryExtractionFile,
+} from "./emulator-ui-extractor";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 import {getPersistedData, persistData} from "./emulator-ui-persistence";
@@ -342,7 +345,12 @@ export class Emulator {
         });
     }
 
-    uploadFile(file: File) {
+    async uploadFile(file: File) {
+        const uploads = await uploadsFromDirectoryExtractionFile(file);
+        if (uploads) {
+            this.#files.uploadFiles(uploads);
+            return;
+        }
         this.#files.uploadFile({
             name: file.name,
             url: URL.createObjectURL(file),
