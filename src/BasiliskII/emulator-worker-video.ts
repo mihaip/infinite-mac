@@ -5,13 +5,7 @@ import type {
 } from "./emulator-common";
 
 export interface EmulatorWorkerVideo {
-    blit(
-        data: Uint8Array,
-        width: number,
-        height: number,
-        depth: number,
-        usingPalette: number
-    ): void;
+    blit(data: Uint8Array, usingPalette: boolean): void;
 }
 
 export type EmulatorWorkerVideoBlitSender = (
@@ -41,17 +35,8 @@ export class SharedMemoryEmulatorWorkerVideo implements EmulatorWorkerVideo {
         this.#blitSender = blitSender;
     }
 
-    blit(
-        data: Uint8Array,
-        width: number,
-        height: number,
-        depth: number,
-        usingPalette: number
-    ) {
-        this.#videoModeBufferView[0] = width;
-        this.#videoModeBufferView[1] = height;
-        this.#videoModeBufferView[2] = depth;
-        this.#videoModeBufferView[3] = usingPalette;
+    blit(data: Uint8Array, usingPalette: boolean) {
+        this.#videoModeBufferView[0] = usingPalette ? 1 : 0;
         this.#screenBufferView.set(data);
         this.#blitSender({type: "shared-memory"});
     }
@@ -67,13 +52,7 @@ export class FallbackEmulatorWorkerVideo implements EmulatorWorkerVideo {
         this.#blitSender = blitSender;
     }
 
-    blit(
-        data: Uint8Array,
-        width: number,
-        height: number,
-        depth: number,
-        usingPalette: number
-    ) {
+    blit(data: Uint8Array, usingPalette: boolean) {
         // Can't send the Wasm memory directly, need to make a copy. It's net
         // neutral because we can use a Transferable for it.
         data = new Uint8Array(data);
@@ -81,9 +60,6 @@ export class FallbackEmulatorWorkerVideo implements EmulatorWorkerVideo {
             {
                 type: "fallback",
                 data,
-                width,
-                height,
-                depth,
                 usingPalette,
             },
             [data.buffer]
