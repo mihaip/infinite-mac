@@ -46,9 +46,11 @@ export class SharedMemoryEmulatorVideo implements EmulatorVideo {
     }
 
     putImageData(imageData: ImageData) {
+        const bufferSize = this.#videoModeBufferView[0];
+        const usingPalette = Boolean(this.#videoModeBufferView[1]);
         putVideoIntoImageData(
-            this.#screenBufferView,
-            Boolean(this.#videoModeBufferView[0]),
+            this.#screenBufferView.subarray(0, bufferSize),
+            usingPalette,
             imageData
         );
     }

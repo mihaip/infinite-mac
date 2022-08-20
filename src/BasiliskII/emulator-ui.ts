@@ -80,6 +80,7 @@ export interface EmulatorEthernetProviderDelegate {
 export type EmulatorEthernetPeer = EthernetPingerPeer;
 
 export interface EmulatorDelegate {
+    emulatorDidChangeScreenSize?(width: number, height: number): void;
     emulatorDidMakeLoadingProgress?(
         emulator: Emulator,
         total: number,
@@ -476,6 +477,13 @@ export class Emulator {
     #handleWorkerMessage = (e: MessageEvent) => {
         if (e.data.type === "emulator_ready") {
             this.#delegate?.emulatorDidFinishLoading?.(this);
+        } else if (e.data.type === "emulator_video_open") {
+            const {width, height} = e.data;
+            this.#screenImageData = this.#screenCanvasContext.createImageData(
+                width,
+                height
+            );
+            this.#delegate?.emulatorDidChangeScreenSize?.(width, height);
         } else if (e.data.type === "emulator_blit") {
             if (!this.#gotFirstBlit) {
                 this.#gotFirstBlit = true;
