@@ -16,15 +16,9 @@ import {isDiskImageFile} from "./BasiliskII/emulator-common";
 import {BroadcastChannelEthernetProvider} from "./BroadcastChannelEthernetProvider";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 
-const INITIAL_SCREEN_WIDTH = 800;
-const INITIAL_SCREEN_HEIGHT = 600;
-
 export function Mac() {
     const screenRef = useRef<HTMLCanvasElement>(null);
-    const [screenSize, setScreenSize] = useState({
-        width: INITIAL_SCREEN_WIDTH,
-        height: INITIAL_SCREEN_HEIGHT,
-    });
+    const [screenSize, setScreenSize] = useState(INITIAL_RESOLUTION);
     const {width: screenWidth, height: screenHeight} = screenSize;
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
     const [scale, setScale] = useState<number | undefined>(undefined);
@@ -81,8 +75,8 @@ export function Mac() {
                 useSharedMemory:
                     typeof SharedArrayBuffer !== "undefined" &&
                     searchParams.get("use_shared_memory") !== "false",
-                screenWidth: INITIAL_SCREEN_WIDTH,
-                screenHeight: INITIAL_SCREEN_HEIGHT,
+                screenWidth: INITIAL_RESOLUTION.width,
+                screenHeight: INITIAL_RESOLUTION.height,
                 screenCanvas: screenRef.current!,
                 basiliskPrefsPath,
                 romPath: quadraRomPath,
@@ -239,9 +233,21 @@ export function Mac() {
         }
     }
 
+    // Can't use media queries because they would need to depend on the
+    // emulator screen size, but we can't pass that in via CSS variables. We
+    // could in theory dynamically generate the media query via JS, but it's not
+    // worth the hassle.
+    let bezelClass = "";
+    const availableSpace = window.innerWidth - screenWidth;
+    if (availableSpace < SMALL_BEZEL_THRESHOLD) {
+        bezelClass = "Mac-Small-Bezel";
+    } else if (availableSpace < MEDIUM_BEZEL_THRESHOLD) {
+        bezelClass = "Mac-Medium-Bezel";
+    }
+
     return (
         <div
-            className="Mac"
+            className={`Mac ${bezelClass}`}
             style={{
                 width: `calc(${screenWidth}px + 2 * var(--screen-underscan))`,
                 height: `calc(${screenHeight}px + 2 * var(--screen-underscan))`,
@@ -294,6 +300,27 @@ export function Mac() {
         </div>
     );
 }
+
+const SMALL_BEZEL_THRESHOLD = 80;
+const MEDIUM_BEZEL_THRESHOLD = 168;
+
+const INITIAL_RESOLUTION = (() => {
+    const availableWidth = window.innerWidth - SMALL_BEZEL_THRESHOLD;
+    const availableHeight = window.innerHeight - SMALL_BEZEL_THRESHOLD;
+    for (const [width, height] of [
+        [1600, 1200],
+        [1280, 1024],
+        [1152, 870],
+        [1024, 768],
+        [800, 600],
+        [640, 480],
+    ]) {
+        if (width <= availableWidth && height <= availableHeight) {
+            return {width, height};
+        }
+    }
+    return {width: 640, height: 480};
+})();
 
 function MacEthernetStatus({
     provider,
