@@ -48,9 +48,7 @@ export class SharedMemoryEmulatorVideo implements EmulatorVideo {
     putImageData(imageData: ImageData) {
         putVideoIntoImageData(
             this.#screenBufferView,
-            this.#videoModeBufferView[0],
-            this.#videoModeBufferView[1],
-            this.#videoModeBufferView[3],
+            Boolean(this.#videoModeBufferView[0]),
             imageData
         );
     }
@@ -83,8 +81,6 @@ export class FallbackEmulatorVideo implements EmulatorVideo {
 
         putVideoIntoImageData(
             this.#lastBlitData.data,
-            this.#lastBlitData.width,
-            this.#lastBlitData.height,
             this.#lastBlitData.usingPalette,
             imageData
         );
@@ -93,27 +89,16 @@ export class FallbackEmulatorVideo implements EmulatorVideo {
 
 function putVideoIntoImageData(
     videoData: Uint8Array,
-    width: number,
-    height: number,
-    expandedFromPalettedMode: number,
+    usingPalette: boolean,
     imageData: ImageData
 ) {
     const pixelsRGBA = imageData.data;
-    // if we were going to lock the framebuffer, this is where we'd do it
-    if (expandedFromPalettedMode) {
+    if (usingPalette) {
         // palette expanded mode is already in RGBA order
         pixelsRGBA.set(videoData);
     } else {
         // offset by 1 to go from ARGB to RGBA (we don't actually care about the
         // alpha, it should be the same for all pixels)
         pixelsRGBA.set(videoData.subarray(1, videoData.byteLength - 1));
-        // However, the alpha ends up being 0, which makes it transparent, so we
-        // need to override it to 255.
-        // TODO(mihai): do this on the native side, perhaps with a custom blit
-        // function.
-        const maxAlphaIndex = width * height * 4 + 3;
-        for (let alphaIndex = 3; alphaIndex < maxAlphaIndex; alphaIndex += 4) {
-            pixelsRGBA[alphaIndex] = 0xff;
-        }
     }
 }

@@ -161,6 +161,7 @@ export class Emulator {
         }
 
         this.#screenCanvasContext = canvas.getContext("2d", {
+            alpha: false,
             desynchronized: true,
         })!;
         this.#screenImageData = this.#screenCanvasContext.createImageData(
@@ -252,6 +253,9 @@ export class Emulator {
         const extraction = await getPersistedData();
 
         let prefsStr = new TextDecoder().decode(basePrefs);
+        prefsStr += `screen win/${this.#config.screenWidth}/${
+            this.#config.screenHeight
+        }`;
         for (const spec of this.#config.disks) {
             prefsStr = `disk ${spec.name}\n` + prefsStr;
         }

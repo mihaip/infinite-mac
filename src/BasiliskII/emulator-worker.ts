@@ -157,20 +157,12 @@ class EmulatorWorkerApi {
         this.#diskSpecs = disks;
     }
 
-    blit(
-        bufPtr: number,
-        width: number,
-        height: number,
-        depth: number,
-        usingPalette: number,
-        hash: number
-    ) {
+    blit(bufPtr: number, bufSize: number, usingPalette: boolean, hash: number) {
         this.#lastBlitFrameId++;
         if (hash !== this.#lastBlitFrameHash) {
             this.#lastBlitFrameHash = hash;
-            const length = width * height * (depth === 32 ? 4 : 1); // 32bpp or 8bpp
-            const data = Module.HEAPU8.subarray(bufPtr, bufPtr + length);
-            this.#video.blit(data, width, height, depth, usingPalette);
+            const data = Module.HEAPU8.subarray(bufPtr, bufPtr + bufSize);
+            this.#video.blit(data, usingPalette);
         }
         this.#nextExpectedBlitTime = performance.now() + 16;
     }

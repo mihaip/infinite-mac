@@ -1,5 +1,4 @@
 extfs /Shared/
-screen win/800/600
 seriala
 serialb
 ether js
