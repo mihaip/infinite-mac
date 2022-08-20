@@ -24,43 +24,25 @@
     margin: calc(var(--screen-underscan) * -1);
 }
 
-@media (max-width: 1024px) {
-    .Mac {
-        --screen-bezel-size: 40px;
-        --screen-outer-chamfer-size: 2px;
-        --screen-inner-chamfer-size: 4px;
-        --screen-underscan: 10px;
-        --screen-apple-logo-bottom: -5px;
-        --screen-led-bottom: -28px;
-        --screen-ethernet-status-bottom: -34px;
-    }
+.Mac-Medium-Bezel {
+    --screen-bezel-size: 40px;
+    --screen-outer-chamfer-size: 2px;
+    --screen-inner-chamfer-size: 4px;
+    --screen-underscan: 10px;
+    --screen-apple-logo-bottom: -5px;
+    --screen-led-bottom: -28px;
+    --screen-ethernet-status-bottom: -34px;
 }
 
-@media (max-width: 880px) {
-    .Mac {
-        --screen-bezel-size: 10px;
-        --screen-outer-chamfer-size: 1px;
-        --screen-inner-chamfer-size: 1px;
-        --screen-corner-radius: 4px;
-        --screen-underscan: 1px;
-        --screen-apple-logo-display: none;
-        --screen-led-display: none;
-        --screen-ethernet-status-display: none;
-    }
-}
-
-/* Scale up to take up the whole screen. On retina screens we can also use a
-1.5 factor and still keep things pixel-perfect. */
-@media (min-width: 1460px) and (max-width: 1939px) and (min-height: 1000px) and (-webkit-device-pixel-ratio: 2) {
-    .Mac {
-        transform: scale(1.5);
-    }
-}
-
-@media (min-width: 1940px) and (min-height: 1300px) {
-    .Mac {
-        transform: scale(2);
-    }
+.Mac-Small-Bezel {
+    --screen-bezel-size: 10px;
+    --screen-outer-chamfer-size: 1px;
+    --screen-inner-chamfer-size: 1px;
+    --screen-corner-radius: 4px;
+    --screen-underscan: 1px;
+    --screen-apple-logo-display: none;
+    --screen-led-display: none;
+    --screen-ethernet-status-display: none;
 }
 
 /* `@media (display-mode: fullscreen)` does not appear to work in iOS Safari,
@@ -320,7 +302,6 @@ body.fullscreen .Mac {
     background: #fff;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
 }
-
 
 .Mac-Ethernet-Status-Peers {
     margin-top: 8px;
