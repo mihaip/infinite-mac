@@ -1,2 +1,2 @@
- FROM emscripten/emsdk:2.0.31
+ FROM ghcr.io/mihaip/emscripten-devcontainer:2.0.34
  RUN apt update && apt install -y autoconf libsdl1.2-dev
