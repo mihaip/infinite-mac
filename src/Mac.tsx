@@ -16,11 +16,16 @@ import {isDiskImageFile} from "./BasiliskII/emulator-common";
 import {BroadcastChannelEthernetProvider} from "./BroadcastChannelEthernetProvider";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 
-const SCREEN_WIDTH = 800;
-const SCREEN_HEIGHT = 600;
+const INITIAL_SCREEN_WIDTH = 800;
+const INITIAL_SCREEN_HEIGHT = 600;
 
 export function Mac() {
     const screenRef = useRef<HTMLCanvasElement>(null);
+    const [screenSize, setScreenSize] = useState({
+        width: INITIAL_SCREEN_WIDTH,
+        height: INITIAL_SCREEN_HEIGHT,
+    });
+    const {width: screenWidth, height: screenHeight} = screenSize;
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
     const [scale, setScale] = useState<number | undefined>(undefined);
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
@@ -76,8 +81,8 @@ export function Mac() {
                 useSharedMemory:
                     typeof SharedArrayBuffer !== "undefined" &&
                     searchParams.get("use_shared_memory") !== "false",
-                screenWidth: SCREEN_WIDTH,
-                screenHeight: SCREEN_HEIGHT,
+                screenWidth: INITIAL_SCREEN_WIDTH,
+                screenHeight: INITIAL_SCREEN_HEIGHT,
                 screenCanvas: screenRef.current!,
                 basiliskPrefsPath,
                 romPath: quadraRomPath,
@@ -85,6 +90,9 @@ export function Mac() {
                 ethernetProvider,
             },
             {
+                emulatorDidChangeScreenSize(width, height) {
+                    setScreenSize({width, height});
+                },
                 emulatorDidFinishLoading(emulator: Emulator) {
                     setEmulatorLoaded(true);
                 },
@@ -151,8 +159,10 @@ export function Mac() {
 
         document.body.classList.toggle("fullscreen", isFullScreen);
         if (isFullScreen) {
-            const heightScale = window.screen.availHeight / SCREEN_HEIGHT;
-            const widthScale = window.screen.availWidth / SCREEN_WIDTH;
+            const heightScale =
+                window.screen.availHeight / screenRef.current!.height;
+            const widthScale =
+                window.screen.availWidth / screenRef.current!.width;
             setScale(Math.min(heightScale, widthScale));
         } else {
             setScale(undefined);
@@ -233,8 +243,8 @@ export function Mac() {
         <div
             className="Mac"
             style={{
-                width: `calc(${SCREEN_WIDTH}px + 2 * var(--screen-underscan))`,
-                height: `calc(${SCREEN_HEIGHT}px + 2 * var(--screen-underscan))`,
+                width: `calc(${screenWidth}px + 2 * var(--screen-underscan))`,
+                height: `calc(${screenHeight}px + 2 * var(--screen-underscan))`,
                 transform: scale === undefined ? undefined : `scale(${scale})`,
             }}
             onDragStart={handleDragStart}
@@ -254,8 +264,8 @@ export function Mac() {
             <canvas
                 className="Mac-Screen"
                 ref={screenRef}
-                width={SCREEN_WIDTH}
-                height={SCREEN_HEIGHT}
+                width={screenWidth}
+                height={screenHeight}
                 onContextMenu={e => e.preventDefault()}
             />
             {progress}

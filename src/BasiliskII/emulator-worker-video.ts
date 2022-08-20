@@ -36,7 +36,8 @@ export class SharedMemoryEmulatorWorkerVideo implements EmulatorWorkerVideo {
     }
 
     blit(data: Uint8Array, usingPalette: boolean) {
-        this.#videoModeBufferView[0] = usingPalette ? 1 : 0;
+        this.#videoModeBufferView[0] = data.length;
+        this.#videoModeBufferView[1] = usingPalette ? 1 : 0;
         this.#screenBufferView.set(data);
         this.#blitSender({type: "shared-memory"});
     }

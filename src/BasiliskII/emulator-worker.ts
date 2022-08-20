@@ -157,6 +157,10 @@ class EmulatorWorkerApi {
         this.#diskSpecs = disks;
     }
 
+    didOpenVideo(width: number, height: number) {
+        postMessage({type: "emulator_video_open", width, height});
+    }
+
     blit(bufPtr: number, bufSize: number, usingPalette: boolean, hash: number) {
         this.#lastBlitFrameId++;
         if (hash !== this.#lastBlitFrameHash) {

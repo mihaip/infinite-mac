@@ -1436,25 +1436,26 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  245812: function() {return workerApi.idleWait();},  
- 245845: function($0, $1, $2, $3, $4, $5) {workerApi.blit($0, $1, $2, $3, $4, $5);},  
- 245889: function() {return workerApi.etherSeed();},  
- 245923: function($0) {workerApi.etherInit(UTF8ToString($0));},  
- 245966: function($0, $1, $2) {workerApi.etherWrite(UTF8ToString($0), $1, $2);},  
- 246018: function($0) {return workerApi.etherRead($0, 1514);},  
- 246060: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
- 246101: function($0, $1, $2) {return workerApi.enqueueAudio($0, $1, $2);},  
- 246148: function() {return workerApi.acquireInputLock();},  
- 246189: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
- 246279: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
- 246366: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
- 246455: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
- 246544: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.keyEventFlagAddr);},  
- 246630: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.keyCodeAddr);},  
- 246711: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.keyStateAddr);},  
- 246793: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
- 246888: function() {workerApi.releaseInputLock();},  
- 246922: function($0) {workerApi.setClipboardText(UTF8ToString($0));}
+  245828: function() {return workerApi.idleWait();},  
+ 245861: function($0, $1) {workerApi.didOpenVideo($0, $1);},  
+ 245897: function($0, $1, $2, $3, $4, $5) {workerApi.blit($0, $1, $2, $3, $4, $5);},  
+ 245941: function() {return workerApi.etherSeed();},  
+ 245975: function($0) {workerApi.etherInit(UTF8ToString($0));},  
+ 246018: function($0, $1, $2) {workerApi.etherWrite(UTF8ToString($0), $1, $2);},  
+ 246070: function($0) {return workerApi.etherRead($0, 1514);},  
+ 246112: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
+ 246153: function($0, $1, $2) {return workerApi.enqueueAudio($0, $1, $2);},  
+ 246200: function() {return workerApi.acquireInputLock();},  
+ 246241: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
+ 246331: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
+ 246418: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
+ 246507: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
+ 246596: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.keyEventFlagAddr);},  
+ 246682: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.keyCodeAddr);},  
+ 246763: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.keyStateAddr);},  
+ 246845: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
+ 246940: function() {workerApi.releaseInputLock();},  
+ 246974: function($0) {workerApi.setClipboardText(UTF8ToString($0));}
 };
 function getClipboardText(){ const clipboardText = workerApi.getClipboardText(); if (!clipboardText || !clipboardText.length) { return 0; } const clipboardTextLength = lengthBytesUTF8(clipboardText) + 1; const clipboardTextCstr = _malloc(clipboardTextLength); stringToUTF8(clipboardText, clipboardTextCstr, clipboardTextLength); return clipboardTextCstr; }
 
