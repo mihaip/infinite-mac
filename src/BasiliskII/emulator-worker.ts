@@ -190,10 +190,6 @@ class EmulatorWorkerApi {
         return this.#audio.enqueueAudio(newAudio);
     }
 
-    debugPointer(ptr: any) {
-        console.log("debugPointer", ptr);
-    }
-
     idleWait(): boolean {
         try {
             return this.#idleWait();
