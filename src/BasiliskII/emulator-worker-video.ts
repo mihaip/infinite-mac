@@ -5,7 +5,7 @@ import type {
 } from "./emulator-common";
 
 export interface EmulatorWorkerVideo {
-    blit(data: Uint8Array, usingPalette: boolean): void;
+    blit(data: Uint8Array): void;
 }
 
 export type EmulatorWorkerVideoBlitSender = (
@@ -35,9 +35,8 @@ export class SharedMemoryEmulatorWorkerVideo implements EmulatorWorkerVideo {
         this.#blitSender = blitSender;
     }
 
-    blit(data: Uint8Array, usingPalette: boolean) {
+    blit(data: Uint8Array) {
         this.#videoModeBufferView[0] = data.length;
-        this.#videoModeBufferView[1] = usingPalette ? 1 : 0;
         this.#screenBufferView.set(data);
         this.#blitSender({type: "shared-memory"});
     }
@@ -53,7 +52,7 @@ export class FallbackEmulatorWorkerVideo implements EmulatorWorkerVideo {
         this.#blitSender = blitSender;
     }
 
-    blit(data: Uint8Array, usingPalette: boolean) {
+    blit(data: Uint8Array) {
         // Can't send the Wasm memory directly, need to make a copy. It's net
         // neutral because we can use a Transferable for it.
         data = new Uint8Array(data);
@@ -61,7 +60,6 @@ export class FallbackEmulatorWorkerVideo implements EmulatorWorkerVideo {
             {
                 type: "fallback",
                 data,
-                usingPalette,
             },
             [data.buffer]
         );

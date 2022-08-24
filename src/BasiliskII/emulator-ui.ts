@@ -554,7 +554,11 @@ export class Emulator {
         if (document.hidden) {
             return;
         }
-        this.#video.putImageData(this.#screenImageData);
+        const imageData = this.#video.imageData();
+        if (!imageData) {
+            return;
+        }
+        this.#screenImageData.data.set(imageData);
         this.#screenCanvasContext.putImageData(this.#screenImageData, 0, 0);
     }
 

@@ -83,7 +83,6 @@ class EmulatorWorkerApi {
     #clipboard: EmulatorWorkerClipboard;
 
     #lastBlitFrameId = 0;
-    #lastBlitFrameHash = 0;
     #nextExpectedBlitTime = 0;
     #lastIdleWaitFrameId = 0;
 
@@ -161,12 +160,11 @@ class EmulatorWorkerApi {
         postMessage({type: "emulator_video_open", width, height});
     }
 
-    blit(bufPtr: number, bufSize: number, usingPalette: boolean, hash: number) {
+    blit(bufPtr: number, bufSize: number) {
         this.#lastBlitFrameId++;
-        if (hash !== this.#lastBlitFrameHash) {
-            this.#lastBlitFrameHash = hash;
+        if (bufPtr) {
             const data = Module.HEAPU8.subarray(bufPtr, bufPtr + bufSize);
-            this.#video.blit(data, usingPalette);
+            this.#video.blit(data);
         }
         this.#nextExpectedBlitTime = performance.now() + 16;
     }
