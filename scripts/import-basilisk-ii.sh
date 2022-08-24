@@ -9,6 +9,11 @@ SRC_DIR="${ROOT_DIR}/src"
 PUBLIC_DIR="${ROOT_DIR}/public"
 BASILISK_II_DESTINATION_DIR="${SRC_DIR}/BasiliskII"
 
+if [ ! -d "${BASILISK_II_DIR}/BasiliskII.wasm" ]; then
+    echo "Basilisk II has not been built. Refer to the README for details."
+    exit
+fi
+
 # Build output
 cp "${BASILISK_II_DIR}/BasiliskII" "${BASILISK_II_DESTINATION_DIR}/BasiliskII.jsz"
 cp "${BASILISK_II_DIR}/BasiliskII.wasm" "${BASILISK_II_DESTINATION_DIR}/BasiliskII.wasmz"
