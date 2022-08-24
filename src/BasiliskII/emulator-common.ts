@@ -125,7 +125,6 @@ export type EmulatorWorkerSharedMemoryVideoBlit = {
 export type EmulatorWorkerFallbackVideoBlit = {
     type: "fallback";
     data: Uint8Array;
-    usingPalette: boolean;
 };
 
 export type EmulatorWorkerInputConfig =

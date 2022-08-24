@@ -12,7 +12,7 @@ const VIDEO_MODE_BUFFER_SIZE = 10;
 export interface EmulatorVideo {
     workerConfig(): EmulatorWorkerVideoConfig;
     blit(blitData: EmulatorWorkerVideoBlit): void;
-    putImageData(imageData: ImageData): void;
+    imageData(): Uint8Array | undefined;
 }
 
 export class SharedMemoryEmulatorVideo implements EmulatorVideo {
@@ -45,14 +45,9 @@ export class SharedMemoryEmulatorVideo implements EmulatorVideo {
         // No-op, we get updates via the SharedArrayBuffer
     }
 
-    putImageData(imageData: ImageData) {
+    imageData(): Uint8Array {
         const bufferSize = this.#videoModeBufferView[0];
-        const usingPalette = Boolean(this.#videoModeBufferView[1]);
-        putVideoIntoImageData(
-            this.#screenBufferView.subarray(0, bufferSize),
-            usingPalette,
-            imageData
-        );
+        return this.#screenBufferView.subarray(0, bufferSize);
     }
 }
 
@@ -76,31 +71,7 @@ export class FallbackEmulatorVideo implements EmulatorVideo {
         this.#lastBlitData = blitData;
     }
 
-    putImageData(imageData: ImageData): void {
-        if (!this.#lastBlitData) {
-            return;
-        }
-
-        putVideoIntoImageData(
-            this.#lastBlitData.data,
-            this.#lastBlitData.usingPalette,
-            imageData
-        );
-    }
-}
-
-function putVideoIntoImageData(
-    videoData: Uint8Array,
-    usingPalette: boolean,
-    imageData: ImageData
-) {
-    const pixelsRGBA = imageData.data;
-    if (usingPalette) {
-        // palette expanded mode is already in RGBA order
-        pixelsRGBA.set(videoData);
-    } else {
-        // offset by 1 to go from ARGB to RGBA (we don't actually care about the
-        // alpha, it should be the same for all pixels)
-        pixelsRGBA.set(videoData.subarray(1, videoData.byteLength - 1));
+    imageData(): Uint8Array | undefined {
+        return this.#lastBlitData?.data;
     }
 }
