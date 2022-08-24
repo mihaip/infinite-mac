@@ -8,7 +8,7 @@ This project uses submodules, use `git clone --recursive https://github.com/miha
 
 Common development tasks, all done via `npm run`:
 
--   `start`: Run local dev server (will be running at http://localhost:3127).
+-   `start`: Run local dev server (will be running at http://localhost:3127). Depends on having disk images built (`import-disks` needs to be run at least once).
 -   `import-basilisk-ii`: Copy generated WebAssembly from the https://github.com/mihaip/macemu submodule (only necessary if modifying Basilisk II, see [below](#building-basilisk-ii) for how to rebuild it).
 -   `import-disks`: Build disk images for serving. Copies base OS images from the above, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving.
 
