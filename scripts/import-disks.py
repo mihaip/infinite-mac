@@ -491,7 +491,7 @@ def build_desktop_db(image: bytes, base_name: str) -> bytes:
 
 
 if __name__ == "__main__":
-    shutil.rmtree(DISK_DIR, ignore_errors=False)
+    shutil.rmtree(DISK_DIR, ignore_errors=True)
     os.mkdir(DISK_DIR)
     if not os.getenv("DEBUG_LIRARY_FILTER"):
         copy_system_image("System 7.5.3 HD.dsk")
