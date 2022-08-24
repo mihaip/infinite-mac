@@ -9,7 +9,7 @@ SRC_DIR="${ROOT_DIR}/src"
 PUBLIC_DIR="${ROOT_DIR}/public"
 BASILISK_II_DESTINATION_DIR="${SRC_DIR}/BasiliskII"
 
-if [ ! -d "${BASILISK_II_DIR}/BasiliskII.wasm" ]; then
+if [ ! -f "${BASILISK_II_DIR}/BasiliskII.wasm" ]; then
     echo "Basilisk II has not been built. Refer to the README for details."
     exit
 fi
