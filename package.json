@@ -7,6 +7,7 @@
         "@types/file-saver": "^2.0.3",
         "@types/react": "^17.0.0",
         "@types/react-dom": "^17.0.0",
+        "clang-format": "^1.8.0",
         "file-saver": "^2.0.5",
         "husky": "^6.0.0",
         "idb-keyval": "^6.0.3",
@@ -29,7 +30,8 @@
         "build": "react-scripts build",
         "eject": "react-scripts eject",
         "worker-dev": "wrangler dev --local --port=3128",
-        "worker-deploy": "wrangler publish --env production"
+        "worker-deploy": "wrangler publish --env production",
+        "format-macemu": "clang-format -i --glob=macemu/BasiliskII/src/Unix/JS/*"
     },
     "eslintConfig": {
         "extends": [
