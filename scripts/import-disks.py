@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import copy
 import datetime
 import glob
 import hashlib
@@ -15,6 +16,7 @@ import typing
 import urllib.request
 import zipfile
 import subprocess
+import stickies
 import time
 import unicodedata
 
@@ -202,7 +204,7 @@ def import_archive(
                     folder = folder[folder_name]
             for file_name in file_names:
                 # Ignore hidden files used for extra metadata storage that did
-                # not exit in the Classic Mac days.
+                # not exist in the Classic Mac days.
                 if file_name in [".DS_Store"]:
                     continue
                 file_path = os.path.join(dir_path, file_name)
@@ -416,10 +418,44 @@ def write_chunked_image(image: bytes, input_file_name: str) -> None:
             indent=4)
 
 
-def copy_system_image(name: str) -> None:
+def copy_system_image(name: str,
+                      domain: str,
+                      stickies_path: typing.List[str] = [
+                          "System Folder", "Preferences", "Stickies file"
+                      ],
+                      stickies_encoding: str = "mac_roman",
+                      welcome_sticky_override: stickies.Sticky = None) -> None:
     input_path = os.path.join(IMAGES_DIR, name)
+
+    sister_sites = [
+        f"https://{s}"
+        for s in ["system7.app", "macos8.app", "kanjitalk7.app"] if s != domain
+    ]
     with open(input_path, "rb") as image:
-        write_chunked_image(image.read(), name)
+        v = machfs.Volume()
+        v.read(image.read(), preserve_desktopdb=True)
+        stickies_file = v
+        for p in stickies_path:
+            stickies_file = stickies_file[p]
+        customized_stickies = copy.deepcopy(STICKIES)
+        if welcome_sticky_override:
+            customized_stickies[-1] = copy.deepcopy(welcome_sticky_override)
+        for sticky in customized_stickies:
+            sticky.text = sticky.text.replace("DOMAIN", domain)
+            sticky.text = sticky.text.replace("SISTER_SITES",
+                                              " and ".join(sister_sites))
+            if stickies_encoding == "shift_jis":
+                # Bullets are not directly representable in Shift-JIS, replace
+                # them with a KATAKANA MIDDLE DOT.
+                sticky.text = sticky.text.replace("•", "・")
+        stickies_file.data = stickies.StickiesFile(
+            stickies=customized_stickies).to_bytes(stickies_encoding)
+        image = v.write(
+            size=1024 * 1024 * 1024,
+            align=512,
+            bootable=True,
+        )
+        write_chunked_image(image, name)
 
 
 def build_library_image(base_name: str) -> None:
@@ -490,11 +526,91 @@ def build_desktop_db(image: bytes, base_name: str) -> bytes:
     return image
 
 
+STICKIES = [
+    stickies.Sticky(
+        top=300,
+        left=444,
+        bottom=525,
+        right=638,
+        color=stickies.Color.PURPLE,
+        text="""Tips
+• To add additional files (e.g. downloads from archives like Macintosh Repository and Macintosh Garden), simply drag them onto the screen. They will appear in the “Downloads” folder in The Outside World.
+• Conversely, to get folders or files out the Mac, you put them in the “Uploads” folder. A .zip archive with them will be generated and downloaded by your browser.
+• Files in the “Saved” folder will be saved across emulator runs (best-effort)
+• To go full screen, you can click on the monitor's Apple logo. Or if you're on an iOS device, you can add this site to your home screen via the share icon.""",
+    ),
+    stickies.Sticky(
+        top=315,
+        left=638,
+        bottom=500,
+        right=794,
+        color=stickies.Color.PINK,
+        text="""Networking is supported!
+
+Visting the same subdomain of the site as your friends (e.g. https://office.DOMAIN or https://thelair.DOMAIN) will automatically create an AppleTalk zone where you can interact with each other.
+
+Files can be shared between instances, and muti-player games like Marathon, Bolo and Strategic Conquest will also work.""",
+    ),
+    stickies.Sticky(
+        top=531,
+        left=536,
+        bottom=570,
+        right=664,
+        color=stickies.Color.BLUE,
+        text='See also the sister sites at SISTER_SITES',
+    ),
+    stickies.Sticky(
+        top=187,
+        left=508,
+        bottom=299,
+        right=684,
+        color=stickies.Color.GREEN,
+        text=
+        """A project to have an easily browsable collection of classic Macintosh software from the comfort of a (modern) web browser.
+
+Browse around the Infinite HD to see what using a Mac in the mid 1990s was like.""",
+    ),
+    stickies.Sticky(
+        top=135,
+        left=468,
+        bottom=183,
+        right=640,
+        font=stickies.Font.HELVETICA,
+        size=18,
+        style={stickies.Style.BOLD},
+        text='Welcome to Infinite Macintosh!',
+    ),
+]
+
+JAPANESE_WELCOME_STICKY = stickies.Sticky(
+    top=125,
+    left=468,
+    bottom=180,
+    right=660,
+    font=stickies.Font.OSAKA,
+    size=18,
+    style={stickies.Style.BOLD},
+    text="Infinite Macintosh へようこそ！",
+)
+
 if __name__ == "__main__":
     shutil.rmtree(DISK_DIR, ignore_errors=True)
     os.mkdir(DISK_DIR)
     if not os.getenv("DEBUG_LIRARY_FILTER"):
-        copy_system_image("System 7.5.3 HD.dsk")
-        copy_system_image("KanjiTalk 7.5.3 HD.dsk")
-        copy_system_image("Mac OS 8.1 HD.dsk")
+        copy_system_image("System 7.5.3 HD.dsk", domain="system7.app")
+        copy_system_image("Mac OS 8.1 HD.dsk", domain="macos8.app")
+        copy_system_image(
+            "KanjiTalk 7.5.3 HD.dsk",
+            domain="kanjitalk7.app",
+            # Generate Mojibake of Shift-JIS interpreted as MacRoman, the machfs
+            # library always assumes the latter.
+            stickies_path=[
+                p.encode("shift_jis").decode("mac_roman") for p in [
+                    "システムフォルダ",
+                    "初期設定",
+                    'スティッキーズファイル',
+                ]
+            ],
+            stickies_encoding="shift_jis",
+            welcome_sticky_override=JAPANESE_WELCOME_STICKY)
     build_library_image("Infinite HD.dsk")
