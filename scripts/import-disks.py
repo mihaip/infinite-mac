@@ -75,7 +75,7 @@ def import_manifests() -> typing.Dict[str, machfs.Folder]:
         _, src_ext = os.path.splitext(src_url)
         if src_ext in [".img", ".dsk", ".iso"]:
             folder = import_disk_image(manifest_json)
-        elif src_ext in [".hqx", ".sit", ".bin"]:
+        elif src_ext in [".hqx", ".sit", ".bin", ".zip"]:
             folder = import_archive(manifest_json)
         else:
             assert False, "Unexpected manifest URL extension: %s" % src_ext
