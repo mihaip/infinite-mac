@@ -458,6 +458,14 @@ def copy_system_image(name: str,
             align=512,
             bootable=True,
         )
+
+        if name == "Mac OS 8.1 HD.dsk":
+            # MacOS 8 insists on rebuilding the desktop DB after we run it
+            # through machfs. For now we run through Basilisk II one more time,
+            # though it would be nice to figure out why preverving the data
+            # is not working.
+            image = build_desktop_db(image, name)
+
         write_chunked_image(image, name)
 
 
@@ -506,7 +514,7 @@ def build_desktop_db(image: bytes, base_name: str) -> bytes:
             ("--disk", temp_path),
             ("--extfs", "none"),
             ("--rom", rom_path),
-            ("--screen", "win/640/480"),
+            ("--screen", "win/800/600"),
             ("--ramsize", "16777216"),
             ("--frameskip", "0"),
             ("--modelid", "14"),
