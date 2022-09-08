@@ -438,9 +438,12 @@ def copy_system_image(name: str,
         for p in stickies_path:
             stickies_file = stickies_file[p]
         customized_stickies = copy.deepcopy(STICKIES)
+        with open("CHANGELOG.md", "r") as changelog_file:
+            changelog = changelog_file.read()
         if welcome_sticky_override:
             customized_stickies[-1] = copy.deepcopy(welcome_sticky_override)
         for sticky in customized_stickies:
+            sticky.text = sticky.text.replace("CHANGELOG", changelog)
             sticky.text = sticky.text.replace("DOMAIN", domain)
             sticky.text = sticky.text.replace("SISTER_SITES",
                                               " and ".join(sister_sites))
@@ -528,6 +531,14 @@ def build_desktop_db(image: bytes, base_name: str) -> bytes:
 
 STICKIES = [
     stickies.Sticky(
+        top=196,
+        left=612,
+        bottom=312,
+        right=794,
+        color=stickies.Color.GRAY,
+        text="CHANGELOG",
+    ),
+    stickies.Sticky(
         top=300,
         left=444,
         bottom=525,
@@ -561,9 +572,9 @@ Files can be shared between instances, and muti-player games like Marathon, Bolo
     ),
     stickies.Sticky(
         top=187,
-        left=508,
+        left=438,
         bottom=299,
-        right=684,
+        right=614,
         color=stickies.Color.GREEN,
         text=
         """A project to have an easily browsable collection of classic Macintosh software from the comfort of a (modern) web browser.
