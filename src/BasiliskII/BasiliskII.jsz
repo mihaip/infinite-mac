@@ -1447,16 +1447,16 @@ var ASM_CONSTS = {
  245994: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
  246035: function($0, $1, $2) {return workerApi.enqueueAudio($0, $1, $2);},  
  246082: function() {return workerApi.acquireInputLock();},  
- 246123: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
- 246213: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
- 246300: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
- 246389: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
- 246478: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.keyEventFlagAddr);},  
- 246564: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.keyCodeAddr);},  
- 246645: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.keyStateAddr);},  
- 246727: function() {return workerApi.getInputValue( workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
- 246822: function() {workerApi.releaseInputLock();},  
- 246856: function($0) {workerApi.setClipboardText(UTF8ToString($0));}
+ 246123: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
+ 246212: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
+ 246298: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
+ 246386: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
+ 246474: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
+ 246559: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
+ 246639: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
+ 246720: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
+ 246814: function() {workerApi.releaseInputLock();},  
+ 246848: function($0) {workerApi.setClipboardText(UTF8ToString($0));}
 };
 function getClipboardText(){ const clipboardText = workerApi.getClipboardText(); if (!clipboardText || !clipboardText.length) { return 0; } const clipboardTextLength = lengthBytesUTF8(clipboardText) + 1; const clipboardTextCstr = _malloc(clipboardTextLength); stringToUTF8(clipboardText, clipboardTextCstr, clipboardTextLength); return clipboardTextCstr; }
 
