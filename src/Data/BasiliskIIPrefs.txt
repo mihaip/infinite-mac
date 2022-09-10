@@ -24,6 +24,4 @@ keyboardtype 5
 keycodes false
 mousewheelmode 1
 mousewheellines 3
-dsp /dev/dsp
-mixer /dev/mixer
 idlewait true

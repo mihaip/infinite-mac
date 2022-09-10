@@ -183,7 +183,7 @@ class EmulatorWorkerApi {
         );
     }
 
-    enqueueAudio(bufPtr: number, nbytes: number, type: number): number {
+    enqueueAudio(bufPtr: number, nbytes: number): number {
         const newAudio = Module.HEAPU8.slice(bufPtr, bufPtr + nbytes);
         return this.#audio.enqueueAudio(newAudio);
     }
