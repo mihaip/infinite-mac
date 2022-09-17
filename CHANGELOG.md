@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2022-09-17: Audio is less laggy.
+
 2022-09-07: Stickies are now generated as part of the image building process (and include this changelog).
 
 2022-08-20: Monitor resolution is now dynamic based on the initial window size (ranging from 1600x1200 to 640x480) and can be changed from the Control Strip.
