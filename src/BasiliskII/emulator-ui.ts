@@ -256,7 +256,7 @@ export class Emulator {
         let prefsStr = new TextDecoder().decode(basePrefs);
         prefsStr += `screen win/${this.#config.screenWidth}/${
             this.#config.screenHeight
-        }`;
+        }\n`;
         for (const spec of this.#config.disks) {
             prefsStr = `disk ${spec.name}\n` + prefsStr;
         }
