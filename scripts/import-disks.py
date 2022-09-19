@@ -377,17 +377,30 @@ def clear_folder_window_position(folder: machfs.Folder) -> None:
                                  rect_right, flags, window_y, window_x, view)
 
 
-def write_chunked_image(image: bytes, input_file_name: str) -> None:
+class ImageDef(typing.NamedTuple):
+    name: str
+    path: str
+
+
+def write_image_def(image: bytes, name: str, dest_dir: str) -> ImageDef:
+    image_path = os.path.join(dest_dir, name)
+    with open(image_path, "wb") as image_file:
+        image_file.write(image)
+    return ImageDef(name, image_path)
+
+
+def write_chunked_image(image: ImageDef) -> None:
     total_size = 0
     chunks = []
     chunk_signatures = set()
     salt = b'raw'
-    disk_size = len(image)
+    with open(image.path, "rb") as image_file:
+        image_bytes = image_file.read()
+    disk_size = len(image_bytes)
     for i in range(0, disk_size, CHUNK_SIZE):
         sys.stderr.write("Chunking %s: %.1f%%\r" %
-                         (input_file_name,
-                          ((i + CHUNK_SIZE) / disk_size) * 100))
-        chunk = image[i:i + CHUNK_SIZE]
+                         (image.name, ((i + CHUNK_SIZE) / disk_size) * 100))
+        chunk = image_bytes[i:i + CHUNK_SIZE]
         total_size += len(chunk)
         chunk_signature = hashlib.blake2b(chunk, digest_size=16,
                                           salt=salt).hexdigest()
@@ -405,11 +418,11 @@ def write_chunked_image(image: bytes, input_file_name: str) -> None:
 
     sys.stderr.write("\n")
 
-    manifest_path = os.path.join(DATA_DIR, f"{input_file_name}.json")
+    manifest_path = os.path.join(DATA_DIR, f"{image.name}.json")
     with open(manifest_path, "w+") as manifest_file:
         json.dump(
             {
-                "name": os.path.splitext(input_file_name)[0],
+                "name": os.path.splitext(image.name)[0],
                 "totalSize": total_size,
                 "chunks": chunks,
                 "chunkSize": CHUNK_SIZE,
@@ -418,13 +431,16 @@ def write_chunked_image(image: bytes, input_file_name: str) -> None:
             indent=4)
 
 
-def copy_system_image(name: str,
-                      domain: str,
-                      stickies_path: typing.List[str] = [
-                          "System Folder", "Preferences", "Stickies file"
-                      ],
-                      stickies_encoding: str = "mac_roman",
-                      welcome_sticky_override: stickies.Sticky = None) -> None:
+def build_system_image(
+        name: str,
+        dest_dir: str,
+        domain: str,
+        stickies_path: typing.List[str] = [
+            "System Folder", "Preferences", "Stickies file"
+        ],
+        stickies_encoding: str = "mac_roman",
+        welcome_sticky_override: stickies.Sticky = None) -> ImageDef:
+    sys.stderr.write("Building system image %s\n" % (name, ))
     input_path = os.path.join(IMAGES_DIR, name)
 
     sister_sites = [
@@ -433,7 +449,7 @@ def copy_system_image(name: str,
     ]
     with open(input_path, "rb") as image:
         v = machfs.Volume()
-        v.read(image.read(), preserve_desktopdb=True)
+        v.read(image.read())
         stickies_file = v
         for p in stickies_path:
             stickies_file = stickies_file[p]
@@ -456,20 +472,14 @@ def copy_system_image(name: str,
         image = v.write(
             size=1024 * 1024 * 1024,
             align=512,
+            desktopdb=False,
             bootable=True,
         )
 
-        if name == "Mac OS 8.1 HD.dsk":
-            # MacOS 8 insists on rebuilding the desktop DB after we run it
-            # through machfs. For now we run through Basilisk II one more time,
-            # though it would be nice to figure out why preverving the data
-            # is not working.
-            image = build_desktop_db(image, name)
-
-        write_chunked_image(image, name)
+        return write_image_def(image, name, dest_dir)
 
 
-def build_library_image(base_name: str) -> None:
+def build_library_image(base_name: str, dest_dir: str) -> ImageDef:
     import_folders = get_import_folders()
 
     v = machfs.Volume()
@@ -494,47 +504,36 @@ def build_library_image(base_name: str) -> None:
         bootable=False,
     )
 
-    if not os.getenv("DEBUG_LIRARY_FILTER"):
-        image = build_desktop_db(image, base_name)
-
-    write_chunked_image(image, base_name)
+    return write_image_def(image, base_name, dest_dir)
 
 
-def build_desktop_db(image: bytes, base_name: str) -> bytes:
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = os.path.join(temp_dir, base_name)
-        with open(temp_path, "wb") as image_file:
-            image_file.write(image)
-        sys.stderr.write("Rebuilding Desktop DB for %s...\n" % base_name)
-        boot_disk_path = os.path.join(IMAGES_DIR, "Mac OS 8.1 HD.dsk")
-        rom_path = os.path.join(DATA_DIR, "Quadra-650.rom")
-        basilisk_ii_args = [
-            ("--config", "none"),
-            ("--disk", f"*{boot_disk_path}"),
-            ("--disk", temp_path),
-            ("--extfs", "none"),
-            ("--rom", rom_path),
-            ("--screen", "win/800/600"),
-            ("--ramsize", "16777216"),
-            ("--frameskip", "0"),
-            ("--modelid", "14"),
-            ("--cpu", "4"),
-            ("--fpu", "true"),
-            ("--nocdrom", "true"),
-            ("--nosound", "true"),
-            ("--noclipconversion", "true"),
-            ("--idlewait", "true"),
-        ]
-        subprocess.check_call([
-            "open",
-            "-a",
-            "BasiliskII",
-            "-W",
-            "--args",
-        ] + [a for arg in basilisk_ii_args for a in arg])
-        with open(temp_path, "rb") as image_file:
-            image = image_file.read()
-    return image
+def build_desktop_db(images: typing.List[ImageDef]) -> bytes:
+    sys.stderr.write("Rebuilding Desktop DB for %s...\n" %
+                     ",".join([i.name for i in images]))
+    boot_disk_path = os.path.join(IMAGES_DIR, "Mac OS 8.1 HD.dsk")
+    rom_path = os.path.join(DATA_DIR, "Quadra-650.rom")
+    basilisk_ii_args = [("--config", "none"), ("--disk", f"*{boot_disk_path}")
+                        ] + [("--disk", i.path) for i in images] + [
+                            ("--extfs", "none"),
+                            ("--rom", rom_path),
+                            ("--screen", "win/800/600"),
+                            ("--ramsize", "16777216"),
+                            ("--frameskip", "0"),
+                            ("--modelid", "14"),
+                            ("--cpu", "4"),
+                            ("--fpu", "true"),
+                            ("--nocdrom", "true"),
+                            ("--nosound", "true"),
+                            ("--noclipconversion", "true"),
+                            ("--idlewait", "true"),
+                        ]
+    subprocess.check_call([
+        "open",
+        "-a",
+        "BasiliskII",
+        "-W",
+        "--args",
+    ] + [a for arg in basilisk_ii_args for a in arg])
 
 
 STICKIES = [
@@ -615,21 +614,37 @@ JAPANESE_WELCOME_STICKY = stickies.Sticky(
 if __name__ == "__main__":
     shutil.rmtree(DISK_DIR, ignore_errors=True)
     os.mkdir(DISK_DIR)
-    if not os.getenv("DEBUG_LIRARY_FILTER"):
-        copy_system_image("System 7.5.3 HD.dsk", domain="system7.app")
-        copy_system_image("Mac OS 8.1 HD.dsk", domain="macos8.app")
-        copy_system_image(
-            "KanjiTalk 7.5.3 HD.dsk",
-            domain="kanjitalk7.app",
-            # Generate Mojibake of Shift-JIS interpreted as MacRoman, the machfs
-            # library always assumes the latter.
-            stickies_path=[
-                p.encode("shift_jis").decode("mac_roman") for p in [
-                    "システムフォルダ",
-                    "初期設定",
-                    'スティッキーズファイル',
-                ]
-            ],
-            stickies_encoding="shift_jis",
-            welcome_sticky_override=JAPANESE_WELCOME_STICKY)
-    build_library_image("Infinite HD.dsk")
+    with tempfile.TemporaryDirectory() as temp_dir:
+        images = []
+        if not os.getenv("DEBUG_LIRARY_FILTER"):
+            images.append(
+                build_system_image("System 7.5.3 HD.dsk",
+                                   dest_dir=temp_dir,
+                                   domain="system7.app"))
+            images.append(
+                build_system_image("Mac OS 8.1 HD.dsk",
+                                   dest_dir=temp_dir,
+                                   domain="macos8.app"))
+            images.append(
+                build_system_image(
+                    "KanjiTalk 7.5.3 HD.dsk",
+                    dest_dir=temp_dir,
+                    domain="kanjitalk7.app",
+                    # Generate Mojibake of Shift-JIS interpreted as MacRoman, the machfs
+                    # library always assumes the latter.
+                    stickies_path=[
+                        p.encode("shift_jis").decode("mac_roman") for p in [
+                            "システムフォルダ",
+                            "初期設定",
+                            'スティッキーズファイル',
+                        ]
+                    ],
+                    stickies_encoding="shift_jis",
+                    welcome_sticky_override=JAPANESE_WELCOME_STICKY))
+        images.append(build_library_image("Infinite HD.dsk",
+                                          dest_dir=temp_dir))
+
+        if not os.getenv("DEBUG_LIRARY_FILTER"):
+            build_desktop_db(images)
+        for image in images:
+            write_chunked_image(image)
