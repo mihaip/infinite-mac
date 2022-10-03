@@ -64,6 +64,10 @@ export type EmulatorConfig = {
     ethernetProvider?: EmulatorEthernetProvider;
 };
 
+export type EmulatorSettings = {
+    swapControlAndCommand: boolean;
+};
+
 export interface EmulatorEthernetProvider {
     init(macAddress: string): void;
     close?(): void;
@@ -93,6 +97,7 @@ export interface EmulatorDelegate {
         emulator: Emulator,
         peers: ReadonlyArray<EmulatorEthernetPeer>
     ): void;
+    emulatorSettings?(emulator: Emulator): EmulatorSettings;
 }
 
 export type EmulatorFallbackCommandSender = (
@@ -438,7 +443,8 @@ export class Emulator {
     #handleKeyDown = (event: KeyboardEvent) => {
         event.preventDefault();
         const {code} = event;
-        if (code in JS_CODE_TO_ADB_KEYCODE) {
+        const adbKeyCode = this.#getAdbKeyCode(code);
+        if (adbKeyCode !== undefined) {
             // If this is a paste operation, send the updated clipboard contents
             // to the emulator so that it can be used when executing the paste.
             // Ideally we would watch for a clipboardchage event, but that's not
@@ -451,7 +457,7 @@ export class Emulator {
             }
             this.#input.handleInput({
                 type: "keydown",
-                keyCode: JS_CODE_TO_ADB_KEYCODE[code],
+                keyCode: adbKeyCode,
             });
         } else {
             console.warn(`Unhandled key: ${code}`);
@@ -460,13 +466,25 @@ export class Emulator {
 
     #handleKeyUp = (event: KeyboardEvent) => {
         const {code} = event;
-        if (code in JS_CODE_TO_ADB_KEYCODE) {
+        const adbKeyCode = this.#getAdbKeyCode(code);
+        if (adbKeyCode !== undefined) {
             this.#input.handleInput({
                 type: "keyup",
-                keyCode: JS_CODE_TO_ADB_KEYCODE[code],
+                keyCode: adbKeyCode,
             });
         }
     };
+
+    #getAdbKeyCode(code: string): number | undefined {
+        if (this.#delegate?.emulatorSettings?.(this).swapControlAndCommand) {
+            if (code.startsWith("Control")) {
+                code = "Meta" + code.slice("Control".length);
+            } else if (code.startsWith("Meta")) {
+                code = "Control" + code.slice("Meta".length);
+            }
+        }
+        return JS_CODE_TO_ADB_KEYCODE[code];
+    }
 
     #handleBeforeUnload = () => {
         // Mostly necessary for the fallback mode, otherwise the page can hang

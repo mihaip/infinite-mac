@@ -113,6 +113,7 @@ def import_disk_image_data(
 
 def import_archive(
         manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:
+
     def normalize(name: str) -> str:
         # Replaces : with /, to undo the escaping that unar does for path
         # separators.
@@ -270,6 +271,7 @@ def update_folder_from_lsar_entry(folder: machfs.Folder,
 def update_file_or_folder_from_lsar_entry(
         file_or_folder: typing.Union[machfs.File, machfs.Folder],
         entry: typing.Dict[str, typing.Any]) -> None:
+
     def convert_date(date_str: str) -> int:
         # Dates produced by lsar/XADMaster are not quite ISO 8601 compliant in
         # the way they represent timezones.
@@ -555,7 +557,9 @@ STICKIES = [
 • To add additional files (e.g. downloads from archives like Macintosh Repository and Macintosh Garden), simply drag them onto the screen. They will appear in the “Downloads” folder in The Outside World.
 • Conversely, to get folders or files out the Mac, you put them in the “Uploads” folder. A .zip archive with them will be generated and downloaded by your browser.
 • Files in the “Saved” folder will be saved across emulator runs (best-effort)
-• To go full screen, you can click on the monitor's Apple logo. Or if you're on an iOS device, you can add this site to your home screen via the share icon.""",
+• To go full screen, you can use the command that appears next to the monitor's Apple logo.
+• Additional settings can be toggled by using the “Settings” command, also next to the monitor's Apple logo.
+• If you're on an iOS device, you can add this site to your home screen via the share icon.""",
     ),
     stickies.Sticky(
         top=315,
