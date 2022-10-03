@@ -9,8 +9,8 @@
     --screen-inner-chamfer-size: 8px;
     --screen-corner-radius: 8px;
     --screen-underscan: 20px;
-    --screen-apple-logo-display: block;
-    --screen-apple-logo-bottom: -16px;
+    --screen-controls-display: flex;
+    --screen-controls-bottom: -46px;
     --screen-led-display: block;
     --screen-led-bottom: -40px;
     --screen-ethernet-status-bottom: -46px;
@@ -29,7 +29,7 @@
     --screen-outer-chamfer-size: 2px;
     --screen-inner-chamfer-size: 4px;
     --screen-underscan: 10px;
-    --screen-apple-logo-bottom: -5px;
+    --screen-controls-bottom: -34px;
     --screen-led-bottom: -28px;
     --screen-ethernet-status-bottom: -34px;
 }
@@ -40,7 +40,7 @@
     --screen-inner-chamfer-size: 1px;
     --screen-corner-radius: 4px;
     --screen-underscan: 1px;
-    --screen-apple-logo-display: none;
+    --screen-controls-display: none;
     --screen-led-display: none;
     --screen-ethernet-status-display: none;
 }
@@ -56,7 +56,7 @@ body.fullscreen .Mac {
     --screen-outer-chamfer-size: 0;
     --screen-inner-chamfer-size: 0;
     --screen-underscan: 0;
-    --screen-apple-logo-display: none;
+    --screen-controls-display: none;
     --screen-led-display: none;
     --screen-ethernet-status-display: none;
 }
@@ -99,14 +99,30 @@ body.fullscreen .Mac {
     pointer-events: none;
 }
 
-.Mac-Apple-Logo {
+.Mac-Controls-Container {
     position: absolute;
-    bottom: var(--screen-apple-logo-bottom);
-    display: var(--screen-apple-logo-display);
+    bottom: var(--screen-controls-bottom);
+    display: var(--screen-controls-display);
     left: 0;
+    align-items: center;
+}
+
+.Mac-Controls-Container .Mac-Control {
+    visibility: hidden;
+    margin-left: 16px;
+    cursor: pointer;
+}
+
+.Mac-Controls-Container:hover .Mac-Control {
+    visibility: visible;
+}
+
+.Mac-Apple-Logo {
+    position: relative;
     color: transparent;
     font-size: 28px;
-    cursor: pointer;
+    height: 32px;
+    width: 20px;
 }
 
 .Mac-Apple-Logo::before,
@@ -266,23 +282,24 @@ body.fullscreen .Mac {
     cursor: pointer;
 }
 
-.Mac-Ethernet-Status-Text {
+.Mac-Screen-Bezel-Text {
     color: rgba(255, 255, 255, 0.5);
+    position: relative;
 }
 
-.Mac-Ethernet-Status-Text::before,
-.Mac-Ethernet-Status-Text::after {
+.Mac-Screen-Bezel-Text::before,
+.Mac-Screen-Bezel-Text::after {
     content: attr(data-text);
     position: absolute;
 }
 
-.Mac-Ethernet-Status-Text::before {
+.Mac-Screen-Bezel-Text::before {
     top: -1px;
     left: -1px;
     color: rgba(0, 0, 0, 0.5);
 }
 
-.Mac-Ethernet-Status-Text::after {
+.Mac-Screen-Bezel-Text::after {
     position: absolute;
     top: -0.5px;
     left: -0.5px;
@@ -310,4 +327,51 @@ body.fullscreen .Mac {
 .Mac-Ethernet-Status-Peers ul {
     margin: 0;
     padding-left: 16px;
+}
+
+.Mac-Settings {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    padding: 8px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+.Mac-Settings h1 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+}
+
+.Mac-Settings input[type="checkbox"] {
+    padding: 0;
+    margin: 0 4px 2px 4px;
+    width: 12px;
+    vertical-align: middle;
+}
+
+.Mac-Settings-Description {
+    font-size: 12px;
+    color: #999;
+    margin: 2px 0 0 22px;
+}
+
+.Mac-Settings footer {
+    margin: 8px 0 0 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.Mac-Settings button {
+    border-radius: 8px;
+    background: #fff;
+    border: solid 1px #000;
+    color: #000;
+    padding: 2px 4px;
+    min-width: 60px;
+    font-size: 14px;
 }

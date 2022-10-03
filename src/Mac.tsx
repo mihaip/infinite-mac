@@ -9,12 +9,14 @@ import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
 import type {
     EmulatorEthernetProvider,
     EmulatorEthernetPeer,
+    EmulatorSettings,
 } from "./BasiliskII/emulator-ui";
 import {Emulator} from "./BasiliskII/emulator-ui";
 import type {EmulatorChunkedFileSpec} from "./BasiliskII/emulator-common";
 import {isDiskImageFile} from "./BasiliskII/emulator-common";
 import {BroadcastChannelEthernetProvider} from "./BroadcastChannelEthernetProvider";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
+import {usePersistentState} from "./usePersistentState";
 
 export function Mac() {
     const screenRef = useRef<HTMLCanvasElement>(null);
@@ -37,6 +39,14 @@ export function Mac() {
     const finishLoadingDiskChunkTimeoutRef = useRef<number>(0);
     const emulatorRef = useRef<Emulator>();
     const ethernetProviderRef = useRef<EmulatorEthernetProvider>();
+
+    const [emulatorSettings, setEmulatorSettings] = usePersistentState(
+        DEFAULT_EMULATOR_SETTINGS,
+        "emulator-settings"
+    );
+    const emulatorSettingsRef = useRef(emulatorSettings);
+    emulatorSettingsRef.current = emulatorSettings;
+
     useEffect(() => {
         document.addEventListener("fullscreenchange", handleFullScreenChange);
         document.addEventListener(
@@ -115,6 +125,9 @@ export function Mac() {
                         setEthernetPeers(peers);
                     }
                 },
+                emulatorSettings(emulator) {
+                    return emulatorSettingsRef.current;
+                },
             }
         );
         emulatorRef.current = emulator;
@@ -135,7 +148,7 @@ export function Mac() {
         };
     }, []);
 
-    const handleAppleLogoClick = () => {
+    const handleFullScreenClick = () => {
         // Make the entire page go fullscreen (instead of just the screen
         // canvas) because iOS Safari does not maintain the aspect ratio of the
         // canvas.
@@ -161,6 +174,11 @@ export function Mac() {
         } else {
             setScale(undefined);
         }
+    };
+
+    const [settingsVisible, setSettingsVisible] = useState(false);
+    const handleSettingsClick = () => {
+        setSettingsVisible(true);
     };
 
     let progress;
@@ -258,7 +276,21 @@ export function Mac() {
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}>
-            <div className="Mac-Apple-Logo" onClick={handleAppleLogoClick} />
+            <div className="Mac-Controls-Container">
+                <div className="Mac-Apple-Logo" />
+                <div
+                    className="Mac-Control Mac-Screen-Bezel-Text"
+                    onClick={handleFullScreenClick}
+                    data-text="Full-screen">
+                    Full-screen
+                </div>
+                <div
+                    className="Mac-Control Mac-Screen-Bezel-Text"
+                    onClick={handleSettingsClick}
+                    data-text="Settings">
+                    Settings
+                </div>
+            </div>
             <div
                 className={
                     "Mac-Led" +
@@ -297,6 +329,13 @@ export function Mac() {
                     peers={ethernetPeers}
                 />
             )}
+            {settingsVisible && (
+                <MacSettings
+                    emulatorSettings={emulatorSettings}
+                    setEmulatorSettings={setEmulatorSettings}
+                    onDone={() => setSettingsVisible(false)}
+                />
+            )}
         </div>
     );
 }
@@ -321,6 +360,10 @@ const INITIAL_RESOLUTION = (() => {
     }
     return {width: 640, height: 480};
 })();
+
+const DEFAULT_EMULATOR_SETTINGS: EmulatorSettings = {
+    swapControlAndCommand: false,
+};
 
 function MacEthernetStatus({
     provider,
@@ -377,10 +420,56 @@ function MacEthernetStatus({
         <div
             className="Mac-Ethernet-Status"
             onClick={() => setExpanded(!expanded)}>
-            <div className="Mac-Ethernet-Status-Text" data-text={text}>
+            <div className="Mac-Screen-Bezel-Text" data-text={text}>
                 {text}
             </div>
             {details}
+        </div>
+    );
+}
+
+function MacSettings({
+    emulatorSettings,
+    setEmulatorSettings,
+    onDone,
+}: {
+    emulatorSettings: EmulatorSettings;
+    setEmulatorSettings: (settings: EmulatorSettings) => void;
+    onDone: () => void;
+}) {
+    return (
+        <div className="Mac-Settings">
+            <h1>Settings</h1>
+
+            <label>
+                <input
+                    type="checkbox"
+                    checked={emulatorSettings.swapControlAndCommand}
+                    onChange={() =>
+                        setEmulatorSettings({
+                            ...emulatorSettings,
+                            swapControlAndCommand:
+                                !emulatorSettings.swapControlAndCommand,
+                        })
+                    }
+                />
+                Swap Control and Command Keys
+                <div className="Mac-Settings-Description">
+                    Makes it easier to use shortcuts like Command-W, Command-Q
+                    or Command-Shift-3 (which are otherwise handled by the host
+                    browser or OS).
+                </div>
+            </label>
+
+            <footer>
+                <button
+                    onClick={e => {
+                        e.preventDefault();
+                        onDone();
+                    }}>
+                    Done
+                </button>
+            </footer>
         </div>
     );
 }

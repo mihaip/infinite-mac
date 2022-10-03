@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2022-10-02: Added setting to allow the control and command keys to be swapped.
+
 2022-09-17: Audio is less laggy.
 
 2022-09-07: Stickies are now generated as part of the image building process (and include this changelog).
