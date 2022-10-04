@@ -322,9 +322,13 @@ export class EmulatorFallbackEndpoint {
     #commandQueue: EmulatorFallbackCommand[] = [];
 
     idleWait(timeout: number) {
-        importScripts(
-            `./worker-idlewait.js?timeout=${timeout}&t=${Date.now()}`
-        );
+        try {
+            importScripts(
+                `./worker-idlewait.js?timeout=${timeout}&t=${Date.now()}`
+            );
+        } catch (err) {
+            console.error("Error during idlewait", err);
+        }
     }
 
     consumeInputEvents(): EmulatorInputEvent[] {
@@ -378,7 +382,11 @@ export class EmulatorFallbackEndpoint {
     }
 
     #fetchCommands() {
-        importScripts(`./worker-commands.js?t=${Date.now()}`);
+        try {
+            importScripts(`./worker-commands.js?t=${Date.now()}`);
+        } catch (err) {
+            console.error("Error during command fetch", err);
+        }
         if (typeof workerCommands !== "undefined") {
             const commands = workerCommands;
             this.#commandQueue = this.#commandQueue.concat(commands);
