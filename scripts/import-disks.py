@@ -451,7 +451,9 @@ def build_system_image(
     ]
     with open(input_path, "rb") as image:
         v = machfs.Volume()
-        v.read(image.read())
+        input_data = image.read()
+        image_size = len(input_data)
+        v.read(input_data)
         stickies_file = v
         for p in stickies_path:
             stickies_file = stickies_file[p]
@@ -472,7 +474,7 @@ def build_system_image(
         stickies_file.data = stickies.StickiesFile(
             stickies=customized_stickies).to_bytes(stickies_encoding)
         image = v.write(
-            size=1024 * 1024 * 1024,
+            size=image_size,
             align=512,
             desktopdb=False,
             bootable=True,
@@ -500,7 +502,7 @@ def build_library_image(base_name: str, dest_dir: str) -> ImageDef:
         parent[folder_name] = folder
 
     image = v.write(
-        size=1024 * 1024 * 1024,
+        size=900 * 1024 * 1024,
         align=512,
         desktopdb=False,
         bootable=False,
