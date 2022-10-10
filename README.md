@@ -31,9 +31,9 @@ npm run build-xadmaster
 
 ### Building Basilisk II
 
-This is only required when making changes to Basilisk II, the generated files are in `src/BasiliskII` and included in the Git repository.
+Basilisk II is included via a Git submodule, it lives in [a separate repo](https://github.com/mihaip/macemu/). Rebuilding it is only required when making changes to the emulator core, the generated files are in `src/BasiliskII` and included in the Git repository.
 
-To begin, ensure that you have a Docker image built with the Emscripten toolchain and supporting library:
+To begin, ensure that you have a Docker image built with the Emscripten toolchain and supporting libraries:
 
 ```sh
 docker build -t macemu_emsdk .
@@ -45,7 +45,7 @@ Open a shell into the Docker container:
 docker run --rm -it -v `realpath macemu`:/macemu --entrypoint bash macemu_emsdk
 ```
 
-Once in that container, you can use this cheat sheet to build (based on [the original instructions](https://github.com/mihaip/macemu/blob/bas-emscripten-release/BasiliskII/src/NOTES)):
+Once in that container, you can use a couple of helper scripts to build it:
 
 ```sh
 cd /macemu/BasiliskII/src/Unix

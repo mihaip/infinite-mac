@@ -1,7 +1,7 @@
 [submodule "macemu"]
 	path = macemu
 	url = https://github.com/mihaip/macemu
-	branch = bas-emscripten-release
+	branch = infinite-mac-jsdf
 [submodule "XADMaster"]
 	path = XADMaster
 	url = https://github.com/mihaip/XADMaster
