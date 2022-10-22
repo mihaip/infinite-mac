@@ -1,0 +1,35 @@
+extfs /
+windowmodes 0
+screenmodes 0
+seriala
+serialb
+bootdrive 0
+bootdriver 0
+ramsize 134217728
+frameskip 0
+gfxaccel false
+nocdrom false
+nonet false
+nosound false
+nogui false
+noclipconversion false
+ignoresegv true
+ignoreillegal true
+jit false
+jit68k false
+keyboardtype 5
+hardcursor false
+hotkey 0
+scale_nearest false
+scale_integer false
+cpuclock 0
+yearofs 0
+dayofs 0
+mag_rate 0
+swap_opt_cmd false
+sound_buffer 0
+name_encoding 0
+keycodes false
+mousewheelmode 1
+mousewheellines 3
+idlewait true

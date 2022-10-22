@@ -2,10 +2,9 @@ extfs /Shared/
 seriala
 serialb
 ether js
-rom Quadra-650.rom
 bootdrive 0
 bootdriver 0
-ramsize 268435456
+ramsize 134217728
 frameskip 0
 modelid 14
 cpu 4

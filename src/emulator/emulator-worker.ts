@@ -402,7 +402,7 @@ function startEmulator(config: EmulatorWorkerConfig) {
     const moduleOverrides: Partial<EmscriptenModule> = {
         arguments: config.arguments,
         locateFile(path: string, scriptDirectory: string) {
-            if (path === "BasiliskII.wasm") {
+            if (path.endsWith(".wasm")) {
                 return config.wasmUrl;
             }
             return scriptDirectory + path;
