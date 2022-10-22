@@ -646,7 +646,11 @@ if __name__ == "__main__":
                         ]
                     ],
                     stickies_encoding="shift_jis",
-                    welcome_sticky_override=JAPANESE_WELCOME_STICKY))
+                    welcome_sticky_override=JAPANESE_WELCOME_STICKY)),
+            images.append(
+                build_system_image("Mac OS 9.0.4 HD.dsk",
+                                   dest_dir=temp_dir,
+                                   domain="macos9.app"))
         images.append(build_library_image("Infinite HD.dsk",
                                           dest_dir=temp_dir))
 

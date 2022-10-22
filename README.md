@@ -9,7 +9,8 @@ This project uses submodules, use `git clone --recursive https://github.com/miha
 Common development tasks, all done via `npm run`:
 
 -   `start`: Run local dev server (will be running at http://localhost:3127). Depends on having disk images built (`import-disks` needs to be run at least once).
--   `import-basilisk-ii`: Copy generated WebAssembly from the https://github.com/mihaip/macemu submodule (only necessary if modifying Basilisk II, see [below](#building-basilisk-ii) for how to rebuild it).
+-   `import-basilisk-ii` and `import-sheepshaver`: Copy generated WebAssembly from the https://github.com/mihaip/macemu submodule (only necessary if modifying the emulator cores, see [below](#building-basilisk-ii) for how to rebuild it).
+-   `import-sheepshaver`: Copy generated WebAssembly from the https://github.com/mihaip/macemu submodule (only necessary if modifying the emulators, see [below](#building-the-emulators) for how to rebuild them).
 -   `import-disks`: Build disk images for serving. Copies base OS images from the above, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving.
 
 Common deployment tasks (also done via `npm run`)
@@ -29,9 +30,9 @@ pip3 install -r requirements.txt
 npm run build-xadmaster
 ```
 
-### Building Basilisk II
+### Building the emulators
 
-Basilisk II is included via a Git submodule, it lives in [a separate repo](https://github.com/mihaip/macemu/). Rebuilding it is only required when making changes to the emulator core, the generated files are in `src/BasiliskII` and included in the Git repository.
+Basilisk II and SheepShaver the original 68K and PowerPC emulators that enable this project.They are hosted in [a separate repo](https://github.com/mihaip/macemu/) and are included via a Git submodule. Rebuilding them is only required when making changes to the emulator core, the generated files are in `src/emulator` and included in the Git repository.
 
 To begin, ensure that you have a Docker image built with the Emscripten toolchain and supporting libraries:
 
@@ -45,7 +46,9 @@ Open a shell into the Docker container:
 docker run --rm -it -v `realpath macemu`:/macemu --entrypoint bash macemu_emsdk
 ```
 
-Once in that container, you can use a couple of helper scripts to build it:
+Once in that container, you can use a couple of helper scripts to build them:
+
+#### Basilisk II
 
 ```sh
 cd /macemu/BasiliskII/src/Unix
@@ -57,4 +60,16 @@ cd /macemu/BasiliskII/src/Unix
 make -j6
 ```
 
-Once you have it build, use `npm run import-basilisk-ii` from the host to update the files in `src/BasiliskII`.
+Once you have it build, use `npm run import-basilisk-ii` from the host to update the files in `src/emulator`.
+
+#### SheepShaver
+
+```sh
+cd /macemu/SheepShaver/src/Unix
+# Conigure for building for WASM
+./_emconfigure.sh
+# Actually compile SheepShaver targetting WASM
+make -j6
+```
+
+Once you have it build, use `npm run import-sheepshaver` from the host to update the files in `src/emulator`.

@@ -1,19 +1,22 @@
 import React, {useEffect, useState, useRef} from "react";
 import "./Mac.css";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
+import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
 import quadraRomPath from "./Data/Quadra-650.rom";
+import newWorldRomPath from "./Data/New World.rom";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
+import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
 import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
 import type {
     EmulatorEthernetProvider,
     EmulatorEthernetPeer,
     EmulatorSettings,
-} from "./BasiliskII/emulator-ui";
-import {Emulator} from "./BasiliskII/emulator-ui";
-import type {EmulatorChunkedFileSpec} from "./BasiliskII/emulator-common";
-import {isDiskImageFile} from "./BasiliskII/emulator-common";
+} from "./emulator/emulator-ui";
+import {Emulator} from "./emulator/emulator-ui";
+import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
+import {isDiskImageFile} from "./emulator/emulator-common";
 import {BroadcastChannelEthernetProvider} from "./BroadcastChannelEthernetProvider";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 import {usePersistentState} from "./usePersistentState";
@@ -82,14 +85,15 @@ export function Mac() {
         }
         const emulator = new Emulator(
             {
+                emulator: disk.ppc ? "SheepShaver" : "BasiliskII",
                 useSharedMemory:
                     typeof SharedArrayBuffer !== "undefined" &&
                     searchParams.get("use_shared_memory") !== "false",
                 screenWidth: INITIAL_RESOLUTION.width,
                 screenHeight: INITIAL_RESOLUTION.height,
                 screenCanvas: screenRef.current!,
-                basiliskPrefsPath,
-                romPath: quadraRomPath,
+                prefsPath: disk.ppc ? sheepShaverPrefsPath : basiliskPrefsPath,
+                romPath: disk.ppc ? newWorldRomPath : quadraRomPath,
                 disks: [disk, libraryDisk],
                 ethernetProvider,
             },
@@ -474,7 +478,9 @@ function MacSettings({
     );
 }
 
-const DISKS_BY_DOMAIN: {[domain: string]: EmulatorChunkedFileSpec} = {
+const DISKS_BY_DOMAIN: {
+    [domain: string]: EmulatorChunkedFileSpec & {ppc?: boolean};
+} = {
     "system7.app": {
         baseUrl: "/Disk",
         prefetchChunks: [
@@ -512,5 +518,11 @@ const DISKS_BY_DOMAIN: {[domain: string]: EmulatorChunkedFileSpec} = {
             175,
         ],
         ...macos81HdManifest,
+    },
+    "macos9.app": {
+        baseUrl: "/Disk",
+        prefetchChunks: [],
+        ppc: true,
+        ...macos904HdManifest,
     },
 };

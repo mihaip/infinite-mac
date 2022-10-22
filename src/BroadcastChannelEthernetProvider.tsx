@@ -1,7 +1,7 @@
 import type {
     EmulatorEthernetProvider,
     EmulatorEthernetProviderDelegate,
-} from "./BasiliskII/emulator-ui";
+} from "./emulator/emulator-ui";
 
 export class BroadcastChannelEthernetProvider
     implements EmulatorEthernetProvider

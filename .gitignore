@@ -19,6 +19,7 @@ npm-debug.log*
 
 # generated source map with local paths
 public/BasiliskII.wasm.map
+public/SheepShaver.wasm.map
 
 # generated disk image chunks and manifest
 src/Data/*.dsk.json

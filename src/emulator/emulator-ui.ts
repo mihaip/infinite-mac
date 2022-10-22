@@ -35,6 +35,8 @@ import {
 } from "./emulator-ui-extractor";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
+import SheepShaverPath from "./SheepShaver.jsz";
+import SheepShaverWasmPath from "./SheepShaver.wasmz";
 import {getPersistedData, persistData} from "./emulator-ui-persistence";
 import {JS_CODE_TO_ADB_KEYCODE} from "./emulator-key-codes";
 import type {
@@ -54,11 +56,12 @@ import {
 } from "./emulator-ui-clipboard";
 
 export type EmulatorConfig = {
+    emulator: "BasiliskII" | "SheepShaver";
     useSharedMemory: boolean;
     screenWidth: number;
     screenHeight: number;
     screenCanvas: HTMLCanvasElement;
-    basiliskPrefsPath: string;
+    prefsPath: string;
     romPath: string;
     disks: EmulatorChunkedFileSpec[];
     ethernetProvider?: EmulatorEthernetProvider;
@@ -241,12 +244,22 @@ export class Emulator {
         }
         this.#worker.addEventListener("message", this.#handleWorkerMessage);
 
+        let emulatorPaths: [string, string];
+        switch (this.#config.emulator) {
+            case "BasiliskII":
+                emulatorPaths = [BasiliskIIPath, BasiliskIIWasmPath];
+                break;
+            case "SheepShaver":
+                emulatorPaths = [SheepShaverPath, SheepShaverWasmPath];
+                break;
+        }
+
         // Fetch all of the dependent files ourselves, to avoid a waterfall
         // if we let Emscripten handle it (it would first load the JS, and
         // then that would load the WASM and data files).
         const [[jsBlobUrl, wasmBlobUrl], [rom, basePrefs]] = await load(
-            [BasiliskIIPath, BasiliskIIWasmPath],
-            [this.#config.romPath, this.#config.basiliskPrefsPath],
+            emulatorPaths,
+            [this.#config.romPath, this.#config.prefsPath],
             (total, left) => {
                 this.#delegate?.emulatorDidMakeLoadingProgress?.(
                     this,
@@ -256,9 +269,13 @@ export class Emulator {
             }
         );
 
+        const romPathPieces = this.#config.romPath.split("/");
+        const romFileName = romPathPieces[romPathPieces.length - 1];
+
         const extraction = await getPersistedData();
 
         let prefsStr = new TextDecoder().decode(basePrefs);
+        prefsStr += `rom ${romFileName}\n`;
         prefsStr += `screen win/${this.#config.screenWidth}/${
             this.#config.screenHeight
         }\n`;
@@ -282,7 +299,7 @@ export class Emulator {
             wasmUrl: wasmBlobUrl,
             disks: this.#config.disks,
             autoloadFiles: {
-                "Quadra-650.rom": rom,
+                [romFileName]: rom,
                 "prefs": prefs,
                 ...this.#diskImages,
             },

@@ -23,7 +23,8 @@
         "worker-loader": "^3.0.8"
     },
     "scripts": {
-        "import-basilisk-ii": "scripts/import-basilisk-ii.sh",
+        "import-basilisk-ii": "scripts/import-macemu.sh basiliskii",
+        "import-sheepshaver": "scripts/import-macemu.sh sheepshaver",
         "import-disks": "scripts/import-disks.py",
         "build-xadmaster": "scripts/build-xadmaster.sh",
         "start": "PORT=3127 react-scripts start",
