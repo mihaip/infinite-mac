@@ -152,8 +152,11 @@ export function validateSpecPrefetchChunks(spec: EmulatorChunkedFileSpec) {
             );
         }
         console.warn(
-            `Chunked file ${spec.baseUrl} complete set of ideal prefetch chunks:`,
-            Array.from(loadedChunks).sort(numberCompare)
+            `Chunked file ${
+                spec.baseUrl
+            } complete set of ideal prefetch chunks: ${JSON.stringify(
+                Array.from(loadedChunks).sort(numberCompare)
+            )}`
         );
     }
 }
