@@ -216,11 +216,12 @@ class EmulatorWorkerApi {
             return false;
         }
         this.#lastIdleWaitFrameId = this.#lastBlitFrameId;
-        const hadInput = this.#input.idleWait(
-            // Time out such that we don't miss any frames (giving 2 milliseconds
-            // for blit and any CPU emulation to run).
-            this.#nextExpectedBlitTime - performance.now() - 2
-        );
+
+        // Time out such that we don't miss any frames (giving 2 milliseconds
+        // for blit and any CPU emulation to run).
+        const idleWaitTime = this.#nextExpectedBlitTime - performance.now() - 2;
+        const hadInput =
+            idleWaitTime > 0 ? this.#input.idleWait(idleWaitTime) : false;
 
         // TODO: better place to poll for this? On the other hand, only doing it
         // when the machine is idle seems reasonable.
