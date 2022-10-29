@@ -1436,9 +1436,20 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  170300: function($0, $1) {workerApi.didOpenVideo($0, $1);},  
- 170336: function() {workerApi.blit(0, 0);},  
- 170362: function($0, $1) {workerApi.blit($0, $1);}
+  169852: function() {return workerApi.idleWait();},  
+ 169885: function($0, $1) {workerApi.didOpenVideo($0, $1);},  
+ 169921: function() {workerApi.blit(0, 0);},  
+ 169947: function($0, $1) {workerApi.blit($0, $1);},  
+ 169975: function() {return workerApi.acquireInputLock();},  
+ 170016: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
+ 170105: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
+ 170191: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
+ 170279: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
+ 170367: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
+ 170452: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
+ 170532: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
+ 170613: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
+ 170707: function() {workerApi.releaseInputLock();}
 };
 
 
@@ -4899,16 +4910,6 @@ var ASM_CONSTS = {
   }
   }
 
-  function ___syscall_dup(fd) {try {
-  
-      var old = SYSCALLS.getStreamFromFD(fd);
-      return FS.open(old.path, old.flags, 0).fd;
-    } catch (e) {
-    if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
-    return -e.errno;
-  }
-  }
-
   function ___syscall_fcntl64(fd, cmd, varargs) {SYSCALLS.varargs = varargs;
   try {
   
@@ -5753,7 +5754,6 @@ var asmLibraryArg = {
   "__syscall_access": ___syscall_access,
   "__syscall_chdir": ___syscall_chdir,
   "__syscall_connect": ___syscall_connect,
-  "__syscall_dup": ___syscall_dup,
   "__syscall_fcntl64": ___syscall_fcntl64,
   "__syscall_fstat64": ___syscall_fstat64,
   "__syscall_ftruncate64": ___syscall_ftruncate64,

@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2022-10-30: PowerPC emulation (and thus Mac OS 9) is now available, see https://macos9.app.
+
 2022-10-02: Added setting to allow the control and command keys to be swapped.
 
 2022-09-17: Audio is less laggy.

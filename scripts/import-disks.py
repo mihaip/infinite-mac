@@ -442,6 +442,10 @@ def build_system_image(
         ],
         stickies_encoding: str = "mac_roman",
         welcome_sticky_override: stickies.Sticky = None) -> ImageDef:
+    debug_filter = os.getenv("DEBUG_SYSTEM_FILTER")
+    if debug_filter and debug_filter not in name:
+        return None
+
     sys.stderr.write("Building system image %s\n" % (name, ))
     input_path = os.path.join(IMAGES_DIR, name)
 
@@ -465,8 +469,9 @@ def build_system_image(
         for sticky in customized_stickies:
             sticky.text = sticky.text.replace("CHANGELOG", changelog)
             sticky.text = sticky.text.replace("DOMAIN", domain)
-            sticky.text = sticky.text.replace("SISTER_SITES",
-                                              " and ".join(sister_sites))
+            sticky.text = sticky.text.replace(
+                "SISTER_SITES",
+                f"{', '.join(sister_sites[:-1])} and {sister_sites[-1]}")
             if stickies_encoding == "shift_jis":
                 # Bullets are not directly representable in Shift-JIS, replace
                 # them with a KATAKANA MIDDLE DOT.
@@ -476,7 +481,7 @@ def build_system_image(
         image = v.write(
             size=image_size,
             align=512,
-            desktopdb=False,
+            desktopdb=debug_filter is not None,
             bootable=True,
         )
 
@@ -577,9 +582,9 @@ Files can be shared between instances, and muti-player games like Marathon, Bolo
     ),
     stickies.Sticky(
         top=531,
-        left=536,
+        left=484,
         bottom=570,
-        right=664,
+        right=700,
         color=stickies.Color.BLUE,
         text='See also the sister sites at SISTER_SITES',
     ),
@@ -598,7 +603,7 @@ Browse around the Infinite HD to see what using a Mac in the mid 1990s was like.
         top=135,
         left=468,
         bottom=183,
-        right=640,
+        right=655,
         font=stickies.Font.HELVETICA,
         size=18,
         style={stickies.Style.BOLD},
@@ -651,10 +656,13 @@ if __name__ == "__main__":
                 build_system_image("Mac OS 9.0.4 HD.dsk",
                                    dest_dir=temp_dir,
                                    domain="macos9.app"))
-        images.append(build_library_image("Infinite HD.dsk",
-                                          dest_dir=temp_dir))
+        if not os.getenv("DEBUG_SYSTEM_FILTER"):
+            images.append(
+                build_library_image("Infinite HD.dsk", dest_dir=temp_dir))
+        images = [i for i in images if i]
 
-        if not os.getenv("DEBUG_LIRARY_FILTER"):
+        if not os.getenv("DEBUG_LIRARY_FILTER") and not os.getenv(
+                "DEBUG_SYSTEM_FILTER"):
             build_desktop_db(images)
         for image in images:
             write_chunked_image(image)

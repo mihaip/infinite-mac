@@ -3,7 +3,7 @@ import "./Mac.css";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
 import quadraRomPath from "./Data/Quadra-650.rom";
-import newWorldRomPath from "./Data/New World.rom";
+import newWorldRomPath from "./Data/New-World.rom";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
@@ -521,7 +521,25 @@ const DISKS_BY_DOMAIN: {
     },
     "macos9.app": {
         baseUrl: "/Disk",
-        prefetchChunks: [],
+        prefetchChunks: [
+            0, 17, 21, 22, 25, 43, 44, 45, 46, 48, 49, 51, 52, 53, 55, 56, 57,
+            58, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 72, 73, 75, 76, 79, 80,
+            81, 82, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 98, 99, 100,
+            102, 103, 104, 105, 106, 107, 109, 111, 112, 113, 115, 117, 118,
+            119, 121, 122, 123, 124, 126, 127, 136, 137, 138, 139, 143, 144,
+            145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157,
+            158, 159, 160, 161, 162, 163, 164, 172, 173, 174, 175, 176, 177,
+            178, 179, 180, 182, 186, 187, 188, 190, 191, 192, 193, 194, 195,
+            196, 197, 212, 213, 216, 217, 218, 219, 221, 243, 244, 245, 246,
+            247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259,
+            260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272,
+            273, 274, 275, 276, 277, 283, 284, 285, 286, 287, 289, 291, 292,
+            293, 294, 295, 296, 297, 298, 299, 300, 307, 308, 309, 310, 311,
+            312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 326, 330,
+            331, 332, 333, 334, 336, 337, 338, 339, 340, 341, 342, 343, 344,
+            345, 346, 347, 348, 350, 351, 352, 356, 357, 358, 359, 360, 362,
+            363, 364, 365, 366, 367, 368, 369, 370,
+        ],
         ppc: true,
         ...macos904HdManifest,
     },
