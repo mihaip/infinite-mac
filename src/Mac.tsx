@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState, useRef, useMemo} from "react";
 import "./Mac.css";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
@@ -50,12 +50,7 @@ export function Mac() {
     const emulatorSettingsRef = useRef(emulatorSettings);
     emulatorSettingsRef.current = emulatorSettings;
 
-    useEffect(() => {
-        document.addEventListener("fullscreenchange", handleFullScreenChange);
-        document.addEventListener(
-            "webkitfullscreenchange",
-            handleFullScreenChange
-        );
+    const [disk, ethernetProvider, useSharedMemory] = useMemo(() => {
         const searchParams = new URLSearchParams(location.search);
         let domain = searchParams.get("domain") ?? location.host;
         // Use subdomain as the Ethernet Zone in production.
@@ -69,26 +64,35 @@ export function Mac() {
                 domain = `${pieces[1]}.app`;
             }
         }
-        // prefetchChunks are semi-automatically generated -- we will get a
-        // warning via validateSpecPrefetchChunks() if these are incorrect.
-        const disk = DISKS_BY_DOMAIN[domain] ?? DISKS_BY_DOMAIN["system7.app"];
-        const libraryDisk = {
-            baseUrl: "/Disk",
-            prefetchChunks: [0],
-            ...infiniteHdManifest,
-        };
         if (!ethernetProvider && searchParams.get("ethernet")) {
             const zoneName = searchParams.get("ethernet_zone");
             ethernetProvider = zoneName
                 ? new CloudflareWorkerEthernetProvider(zoneName)
                 : new BroadcastChannelEthernetProvider();
         }
+
+        const disk = DISKS_BY_DOMAIN[domain] ?? DISKS_BY_DOMAIN["system7.app"];
+        const useSharedMemory =
+            typeof SharedArrayBuffer !== "undefined" &&
+            searchParams.get("use_shared_memory") !== "false";
+        return [disk, ethernetProvider, useSharedMemory];
+    }, []);
+
+    useEffect(() => {
+        document.addEventListener("fullscreenchange", handleFullScreenChange);
+        document.addEventListener(
+            "webkitfullscreenchange",
+            handleFullScreenChange
+        );
+        const libraryDisk = {
+            baseUrl: "/Disk",
+            prefetchChunks: [0],
+            ...infiniteHdManifest,
+        };
         const emulator = new Emulator(
             {
                 emulator: disk.ppc ? "SheepShaver" : "BasiliskII",
-                useSharedMemory:
-                    typeof SharedArrayBuffer !== "undefined" &&
-                    searchParams.get("use_shared_memory") !== "false",
+                useSharedMemory,
                 screenWidth: INITIAL_RESOLUTION.width,
                 screenHeight: INITIAL_RESOLUTION.height,
                 screenCanvas: screenRef.current!,
@@ -150,7 +154,7 @@ export function Mac() {
             emulatorRef.current = undefined;
             ethernetProvider?.close?.();
         };
-    }, []);
+    }, [disk, ethernetProvider, useSharedMemory]);
 
     const handleFullScreenClick = () => {
         // Make the entire page go fullscreen (instead of just the screen
@@ -259,17 +263,17 @@ export function Mac() {
     // emulator screen size, but we can't pass that in via CSS variables. We
     // could in theory dynamically generate the media query via JS, but it's not
     // worth the hassle.
-    let bezelClass = "";
+    const bezelClasses = [`Mac-Bezel-${disk.bezelStyle}`];
     const availableSpace = window.innerWidth - screenWidth;
     if (availableSpace < SMALL_BEZEL_THRESHOLD) {
-        bezelClass = "Mac-Small-Bezel";
+        bezelClasses.push("Mac-Small-Bezel");
     } else if (availableSpace < MEDIUM_BEZEL_THRESHOLD) {
-        bezelClass = "Mac-Medium-Bezel";
+        bezelClasses.push("Mac-Medium-Bezel");
     }
 
     return (
         <div
-            className={`Mac ${bezelClass}`}
+            className={`Mac ${bezelClasses.join(" ")}`}
             style={{
                 width: `calc(${screenWidth}px + 2 * var(--screen-underscan))`,
                 height: `calc(${screenHeight}px + 2 * var(--screen-underscan))`,
@@ -478,8 +482,13 @@ function MacSettings({
     );
 }
 
+// prefetchChunks are semi-automatically generated -- we will get a
+// warning via validateSpecPrefetchChunks() if these are incorrect.
 const DISKS_BY_DOMAIN: {
-    [domain: string]: EmulatorChunkedFileSpec & {ppc?: boolean};
+    [domain: string]: EmulatorChunkedFileSpec & {
+        ppc?: boolean;
+        bezelStyle: "Beige" | "Platinum" | "Pinstripes";
+    };
 } = {
     "system7.app": {
         baseUrl: "/Disk",
@@ -490,6 +499,7 @@ const DISKS_BY_DOMAIN: {
             77, 79, 80, 81, 82, 83, 84, 85, 102, 105, 106, 107, 108, 109, 110,
             111, 112, 159, 399,
         ],
+        bezelStyle: "Beige",
         ...system753HdManifest,
     },
     "kanjitalk7.app": {
@@ -502,6 +512,7 @@ const DISKS_BY_DOMAIN: {
             169, 170, 171, 172, 174, 175, 176, 177, 179, 180, 181, 182, 183,
             185, 186, 187, 189, 190, 191, 192, 193, 194, 195, 196, 197, 399,
         ],
+        bezelStyle: "Beige",
         ...kanjiTalk753HdManifest,
     },
     "macos8.app": {
@@ -517,6 +528,7 @@ const DISKS_BY_DOMAIN: {
             158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 169, 170, 173,
             175,
         ],
+        bezelStyle: "Platinum",
         ...macos81HdManifest,
     },
     "macos9.app": {
@@ -541,6 +553,7 @@ const DISKS_BY_DOMAIN: {
             363, 364, 365, 366, 367, 368, 369, 370,
         ],
         ppc: true,
+        bezelStyle: "Pinstripes",
         ...macos904HdManifest,
     },
 };
