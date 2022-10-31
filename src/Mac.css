@@ -7,7 +7,8 @@
     --screen-bezel-size: 60px;
     --screen-outer-chamfer-size: 4px;
     --screen-inner-chamfer-size: 8px;
-    --screen-corner-radius: 8px;
+    --screen-outer-corner-radius: 8px;
+    --screen-inner-corner-radius: 8px;
     --screen-underscan: 20px;
     --screen-controls-display: flex;
     --screen-controls-bottom: -46px;
@@ -38,7 +39,8 @@
     --screen-bezel-size: 10px;
     --screen-outer-chamfer-size: 1px;
     --screen-inner-chamfer-size: 1px;
-    --screen-corner-radius: 4px;
+    --screen-outer-corner-radius: 4px;
+    --screen-inner-corner-radius: 4px;
     --screen-underscan: 1px;
     --screen-controls-display: none;
     --screen-led-display: none;
@@ -80,7 +82,7 @@ body.fullscreen .Mac {
     border-color: var(--screen-bezel-color-light2)
         var(--screen-bezel-color-dark2) var(--screen-bezel-color-dark1)
         var(--screen-bezel-color-light1);
-    border-radius: var(--screen-corner-radius);
+    border-radius: var(--screen-outer-corner-radius);
     pointer-events: none;
 }
 
@@ -95,7 +97,7 @@ body.fullscreen .Mac {
     border-color: var(--screen-bezel-color-dark2)
         var(--screen-bezel-color-light2) var(--screen-bezel-color-light1)
         var(--screen-bezel-color-dark1);
-    border-radius: var(--screen-corner-radius);
+    border-radius: var(--screen-inner-corner-radius);
     pointer-events: none;
 }
 
@@ -374,4 +376,75 @@ body.fullscreen .Mac {
     padding: 2px 4px;
     min-width: 60px;
     font-size: 14px;
+}
+
+/* Platinum is a simple set of color overrides. */
+.Mac-Bezel-Platinum {
+    --screen-bezel-color: hsl(0deg 0% 85%);
+    --screen-bezel-color-dark1: hsl(0deg 0% 80%);
+    --screen-bezel-color-dark2: hsl(0deg 0% 75%);
+    --screen-bezel-color-light1: hsl(0deg 0% 90%);
+    --screen-bezel-color-light2: hsl(0deg 0% 95%);
+}
+
+/* Pintripes tries to replicate the style of the 1999 Apple Cinema Display. */
+.Mac-Bezel-Pinstripes {
+    --screen-bezel-color: hsl(0deg 0% 95%);
+    --screen-bezel-color-dark1: hsl(0deg 0% 80%);
+    --screen-bezel-color-dark2: hsl(0deg 0% 75%);
+    --screen-bezel-color-light1: hsl(0deg 0% 90%);
+    --screen-bezel-color-light2: hsl(0deg 0% 95%);
+
+    /* Pinstripe pattern */
+    border-image-source: repeating-linear-gradient(
+        0deg,
+        hsl(0deg 0% 95%) 0px,
+        hsl(0deg 0% 95%) 1px,
+        hsl(0deg 0% 90%) 1px 2px
+    );
+    /* Needs to match the value of --screen-bezel-size but without units. */
+    border-image-slice: 60;
+    border-image-repeat: round;
+
+    /* The other chamfer becomes the extra white outline around the monitor (
+        done with the :before pseudo below). */
+    --screen-outer-chamfer-size: 12px;
+    --screen-outer-corner-radius: 32px;
+    --screen-underscan: 8px;
+}
+
+.Mac-Bezel-Pinstripes.Mac-Medium-Bezel {
+    --screen-outer-chamfer-size: 8px;
+    border-image-slice: 40;
+}
+
+.Mac-Bezel-Pinstripes.Mac::before {
+    border-color: var(--screen-bezel-color);
+    /* Add inner dark border */
+    box-shadow: inset 0 0 0 2px #282c34;
+    /* Cover up pinstripe pattern - border-images do not respect border-radius .*/
+    outline: solid 100px #282c34;
+}
+
+.Mac-Bezel-Pinstripes .Mac-Controls-Container {
+    /* Center Apple logo */
+    left: calc(50% - 10px);
+}
+
+.Mac-Bezel-Pinstripes .Mac-Apple-Logo:before,
+.Mac-Bezel-Pinstripes .Mac-Apple-Logo:after {
+    /* Switch Apple logo to Graphite */
+    background-image: none;
+    background-color: hsl(210deg 12% 40%);
+}
+
+.Mac-Bezel-Pinstripes .Mac-Apple-Logo:before {
+    /* Turn shadow into gloss */
+    text-shadow: 0 0 rgba(255, 255, 255, 0.5);
+}
+
+.Mac-Bezel-Pinstripes .Mac-Led {
+    /* The LED is fictional, but we can at least round the corners to make it
+    blend in better. */
+    border-radius: 4px;
 }
