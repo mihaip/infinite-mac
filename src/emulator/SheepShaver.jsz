@@ -1436,22 +1436,25 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  169852: function() {return workerApi.idleWait();},  
- 169885: function($0, $1) {workerApi.didOpenVideo($0, $1);},  
- 169921: function() {workerApi.blit(0, 0);},  
- 169947: function($0, $1) {workerApi.blit($0, $1);},  
- 169975: function() {return workerApi.acquireInputLock();},  
- 170016: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
- 170105: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
- 170191: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
- 170279: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
- 170367: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
- 170452: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
- 170532: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
- 170613: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
- 170707: function() {workerApi.releaseInputLock();}
+  169900: function() {return workerApi.idleWait();},  
+ 169933: function($0, $1) {workerApi.didOpenVideo($0, $1);},  
+ 169969: function() {workerApi.blit(0, 0);},  
+ 169995: function($0, $1) {workerApi.blit($0, $1);},  
+ 170023: function($0, $1) {return workerApi.enqueueAudio($0, $1);},  
+ 170066: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
+ 170107: function() {return workerApi.acquireInputLock();},  
+ 170148: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
+ 170237: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
+ 170323: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
+ 170411: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
+ 170499: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
+ 170584: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
+ 170664: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
+ 170745: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
+ 170839: function() {workerApi.releaseInputLock();},  
+ 170873: function($0) {workerApi.setClipboardText(UTF8ToString($0));}
 };
-
+function getClipboardText(){ const clipboardText = workerApi.getClipboardText(); if (!clipboardText || !clipboardText.length) { return 0; } const clipboardTextLength = lengthBytesUTF8(clipboardText) + 1; const clipboardTextCstr = _malloc(clipboardTextLength); stringToUTF8(clipboardText, clipboardTextCstr, clipboardTextLength); return clipboardTextCstr; }
 
 
 
@@ -5783,6 +5786,7 @@ var asmLibraryArg = {
   "fd_read": _fd_read,
   "fd_seek": _fd_seek,
   "fd_write": _fd_write,
+  "getClipboardText": getClipboardText,
   "localtime_r": _localtime_r,
   "setTempRet0": _setTempRet0,
   "time": _time,
