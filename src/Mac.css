@@ -399,8 +399,8 @@ body.fullscreen .Mac {
     border-image-source: repeating-linear-gradient(
         0deg,
         hsl(0deg 0% 95%) 0px,
-        hsl(0deg 0% 95%) 1px,
-        hsl(0deg 0% 90%) 1px 2px
+        hsl(0deg 0% 95%) 2px,
+        hsl(0deg 0% 90%) 2px 4px
     );
     /* Needs to match the value of --screen-bezel-size but without units. */
     border-image-slice: 60;
