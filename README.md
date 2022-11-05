@@ -4,6 +4,8 @@ A Mac with everything you'd want in 1995. Available in [System 7](https://system
 
 ## Development
 
+This project uses [Git LFS](https://git-lfs.github.com/), ensure that the LFS tooling is installed before cloning the repo.
+
 This project uses submodules, use `git clone --recursive https://github.com/mihaip/infinite-mac.git` to clone it (or run `git submodule update --init --recursive` if you have an existing checkout).
 
 Common development tasks, all done via `npm run`:
