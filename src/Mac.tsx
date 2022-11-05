@@ -4,7 +4,9 @@ import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
 import quadraRomPath from "./Data/Quadra-650.rom";
 import newWorldRomPath from "./Data/New-World.rom";
+import oldWorldRomPath from "./Data/Old-World.rom";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
+import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
@@ -97,7 +99,11 @@ export function Mac() {
                 screenHeight: INITIAL_RESOLUTION.height,
                 screenCanvas: screenRef.current!,
                 prefsPath: disk.ppc ? sheepShaverPrefsPath : basiliskPrefsPath,
-                romPath: disk.ppc ? newWorldRomPath : quadraRomPath,
+                romPath: disk.ppc
+                    ? disk.oldWorld
+                        ? oldWorldRomPath
+                        : newWorldRomPath
+                    : quadraRomPath,
                 disks: [disk, libraryDisk],
                 ethernetProvider,
             },
@@ -487,6 +493,7 @@ function MacSettings({
 const DISKS_BY_DOMAIN: {
     [domain: string]: EmulatorChunkedFileSpec & {
         ppc?: boolean;
+        oldWorld?: boolean;
         bezelStyle: "Beige" | "Platinum" | "Pinstripes";
     };
 } = {
@@ -501,6 +508,23 @@ const DISKS_BY_DOMAIN: {
         ],
         bezelStyle: "Beige",
         ...system753HdManifest,
+    },
+    "system7-ppc.app": {
+        baseUrl: "/Disk",
+        prefetchChunks: [
+            0, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 29, 30,
+            31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 55,
+            56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 71, 72, 73, 74, 75,
+            76, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94,
+            95, 96, 97, 98, 99, 101, 104, 105, 106, 109, 110, 111, 113, 114,
+            118, 120, 121, 122, 123, 126, 127, 128, 129, 130, 132, 133, 135,
+            136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148,
+            149, 399,
+        ],
+        ppc: true,
+        oldWorld: true,
+        bezelStyle: "Platinum",
+        ...system753PpcHdManifest,
     },
     "kanjitalk7.app": {
         baseUrl: "/Disk",
