@@ -14,7 +14,7 @@ nosound false
 nogui false
 noclipconversion false
 ignoresegv true
-ignoreillegal true
+ignoreillegal false
 jit false
 jit68k false
 keyboardtype 5
