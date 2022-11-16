@@ -1436,27 +1436,27 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  433820: function() {return workerApi.idleWait();},  
- 433853: function($0, $1) {workerApi.didOpenVideo($0, $1);},  
- 433889: function() {workerApi.blit(0, 0);},  
- 433915: function($0, $1) {workerApi.blit($0, $1);},  
- 433943: function() {return workerApi.etherSeed();},  
- 433977: function($0) {workerApi.etherInit(UTF8ToString($0));},  
- 434020: function($0, $1, $2) {workerApi.etherWrite(UTF8ToString($0), $1, $2);},  
- 434072: function($0) {return workerApi.etherRead($0, 1514);},  
- 434114: function($0, $1) {return workerApi.enqueueAudio($0, $1);},  
- 434157: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
- 434198: function() {return workerApi.acquireInputLock();},  
- 434239: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
- 434328: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
- 434414: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
- 434502: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
- 434590: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
- 434675: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
- 434755: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
- 434836: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
- 434930: function() {workerApi.releaseInputLock();},  
- 434964: function($0) {workerApi.setClipboardText(UTF8ToString($0));}
+  437180: function() {return workerApi.idleWait();},  
+ 437213: function($0, $1) {workerApi.didOpenVideo($0, $1);},  
+ 437249: function() {workerApi.blit(0, 0);},  
+ 437275: function($0, $1) {workerApi.blit($0, $1);},  
+ 437303: function() {return workerApi.etherSeed();},  
+ 437337: function($0) {workerApi.etherInit(UTF8ToString($0));},  
+ 437380: function($0, $1, $2) {workerApi.etherWrite(UTF8ToString($0), $1, $2);},  
+ 437432: function($0) {return workerApi.etherRead($0, 1514);},  
+ 437474: function($0, $1) {return workerApi.enqueueAudio($0, $1);},  
+ 437517: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
+ 437558: function() {return workerApi.acquireInputLock();},  
+ 437599: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
+ 437688: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
+ 437774: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
+ 437862: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
+ 437950: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
+ 438035: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
+ 438115: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
+ 438196: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
+ 438290: function() {workerApi.releaseInputLock();},  
+ 438324: function($0) {workerApi.setClipboardText(UTF8ToString($0));}
 };
 function getClipboardText(){ const clipboardText = workerApi.getClipboardText(); if (!clipboardText || !clipboardText.length) { return 0; } const clipboardTextLength = lengthBytesUTF8(clipboardText) + 1; const clipboardTextCstr = _malloc(clipboardTextLength); stringToUTF8(clipboardText, clipboardTextCstr, clipboardTextLength); return clipboardTextCstr; }
 
@@ -1556,6 +1556,10 @@ function getClipboardText(){ const clipboardText = workerApi.getClipboardText();
 
   function ___assert_fail(condition, filename, line, func) {
       abort('Assertion failed: ' + UTF8ToString(condition) + ', at: ' + [filename ? UTF8ToString(filename) : 'unknown filename', line, func ? UTF8ToString(func) : 'unknown function']);
+    }
+
+  function ___call_sighandler(fp, sig) {
+      getWasmTableEntry(fp)(sig);
     }
 
   function ___cxa_allocate_exception(size) {
@@ -6004,6 +6008,7 @@ function tryParseAsDataURI(filename) {
 
 var asmLibraryArg = {
   "__assert_fail": ___assert_fail,
+  "__call_sighandler": ___call_sighandler,
   "__cxa_allocate_exception": ___cxa_allocate_exception,
   "__cxa_atexit": ___cxa_atexit,
   "__cxa_throw": ___cxa_throw,
