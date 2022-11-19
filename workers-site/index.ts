@@ -1,3 +1,4 @@
+import * as varz from "./varz";
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
 // @ts-expect-error
 import manifestJSON from "__STATIC_CONTENT_MANIFEST";
@@ -6,6 +7,7 @@ const manifest = JSON.parse(manifestJSON);
 type Env = {
     __STATIC_CONTENT: string;
     ETHERNET_ZONE: DurableObjectNamespace;
+    VARZ: KVNamespace;
 };
 const handler: ExportedHandler<Env> = {fetch: handleRequest};
 
@@ -26,6 +28,9 @@ async function handleRequest(
         const zoneUrl = new URL(request.url);
         zoneUrl.pathname = "/" + path.slice(2).join("/");
         return zone.fetch(zoneUrl.toString(), request);
+    }
+    if (path[0] === "varz") {
+        return varz.handleRequest(request, env.VARZ);
     }
 
     const fetchEvent = {
