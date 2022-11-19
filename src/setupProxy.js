@@ -2,6 +2,10 @@
 // (workers-site/index.js)
 module.exports = function (app) {
     app.use(function (req, res, next) {
+        if (req.path === "/varz") {
+            return handleVarz(req, res);
+        }
+
         // Force correct file types for files that we mess with the extension
         // of, since otherwise file-loader appears to get confused.
         if (req.path.endsWith(".jsz")) {
@@ -17,3 +21,10 @@ module.exports = function (app) {
         next();
     });
 };
+
+// Varz stub
+function handleVarz(req, res) {
+    res.status(
+        req.method === "GET" || req.method === "POST" ? 204 : 405
+    ).send();
+}
