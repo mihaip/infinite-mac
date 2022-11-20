@@ -4,13 +4,14 @@ import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
 import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
+import type {MachineDef} from "./machines";
+import {NEW_WORLD_POWERMAC, OLD_WORLD_POWERMAC, QUADRA} from "./machines";
 
 // prefetchChunks are semi-automatically generated -- we will get a
 // warning via validateSpecPrefetchChunks() if these are incorrect.
 export const DISKS_BY_DOMAIN: {
     [domain: string]: EmulatorChunkedFileSpec & {
-        ppc?: boolean;
-        oldWorld?: boolean;
+        machine: MachineDef;
         bezelStyle: "Beige" | "Platinum" | "Pinstripes";
     };
 } = {
@@ -23,6 +24,7 @@ export const DISKS_BY_DOMAIN: {
             77, 79, 80, 81, 82, 83, 84, 85, 102, 105, 106, 107, 108, 109, 110,
             111, 112, 159, 399,
         ],
+        machine: QUADRA,
         bezelStyle: "Beige",
         ...system753HdManifest,
     },
@@ -38,8 +40,7 @@ export const DISKS_BY_DOMAIN: {
             136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148,
             149, 399,
         ],
-        ppc: true,
-        oldWorld: true,
+        machine: OLD_WORLD_POWERMAC,
         bezelStyle: "Platinum",
         ...system753PpcHdManifest,
     },
@@ -54,6 +55,7 @@ export const DISKS_BY_DOMAIN: {
             185, 186, 187, 189, 190, 191, 192, 193, 194, 195, 196, 197, 399,
         ],
         bezelStyle: "Beige",
+        machine: QUADRA,
         ...kanjiTalk753HdManifest,
     },
     "macos8.app": {
@@ -70,6 +72,7 @@ export const DISKS_BY_DOMAIN: {
             175,
         ],
         bezelStyle: "Platinum",
+        machine: QUADRA,
         ...macos81HdManifest,
     },
     "macos9.app": {
@@ -93,7 +96,7 @@ export const DISKS_BY_DOMAIN: {
             345, 346, 347, 348, 350, 351, 352, 356, 357, 358, 359, 360, 362,
             363, 364, 365, 366, 367, 368, 369, 370,
         ],
-        ppc: true,
+        machine: NEW_WORLD_POWERMAC,
         bezelStyle: "Pinstripes",
         ...macos904HdManifest,
     },
