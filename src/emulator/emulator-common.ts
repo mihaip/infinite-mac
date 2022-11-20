@@ -336,7 +336,8 @@ export function isDiskImageFile(name: string): boolean {
         name.endsWith(".iso") ||
         name.endsWith(".dsk") ||
         name.endsWith(".img") ||
-        name.endsWith(".toast")
+        name.endsWith(".toast") ||
+        name.endsWith(".cdr")
     );
 }
 
