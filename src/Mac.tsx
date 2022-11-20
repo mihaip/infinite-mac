@@ -1,10 +1,5 @@
 import React, {useEffect, useState, useRef, useMemo} from "react";
 import "./Mac.css";
-import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
-import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
-import quadraRomPath from "./Data/Quadra-650.rom";
-import newWorldRomPath from "./Data/New-World.rom";
-import oldWorldRomPath from "./Data/Old-World.rom";
 import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
 import type {
     EmulatorEthernetProvider,
@@ -87,20 +82,13 @@ export function Mac() {
             prefetchChunks: [0],
             ...infiniteHdManifest,
         };
-        const emulatorType = disk.ppc ? "SheepShaver" : "BasiliskII";
         const emulator = new Emulator(
             {
-                emulator: emulatorType,
+                machine: disk.machine,
                 useSharedMemory,
                 screenWidth: INITIAL_RESOLUTION.width,
                 screenHeight: INITIAL_RESOLUTION.height,
                 screenCanvas: screenRef.current!,
-                prefsPath: disk.ppc ? sheepShaverPrefsPath : basiliskPrefsPath,
-                romPath: disk.ppc
-                    ? disk.oldWorld
-                        ? oldWorldRomPath
-                        : newWorldRomPath
-                    : quadraRomPath,
                 disks: [disk, libraryDisk],
                 ethernetProvider,
             },
@@ -148,7 +136,7 @@ export function Mac() {
         varz.incrementMulti({
             "emulator_starts": 1,
             "emulator_ethernet": ethernetProvider ? 1 : 0,
-            [`emulator_type:${emulatorType}`]: 1,
+            [`emulator_type:${disk.machine.emulator}`]: 1,
             [`emulator_disk:${disk.name}`]: 1,
             "emulator_shared_memory": useSharedMemory ? 1 : 0,
         });

@@ -54,15 +54,14 @@ import {
     FallbackEmulatorClipboard,
     SharedMemoryEmulatorClipboard,
 } from "./emulator-ui-clipboard";
+import type {MachineDef} from "../machines";
 
 export type EmulatorConfig = {
-    emulator: "BasiliskII" | "SheepShaver";
+    machine: MachineDef;
     useSharedMemory: boolean;
     screenWidth: number;
     screenHeight: number;
     screenCanvas: HTMLCanvasElement;
-    prefsPath: string;
-    romPath: string;
     disks: EmulatorChunkedFileSpec[];
     ethernetProvider?: EmulatorEthernetProvider;
 };
@@ -245,7 +244,7 @@ export class Emulator {
         this.#worker.addEventListener("message", this.#handleWorkerMessage);
 
         let emulatorPaths: [string, string];
-        switch (this.#config.emulator) {
+        switch (this.#config.machine.emulator) {
             case "BasiliskII":
                 emulatorPaths = [BasiliskIIPath, BasiliskIIWasmPath];
                 break;
@@ -259,7 +258,7 @@ export class Emulator {
         // then that would load the WASM and data files).
         const [[jsBlobUrl, wasmBlobUrl], [rom, basePrefs]] = await load(
             emulatorPaths,
-            [this.#config.romPath, this.#config.prefsPath],
+            [this.#config.machine.romPath, this.#config.machine.prefsPath],
             (total, left) => {
                 this.#delegate?.emulatorDidMakeLoadingProgress?.(
                     this,
@@ -269,7 +268,7 @@ export class Emulator {
             }
         );
 
-        const romPathPieces = this.#config.romPath.split("/");
+        const romPathPieces = this.#config.machine.romPath.split("/");
         const romFileName = romPathPieces[romPathPieces.length - 1];
 
         const extraction = await getPersistedData();
