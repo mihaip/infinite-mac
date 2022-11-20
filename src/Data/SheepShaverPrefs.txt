@@ -1,4 +1,4 @@
-extfs /
+extfs /Shared/
 windowmodes 0
 screenmodes 0
 seriala
