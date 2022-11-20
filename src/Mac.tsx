@@ -254,13 +254,20 @@ export function Mac() {
         }
 
         const diskImages = [];
+        let fileCount = 0;
         for (const file of files) {
             if (isDiskImageFile(file.name)) {
                 diskImages.push(file);
             } else {
                 emulator.uploadFile(file);
+                fileCount++;
             }
         }
+        varz.incrementMulti({
+            "emulator_uploads": files.length,
+            "emulator_uploads:files": fileCount,
+            "emulator_uploads:disks": diskImages.length,
+        });
         if (diskImages.length) {
             setUploadingDiskImage(true);
             await Promise.all(
