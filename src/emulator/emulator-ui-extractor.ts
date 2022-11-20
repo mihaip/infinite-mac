@@ -5,6 +5,7 @@ import type {
     EmulatorWorkerDirectorExtraction,
     EmulatorWorkerDirectorExtractionEntry,
 } from "./emulator-common";
+import * as varz from "../varz";
 
 export async function uploadsFromDirectoryExtractionFile(
     file: File
@@ -74,4 +75,5 @@ export async function handleDirectoryExtraction(
     const zipName = extraction.name + ".zip";
 
     saveAs(zipBlob, zipName);
+    varz.increment("emulator_extractions");
 }

@@ -28,7 +28,8 @@ export async function handleRequest(request: Request, namespace: KVNamespace) {
             type: "json",
             cacheTtl: 60,
         })) ?? {};
-    return new Response(JSON.stringify(varzs, undefined, 4), {
+    const varzsSorted = Object.fromEntries(Object.entries(varzs).sort());
+    return new Response(JSON.stringify(varzsSorted, undefined, 4), {
         status: 200,
         headers: {
             "Content-Type": "text/plain",
