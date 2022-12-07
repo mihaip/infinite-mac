@@ -81,11 +81,13 @@ export const JS_CODE_TO_ADB_KEYCODE: {[code: string]: number} = {
     "Backspace": 0x33, // kVK_Delete
     "Escape": 0x35, // kVK_Escape
     "MetaLeft": 0x37, // kVK_Command
+    "OSLeft": 0x37, // kVK_Command
     "ShiftLeft": 0x38, // kVK_Shift
     "CapsLock": 0x39, // kVK_CapsLock
     "AltLeft": 0x3a, // kVK_Option
     "ControlLeft": 0x36,
     "MetaRight": 0x37,
+    "OSRight": 0x37,
     "ShiftRight": 0x7b,
     "AltRight": 0x7c,
     "ControlRight": 0x7d,
