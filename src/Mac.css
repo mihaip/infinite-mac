@@ -121,44 +121,24 @@ body.fullscreen .Mac {
 
 .Mac-Apple-Logo {
     position: relative;
-    color: transparent;
-    font-size: 28px;
-    height: 32px;
-    width: 20px;
+    height: 30px;
+    width: 18px;
 }
 
-.Mac-Apple-Logo::before,
-.Mac-Apple-Logo::after {
-    content: "";
-    background-clip: text;
-    background-image: linear-gradient(
-        to bottom,
-        #70c25c 0%,
-        #70c25c 34%,
-        #ffc04a 34%,
-        #ffc04a 45%,
-        #fc903d 45%,
-        #fc903d 55%,
-        #e94752 55%,
-        #e94752 65%,
-        #a954a5 65%,
-        #a954a5 75%,
-        #00afe0 75%,
-        #00afe0 100%
-    );
-}
-
-.Mac-Apple-Logo::before {
+.Mac-Apple-Logo svg {
+    height: 100%;
+    width: 100%;
     position: absolute;
-    top: 0;
-    left: 0;
-    text-shadow: 0 0 rgba(0, 0, 0, 0.5);
 }
 
-.Mac-Apple-Logo::after {
-    position: absolute;
-    top: 0.5px;
-    left: 0.5px;
+.Mac-Apple-Logo .Foreground {
+    filter: brightness(1.1);
+}
+
+.Mac-Apple-Logo .Background {
+    top: -0.5px;
+    left: -0.5px;
+    filter: brightness(0.5);
 }
 
 .Mac-Led {
@@ -431,16 +411,13 @@ body.fullscreen .Mac {
     left: calc(50% - 10px);
 }
 
-.Mac-Bezel-Pinstripes .Mac-Apple-Logo:before,
-.Mac-Bezel-Pinstripes .Mac-Apple-Logo:after {
-    /* Switch Apple logo to Graphite */
-    background-image: none;
-    background-color: hsl(210deg 12% 40%);
+.Mac-Bezel-Pinstripes .Mac-Apple-Logo .Background {
+    filter: none;
 }
 
-.Mac-Bezel-Pinstripes .Mac-Apple-Logo:before {
+.Mac-Bezel-Pinstripes .Mac-Apple-Logo .Background path {
     /* Turn shadow into gloss */
-    text-shadow: 0 0 rgba(255, 255, 255, 0.5);
+    fill: #ffffffaa !important;
 }
 
 .Mac-Bezel-Pinstripes .Mac-Led {
