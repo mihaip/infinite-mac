@@ -13,6 +13,8 @@ import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvid
 import {usePersistentState} from "./usePersistentState";
 import {DISKS_BY_DOMAIN} from "./disks";
 import * as varz from "./varz";
+import {ReactComponent as AppleLogoColor} from "./AppleLogoColor.svg";
+import {ReactComponent as AppleLogoGrey} from "./AppleLogoGrey.svg";
 
 export function Mac() {
     const screenRef = useRef<HTMLCanvasElement>(null);
@@ -277,6 +279,8 @@ export function Mac() {
     } else if (availableSpace < MEDIUM_BEZEL_THRESHOLD) {
         bezelClasses.push("Mac-Medium-Bezel");
     }
+    const AppleLogo =
+        disk.bezelStyle === "Pinstripes" ? AppleLogoGrey : AppleLogoColor;
 
     return (
         <div
@@ -292,7 +296,10 @@ export function Mac() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}>
             <div className="Mac-Controls-Container">
-                <div className="Mac-Apple-Logo" />
+                <div className="Mac-Apple-Logo">
+                    <AppleLogo className="Background" />
+                    <AppleLogo className="Foreground" />
+                </div>
                 <div
                     className="Mac-Control Mac-Screen-Bezel-Text"
                     onClick={handleFullScreenClick}
