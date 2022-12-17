@@ -623,11 +623,14 @@ JAPANESE_WELCOME_STICKY = stickies.Sticky(
 )
 
 if __name__ == "__main__":
-    shutil.rmtree(DISK_DIR, ignore_errors=True)
-    os.mkdir(DISK_DIR)
+    system_filter = os.getenv("DEBUG_SYSTEM_FILTER")
+    library_filter = os.getenv("DEBUG_LIRARY_FILTER")
+    if not library_filter:
+        shutil.rmtree(DISK_DIR, ignore_errors=True)
+        os.mkdir(DISK_DIR)
     with tempfile.TemporaryDirectory() as temp_dir:
         images = []
-        if not os.getenv("DEBUG_LIRARY_FILTER"):
+        if not library_filter:
             images.append(
                 build_system_image("System 7.5.3 HD.dsk",
                                    dest_dir=temp_dir,
@@ -660,13 +663,12 @@ if __name__ == "__main__":
                 build_system_image("Mac OS 9.0.4 HD.dsk",
                                    dest_dir=temp_dir,
                                    domain="macos9.app"))
-        if not os.getenv("DEBUG_SYSTEM_FILTER"):
+        if not system_filter:
             images.append(
                 build_library_image("Infinite HD.dsk", dest_dir=temp_dir))
         images = [i for i in images if i]
 
-        if not os.getenv("DEBUG_LIRARY_FILTER") and not os.getenv(
-                "DEBUG_SYSTEM_FILTER"):
+        if not library_filter and not system_filter:
             build_desktop_db(images)
         for image in images:
             write_chunked_image(image)
