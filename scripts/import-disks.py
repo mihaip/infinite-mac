@@ -277,7 +277,7 @@ def update_file_or_folder_from_lsar_entry(
         # the way they represent timezones.
         date_str = date_str.replace(" +0000", " +00:00")
         parsed = datetime.datetime.fromisoformat(date_str)
-        t = int(min(time.time(), parsed.timestamp()))
+        t = int(max(min(time.time(), parsed.timestamp()), 0))
         # 2082844800 is the number of seconds between the Mac epoch (January 1 1904)
         # and the Unix epoch (January 1 1970). See
         # http://justsolve.archiveteam.org/wiki/HFS/HFS%2B_timestamp
