@@ -1,5 +1,11 @@
 # CHANGELOG
 
+2022-12-27: Sound now works under Mac OS 8 and Mac OS 9.
+
+2022-12-24: Thousands of colors mode is now supported.
+
+2022-11-15: Improved FPU compatibility (affected PCalc and scrollbars in Mac OS 8).
+
 2022-10-30: PowerPC emulation (and thus Mac OS 9) is now available, see https://macos9.app.
 
 2022-10-02: Added setting to allow the control and command keys to be swapped.
