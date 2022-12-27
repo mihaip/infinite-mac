@@ -26,6 +26,7 @@
         "import-basilisk-ii": "scripts/import-macemu.sh basiliskii",
         "import-sheepshaver": "scripts/import-macemu.sh sheepshaver",
         "import-disks": "scripts/import-disks.py",
+        "load-placeholder-stickies-file": "scripts/load-placeholder-stickies-file.py",
         "build-xadmaster": "scripts/build-xadmaster.sh",
         "start": "PORT=3127 react-scripts start",
         "build": "react-scripts build",

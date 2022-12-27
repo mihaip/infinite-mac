@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 
 import copy
+import basilisk
 import datetime
+import disks
 import glob
 import hashlib
 import json
+import logging
 import machfs
 import machfs.main
 import os
+import paths
 import shutil
 import struct
 import sys
@@ -20,16 +24,6 @@ import stickies
 import time
 import unicodedata
 
-ROOT_DIR = os.path.join(os.path.dirname(__file__), "..")
-IMAGES_DIR = os.path.join(ROOT_DIR, "Images")
-LIBRARY_DIR = os.path.join(ROOT_DIR, "Library")
-DISK_DIR = os.path.join(ROOT_DIR, "public", "Disk")
-DATA_DIR = os.path.join(ROOT_DIR, "src", "Data")
-CACHE_DIR = os.path.expanduser(os.path.join("~", ".infinite-mac-cache"))
-XADMASTER_PATH = os.path.join(ROOT_DIR, "XADMaster-build", "Release")
-UNAR_PATH = os.path.join(XADMASTER_PATH, "unar")
-LSAR_PATH = os.path.join(XADMASTER_PATH, "lsar")
-
 CHUNK_SIZE = 256 * 1024
 
 
@@ -39,10 +33,10 @@ def read_url(url: str) -> bytes:
 
 
 def read_url_to_path(url: str) -> str:
-    if not os.path.exists(CACHE_DIR):
-        os.makedirs(CACHE_DIR)
+    if not os.path.exists(paths.CACHE_DIR):
+        os.makedirs(paths.CACHE_DIR)
     cache_key = hashlib.sha256(url.encode()).hexdigest()
-    cache_path = os.path.join(CACHE_DIR, cache_key)
+    cache_path = os.path.join(paths.CACHE_DIR, cache_key)
     if not os.path.exists(cache_path):
         response = urllib.request.urlopen(url)
         response_body = response.read()
@@ -63,11 +57,12 @@ def import_manifests() -> typing.Dict[str, machfs.Folder]:
     import_folders = {}
     debug_filter = os.getenv("DEBUG_LIRARY_FILTER")
 
-    for manifest_path in glob.iglob(os.path.join(LIBRARY_DIR, "**", "*.json")):
+    for manifest_path in glob.iglob(
+            os.path.join(paths.LIBRARY_DIR, "**", "*.json")):
         if debug_filter and debug_filter not in manifest_path:
             continue
         folder_path, _ = os.path.splitext(
-            os.path.relpath(manifest_path, LIBRARY_DIR))
+            os.path.relpath(manifest_path, paths.LIBRARY_DIR))
         sys.stderr.write("  Importing %s\n" % folder_path)
         with open(manifest_path, "r") as manifest:
             manifest_json = json.load(manifest)
@@ -127,8 +122,8 @@ def import_archive(
     root_folder = machfs.Folder()
     with tempfile.TemporaryDirectory() as tmp_dir_path:
         unar_code = subprocess.call([
-            UNAR_PATH, "-no-directory", "-output-directory", tmp_dir_path,
-            archive_path
+            paths.UNAR_PATH, "-no-directory", "-output-directory",
+            tmp_dir_path, archive_path
         ],
                                     stdout=subprocess.DEVNULL)
         if unar_code != 0:
@@ -139,7 +134,7 @@ def import_archive(
         # information for each file in the archive from lsar and use that to
         # populate the HFS file and folder metadata.
         lsar_output = subprocess.check_output(
-            [LSAR_PATH, "-json", archive_path])
+            [paths.LSAR_PATH, "-json", archive_path])
         lsar_json = json.loads(lsar_output)
         lsar_entries_by_path = {}
         for entry in lsar_json["lsarContents"]:
@@ -295,11 +290,11 @@ def import_zips() -> typing.Dict[str, machfs.Folder]:
     import_folders = {}
     debug_filter = os.getenv("DEBUG_LIRARY_FILTER")
 
-    for zip_path in glob.iglob(os.path.join(LIBRARY_DIR, "**", "*.zip")):
+    for zip_path in glob.iglob(os.path.join(paths.LIBRARY_DIR, "**", "*.zip")):
         if debug_filter and debug_filter not in zip_path:
             continue
         folder_path, _ = os.path.splitext(
-            os.path.relpath(zip_path, LIBRARY_DIR))
+            os.path.relpath(zip_path, paths.LIBRARY_DIR))
         sys.stderr.write("  Importing %s\n" % folder_path)
 
         folder = machfs.Folder()
@@ -410,7 +405,7 @@ def write_chunked_image(image: ImageDef) -> None:
         if chunk_signature in chunk_signatures:
             continue
         chunk_signatures.add(chunk_signature)
-        chunk_path = os.path.join(DISK_DIR, f"{chunk_signature}.chunk")
+        chunk_path = os.path.join(paths.DISK_DIR, f"{chunk_signature}.chunk")
         if os.path.exists(chunk_path):
             # An earlier run of this script (e.g. for a different base image)
             # may have already created this file.
@@ -420,7 +415,7 @@ def write_chunked_image(image: ImageDef) -> None:
 
     sys.stderr.write("\n")
 
-    manifest_path = os.path.join(DATA_DIR, f"{image.name}.json")
+    manifest_path = os.path.join(paths.DATA_DIR, f"{image.name}.json")
     with open(manifest_path, "w+") as manifest_file:
         json.dump(
             {
@@ -434,65 +429,63 @@ def write_chunked_image(image: ImageDef) -> None:
 
 
 def build_system_image(
-        name: str,
-        dest_dir: str,
-        domain: str,
-        stickies_path: typing.List[str] = [
-            "System Folder", "Preferences", "Stickies file"
-        ],
-        stickies_encoding: str = "mac_roman",
-        welcome_sticky_override: stickies.Sticky = None) -> ImageDef:
-    debug_filter = os.getenv("DEBUG_SYSTEM_FILTER")
-    if debug_filter and debug_filter not in name:
-        return None
-
-    sys.stderr.write("Building system image %s\n" % (name, ))
-    input_path = os.path.join(IMAGES_DIR, name)
+    disk: disks.Disk,
+    dest_dir: str,
+) -> ImageDef:
+    sys.stderr.write("Building system image %s\n" % (disk.name, ))
+    input_path = disk.path()
 
     sister_sites = [
         f"https://{s}"
-        for s in ["system7.app", "macos8.app", "kanjitalk7.app"] if s != domain
+        for s in ["system7.app", "macos8.app", "macos9.app", "kanjitalk7.app"]
+        if s != disk.domain
     ]
+
+    stickies_placeholder = stickies.generate_placeholder()
     with open(input_path, "rb") as image:
-        v = machfs.Volume()
-        input_data = image.read()
-        image_size = len(input_data)
-        v.read(input_data)
-        stickies_file = v
-        for p in stickies_path:
-            stickies_file = stickies_file[p]
+        image_data = image.read()
+
+    stickies_index = image_data.find(stickies_placeholder)
+    if stickies_index == -1:
+        logging.warning(
+            "Stickies file not found in disk image %s, skipping customization",
+            disk.name)
+    else:
         customized_stickies = copy.deepcopy(STICKIES)
         with open("CHANGELOG.md", "r") as changelog_file:
             changelog = changelog_file.read()
-        if welcome_sticky_override:
-            customized_stickies[-1] = copy.deepcopy(welcome_sticky_override)
+        if disk.welcome_sticky_override:
+            customized_stickies[-1] = copy.deepcopy(
+                disk.welcome_sticky_override)
         for sticky in customized_stickies:
             sticky.text = sticky.text.replace("CHANGELOG", changelog)
-            sticky.text = sticky.text.replace("DOMAIN", domain)
+            sticky.text = sticky.text.replace("DOMAIN", disk.domain)
             sticky.text = sticky.text.replace(
                 "SISTER_SITES",
                 f"{', '.join(sister_sites[:-1])} and {sister_sites[-1]}")
-            if stickies_encoding == "shift_jis":
+            if disk.stickies_encoding == "shift_jis":
                 # Bullets are not directly representable in Shift-JIS, replace
                 # them with a KATAKANA MIDDLE DOT.
                 sticky.text = sticky.text.replace("•", "・")
-        stickies_file.data = stickies.StickiesFile(
-            stickies=customized_stickies).to_bytes(stickies_encoding)
-        image = v.write(
-            size=image_size,
-            align=512,
-            desktopdb=debug_filter is not None,
-            bootable=True,
-        )
+        stickies_data = stickies.StickiesFile(
+            stickies=customized_stickies).to_bytes(disk.stickies_encoding)
+        if len(stickies_data) > len(stickies_placeholder):
+            logging.warning(
+                "Stickies file is too large (%d, placeholder is only %d), "
+                "skipping customization for %s", len(stickies_data),
+                len(stickies_placeholder), disk.name)
+        else:
+            image_data = image_data[:stickies_index] + stickies_data + \
+                image_data[stickies_index + len(stickies_data):]
 
-        return write_image_def(image, name, dest_dir)
+    return write_image_def(image_data, disk.name, dest_dir)
 
 
 def build_library_image(base_name: str, dest_dir: str) -> ImageDef:
     import_folders = get_import_folders()
 
     v = machfs.Volume()
-    with open(os.path.join(IMAGES_DIR, base_name), "rb") as base:
+    with open(os.path.join(paths.IMAGES_DIR, base_name), "rb") as base:
         v.read(base.read())
     v.name = "Infinite HD"
 
@@ -519,30 +512,11 @@ def build_library_image(base_name: str, dest_dir: str) -> ImageDef:
 def build_desktop_db(images: typing.List[ImageDef]) -> bytes:
     sys.stderr.write("Rebuilding Desktop DB for %s...\n" %
                      ",".join([i.name for i in images]))
-    boot_disk_path = os.path.join(IMAGES_DIR, "Mac OS 8.1 HD.dsk")
-    rom_path = os.path.join(DATA_DIR, "Quadra-650.rom")
-    basilisk_ii_args = [("--config", "none"), ("--disk", f"*{boot_disk_path}")
-                        ] + [("--disk", i.path) for i in images] + [
-                            ("--extfs", "none"),
-                            ("--rom", rom_path),
-                            ("--screen", "win/800/600"),
-                            ("--ramsize", "16777216"),
-                            ("--frameskip", "0"),
-                            ("--modelid", "14"),
-                            ("--cpu", "4"),
-                            ("--fpu", "true"),
-                            ("--nocdrom", "true"),
-                            ("--nosound", "true"),
-                            ("--noclipconversion", "true"),
-                            ("--idlewait", "true"),
-                        ]
-    subprocess.check_call([
-        "open",
-        "-a",
-        "BasiliskII",
-        "-W",
-        "--args",
-    ] + [a for arg in basilisk_ii_args for a in arg])
+    basilisk.run(
+        # Boot from Mac OS 8.1 to ensure that the Desktop database that's
+        # created is acceptable to all classic Mac OS versions (one generated by
+        # System 7 is not).
+        ["*" + disks.MAC_OS_81.path()] + [i.path for i in images])
 
 
 STICKIES = [
@@ -611,64 +585,25 @@ Browse around the Infinite HD to see what using a Mac in the mid 1990s was like.
     ),
 ]
 
-JAPANESE_WELCOME_STICKY = stickies.Sticky(
-    top=125,
-    left=468,
-    bottom=180,
-    right=660,
-    font=stickies.Font.OSAKA,
-    size=18,
-    style={stickies.Style.BOLD},
-    text="Infinite Macintosh へようこそ！",
-)
-
 if __name__ == "__main__":
     system_filter = os.getenv("DEBUG_SYSTEM_FILTER")
     library_filter = os.getenv("DEBUG_LIRARY_FILTER")
-    if not library_filter:
-        shutil.rmtree(DISK_DIR, ignore_errors=True)
-        os.mkdir(DISK_DIR)
+    if not library_filter and not system_filter:
+        shutil.rmtree(paths.DISK_DIR, ignore_errors=True)
+        os.mkdir(paths.DISK_DIR)
     with tempfile.TemporaryDirectory() as temp_dir:
         images = []
         if not library_filter:
-            images.append(
-                build_system_image("System 7.5.3 HD.dsk",
-                                   dest_dir=temp_dir,
-                                   domain="system7.app"))
-            images.append(
-                build_system_image("System 7.5.3 (PPC) HD.dsk",
-                                   dest_dir=temp_dir,
-                                   domain="system7.app"))
-            images.append(
-                build_system_image("Mac OS 8.1 HD.dsk",
-                                   dest_dir=temp_dir,
-                                   domain="macos8.app"))
-            images.append(
-                build_system_image(
-                    "KanjiTalk 7.5.3 HD.dsk",
-                    dest_dir=temp_dir,
-                    domain="kanjitalk7.app",
-                    # Generate Mojibake of Shift-JIS interpreted as MacRoman, the machfs
-                    # library always assumes the latter.
-                    stickies_path=[
-                        p.encode("shift_jis").decode("mac_roman") for p in [
-                            "システムフォルダ",
-                            "初期設定",
-                            'スティッキーズファイル',
-                        ]
-                    ],
-                    stickies_encoding="shift_jis",
-                    welcome_sticky_override=JAPANESE_WELCOME_STICKY)),
-            images.append(
-                build_system_image("Mac OS 9.0.4 HD.dsk",
-                                   dest_dir=temp_dir,
-                                   domain="macos9.app"))
+            for disk in disks.ALL_DISKS:
+                if system_filter and system_filter not in disk.name:
+                    continue
+                images.append(build_system_image(disk, dest_dir=temp_dir))
         if not system_filter:
-            images.append(
-                build_library_image("Infinite HD.dsk", dest_dir=temp_dir))
-        images = [i for i in images if i]
+            infinite_hd_image = build_library_image("Infinite HD.dsk",
+                                                    dest_dir=temp_dir)
+            images.append(infinite_hd_image)
+            if not library_filter:
+                build_desktop_db([infinite_hd_image])
 
-        if not library_filter and not system_filter:
-            build_desktop_db(images)
         for image in images:
             write_chunked_image(image)

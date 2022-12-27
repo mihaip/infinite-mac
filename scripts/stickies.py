@@ -128,3 +128,17 @@ class StickiesFile:
             stickies_raw += sticky.to_bytes(encoding)
         return StickiesFile.STRUCT.pack(self.header, len(
             self.stickies)) + stickies_raw
+
+
+def generate_placeholder() -> bytes:
+    text = "Placeholder text"
+    for i in range(1000):
+        text += f" sticky {i}"
+    sticky = Sticky(top=10,
+                    left=10,
+                    bottom=50,
+                    right=50,
+                    creation_date=datetime.datetime(1984, 1, 24),
+                    modification_date=datetime.datetime(1984, 1, 24),
+                    text=text)
+    return StickiesFile(stickies=[sticky]).to_bytes()
