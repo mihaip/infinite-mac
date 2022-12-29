@@ -1,5 +1,6 @@
 import type {
     EmulatorChunkedFileSpec,
+    EmulatorDiskImage,
     EmulatorFallbackCommand,
     EmulatorWorkerConfig,
     EmulatorWorkerDirectorExtraction,
@@ -128,7 +129,7 @@ export class Emulator {
 
     #gotFirstBlit = false;
 
-    #diskImages: {[name: string]: ArrayBuffer} = {};
+    #diskImages: EmulatorDiskImage[] = [];
 
     #ethernetPinger: EthernetPinger;
 
@@ -281,8 +282,8 @@ export class Emulator {
         for (const spec of Array.from(this.#config.disks).reverse()) {
             prefsStr = `disk ${spec.name}\n` + prefsStr;
         }
-        for (const diskImage of Object.keys(this.#diskImages)) {
-            prefsStr += `cdrom /${diskImage}\n`;
+        for (const diskImage of this.#diskImages) {
+            prefsStr += `cdrom /${diskImage.name}\n`;
         }
         if (this.#config.ethernetProvider) {
             prefsStr += "appletalk true\n";
@@ -297,10 +298,10 @@ export class Emulator {
             jsUrl: jsBlobUrl,
             wasmUrl: wasmBlobUrl,
             disks: this.#config.disks,
+            diskImages: this.#diskImages,
             autoloadFiles: {
                 [romFileName]: rom,
                 "prefs": prefs,
-                ...this.#diskImages,
             },
             persistedData: extraction,
             arguments: ["--config", "prefs"],
@@ -326,11 +327,7 @@ export class Emulator {
                 "Could not initialize service worker, things will be slower"
             );
         }
-        this.#worker.postMessage({type: "start", config}, [
-            rom,
-            prefs,
-            ...Object.values(this.#diskImages),
-        ]);
+        this.#worker.postMessage({type: "start", config}, [rom, prefs]);
     }
 
     stop() {
@@ -361,6 +358,7 @@ export class Emulator {
         return new Promise(resolve => {
             const interval = setInterval(() => {
                 if (this.#workerTerminated) {
+                    this.#clearScreen();
                     clearInterval(interval);
                     this.#startWorker();
                     // Make sure we clear the "stopped" bit set above
@@ -384,17 +382,11 @@ export class Emulator {
         });
     }
 
-    uploadDiskImage(file: File): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                this.#diskImages[file.name] = reader.result as ArrayBuffer;
-                resolve();
-            };
-            reader.onerror = () => {
-                reject(reader.error);
-            };
-            reader.readAsArrayBuffer(file);
+    uploadDiskImage(file: File) {
+        this.#diskImages.push({
+            name: file.name,
+            url: URL.createObjectURL(file),
+            size: file.size,
         });
     }
 
@@ -594,6 +586,15 @@ export class Emulator {
         }
         this.#screenImageData.data.set(imageData);
         this.#screenCanvasContext.putImageData(this.#screenImageData, 0, 0);
+    }
+
+    #clearScreen() {
+        this.#screenCanvasContext.clearRect(
+            0,
+            0,
+            this.#config.screenCanvas.width,
+            this.#config.screenCanvas.height
+        );
     }
 
     #initServiceWorker() {

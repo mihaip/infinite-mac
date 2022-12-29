@@ -87,6 +87,7 @@ export type EmulatorWorkerConfig = {
     jsUrl: string;
     wasmUrl: string;
     disks: EmulatorChunkedFileSpec[];
+    diskImages: EmulatorDiskImage[];
     autoloadFiles: {[name: string]: ArrayBuffer};
     persistedData?: EmulatorWorkerDirectorExtraction;
     arguments: string[];
@@ -206,6 +207,8 @@ export type EmulatorWorkerFallbackClipboardConfig = {
 };
 
 export type EmulatorFileUpload = {name: string; url: string; size: number};
+
+export type EmulatorDiskImage = EmulatorFileUpload;
 
 export type EmulatorFallbackCommand =
     | EmulatorFallbackInputCommand

@@ -231,10 +231,6 @@ body.fullscreen .Mac {
     content: "Files will be placed in the “Downloads” folder.";
 }
 
-.Mac-Uploading-Disk-Image-Overlay:after {
-    content: "Uploading disk image…";
-}
-
 .Mac-Pending-Disk-Image {
     position: absolute;
     bottom: calc(var(--screen-underscan) + 8px);

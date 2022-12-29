@@ -438,6 +438,17 @@ function startEmulator(config: EmulatorWorkerConfig) {
                 for (const spec of config.disks) {
                     createChunkedFile("/", spec.name, spec, true, true);
                 }
+
+                for (const diskImage of config.diskImages) {
+                    createLazyFile(
+                        "/",
+                        diskImage.name,
+                        diskImage.url,
+                        diskImage.size,
+                        true,
+                        false
+                    );
+                }
             },
         ],
 
