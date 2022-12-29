@@ -27,7 +27,6 @@ export function Mac() {
     ]);
     const [emulatorLoadingDiskChunk, setEmulatorLoadingDiskChunk] =
         useState(false);
-    const [uploadingDiskImage, setUploadingDiskImage] = useState(false);
     const [hasPendingDiskImage, setHasPendingDiskImage] = useState(false);
     const [ethernetPeers, setEthernetPeers] = useState<
         ReadonlyArray<EmulatorEthernetPeer>
@@ -259,11 +258,7 @@ export function Mac() {
             "emulator_uploads:disks": diskImages.length,
         });
         if (diskImages.length) {
-            setUploadingDiskImage(true);
-            await Promise.all(
-                diskImages.map(file => emulator.uploadDiskImage(file))
-            );
-            setUploadingDiskImage(false);
+            diskImages.map(file => emulator.uploadDiskImage(file));
             setHasPendingDiskImage(true);
         }
     }
@@ -330,9 +325,6 @@ export function Mac() {
             />
             {progress}
             {dragCount > 0 && <div className="Mac-Overlay Mac-Drag-Overlay" />}
-            {uploadingDiskImage && (
-                <div className="Mac-Overlay Mac-Uploading-Disk-Image-Overlay" />
-            )}
             {hasPendingDiskImage && (
                 <div className="Mac-Pending-Disk-Image">
                     The Mac needs to be restarted to pick up the new disk image.
