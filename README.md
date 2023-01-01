@@ -1,6 +1,6 @@
 # Infinite Mac
 
-A Mac with everything you'd want in 1995. Available in [System 7](https://system7.app/), [Mac OS 8](https://macos8.app/) and [KanjiTalk](https://kanjitalk7.app) (Japanese) flavors. For a high-level overview and the backstory, see [this blog post](https://blog.persistent.info/2022/03/blog-post.html).
+A 90's era classic Mac with everything you'd want. Available in [System 7](https://system7.app/), [Mac OS 8](https://macos8.app/), [Mac OS 9](https://macos9.app/) and [KanjiTalk](https://kanjitalk7.app) (Japanese) flavors. For a high-level overview and the backstory, see [this blog post](https://blog.persistent.info/2022/03/blog-post.html).
 
 ## Development
 
@@ -62,7 +62,7 @@ cd /macemu/BasiliskII/src/Unix
 make -j6
 ```
 
-Once you have it build, use `npm run import-basilisk-ii` from the host to update the files in `src/emulator`.
+Once it has built, use `npm run import-basilisk-ii` from the host to update the files in `src/emulator`.
 
 #### SheepShaver
 
@@ -74,4 +74,4 @@ cd /macemu/SheepShaver/src/Unix
 make -j6
 ```
 
-Once you have it build, use `npm run import-sheepshaver` from the host to update the files in `src/emulator`.
+Once it has built, use `npm run import-sheepshaver` from the host to update the files in `src/emulator`.
