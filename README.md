@@ -11,9 +11,9 @@ This project uses submodules, use `git clone --recursive https://github.com/miha
 Common development tasks, all done via `npm run`:
 
 -   `start`: Run local dev server (will be running at http://localhost:3127). Depends on having disk images built (`import-disks` needs to be run at least once).
--   `import-basilisk-ii` and `import-sheepshaver`: Copy generated WebAssembly from the https://github.com/mihaip/macemu submodule (only necessary if modifying the emulator cores, see [below](#building-basilisk-ii) for how to rebuild it).
--   `import-sheepshaver`: Copy generated WebAssembly from the https://github.com/mihaip/macemu submodule (only necessary if modifying the emulators, see [below](#building-the-emulators) for how to rebuild them).
--   `import-disks`: Build disk images for serving. Copies base OS images from the above, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving.
+-   `import-basilisk-ii` and `import-sheepshaver`: Copy generated WebAssembly from the https://github.com/mihaip/macemu submodule (only necessary if modifying the emulator cores, see [below](#building-the-emulators) for how to rebuild them).
+-   `import-minivmac`: Copy generated WebAssembly from the https://github.com/mihaip/minivmac submodule (only necessary if modifying the emulator, see [below](#building-the-emulators) for how to rebuild it).
+-   `import-disks`: Build disk images for serving. Copies base OS images for the above emulators, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving.
 
 Common deployment tasks (also done via `npm run`)
 
@@ -45,7 +45,7 @@ docker build -t macemu_emsdk .
 Open a shell into the Docker container:
 
 ```sh
-docker run --rm -it -v `realpath macemu`:/macemu --entrypoint bash macemu_emsdk
+docker run --rm -it -v `realpath macemu`:/macemu -v `realpath minivmac`:/minivmac --entrypoint bash macemu_emsdk
 ```
 
 Once in that container, you can use a couple of helper scripts to build them:
@@ -75,3 +75,15 @@ make -j6
 ```
 
 Once it has built, use `npm run import-sheepshaver` from the host to update the files in `src/emulator`.
+
+#### Mini vMac
+
+```sh
+cd /minivmac
+# Conigure for building for WASM
+./emscripten_setup.sh
+# Actually compile Mini vMac targetting WASM
+make -j6
+```
+
+Once it has built, use `npm run import-minivmac` from the host to update the files in `src/emulator`.

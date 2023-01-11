@@ -18,6 +18,10 @@ class Disk:
     def path(self) -> str:
         return os.path.join(paths.IMAGES_DIR, self.name)
 
+SYSTEM_608 = Disk(
+    name="System 6.0.8 HD.dsk",
+    domain="system6.app",
+)
 
 SYSTEM_753 = Disk(
     name="System 7.5.3 HD.dsk",
@@ -66,6 +70,7 @@ MAC_OS_904 = Disk(
 )
 
 ALL_DISKS = [
+    SYSTEM_608,
     SYSTEM_753,
     SYSTEM_753_PPC,
     MAC_OS_81,

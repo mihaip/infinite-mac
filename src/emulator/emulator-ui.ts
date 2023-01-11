@@ -34,6 +34,8 @@ import {
     handleDirectoryExtraction,
     uploadsFromDirectoryExtractionFile,
 } from "./emulator-ui-extractor";
+import MinivMacPath from "./minivmac.jsz";
+import MinivMacWasmPath from "./minivmac.wasmz";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 import SheepShaverPath from "./SheepShaver.jsz";
@@ -251,6 +253,9 @@ export class Emulator {
                 break;
             case "SheepShaver":
                 emulatorPaths = [SheepShaverPath, SheepShaverWasmPath];
+                break;
+            case "Mini vMac":
+                emulatorPaths = [MinivMacPath, MinivMacWasmPath];
                 break;
         }
 

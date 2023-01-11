@@ -1,19 +1,24 @@
 #!/bin/bash
 
-# Assumes that the https://github.com/mihaip/macemu submodule has been fetched
-# and it has been built.
+# Assumes that the emulator Git submodule has been fetched and it has been
+# built.
+
+ROOT_DIR="`dirname "${BASH_SOURCE[0]}"`/.."
 
 if [ "$1" = "basiliskii" ]; then
     EMULATOR="BasiliskII"
+    EMULATOR_DIR="${ROOT_DIR}/macemu/${EMULATOR}/src/Unix"
 elif [ "$1" = "sheepshaver" ]; then
     EMULATOR="SheepShaver"
+    EMULATOR_DIR="${ROOT_DIR}/macemu/${EMULATOR}/src/Unix"
+elif [ "$1" = "minivmac" ]; then
+    EMULATOR="minivmac"
+    EMULATOR_DIR="${ROOT_DIR}/minivmac"
 else
     echo "Unknown emulator $1"
     exit 1
 fi
 
-ROOT_DIR="`dirname "${BASH_SOURCE[0]}"`/.."
-EMULATOR_DIR="${ROOT_DIR}/macemu/${EMULATOR}/src/Unix"
 SRC_DIR="${ROOT_DIR}/src"
 PUBLIC_DIR="${ROOT_DIR}/public"
 EMULATOR_DESTINATION_DIR="${SRC_DIR}/emulator"

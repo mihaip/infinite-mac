@@ -1,3 +1,4 @@
+import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
@@ -5,7 +6,12 @@ import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
 import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
 import type {MachineDef} from "./machines";
-import {NEW_WORLD_POWERMAC, OLD_WORLD_POWERMAC, QUADRA} from "./machines";
+import {
+    MAC_PLUS,
+    NEW_WORLD_POWERMAC,
+    OLD_WORLD_POWERMAC,
+    QUADRA,
+} from "./machines";
 
 // prefetchChunks are semi-automatically generated -- we will get a
 // warning via validateSpecPrefetchChunks() if these are incorrect.
@@ -15,6 +21,13 @@ export const DISKS_BY_DOMAIN: {
         bezelStyle: "Beige" | "Platinum" | "Pinstripes";
     };
 } = {
+    "system6.app": {
+        baseUrl: "/Disk",
+        prefetchChunks: [],
+        machine: MAC_PLUS,
+        bezelStyle: "Beige",
+        ...system608HdManifest,
+    },
     "system7.app": {
         baseUrl: "/Disk",
         prefetchChunks: [
