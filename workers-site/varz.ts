@@ -8,7 +8,7 @@ export async function handleRequest(request: Request, namespace: KVNamespace) {
         const body = await request.json();
         const changes = body as VarData;
         // Use a low TTL since we do a read-modify-write. A durable object may
-        // be pereferable if we need to do a lot of writes.
+        // be preferable if we need to do a lot of writes.
         const varzs =
             (await namespace.get<VarData>(VARZ_KEY, {
                 type: "json",
