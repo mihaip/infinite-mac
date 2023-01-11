@@ -1727,10 +1727,19 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  9060: function($0) {workerApi.idleWait($0);},  
- 9088: function($0) {return workerApi.idleWait($0);},  
- 9123: function($0, $1) {workerApi.blit($0, $1);},  
- 9151: function($0, $1) {workerApi.didOpenVideo($0, $1);}
+  10692: function($0) {workerApi.idleWait($0);},  
+ 10720: function($0) {return workerApi.idleWait($0);},  
+ 10755: function($0, $1) {workerApi.blit($0, $1);},  
+ 10783: function() {return workerApi.acquireInputLock();},  
+ 10824: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
+ 10913: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr);},  
+ 11003: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr);},  
+ 11090: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr);},  
+ 11177: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
+ 11262: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
+ 11342: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
+ 11423: function() {workerApi.releaseInputLock();},  
+ 11457: function($0, $1) {workerApi.didOpenVideo($0, $1);}
 };
 
 
