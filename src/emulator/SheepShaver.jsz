@@ -1448,15 +1448,15 @@ var ASM_CONSTS = {
  170381: function($0, $1, $2, $3) {workerApi.openAudio($0, $1, $2, $3);},  
  170422: function() {return workerApi.acquireInputLock();},  
  170463: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
- 170552: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveFlagAddr);},  
- 170638: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveXDeltaAddr);},  
- 170726: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseMoveYDeltaAddr);},  
- 170814: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
- 170899: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
- 170979: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
- 171060: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
- 171154: function() {workerApi.releaseInputLock();},  
- 171188: function($0) {workerApi.setClipboardText(UTF8ToString($0));}
+ 170552: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr);},  
+ 170642: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr);},  
+ 170729: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr);},  
+ 170816: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
+ 170901: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
+ 170981: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
+ 171062: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr);},  
+ 171156: function() {workerApi.releaseInputLock();},  
+ 171190: function($0) {workerApi.setClipboardText(UTF8ToString($0));}
 };
 function getClipboardText(){ const clipboardText = workerApi.getClipboardText(); if (!clipboardText || !clipboardText.length) { return 0; } const clipboardTextLength = lengthBytesUTF8(clipboardText) + 1; const clipboardTextCstr = _malloc(clipboardTextLength); stringToUTF8(clipboardText, clipboardTextCstr, clipboardTextLength); return clipboardTextCstr; }
 
