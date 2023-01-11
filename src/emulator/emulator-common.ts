@@ -1,8 +1,8 @@
 export const InputBufferAddresses = {
     globalLockAddr: 0,
-    mouseMoveFlagAddr: 1,
-    mouseMoveXDeltaAddr: 2,
-    mouseMoveYDeltaAddr: 3,
+    mousePositionFlagAddr: 1,
+    mousePositionXAddr: 2,
+    mousePositionYAddr: 3,
     mouseButtonStateAddr: 4,
     keyEventFlagAddr: 5,
     keyCodeAddr: 6,
@@ -12,10 +12,10 @@ export const InputBufferAddresses = {
 };
 
 export type EmulatorMouseEvent =
-    | {type: "mousemove"; dx: number; dy: number}
+    | {type: "mousemove"; x: number; y: number}
     | {type: "mousedown"}
     | {type: "mouseup"};
-export type EmulatorTouchEvent = {type: "touchstart"; dx: number; dy: number};
+export type EmulatorTouchEvent = {type: "touchstart"; x: number; y: number};
 export type EmulatorKeyboardEvent = {
     type: "keydown" | "keyup";
     keyCode: number;
@@ -242,9 +242,9 @@ export function updateInputBufferWithEvents(
     inputEvents: EmulatorInputEvent[],
     inputBufferView: Int32Array
 ): EmulatorInputEvent[] {
-    let hasMouseMove = false;
-    let mouseMoveX = 0;
-    let mouseMoveY = 0;
+    let hasMousePosition = false;
+    let mousePositionX = 0;
+    let mousePositionY = 0;
     let mouseButtonState = -1;
     let hasKeyEvent = false;
     let keyCode = -1;
@@ -262,18 +262,18 @@ export function updateInputBufferWithEvents(
                 // current location and then we send the mousedown, otherwise
                 // the Mac thinks that the mouse was moved with the button down,
                 // and interprets it as a drag.
-                hasMouseMove = true;
-                mouseMoveX += inputEvent.dx;
-                mouseMoveY += inputEvent.dy;
+                hasMousePosition = true;
+                mousePositionX = inputEvent.x;
+                mousePositionY = inputEvent.y;
                 remainingEvents.push({type: "mousedown"});
                 break;
             case "mousemove":
-                if (hasMouseMove) {
+                if (hasMousePosition) {
                     break;
                 }
-                hasMouseMove = true;
-                mouseMoveX += inputEvent.dx;
-                mouseMoveY += inputEvent.dy;
+                hasMousePosition = true;
+                mousePositionX = inputEvent.x;
+                mousePositionY = inputEvent.y;
                 break;
             case "mousedown":
             case "mouseup":
@@ -300,10 +300,12 @@ export function updateInputBufferWithEvents(
                 break;
         }
     }
-    if (hasMouseMove) {
-        inputBufferView[InputBufferAddresses.mouseMoveFlagAddr] = 1;
-        inputBufferView[InputBufferAddresses.mouseMoveXDeltaAddr] = mouseMoveX;
-        inputBufferView[InputBufferAddresses.mouseMoveYDeltaAddr] = mouseMoveY;
+    if (hasMousePosition) {
+        inputBufferView[InputBufferAddresses.mousePositionFlagAddr] = 1;
+        inputBufferView[InputBufferAddresses.mousePositionXAddr] =
+            mousePositionX;
+        inputBufferView[InputBufferAddresses.mousePositionYAddr] =
+            mousePositionY;
     }
     inputBufferView[InputBufferAddresses.mouseButtonStateAddr] =
         mouseButtonState;

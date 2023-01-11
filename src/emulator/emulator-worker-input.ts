@@ -116,9 +116,9 @@ export class FallbackEmulatorWorkerInput implements EmulatorWorkerInput {
 }
 
 function resetInputBuffer(inputBuffer: Int32Array) {
-    inputBuffer[InputBufferAddresses.mouseMoveFlagAddr] = 0;
-    inputBuffer[InputBufferAddresses.mouseMoveXDeltaAddr] = 0;
-    inputBuffer[InputBufferAddresses.mouseMoveYDeltaAddr] = 0;
+    inputBuffer[InputBufferAddresses.mousePositionFlagAddr] = 0;
+    inputBuffer[InputBufferAddresses.mousePositionXAddr] = 0;
+    inputBuffer[InputBufferAddresses.mousePositionYAddr] = 0;
     inputBuffer[InputBufferAddresses.mouseButtonStateAddr] = 0;
     inputBuffer[InputBufferAddresses.keyEventFlagAddr] = 0;
     inputBuffer[InputBufferAddresses.keyCodeAddr] = 0;

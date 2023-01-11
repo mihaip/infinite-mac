@@ -398,8 +398,8 @@ export class Emulator {
     #handleMouseMove = (event: MouseEvent) => {
         this.#input.handleInput({
             type: "mousemove",
-            dx: event.offsetX,
-            dy: event.offsetY,
+            x: event.offsetX,
+            y: event.offsetY,
         });
     };
 
@@ -438,14 +438,14 @@ export class Emulator {
         });
     };
 
-    #getTouchLocation(event: TouchEvent): {dx: number; dy: number} {
+    #getTouchLocation(event: TouchEvent): {x: number; y: number} {
         const touch = event.touches[0];
         const targetBounds = (
             touch.target as HTMLElement
         ).getBoundingClientRect();
         return {
-            dx: touch.clientX - targetBounds.left,
-            dy: touch.clientY - targetBounds.top,
+            x: touch.clientX - targetBounds.left,
+            y: touch.clientY - targetBounds.top,
         };
     }
 
