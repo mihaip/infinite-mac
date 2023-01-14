@@ -119,13 +119,21 @@ export type EmulatorWorkerVideoBlit =
     | EmulatorWorkerSharedMemoryVideoBlit
     | EmulatorWorkerFallbackVideoBlit;
 
+export type EmulatorWorkerVideoBlitRect = {
+    top: number;
+    left: number;
+    bottom: number;
+    right: number;
+};
 export type EmulatorWorkerSharedMemoryVideoBlit = {
     type: "shared-memory";
+    rect?: EmulatorWorkerVideoBlitRect;
 };
 
 export type EmulatorWorkerFallbackVideoBlit = {
     type: "fallback";
     data: Uint8Array;
+    rect?: EmulatorWorkerVideoBlitRect;
 };
 
 export type EmulatorWorkerInputConfig =
