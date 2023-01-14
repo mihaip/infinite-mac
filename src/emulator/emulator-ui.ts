@@ -590,7 +590,20 @@ export class Emulator {
             return;
         }
         this.#screenImageData.data.set(imageData);
-        this.#screenCanvasContext.putImageData(this.#screenImageData, 0, 0);
+        const dirtyRect = this.#video.consumeBlitRect();
+        if (dirtyRect) {
+            this.#screenCanvasContext.putImageData(
+                this.#screenImageData,
+                0,
+                0,
+                dirtyRect.left,
+                dirtyRect.top,
+                dirtyRect.right - dirtyRect.left,
+                dirtyRect.bottom - dirtyRect.top
+            );
+        } else {
+            this.#screenCanvasContext.putImageData(this.#screenImageData, 0, 0);
+        }
     }
 
     #clearScreen() {

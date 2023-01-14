@@ -10,6 +10,7 @@ import type {
     EmulatorInputEvent,
     EmulatorWorkerConfig,
     EmulatorWorkerVideoBlit,
+    EmulatorWorkerVideoBlitRect,
 } from "./emulator-common";
 import {
     ethernetMacAddressFromString,
@@ -160,11 +161,11 @@ class EmulatorWorkerApi {
         postMessage({type: "emulator_video_open", width, height});
     }
 
-    blit(bufPtr: number, bufSize: number) {
+    blit(bufPtr: number, bufSize: number, rect?: EmulatorWorkerVideoBlitRect) {
         this.#lastBlitFrameId++;
         if (bufPtr) {
             const data = Module.HEAPU8.subarray(bufPtr, bufPtr + bufSize);
-            this.#video.blit(data);
+            this.#video.blit(data, rect);
         }
         this.#nextExpectedBlitTime = performance.now() + 16;
     }
