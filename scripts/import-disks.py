@@ -57,8 +57,9 @@ def import_manifests() -> typing.Dict[str, machfs.Folder]:
     import_folders = {}
     debug_filter = os.getenv("DEBUG_LIRARY_FILTER")
 
-    for manifest_path in glob.iglob(
-            os.path.join(paths.LIBRARY_DIR, "**", "*.json")):
+    for manifest_path in glob.iglob(os.path.join(paths.LIBRARY_DIR, "**",
+                                                 "*.json"),
+                                    recursive=True):
         if debug_filter and debug_filter not in manifest_path:
             continue
         folder_path, _ = os.path.splitext(
@@ -290,7 +291,8 @@ def import_zips() -> typing.Dict[str, machfs.Folder]:
     import_folders = {}
     debug_filter = os.getenv("DEBUG_LIRARY_FILTER")
 
-    for zip_path in glob.iglob(os.path.join(paths.LIBRARY_DIR, "**", "*.zip")):
+    for zip_path in glob.iglob(os.path.join(paths.LIBRARY_DIR, "**", "*.zip"),
+                               recursive=True):
         if debug_filter and debug_filter not in zip_path:
             continue
         folder_path, _ = os.path.splitext(
