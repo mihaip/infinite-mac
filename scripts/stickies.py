@@ -134,11 +134,13 @@ def generate_placeholder() -> bytes:
     text = "Placeholder text"
     for i in range(1000):
         text += f" sticky {i}"
+    timezone = datetime.timezone(datetime.timedelta(hours=13))
+    placeholder_date = datetime.datetime(1984, 1, 24, tzinfo=timezone)
     sticky = Sticky(top=10,
                     left=10,
                     bottom=50,
                     right=50,
-                    creation_date=datetime.datetime(1984, 1, 24),
-                    modification_date=datetime.datetime(1984, 1, 24),
+                    creation_date=placeholder_date,
+                    modification_date=placeholder_date,
                     text=text)
     return StickiesFile(stickies=[sticky]).to_bytes()
