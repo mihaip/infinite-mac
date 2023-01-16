@@ -1,4 +1,3 @@
-import disks
 import os.path
 import paths
 import subprocess

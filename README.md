@@ -13,7 +13,7 @@ Common development tasks, all done via `npm run`:
 -   `start`: Run local dev server (will be running at http://localhost:3127). Depends on having disk images built (`import-disks` needs to be run at least once).
 -   `import-basilisk-ii` and `import-sheepshaver`: Copy generated WebAssembly from the https://github.com/mihaip/macemu submodule (only necessary if modifying the emulator cores, see [below](#building-the-emulators) for how to rebuild them).
 -   `import-minivmac`: Copy generated WebAssembly from the https://github.com/mihaip/minivmac submodule (only necessary if modifying the emulator, see [below](#building-the-emulators) for how to rebuild it).
--   `import-disks`: Build disk images for serving. Copies base OS images for the above emulators, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving.
+-   `import-disks`: Build disk images for serving. Copies base OS images for the above emulators, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving. This requires the macOS versions of Basilisk II and Mini vMac to be installed, since they are used as part of the image building process.
 
 Common deployment tasks (also done via `npm run`)
 
