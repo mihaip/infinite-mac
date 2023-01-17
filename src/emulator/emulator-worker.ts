@@ -87,7 +87,8 @@ class EmulatorWorkerApi {
     #nextExpectedBlitTime = 0;
     #lastIdleWaitFrameId = 0;
 
-    #gotFirstIdleWait = false;
+    #markedQuiescent = false;
+    #lastDiskWriteTime = 0;
     #handledStop = false;
     #diskSpecs: EmulatorChunkedFileSpec[];
     #ethernetMacAddress?: Uint8Array;
@@ -201,14 +202,21 @@ class EmulatorWorkerApi {
         }
     }
 
-    #idleWait(): boolean {
-        if (!this.#gotFirstIdleWait) {
-            this.#gotFirstIdleWait = true;
-            postMessage({type: "emulator_first_idlewait"});
-            for (const spec of this.#diskSpecs) {
-                validateSpecPrefetchChunks(spec);
-            }
+    /**
+     * Variant of idleWait that is called called more frequently (and with an
+     * expected waiting time) by Mini vMac.
+     */
+    sleep(timeSeconds: number) {
+        try {
+            this.#sleep(timeSeconds);
+        } catch (err) {
+            console.error("Error during sleep", err);
         }
+    }
+
+    #idleWait(): boolean {
+        this.#markQuiescent();
+
         // Don't do more than one call per frame, otherwise we end up skipping
         // frames.
         // TOOD: understand why IdleWait is called multiple times in a row
@@ -224,6 +232,41 @@ class EmulatorWorkerApi {
         const hadInput =
             idleWaitTime > 0 ? this.#input.idleWait(idleWaitTime) : false;
 
+        this.#periodicTasks();
+
+        return hadInput;
+    }
+
+    #sleep(timeSeconds: number) {
+        this.#input.idleWait(timeSeconds * 1000);
+
+        if (this.#lastIdleWaitFrameId !== this.#lastBlitFrameId) {
+            this.#lastIdleWaitFrameId = this.#lastBlitFrameId;
+            this.#periodicTasks();
+
+            // We don't have a more accurate way to determine when Mini vMac
+            // is idle/quiscent (the Mac has finished booting), so we wait for
+            // the disk writes done during boot to finish.
+            if (
+                this.#lastDiskWriteTime !== 0 &&
+                performance.now() - this.#lastDiskWriteTime > 1000
+            ) {
+                this.#markQuiescent();
+            }
+        }
+    }
+
+    #markQuiescent() {
+        if (!this.#markedQuiescent) {
+            this.#markedQuiescent = true;
+            postMessage({type: "emulator_quiescent"});
+            for (const spec of this.#diskSpecs) {
+                validateSpecPrefetchChunks(spec);
+            }
+        }
+    }
+
+    #periodicTasks() {
         // TODO: better place to poll for this? On the other hand, only doing it
         // when the machine is idle seems reasonable.
         this.#handleFileUploads();
@@ -232,7 +275,6 @@ class EmulatorWorkerApi {
         if (this.getInputValue(InputBufferAddresses.stopFlagAddr)) {
             this.#handleStop();
         }
-        return hadInput;
     }
 
     #handleFileUploads() {
@@ -264,6 +306,10 @@ class EmulatorWorkerApi {
             PERSISTED_DIRECTORY_PATH
         );
         postMessage({type: "emulator_stopped", extraction}, arrayBuffers);
+    }
+
+    didDiskWrite(offset: number, length: number) {
+        this.#lastDiskWriteTime = performance.now();
     }
 
     acquireInputLock(): number {
