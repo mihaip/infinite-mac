@@ -62,6 +62,9 @@ class Sticky:
     color: Color = Color.YELLOW  # 2 bytes
     text: str = ""  # 2 bytes of length + data
 
+    # Skip this note when generating the TextText version of Stickies.
+    skip_in_ttxt: bool = False
+
     STRUCT = struct.Struct(">hhhh Q LL HBBH H")
 
     @staticmethod
@@ -129,6 +132,16 @@ class StickiesFile:
         return StickiesFile.STRUCT.pack(self.header, len(
             self.stickies)) + stickies_raw
 
+    def to_ttxt_bytes(self, encoding: str = "mac_roman") -> bytes:
+        text = ""
+        for sticky in reversed(self.stickies):
+            if sticky.skip_in_ttxt:
+                continue
+            if text:
+                text += "\r\r"
+            text += sticky.text.replace("\n", "\r")
+        return text.encode(encoding)
+
 
 def generate_placeholder() -> bytes:
     text = "Placeholder text"
@@ -144,3 +157,10 @@ def generate_placeholder() -> bytes:
                     modification_date=placeholder_date,
                     text=text)
     return StickiesFile(stickies=[sticky]).to_bytes()
+
+
+def generate_ttxt_placeholder() -> bytes:
+    text = "Placeholder text"
+    for i in range(1000):
+        text += f" text {i}"
+    return text.encode("mac_roman")

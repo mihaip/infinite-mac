@@ -18,6 +18,12 @@ if __name__ == "__main__":
     stickies_file.creator = b"notz"
     v["Stickies file"] = stickies_file
 
+    ttxt_file = machfs.File()
+    ttxt_file.data = stickies.generate_ttxt_placeholder()
+    ttxt_file.type = b"TEXT"
+    ttxt_file.creator = b"ttxt"
+    v["Welcome to Infinite Mac"] = ttxt_file
+
     image = v.write(
         size=1440 * 1024,  # HD floppy
         align=512,

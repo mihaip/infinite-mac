@@ -449,9 +449,15 @@ def build_system_image(
         image_data = image.read()
 
     stickies_index = image_data.find(stickies_placeholder)
+    use_ttxt = False
+    if stickies_index == -1:
+        use_ttxt = True
+        stickies_placeholder = stickies.generate_ttxt_placeholder()
+        stickies_index = image_data.find(stickies_placeholder)
+
     if stickies_index == -1:
         logging.warning(
-            "Stickies file not found in disk image %s, skipping customization",
+            "Placeholder file not found in disk image %s, skipping customization",
             disk.name)
     else:
         customized_stickies = copy.deepcopy(STICKIES)
@@ -470,16 +476,25 @@ def build_system_image(
                 # Bullets are not directly representable in Shift-JIS, replace
                 # them with a KATAKANA MIDDLE DOT.
                 sticky.text = sticky.text.replace("•", "・")
-        stickies_data = stickies.StickiesFile(
-            stickies=customized_stickies).to_bytes(disk.stickies_encoding)
+
+        stickies_file = stickies.StickiesFile(stickies=customized_stickies)
+        if use_ttxt:
+            stickies_data = stickies_file.to_ttxt_bytes(disk.stickies_encoding)
+        else:
+            stickies_data = stickies_file.to_bytes(disk.stickies_encoding)
+
         if len(stickies_data) > len(stickies_placeholder):
             logging.warning(
                 "Stickies file is too large (%d, placeholder is only %d), "
                 "skipping customization for %s", len(stickies_data),
                 len(stickies_placeholder), disk.name)
         else:
+            # Replace the leftover placeholder data with with nil bytes, so that
+            # TextText does not render it (not needed for Stickies since they
+            # have a length field, but it doesn't hurt either).
             image_data = image_data[:stickies_index] + stickies_data + \
-                image_data[stickies_index + len(stickies_data):]
+                b'\x00' * (len(stickies_placeholder) - len(stickies_data)) + \
+                image_data[stickies_index + len(stickies_placeholder):]
 
     return write_image_def(image_data, disk.name, dest_dir)
 
@@ -566,6 +581,7 @@ STICKIES = [
 Visting the same subdomain of the site as your friends (e.g. https://office.DOMAIN or https://thelair.DOMAIN) will automatically create an AppleTalk zone where you can interact with each other.
 
 Files can be shared between instances, and muti-player games like Marathon, Bolo and Strategic Conquest will also work.""",
+        skip_in_ttxt=True,
     ),
     stickies.Sticky(
         top=531,
