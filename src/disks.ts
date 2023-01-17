@@ -23,7 +23,7 @@ export const DISKS_BY_DOMAIN: {
 } = {
     "system6.app": {
         baseUrl: "/Disk",
-        prefetchChunks: [],
+        prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8, 9],
         machine: MAC_PLUS,
         bezelStyle: "Beige",
         ...system608HdManifest,

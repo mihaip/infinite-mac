@@ -80,7 +80,7 @@ export function Mac() {
         );
         const libraryDisk = {
             baseUrl: "/Disk",
-            prefetchChunks: [0],
+            prefetchChunks: [0, 3345, 3349, 3350],
             ...infiniteHdManifest,
         };
         const emulator = new Emulator(

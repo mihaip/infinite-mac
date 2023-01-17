@@ -137,7 +137,7 @@ export class Emulator {
 
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
         console.time("Emulator first blit");
-        console.time("Emulator first idlewait");
+        console.time("Emulator quiescent");
 
         this.#config = config;
         this.#delegate = delegate;
@@ -529,8 +529,8 @@ export class Emulator {
             }
         } else if (e.data.type === "emulator_extract_directory") {
             handleDirectoryExtraction(e.data.extraction);
-        } else if (e.data.type === "emulator_first_idlewait") {
-            console.timeEnd("Emulator first idlewait");
+        } else if (e.data.type === "emulator_quiescent") {
+            console.timeEnd("Emulator quiescent");
         } else if (e.data.type === "emulator_stopped") {
             this.#handleEmulatorStopped(e.data.extraction);
         } else if (e.data.type === "emulator_ethernet_init") {
