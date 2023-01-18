@@ -135,6 +135,10 @@ export class Emulator {
 
     #ethernetPinger: EthernetPinger;
 
+    // Keep track of which keys are down so we can synthesize key up events in
+    // some edge cases.
+    #downKeyCodes = new Set<string>();
+
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
         console.time("Emulator first blit");
         console.time("Emulator quiescent");
@@ -458,6 +462,8 @@ export class Emulator {
         const {code} = event;
         const adbKeyCode = this.#getAdbKeyCode(code);
         if (adbKeyCode !== undefined) {
+            this.#downKeyCodes.add(code);
+
             // If this is a paste operation, send the updated clipboard contents
             // to the emulator so that it can be used when executing the paste.
             // Ideally we would watch for a clipboardchage event, but that's not
@@ -479,12 +485,33 @@ export class Emulator {
 
     #handleKeyUp = (event: KeyboardEvent) => {
         const {code} = event;
-        const adbKeyCode = this.#getAdbKeyCode(code);
-        if (adbKeyCode !== undefined) {
-            this.#input.handleInput({
-                type: "keyup",
-                keyCode: adbKeyCode,
-            });
+
+        const handleKeyUp = (code: string) => {
+            this.#downKeyCodes.delete(code);
+            const adbKeyCode = this.#getAdbKeyCode(code);
+            if (adbKeyCode !== undefined) {
+                this.#input.handleInput({
+                    type: "keyup",
+                    keyCode: adbKeyCode,
+                });
+            }
+        };
+        handleKeyUp(code);
+
+        // Work around a macOS quirk where keyup events are not sent for
+        // non-modifier keys when using command+key combinations. See
+        // https://github.com/mihaip/infinite-mac/issues/89 for more details.
+        if (code.startsWith("Meta") && navigator.platform.startsWith("Mac")) {
+            for (const otherKeyCode of this.#downKeyCodes) {
+                if (
+                    !otherKeyCode.startsWith("Meta") &&
+                    !otherKeyCode.startsWith("Control") &&
+                    !otherKeyCode.startsWith("Alt") &&
+                    !otherKeyCode.startsWith("Shift")
+                ) {
+                    handleKeyUp(otherKeyCode);
+                }
+            }
         }
     };
 
