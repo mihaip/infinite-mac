@@ -21,6 +21,8 @@ exclude = ["BasiliskII.wasm.map"]
 
 [env.production]
 routes = [
+    {pattern = "system6.app/*", zone_name = "system6.app"},
+    {pattern = "*.system6.app/*", zone_name = "system6.app"},
     {pattern = "system7.app/*", zone_name = "system7.app"},
     {pattern = "*.system7.app/*", zone_name = "system7.app"},
     {pattern = "macos8.app/*", zone_name = "macos8.app"},
