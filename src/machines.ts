@@ -10,12 +10,14 @@ export type MachineDef = {
     romPath: string;
     emulator: "BasiliskII" | "SheepShaver" | "Mini vMac";
     prefsPath: string;
+    fixedScreenSize?: {width: number; height: number};
 };
 
 export const MAC_PLUS: MachineDef = {
     romPath: macPlusRomPath,
     emulator: "Mini vMac",
     prefsPath: minivMacPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
 };
 
 export const QUADRA: MachineDef = {
