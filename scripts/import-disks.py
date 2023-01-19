@@ -439,9 +439,10 @@ def build_system_image(
     input_path = disk.path()
 
     sister_sites = [
-        f"https://{s}"
-        for s in ["system7.app", "macos8.app", "macos9.app", "kanjitalk7.app"]
-        if s != disk.domain
+        f"https://{s}" for s in [
+            "system6.app", "system7.app", "macos8.app", "macos9.app",
+            "kanjitalk7.app"
+        ] if s != disk.domain
     ]
 
     stickies_placeholder = stickies.generate_placeholder()
