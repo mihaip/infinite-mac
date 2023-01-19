@@ -18,8 +18,6 @@ import {ReactComponent as AppleLogoGrey} from "./AppleLogoGrey.svg";
 
 export function Mac() {
     const screenRef = useRef<HTMLCanvasElement>(null);
-    const [screenSize, setScreenSize] = useState(INITIAL_RESOLUTION);
-    const {width: screenWidth, height: screenHeight} = screenSize;
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
     const [scale, setScale] = useState<number | undefined>(undefined);
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
@@ -71,6 +69,12 @@ export function Mac() {
             searchParams.get("use_shared_memory") !== "false";
         return [disk, ethernetProvider, useSharedMemory];
     }, []);
+    const initialScreenSize =
+        disk.machine.fixedScreenSize ?? SCREEN_SIZE_FOR_WINDOW;
+    const {width: initialScreenWidth, height: initialScreenHeight} =
+        initialScreenSize;
+    const [screenSize, setScreenSize] = useState(initialScreenSize);
+    const {width: screenWidth, height: screenHeight} = screenSize;
 
     useEffect(() => {
         document.addEventListener("fullscreenchange", handleFullScreenChange);
@@ -80,15 +84,15 @@ export function Mac() {
         );
         const libraryDisk = {
             baseUrl: "/Disk",
-            prefetchChunks: [0, 3345, 3349, 3350],
+            prefetchChunks: [0, 3346, 3350, 3351, 3352],
             ...infiniteHdManifest,
         };
         const emulator = new Emulator(
             {
                 machine: disk.machine,
                 useSharedMemory,
-                screenWidth: INITIAL_RESOLUTION.width,
-                screenHeight: INITIAL_RESOLUTION.height,
+                screenWidth: initialScreenWidth,
+                screenHeight: initialScreenHeight,
                 screenCanvas: screenRef.current!,
                 disks: [disk, libraryDisk],
                 ethernetProvider,
@@ -155,7 +159,13 @@ export function Mac() {
             emulatorRef.current = undefined;
             ethernetProvider?.close?.();
         };
-    }, [disk, ethernetProvider, useSharedMemory]);
+    }, [
+        disk,
+        ethernetProvider,
+        useSharedMemory,
+        initialScreenWidth,
+        initialScreenHeight,
+    ]);
 
     const handleFullScreenClick = () => {
         // Make the entire page go fullscreen (instead of just the screen
@@ -357,7 +367,7 @@ export function Mac() {
 const SMALL_BEZEL_THRESHOLD = 80;
 const MEDIUM_BEZEL_THRESHOLD = 168;
 
-const INITIAL_RESOLUTION = (() => {
+const SCREEN_SIZE_FOR_WINDOW = (() => {
     const availableWidth = window.innerWidth - SMALL_BEZEL_THRESHOLD;
     const availableHeight = window.innerHeight - SMALL_BEZEL_THRESHOLD;
     for (const [width, height] of [
