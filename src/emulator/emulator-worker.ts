@@ -13,6 +13,7 @@ import type {
     EmulatorWorkerVideoBlitRect,
 } from "./emulator-common";
 import {
+    isDiskImageFile,
     ethernetMacAddressFromString,
     InputBufferAddresses,
 } from "./emulator-common";
@@ -92,6 +93,7 @@ class EmulatorWorkerApi {
     #handledStop = false;
     #diskSpecs: EmulatorChunkedFileSpec[];
     #ethernetMacAddress?: Uint8Array;
+    #pendingDiskImagePaths: string[] = [];
 
     constructor(config: EmulatorWorkerConfig) {
         const {
@@ -280,7 +282,8 @@ class EmulatorWorkerApi {
     #handleFileUploads() {
         const fileUploads = this.#files.fileUploads();
         for (const upload of fileUploads) {
-            let parent = "/Shared/Downloads/";
+            const isDiskImage = isDiskImageFile(upload.name);
+            let parent = isDiskImage ? "/Disk Images/" : "/Shared/Downloads/";
             let name = upload.name;
             const pathPieces = upload.name.split("/");
             if (pathPieces.length > 1) {
@@ -294,6 +297,9 @@ class EmulatorWorkerApi {
                 name = pathPieces[pathPieces.length - 1];
             }
             createLazyFile(parent, name, upload.url, upload.size, true, true);
+            if (isDiskImage) {
+                this.#pendingDiskImagePaths.push(parent + "/" + name);
+            }
         }
     }
 
@@ -310,6 +316,10 @@ class EmulatorWorkerApi {
 
     didDiskWrite(offset: number, length: number) {
         this.#lastDiskWriteTime = performance.now();
+    }
+
+    consumeDiskImagePath(): string | undefined {
+        return this.#pendingDiskImagePaths.shift();
     }
 
     acquireInputLock(): number {
@@ -460,6 +470,7 @@ function startEmulator(config: EmulatorWorkerConfig) {
             function () {
                 FS.mkdir("/Shared");
                 FS.mkdir("/Shared/Downloads");
+                FS.mkdir("/Disk Images");
                 FS.mkdir(PERSISTED_DIRECTORY_PATH);
                 if (config.persistedData) {
                     restorePersistedData(

@@ -7,7 +7,10 @@ import type {
     EmulatorSettings,
 } from "./emulator/emulator-ui";
 import {Emulator} from "./emulator/emulator-ui";
-import {isDiskImageFile} from "./emulator/emulator-common";
+import {
+    emulatorHandlesDiskImages,
+    isDiskImageFile,
+} from "./emulator/emulator-common";
 import {BroadcastChannelEthernetProvider} from "./BroadcastChannelEthernetProvider";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 import {usePersistentState} from "./usePersistentState";
@@ -254,18 +257,23 @@ export function Mac() {
 
         const diskImages = [];
         let fileCount = 0;
+        let diskImageCount = 0;
         for (const file of files) {
             if (isDiskImageFile(file.name)) {
-                diskImages.push(file);
+                diskImageCount++;
+                if (!emulatorHandlesDiskImages(disk.machine.emulator)) {
+                    diskImages.push(file);
+                    continue;
+                }
             } else {
-                emulator.uploadFile(file);
                 fileCount++;
             }
+            emulator.uploadFile(file);
         }
         varz.incrementMulti({
             "emulator_uploads": files.length,
             "emulator_uploads:files": fileCount,
-            "emulator_uploads:disks": diskImages.length,
+            "emulator_uploads:disks": diskImageCount,
         });
         if (diskImages.length) {
             diskImages.map(file => emulator.uploadDiskImage(file));
