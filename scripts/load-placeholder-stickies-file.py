@@ -22,7 +22,7 @@ if __name__ == "__main__":
     ttxt_file.data = stickies.generate_ttxt_placeholder()
     ttxt_file.type = b"TEXT"
     ttxt_file.creator = b"ttxt"
-    v["Welcome to Infinite Mac"] = ttxt_file
+    v["Welcome!"] = ttxt_file
 
     image = v.write(
         size=1440 * 1024,  # HD floppy
