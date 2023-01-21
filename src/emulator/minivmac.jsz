@@ -1742,7 +1742,7 @@ var ASM_CONSTS = {
  11491: function() {workerApi.releaseInputLock();},  
  11525: function($0, $1) {workerApi.didOpenVideo($0, $1);}
 };
-
+function consumeDiskImagePath(){ const diskImagePath = workerApi.consumeDiskImagePath(); if (!diskImagePath || !diskImagePath.length) { return 0; } const diskImagePathLength = lengthBytesUTF8(diskImagePath) + 1; const diskImagePathCstr = _malloc(diskImagePathLength); stringToUTF8(diskImagePath, diskImagePathCstr, diskImagePathLength); return diskImagePathCstr; }
 
 
 
@@ -4735,6 +4735,7 @@ var asmLibraryArg = {
   "__syscall_open": ___syscall_open,
   "__syscall_rmdir": ___syscall_rmdir,
   "__syscall_unlink": ___syscall_unlink,
+  "consumeDiskImagePath": consumeDiskImagePath,
   "emscripten_asm_const_int": _emscripten_asm_const_int,
   "emscripten_memcpy_big": _emscripten_memcpy_big,
   "emscripten_resize_heap": _emscripten_resize_heap,

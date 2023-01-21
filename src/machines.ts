@@ -5,10 +5,11 @@ import oldWorldRomPath from "./Data/Old-World.rom";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
 import minivMacPrefsPath from "./Data/MinivMacPrefs.txt";
+import type {EmulatorType} from "./emulator/emulator-common";
 
 export type MachineDef = {
     romPath: string;
-    emulator: "BasiliskII" | "SheepShaver" | "Mini vMac";
+    emulator: EmulatorType;
     prefsPath: string;
     fixedScreenSize?: {width: number; height: number};
 };

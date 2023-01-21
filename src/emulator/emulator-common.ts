@@ -1,3 +1,9 @@
+export type EmulatorType = "BasiliskII" | "SheepShaver" | "Mini vMac";
+
+export function emulatorHandlesDiskImages(type: EmulatorType): boolean {
+    return type === "Mini vMac";
+}
+
 export const InputBufferAddresses = {
     globalLockAddr: 0,
     mousePositionFlagAddr: 1,
