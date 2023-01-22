@@ -126,3 +126,20 @@ export const JS_CODE_TO_ADB_KEYCODE: {[code: string]: number} = {
     "ArrowDown": 0x3d,
     "ArrowUp": 0x3e,
 };
+
+// Overrides the subset of JS_CODE_TO_ADB_KEYCODE that have different mappings
+// in Mini vMac
+export const JS_CODE_TO_MINI_VMAC_KEYCODE: {[code: string]: number} = {
+    "ArrowLeft": 0x7b, // MKC_Left
+    "ArrowRight": 0x7c, // MKC_Right
+    "ArrowDown": 0x7d, // MKC_Down
+    "ArrowUp": 0x7e, // MKC_Up
+
+    "ShiftRight": 0x38, // MKC_Shift -- no right shift key,
+    "AltRight": 0x3a, // MKC_Option -- no right option key,
+
+    // Control is not on the Mac Plus keyboard, but Mini vMac does have a keycode
+    // for it.
+    "ControlLeft": 0x3b, // MKC_Control
+    "ControlRight": 0x3b, // MKC_Control
+};

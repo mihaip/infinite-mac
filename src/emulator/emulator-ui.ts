@@ -41,7 +41,10 @@ import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 import SheepShaverPath from "./SheepShaver.jsz";
 import SheepShaverWasmPath from "./SheepShaver.wasmz";
 import {getPersistedData, persistData} from "./emulator-ui-persistence";
-import {JS_CODE_TO_ADB_KEYCODE} from "./emulator-key-codes";
+import {
+    JS_CODE_TO_ADB_KEYCODE,
+    JS_CODE_TO_MINI_VMAC_KEYCODE,
+} from "./emulator-key-codes";
 import type {
     EmulatorEthernet,
     EthernetPingerPeer,
@@ -521,6 +524,12 @@ export class Emulator {
                 code = "Meta" + code.slice("Control".length);
             } else if (code.startsWith("Meta")) {
                 code = "Control" + code.slice("Meta".length);
+            }
+        }
+        if (this.#config.machine.emulator === "Mini vMac") {
+            const keyCode = JS_CODE_TO_MINI_VMAC_KEYCODE[code];
+            if (keyCode !== undefined) {
+                return keyCode;
             }
         }
         return JS_CODE_TO_ADB_KEYCODE[code];
