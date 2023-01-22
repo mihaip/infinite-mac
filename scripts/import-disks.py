@@ -588,7 +588,7 @@ Files can be shared between instances, and muti-player games like Marathon, Bolo
         top=531,
         left=484,
         bottom=570,
-        right=700,
+        right=724,
         color=stickies.Color.BLUE,
         text='See also the sister sites at SISTER_SITES',
     ),
