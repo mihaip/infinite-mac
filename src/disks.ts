@@ -7,6 +7,7 @@ import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
 import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
 import type {MachineDef} from "./machines";
 import {
+    MAC_II,
     MAC_PLUS,
     NEW_WORLD_POWERMAC,
     OLD_WORLD_POWERMAC,
@@ -25,6 +26,13 @@ export const DISKS_BY_DOMAIN: {
         baseUrl: "/Disk",
         prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
         machine: MAC_PLUS,
+        bezelStyle: "Beige",
+        ...system608HdManifest,
+    },
+    "system6-ii.app": {
+        baseUrl: "/Disk",
+        prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
+        machine: MAC_II,
         bezelStyle: "Beige",
         ...system608HdManifest,
     },

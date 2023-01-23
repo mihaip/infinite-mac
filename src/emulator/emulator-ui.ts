@@ -34,6 +34,8 @@ import {
     handleDirectoryExtraction,
     uploadsFromDirectoryExtractionFile,
 } from "./emulator-ui-extractor";
+import MinivMacIIPath from "./minivmac-II.jsz";
+import MinivMacIIWasmPath from "./minivmac-II.wasmz";
 import MinivMacPlusPath from "./minivmac-Plus.jsz";
 import MinivMacPlusWasmPath from "./minivmac-Plus.wasmz";
 import BasiliskIIPath from "./BasiliskII.jsz";
@@ -268,6 +270,9 @@ export class Emulator {
                             MinivMacPlusPath,
                             MinivMacPlusWasmPath,
                         ];
+                        break;
+                    case "II":
+                        emulatorPaths = [MinivMacIIPath, MinivMacIIWasmPath];
                         break;
                     default:
                         throw new Error(
