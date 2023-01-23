@@ -34,8 +34,8 @@ import {
     handleDirectoryExtraction,
     uploadsFromDirectoryExtractionFile,
 } from "./emulator-ui-extractor";
-import MinivMacPath from "./minivmac.jsz";
-import MinivMacWasmPath from "./minivmac.wasmz";
+import MinivMacPlusPath from "./minivmac-Plus.jsz";
+import MinivMacPlusWasmPath from "./minivmac-Plus.wasmz";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 import SheepShaverPath from "./SheepShaver.jsz";
@@ -262,7 +262,20 @@ export class Emulator {
                 emulatorPaths = [SheepShaverPath, SheepShaverWasmPath];
                 break;
             case "Mini vMac":
-                emulatorPaths = [MinivMacPath, MinivMacWasmPath];
+                switch (this.#config.machine.emulatorSubtype) {
+                    case "Plus":
+                        emulatorPaths = [
+                            MinivMacPlusPath,
+                            MinivMacPlusWasmPath,
+                        ];
+                        break;
+                    default:
+                        throw new Error(
+                            `Unknown Mini vMac subtype: ${
+                                this.#config.machine.emulatorSubtype
+                            }`
+                        );
+                }
                 break;
         }
 

@@ -23,9 +23,7 @@
         "worker-loader": "^3.0.8"
     },
     "scripts": {
-        "import-basilisk-ii": "scripts/import-emulator.sh basiliskii",
-        "import-sheepshaver": "scripts/import-emulator.sh sheepshaver",
-        "import-minivmac": "scripts/import-emulator.sh minivmac",
+        "import-emulator": "scripts/import-emulator.sh",
         "import-disks": "scripts/import-disks.py",
         "load-placeholder-stickies-file": "scripts/load-placeholder-stickies-file.py",
         "build-xadmaster": "scripts/build-xadmaster.sh",

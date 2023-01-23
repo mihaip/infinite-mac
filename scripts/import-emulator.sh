@@ -11,8 +11,8 @@ if [ "$1" = "basiliskii" ]; then
 elif [ "$1" = "sheepshaver" ]; then
     EMULATOR="SheepShaver"
     EMULATOR_DIR="${ROOT_DIR}/macemu/${EMULATOR}/src/Unix"
-elif [ "$1" = "minivmac" ]; then
-    EMULATOR="minivmac"
+elif [[ "$1" =~ ^minivmac- ]]; then
+    EMULATOR=$1
     EMULATOR_DIR="${ROOT_DIR}/minivmac"
 else
     echo "Unknown emulator $1"
