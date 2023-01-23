@@ -82,7 +82,8 @@ Once it has built, use `npm run import-sheepshaver` from the host to update the 
 
 ```sh
 cd /minivmac
-# Conigure for building for WASM
+# Conigure for building for WASM (builds the Mac Plus model -- add `-m II` to
+# build the Mac II model instead).
 ./emscripten_setup.sh
 # Actually compile Mini vMac targetting WASM
 make -j6

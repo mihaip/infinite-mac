@@ -1,4 +1,5 @@
 import macPlusRomPath from "./Data/Mac-Plus.rom";
+import macIIRomPath from "./Data/Mac-II.rom";
 import quadraRomPath from "./Data/Quadra-650.rom";
 import newWorldRomPath from "./Data/New-World.rom";
 import oldWorldRomPath from "./Data/Old-World.rom";
@@ -21,6 +22,14 @@ export const MAC_PLUS: MachineDef = {
     emulatorSubtype: "Plus",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
+};
+
+export const MAC_II: MachineDef = {
+    romPath: macIIRomPath,
+    emulator: "Mini vMac",
+    emulatorSubtype: "II",
+    prefsPath: minivMacPrefsPath,
+    fixedScreenSize: {width: 640, height: 480},
 };
 
 export const QUADRA: MachineDef = {
