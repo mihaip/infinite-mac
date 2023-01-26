@@ -376,8 +376,8 @@ const SMALL_BEZEL_THRESHOLD = 80;
 const MEDIUM_BEZEL_THRESHOLD = 168;
 
 const SCREEN_SIZE_FOR_WINDOW = (() => {
-    const availableWidth = window.innerWidth - SMALL_BEZEL_THRESHOLD;
-    const availableHeight = window.innerHeight - SMALL_BEZEL_THRESHOLD;
+    const availableWidth = window.innerWidth - MEDIUM_BEZEL_THRESHOLD;
+    const availableHeight = window.innerHeight - MEDIUM_BEZEL_THRESHOLD;
     for (const [width, height] of [
         [1600, 1200],
         [1280, 1024],
