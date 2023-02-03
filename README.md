@@ -61,7 +61,7 @@ cd /macemu/BasiliskII/src/Unix
 # Switch into building for WASM
 ./_emconfigure.sh
 # Actually compile Basilisk II targetting WASM
-make -j6
+make -j8
 ```
 
 Once it has built, use `npm run import-basilisk-ii` from the host to update the files in `src/emulator`.
@@ -70,10 +70,10 @@ Once it has built, use `npm run import-basilisk-ii` from the host to update the 
 
 ```sh
 cd /macemu/SheepShaver/src/Unix
-# Conigure for building for WASM
+# Configure for building for WASM
 ./_emconfigure.sh
 # Actually compile SheepShaver targetting WASM
-make -j6
+make -j8
 ```
 
 Once it has built, use `npm run import-sheepshaver` from the host to update the files in `src/emulator`.
@@ -82,11 +82,11 @@ Once it has built, use `npm run import-sheepshaver` from the host to update the 
 
 ```sh
 cd /minivmac
-# Conigure for building for WASM (builds the Mac Plus model -- add `-m II` to
+# Configure for building for WASM (builds the Mac Plus model -- add `-m II` to
 # build the Mac II model instead).
 ./emscripten_setup.sh
 # Actually compile Mini vMac targetting WASM
-make -j6
+make -j8
 ```
 
 Once it has built, use `npm run import-minivmac` from the host to update the files in `src/emulator`.
