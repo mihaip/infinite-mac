@@ -1727,20 +1727,22 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  10740: function($0, $1) {workerApi.didDiskWrite($0, $1);},  
- 10776: function($0) {workerApi.sleep($0);},  
- 10801: function() {workerApi.blit(0, 0);},  
- 10827: function($0, $1, $2, $3, $4, $5) {workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5});},  
- 10899: function() {return workerApi.acquireInputLock();},  
- 10940: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
- 11029: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr);},  
- 11119: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr);},  
- 11206: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr);},  
- 11293: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
- 11378: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
- 11458: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
- 11539: function() {workerApi.releaseInputLock();},  
- 11573: function($0, $1) {workerApi.didOpenVideo($0, $1);}
+  10852: function($0, $1) {workerApi.didDiskWrite($0, $1);},  
+ 10888: function($0) {workerApi.sleep($0);},  
+ 10913: function() {workerApi.blit(0, 0);},  
+ 10939: function($0, $1, $2, $3, $4, $5) {workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5});},  
+ 11011: function($0, $1) {return workerApi.enqueueAudio($0, $1);},  
+ 11054: function() {return workerApi.acquireInputLock();},  
+ 11095: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
+ 11184: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr);},  
+ 11274: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr);},  
+ 11361: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr);},  
+ 11448: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
+ 11533: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
+ 11613: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
+ 11694: function() {workerApi.releaseInputLock();},  
+ 11728: function($0, $1, $2) {workerApi.didOpenAudio($0, $1, $2);},  
+ 11768: function($0, $1) {workerApi.didOpenVideo($0, $1);}
 };
 function consumeDiskImagePath(){ const diskImagePath = workerApi.consumeDiskImagePath(); if (!diskImagePath || !diskImagePath.length) { return 0; } const diskImagePathLength = lengthBytesUTF8(diskImagePath) + 1; const diskImagePathCstr = _malloc(diskImagePathLength); stringToUTF8(diskImagePath, diskImagePathCstr, diskImagePathLength); return diskImagePathCstr; }
 
