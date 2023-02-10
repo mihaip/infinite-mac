@@ -1,81 +1,35 @@
+import {RingBuffer} from "ringbuf.js";
 import type {
     EmulatorWorkerFallbackAudioConfig,
     EmulatorWorkerSharedMemoryAudioConfig,
 } from "./emulator-common";
-import {LockStates} from "./emulator-common";
 
 export interface EmulatorWorkerAudio {
-    openAudio(
-        sampleRate: number,
-        sampleSize: number,
-        channels: number,
-        framesPerBuffer: number
-    ): void;
-
-    enqueueAudio(newAudio: Uint8Array): number;
+    audioBufferSize(): number;
+    enqueueAudio(newAudio: Uint8Array): void;
 }
 
 export class SharedMemoryEmulatorWorkerAudio implements EmulatorWorkerAudio {
-    #audioDataBufferView: Uint8Array;
-    #nextAudioChunkIndex = 0;
-    #audioBlockChunkSize: number;
+    #audioRingBuffer: RingBuffer<Uint8Array>;
 
     constructor(config: EmulatorWorkerSharedMemoryAudioConfig) {
-        this.#audioDataBufferView = new Uint8Array(
-            config.audioDataBuffer,
-            0,
-            config.audioDataBufferSize
-        );
-        this.#audioBlockChunkSize = config.audioBlockChunkSize;
+        this.#audioRingBuffer = new RingBuffer(config.audioBuffer, Uint8Array);
     }
 
-    openAudio(
-        sampleRate: number,
-        sampleSize: number,
-        channels: number,
-        framesPerBuffer: number
-    ) {
-        // TODO: actually send this to the UI thread instead of harcoding.
-        console.log("audio config", {
-            sampleRate,
-            sampleSize,
-            channels,
-            framesPerBuffer,
-        });
+    audioBufferSize(): number {
+        return this.#audioRingBuffer.available_read();
     }
 
-    enqueueAudio(newAudio: Uint8Array): number {
-        // console.assert(
-        //   nbytes == parentConfig.audioBlockBufferSize,
-        //   `emulator wrote ${nbytes}, expected ${parentConfig.audioBlockBufferSize}`
-        // );
-
-        const writingChunkIndex = this.#nextAudioChunkIndex;
-        const writingChunkAddr = writingChunkIndex * this.#audioBlockChunkSize;
-
-        if (
-            this.#audioDataBufferView[writingChunkAddr] ===
-            LockStates.UI_THREAD_LOCK
-        ) {
-            // console.warn('worker tried to write audio data to UI-thread-locked chunk',writingChunkIndex);
-            return 0;
+    enqueueAudio(newAudio: Uint8Array): void {
+        const availableWrite = this.#audioRingBuffer.available_write();
+        if (availableWrite < newAudio.byteLength) {
+            console.warn(
+                `Audio buffer cannot fit new audio (${newAudio.byteLength} bytes), only ${availableWrite} bytes available.`
+            );
+            return;
         }
 
-        let nextNextChunkIndex = writingChunkIndex + 1;
-        if (
-            nextNextChunkIndex * this.#audioBlockChunkSize >
-            this.#audioDataBufferView.length - 1
-        ) {
-            nextNextChunkIndex = 0;
-        }
-        // console.assert(nextNextChunkIndex != writingChunkIndex, `writingChunkIndex=${nextNextChunkIndex} == nextChunkIndex=${nextNextChunkIndex}`)
-
-        this.#audioDataBufferView[writingChunkAddr + 1] = nextNextChunkIndex;
-        this.#audioDataBufferView.set(newAudio, writingChunkAddr + 2);
-        this.#audioDataBufferView[writingChunkAddr] = LockStates.UI_THREAD_LOCK;
-
-        this.#nextAudioChunkIndex = nextNextChunkIndex;
-        return newAudio.length;
+        this.#audioRingBuffer.push(newAudio);
     }
 }
 
@@ -91,13 +45,8 @@ export class FallbackEmulatorWorkerAudio implements EmulatorWorkerAudio {
         this.#sender = sender;
     }
 
-    openAudio(
-        sampleRate: number,
-        sampleSize: number,
-        channels: number,
-        framesPerBuffer: number
-    ): void {
-        // TODO
+    audioBufferSize(): number {
+        return 0;
     }
 
     enqueueAudio(newAudio: Uint8Array): number {

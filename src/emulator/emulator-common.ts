@@ -17,6 +17,7 @@ export const InputBufferAddresses = {
     keyStateAddr: 7,
     stopFlagAddr: 8,
     ethernetInterruptFlagAddr: 9,
+    audioContextRunningFlagAddr: 10,
 };
 
 export type EmulatorMouseEvent =
@@ -40,13 +41,18 @@ export type EmulatorEthernetInterruptEvent = {
     type: "ethernet-interrupt";
 };
 
+export type EmulatorAudioContextRunningEvent = {
+    type: "audio-context-running";
+};
+
 export type EmulatorInputEvent =
     | EmulatorMouseEvent
     | EmulatorTouchEvent
     | EmulatorKeyboardEvent
     | EmulatorStopEvent
     | EmulatorStartEvent
-    | EmulatorEthernetInterruptEvent;
+    | EmulatorEthernetInterruptEvent
+    | EmulatorAudioContextRunningEvent;
 
 export enum LockStates {
     READY_FOR_UI_THREAD,
@@ -165,13 +171,16 @@ export type EmulatorWorkerAudioConfig =
 
 export type EmulatorWorkerSharedMemoryAudioConfig = {
     type: "shared-memory";
-    audioDataBuffer: SharedArrayBuffer;
-    audioDataBufferSize: number;
-    audioBlockBufferSize: number;
-    audioBlockChunkSize: number;
+    audioBuffer: SharedArrayBuffer;
 };
 
 export type EmulatorWorkerFallbackAudioConfig = {type: "fallback"};
+
+export type EmulatorAudioProcessorOptions = {
+    sampleSize: number;
+    debug: boolean;
+    config: EmulatorWorkerAudioConfig;
+};
 
 export type EmulatorWorkerFilesConfig =
     | EmulatorWorkerSharedMemoryFilesConfig
@@ -268,6 +277,7 @@ export function updateInputBufferWithEvents(
     let hasStop = false;
     let hasStart = false;
     let hasEthernetInterrupt = false;
+    let hasAudioContextRunning = false;
     // currently only one key event can be sent per sync
     // TODO: better key handling code
     const remainingEvents: EmulatorInputEvent[] = [];
@@ -314,6 +324,9 @@ export function updateInputBufferWithEvents(
             case "ethernet-interrupt":
                 hasEthernetInterrupt = true;
                 break;
+            case "audio-context-running":
+                hasAudioContextRunning = true;
+                break;
         }
     }
     if (hasMousePosition) {
@@ -338,6 +351,9 @@ export function updateInputBufferWithEvents(
     }
     inputBufferView[InputBufferAddresses.ethernetInterruptFlagAddr] =
         hasEthernetInterrupt ? 1 : 0;
+    if (hasAudioContextRunning) {
+        inputBufferView[InputBufferAddresses.audioContextRunningFlagAddr] = 1;
+    }
     return remainingEvents;
 }
 export type EmulatorWorkerDirectorExtractionEntry =
