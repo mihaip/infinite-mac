@@ -173,23 +173,31 @@ class EmulatorWorkerApi {
         this.#nextExpectedBlitTime = performance.now() + 16;
     }
 
-    openAudio(
-        sampleRate: number,
-        sampleSize: number,
-        channels: number,
-        framesPerBuffer: number
-    ) {
-        this.#audio.openAudio(
+    didOpenAudio(sampleRate: number, sampleSize: number, channels: number) {
+        postMessage({
+            type: "emulator_audio_open",
             sampleRate,
             sampleSize,
             channels,
-            framesPerBuffer
-        );
+        });
     }
 
-    enqueueAudio(bufPtr: number, nbytes: number): number {
+    audioBufferSize(): number {
+        return this.#audio.audioBufferSize();
+    }
+
+    enqueueAudio(bufPtr: number, nbytes: number) {
+        if (
+            !this.getInputValue(
+                InputBufferAddresses.audioContextRunningFlagAddr
+            )
+        ) {
+            // No point in filling up the buffer if we can't play it yet.
+            return;
+        }
+
         const newAudio = Module.HEAPU8.slice(bufPtr, bufPtr + nbytes);
-        return this.#audio.enqueueAudio(newAudio);
+        this.#audio.enqueueAudio(newAudio);
     }
 
     idleWait(): boolean {

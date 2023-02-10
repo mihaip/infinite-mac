@@ -72,6 +72,7 @@ export type EmulatorConfig = {
     screenCanvas: HTMLCanvasElement;
     disks: EmulatorChunkedFileSpec[];
     ethernetProvider?: EmulatorEthernetProvider;
+    debugAudio?: boolean;
 };
 
 export type EmulatorSettings = {
@@ -126,7 +127,6 @@ export class Emulator {
     #video: EmulatorVideo;
     #input: EmulatorInput;
     #audio: EmulatorAudio;
-    #startedAudio: boolean = false;
     #files: EmulatorFiles;
     #ethernet: EmulatorEthernet;
     #clipboard: EmulatorClipboard;
@@ -196,8 +196,8 @@ export class Emulator {
             ? new SharedMemoryEmulatorInput()
             : new FallbackEmulatorInput(fallbackCommandSender!);
         this.#audio = useSharedMemory
-            ? new SharedMemoryEmulatorAudio()
-            : new FallbackEmulatorAudio();
+            ? new SharedMemoryEmulatorAudio(this.#input)
+            : new FallbackEmulatorAudio(this.#input);
         this.#files = useSharedMemory
             ? new SharedMemoryEmulatorFiles()
             : new FallbackEmulatorFiles(fallbackCommandSender!);
@@ -379,6 +379,7 @@ export class Emulator {
 
         this.#input.handleInput({type: "stop"});
         this.#ethernetPinger.stop();
+        this.#audio.stop();
     }
 
     restart(): Promise<void> {
@@ -429,10 +430,6 @@ export class Emulator {
     };
 
     #handleMouseDown = (event: MouseEvent) => {
-        if (!this.#startedAudio) {
-            this.#audio.start();
-            this.#startedAudio = true;
-        }
         this.#input.handleInput({type: "mousedown"});
     };
 
@@ -450,10 +447,6 @@ export class Emulator {
     #handleTouchStart = (event: TouchEvent) => {
         // Avoid mouse events also being dispatched for the touch.
         event.preventDefault();
-        if (!this.#startedAudio) {
-            this.#audio.start();
-            this.#startedAudio = true;
-        }
         // Though we want to treat this as a mouse down, we haven't gotten the
         // move to the current location yet, so we need to send the coordinates
         // as well.
@@ -569,6 +562,14 @@ export class Emulator {
                 height
             );
             this.#delegate?.emulatorDidChangeScreenSize?.(width, height);
+        } else if (e.data.type === "emulator_audio_open") {
+            const {sampleRate, sampleSize, channels} = e.data;
+            this.#audio.init(
+                sampleRate,
+                sampleSize,
+                channels,
+                this.#config.debugAudio ?? false
+            );
         } else if (e.data.type === "emulator_blit") {
             if (!this.#gotFirstBlit) {
                 this.#gotFirstBlit = true;

@@ -29,6 +29,11 @@ declare module "worker-loader!*" {
     export default WebpackWorker;
 }
 
+declare module "worklet-loader!*" {
+    const path: string;
+    export default path;
+}
+
 declare module "service-worker-loader!*" {
     const register: import("service-worker-loader/types").ServiceWorkerRegister;
     const ServiceWorkerNoSupportError: import("service-worker-loader/types").ServiceWorkerNoSupportError;
@@ -85,5 +90,7 @@ declare module "ringbuf.js" {
         empty(): boolean;
         full(): boolean;
         capacity(): number;
+        available_read(): number;
+        available_write(): number;
     }
 }

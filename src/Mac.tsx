@@ -45,33 +45,36 @@ export function Mac() {
     const emulatorSettingsRef = useRef(emulatorSettings);
     emulatorSettingsRef.current = emulatorSettings;
 
-    const [disk, ethernetProvider, useSharedMemory] = useMemo(() => {
-        const searchParams = new URLSearchParams(location.search);
-        let domain = searchParams.get("domain") ?? location.host;
-        // Use subdomain as the Ethernet Zone in production.
-        let ethernetProvider: EmulatorEthernetProvider | undefined;
-        if (domain.endsWith(".app")) {
-            const pieces = domain.split(".");
-            if (pieces.length === 3) {
-                ethernetProvider = new CloudflareWorkerEthernetProvider(
-                    pieces[0]
-                );
-                domain = `${pieces[1]}.app`;
+    const [disk, ethernetProvider, useSharedMemory, debugAudio] =
+        useMemo(() => {
+            const searchParams = new URLSearchParams(location.search);
+            let domain = searchParams.get("domain") ?? location.host;
+            // Use subdomain as the Ethernet Zone in production.
+            let ethernetProvider: EmulatorEthernetProvider | undefined;
+            if (domain.endsWith(".app")) {
+                const pieces = domain.split(".");
+                if (pieces.length === 3) {
+                    ethernetProvider = new CloudflareWorkerEthernetProvider(
+                        pieces[0]
+                    );
+                    domain = `${pieces[1]}.app`;
+                }
             }
-        }
-        if (!ethernetProvider && searchParams.get("ethernet")) {
-            const zoneName = searchParams.get("ethernet_zone");
-            ethernetProvider = zoneName
-                ? new CloudflareWorkerEthernetProvider(zoneName)
-                : new BroadcastChannelEthernetProvider();
-        }
+            if (!ethernetProvider && searchParams.get("ethernet")) {
+                const zoneName = searchParams.get("ethernet_zone");
+                ethernetProvider = zoneName
+                    ? new CloudflareWorkerEthernetProvider(zoneName)
+                    : new BroadcastChannelEthernetProvider();
+            }
 
-        const disk = DISKS_BY_DOMAIN[domain] ?? DISKS_BY_DOMAIN["system7.app"];
-        const useSharedMemory =
-            typeof SharedArrayBuffer !== "undefined" &&
-            searchParams.get("use_shared_memory") !== "false";
-        return [disk, ethernetProvider, useSharedMemory];
-    }, []);
+            const disk =
+                DISKS_BY_DOMAIN[domain] ?? DISKS_BY_DOMAIN["system7.app"];
+            const useSharedMemory =
+                typeof SharedArrayBuffer !== "undefined" &&
+                searchParams.get("use_shared_memory") !== "false";
+            const debugAudio = searchParams.get("debug_audio") === "true";
+            return [disk, ethernetProvider, useSharedMemory, debugAudio];
+        }, []);
     const initialScreenSize =
         disk.machine.fixedScreenSize ?? SCREEN_SIZE_FOR_WINDOW;
     const {width: initialScreenWidth, height: initialScreenHeight} =
@@ -99,6 +102,7 @@ export function Mac() {
                 screenCanvas: screenRef.current!,
                 disks: [disk, libraryDisk],
                 ethernetProvider,
+                debugAudio,
             },
             {
                 emulatorDidChangeScreenSize(width, height) {
@@ -168,6 +172,7 @@ export function Mac() {
         useSharedMemory,
         initialScreenWidth,
         initialScreenHeight,
+        debugAudio,
     ]);
 
     const handleFullScreenClick = () => {
