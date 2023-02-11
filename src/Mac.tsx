@@ -16,13 +16,14 @@ import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvid
 import {usePersistentState} from "./usePersistentState";
 import {DISKS_BY_DOMAIN} from "./disks";
 import * as varz from "./varz";
-import {ReactComponent as AppleLogoColor} from "./AppleLogoColor.svg";
-import {ReactComponent as AppleLogoGrey} from "./AppleLogoGrey.svg";
+import type {ScreenFrameProps} from "./ScreenFrame";
+import {ScreenFrame} from "./ScreenFrame";
 
 export function Mac() {
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
     const [scale, setScale] = useState<number | undefined>(undefined);
+    const [fullscreen, setFullscreen] = useState(false);
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
         0, 0,
     ]);
@@ -186,6 +187,7 @@ export function Mac() {
         const isFullScreen = Boolean(
             document.fullscreenElement || document.webkitFullscreenElement
         );
+        setFullscreen(isFullScreen);
 
         if (isFullScreen) {
             navigator.keyboard?.lock?.();
@@ -290,62 +292,42 @@ export function Mac() {
     // emulator screen size, but we can't pass that in via CSS variables. We
     // could in theory dynamically generate the media query via JS, but it's not
     // worth the hassle.
-    const bezelClasses = [`Mac-Bezel-${disk.bezelStyle}`];
     const availableSpace = window.innerWidth - screenWidth;
+    let bezelSize: ScreenFrameProps["bezelSize"] = "Large";
     if (availableSpace < SMALL_BEZEL_THRESHOLD) {
-        bezelClasses.push("Mac-Small-Bezel");
+        bezelSize = "Small";
     } else if (availableSpace < MEDIUM_BEZEL_THRESHOLD) {
-        bezelClasses.push("Mac-Medium-Bezel");
+        bezelSize = "Medium";
     }
-    const AppleLogo =
-        disk.bezelStyle === "Pinstripes" ? AppleLogoGrey : AppleLogoColor;
 
     return (
-        <div
-            className={`Mac ${bezelClasses.join(" ")}`}
-            style={{
-                width: `calc(${screenWidth}px + 2 * var(--screen-underscan))`,
-                height: `calc(${screenHeight}px + 2 * var(--screen-underscan))`,
-                transform: scale === undefined ? undefined : `scale(${scale})`,
-            }}
+        <ScreenFrame
+            className="Mac"
+            bezelStyle={disk.bezelStyle}
+            bezelSize={bezelSize}
+            width={screenWidth}
+            height={screenHeight}
+            scale={scale}
+            fullscreen={fullscreen}
+            loading={!emulatorLoaded || emulatorLoadingDiskChunk}
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
-            onDrop={handleDrop}>
-            <div className="Mac-Controls-Container">
-                <div className="Mac-Apple-Logo">
-                    <AppleLogo className="Background" />
-                    <AppleLogo className="Foreground" />
-                </div>
-                <div
-                    className="Mac-Control Mac-Screen-Bezel-Text"
-                    onClick={handleFullScreenClick}
-                    data-text="Full-screen">
-                    Full-screen
-                </div>
-                <div
-                    className="Mac-Control Mac-Screen-Bezel-Text"
-                    onClick={handleSettingsClick}
-                    data-text="Settings">
-                    Settings
-                </div>
-            </div>
-            <div
-                className={
-                    "Mac-Led" +
-                    (!emulatorLoaded || emulatorLoadingDiskChunk
-                        ? " Mac-Led-Loading"
-                        : "")
-                }
-            />
-            <canvas
-                className="Mac-Screen"
-                ref={screenRef}
-                width={screenWidth}
-                height={screenHeight}
-                onContextMenu={e => e.preventDefault()}
-            />
+            onDrop={handleDrop}
+            controls={[
+                {label: "Full-screen", handler: handleFullScreenClick},
+                {label: "Settings", handler: handleSettingsClick},
+            ]}
+            screen={
+                <canvas
+                    className="Mac-Screen"
+                    ref={screenRef}
+                    width={screenWidth}
+                    height={screenHeight}
+                    onContextMenu={e => e.preventDefault()}
+                />
+            }>
             {progress}
             {dragCount > 0 && <div className="Mac-Overlay Mac-Drag-Overlay" />}
             {hasPendingDiskImage && (
@@ -373,7 +355,7 @@ export function Mac() {
                     onDone={() => setSettingsVisible(false)}
                 />
             )}
-        </div>
+        </ScreenFrame>
     );
 }
 
