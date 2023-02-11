@@ -18,6 +18,7 @@ import {DISKS_BY_DOMAIN} from "./disks";
 import * as varz from "./varz";
 import type {ScreenFrameProps} from "./ScreenFrame";
 import {ScreenFrame} from "./ScreenFrame";
+import {Dialog} from "./Dialog";
 
 export function Mac() {
     const screenRef = useRef<HTMLCanvasElement>(null);
@@ -457,9 +458,7 @@ function MacSettings({
     onDone: () => void;
 }) {
     return (
-        <div className="Mac-Settings">
-            <h1>Settings</h1>
-
+        <Dialog title="Settings" onDone={onDone}>
             <label>
                 <input
                     type="checkbox"
@@ -473,22 +472,12 @@ function MacSettings({
                     }
                 />
                 Swap Control and Command Keys
-                <div className="Mac-Settings-Description">
+                <div className="Dialog-Description">
                     Makes it easier to use shortcuts like Command-W, Command-Q
                     or Command-Shift-3 (which are otherwise handled by the host
                     browser or OS).
                 </div>
             </label>
-
-            <footer>
-                <button
-                    onClick={e => {
-                        e.preventDefault();
-                        onDone();
-                    }}>
-                    Done
-                </button>
-            </footer>
-        </div>
+        </Dialog>
     );
 }
