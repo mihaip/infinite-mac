@@ -383,6 +383,7 @@ export class Emulator {
     }
 
     restart(): Promise<void> {
+        this.#audio.stop();
         this.#input.handleInput({type: "stop"});
         // Wait for handleEmulatorStopped to be invoked, so that data is
         // persisted.

@@ -91,7 +91,7 @@ export abstract class EmulatorAudio {
     }
 
     stop() {
-        this.#audioContext?.suspend();
+        this.#audioContext?.close();
         window.removeEventListener("mousedown", this.#resumeOnGesture);
         if (this.#debugInterval) {
             window.clearInterval(this.#debugInterval);
