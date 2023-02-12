@@ -8,6 +8,7 @@
     border-radius: 8px;
     background: #fff;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    max-width: 600px;
 }
 
 .Dialog h1 {
@@ -43,4 +44,11 @@
     padding: 2px 4px;
     min-width: 60px;
     font-size: 14px;
+}
+
+.Dialog a,
+.Dialog .link {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #00c;
 }

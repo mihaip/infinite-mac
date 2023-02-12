@@ -10,9 +10,9 @@
     border-radius: 10px;
 }
 
-.Footer a {
-    color: #fff;
+.Footer span {
     text-decoration: underline;
+    cursor: pointer;
 }
 
 .fullscreen .Footer {

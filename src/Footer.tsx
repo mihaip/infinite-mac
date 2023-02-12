@@ -1,14 +1,19 @@
+import {useState} from "react";
+import {About} from "./About";
+import {Donate} from "./Donate";
 import "./Footer.css";
 
 export function Footer() {
+    const [aboutVisible, setAboutVisible] = useState(false);
+    const [donateVisible, setDonateVisible] = useState(false);
+
     return (
         <div className="Footer">
-            Infinite Mac - A project by{" "}
-            <a href="http://persistent.info">Mihai Parparita</a> -{" "}
-            <a href="https://blog.persistent.info/2022/03/blog-post.html">
-                About
-            </a>{" "}
-            - <a href="https://github.com/mihaip/infinite-mac">Source</a>
+            {aboutVisible && <About onDone={() => setAboutVisible(false)} />}
+            {donateVisible && <Donate onDone={() => setDonateVisible(false)} />}
+            Infinite Mac -{" "}
+            <span onClick={() => setAboutVisible(true)}>About</span> -{" "}
+            <span onClick={() => setDonateVisible(true)}>Donate</span>
         </div>
     );
 }
