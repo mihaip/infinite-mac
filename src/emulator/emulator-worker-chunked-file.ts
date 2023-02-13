@@ -139,22 +139,21 @@ export function validateSpecPrefetchChunks(spec: EmulatorChunkedFileSpec) {
     }
     const numberCompare = (a: number, b: number): number => a - b;
     if (extraPrefetch.length || needsPrefetch.length) {
+        const prefix = `Chunked file "${spec.name}" (mounted at "${spec.baseUrl}")`;
         if (extraPrefetch.length) {
             console.warn(
-                `Chunked file ${spec.baseUrl} had unncessary chunks prefetched:`,
+                `${prefix} had unncessary chunks prefetched:`,
                 extraPrefetch.sort(numberCompare)
             );
         }
         if (needsPrefetch.length) {
             console.warn(
-                `Chunked file ${spec.baseUrl} needs more chunks prefetched:`,
+                `${prefix} needs more chunks prefetched:`,
                 needsPrefetch.sort(numberCompare)
             );
         }
         console.warn(
-            `Chunked file ${
-                spec.baseUrl
-            } complete set of ideal prefetch chunks: ${JSON.stringify(
+            `${prefix} complete set of ideal prefetch chunks: ${JSON.stringify(
                 Array.from(loadedChunks).sort(numberCompare)
             )}`
         );
