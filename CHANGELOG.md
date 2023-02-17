@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2023-02-09: Improved audio playback reliability, especially on Mac OS 9.
+
 2023-01-22: Initial System 6 support is now available, see https://system6.app.
 
 2022-12-27: Sound now works under Mac OS 8 and Mac OS 9.
