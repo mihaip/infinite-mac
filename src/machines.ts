@@ -9,6 +9,7 @@ import minivMacPrefsPath from "./Data/MinivMacPrefs.txt";
 import type {EmulatorSubtype, EmulatorType} from "./emulator/emulator-common";
 
 export type MachineDef = {
+    name: string;
     romPath: string;
     emulator: EmulatorType;
     emulatorSubtype?: EmulatorSubtype;
@@ -17,6 +18,7 @@ export type MachineDef = {
 };
 
 export const MAC_PLUS: MachineDef = {
+    name: "Mac Plus",
     romPath: macPlusRomPath,
     emulator: "Mini vMac",
     emulatorSubtype: "Plus",
@@ -25,6 +27,7 @@ export const MAC_PLUS: MachineDef = {
 };
 
 export const MAC_II: MachineDef = {
+    name: "Mac II",
     romPath: macIIRomPath,
     emulator: "Mini vMac",
     emulatorSubtype: "II",
@@ -33,19 +36,34 @@ export const MAC_II: MachineDef = {
 };
 
 export const QUADRA: MachineDef = {
+    name: "Quadra 650",
     romPath: quadraRomPath,
     emulator: "BasiliskII",
     prefsPath: basiliskPrefsPath,
 };
 
 export const OLD_WORLD_POWERMAC: MachineDef = {
+    name: "Old World PowerMac",
     romPath: oldWorldRomPath,
     emulator: "SheepShaver",
     prefsPath: sheepShaverPrefsPath,
 };
 
 export const NEW_WORLD_POWERMAC: MachineDef = {
+    name: "New World PowerMac",
     romPath: newWorldRomPath,
     emulator: "SheepShaver",
     prefsPath: sheepShaverPrefsPath,
 };
+
+export const ALL_MACHINES = [
+    MAC_PLUS,
+    MAC_II,
+    QUADRA,
+    OLD_WORLD_POWERMAC,
+    NEW_WORLD_POWERMAC,
+];
+
+export const MACHINES_BY_NAME = Object.fromEntries(
+    ALL_MACHINES.map(machine => [machine.name, machine])
+);

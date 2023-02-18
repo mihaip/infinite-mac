@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, useMemo} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import "./Mac.css";
 import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
 import type {
@@ -11,16 +11,29 @@ import {
     emulatorHandlesDiskImages,
     isDiskImageFile,
 } from "./emulator/emulator-common";
-import {BroadcastChannelEthernetProvider} from "./BroadcastChannelEthernetProvider";
-import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 import {usePersistentState} from "./usePersistentState";
-import {DISKS_BY_DOMAIN} from "./disks";
 import * as varz from "./varz";
 import type {ScreenFrameProps} from "./ScreenFrame";
 import {ScreenFrame} from "./ScreenFrame";
 import {Dialog} from "./Dialog";
+import type {DiskDef} from "./disks";
+import type {MachineDef} from "./machines";
 
-export function Mac() {
+export type MacProps = {
+    disk: DiskDef;
+    machine: MachineDef;
+    ethernetProvider?: EmulatorEthernetProvider;
+    useSharedMemory?: boolean;
+    debugAudio?: boolean;
+};
+
+export function Mac({
+    disk,
+    machine,
+    ethernetProvider,
+    useSharedMemory = true,
+    debugAudio,
+}: MacProps) {
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
     const [scale, setScale] = useState<number | undefined>(undefined);
@@ -47,38 +60,7 @@ export function Mac() {
     const emulatorSettingsRef = useRef(emulatorSettings);
     emulatorSettingsRef.current = emulatorSettings;
 
-    const [disk, ethernetProvider, useSharedMemory, debugAudio] =
-        useMemo(() => {
-            const searchParams = new URLSearchParams(location.search);
-            let domain = searchParams.get("domain") ?? location.host;
-            // Use subdomain as the Ethernet Zone in production.
-            let ethernetProvider: EmulatorEthernetProvider | undefined;
-            if (domain.endsWith(".app")) {
-                const pieces = domain.split(".");
-                if (pieces.length === 3) {
-                    ethernetProvider = new CloudflareWorkerEthernetProvider(
-                        pieces[0]
-                    );
-                    domain = `${pieces[1]}.app`;
-                }
-            }
-            if (!ethernetProvider && searchParams.get("ethernet")) {
-                const zoneName = searchParams.get("ethernet_zone");
-                ethernetProvider = zoneName
-                    ? new CloudflareWorkerEthernetProvider(zoneName)
-                    : new BroadcastChannelEthernetProvider();
-            }
-
-            const disk =
-                DISKS_BY_DOMAIN[domain] ?? DISKS_BY_DOMAIN["system7.app"];
-            const useSharedMemory =
-                typeof SharedArrayBuffer !== "undefined" &&
-                searchParams.get("use_shared_memory") !== "false";
-            const debugAudio = searchParams.get("debug_audio") === "true";
-            return [disk, ethernetProvider, useSharedMemory, debugAudio];
-        }, []);
-    const initialScreenSize =
-        disk.machine.fixedScreenSize ?? SCREEN_SIZE_FOR_WINDOW;
+    const initialScreenSize = machine.fixedScreenSize ?? SCREEN_SIZE_FOR_WINDOW;
     const {width: initialScreenWidth, height: initialScreenHeight} =
         initialScreenSize;
     const [screenSize, setScreenSize] = useState(initialScreenSize);
@@ -97,7 +79,7 @@ export function Mac() {
         };
         const emulator = new Emulator(
             {
-                machine: disk.machine,
+                machine,
                 useSharedMemory,
                 screenWidth: initialScreenWidth,
                 screenHeight: initialScreenHeight,
@@ -150,7 +132,7 @@ export function Mac() {
         varz.incrementMulti({
             "emulator_starts": 1,
             "emulator_ethernet": ethernetProvider ? 1 : 0,
-            [`emulator_type:${disk.machine.emulator}`]: 1,
+            [`emulator_type:${machine.emulator}`]: 1,
             [`emulator_disk:${disk.name}`]: 1,
             "emulator_shared_memory": useSharedMemory ? 1 : 0,
         });
@@ -170,6 +152,7 @@ export function Mac() {
         };
     }, [
         disk,
+        machine,
         ethernetProvider,
         useSharedMemory,
         initialScreenWidth,
@@ -269,7 +252,7 @@ export function Mac() {
         for (const file of files) {
             if (isDiskImageFile(file.name)) {
                 diskImageCount++;
-                if (!emulatorHandlesDiskImages(disk.machine.emulator)) {
+                if (!emulatorHandlesDiskImages(machine.emulator)) {
                     diskImages.push(file);
                     continue;
                 }
