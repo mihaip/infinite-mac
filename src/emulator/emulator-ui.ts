@@ -2,6 +2,7 @@ import type {
     EmulatorChunkedFileSpec,
     EmulatorDiskImage,
     EmulatorFallbackCommand,
+    EmulatorSpeed,
     EmulatorWorkerConfig,
     EmulatorWorkerDirectorExtraction,
     EmulatorWorkerVideoBlit,
@@ -77,6 +78,7 @@ export type EmulatorConfig = {
 
 export type EmulatorSettings = {
     swapControlAndCommand: boolean;
+    speed: EmulatorSpeed;
 };
 
 export interface EmulatorEthernetProvider {
@@ -358,6 +360,13 @@ export class Emulator {
             );
         }
         this.#worker.postMessage({type: "start", config}, [rom, prefs]);
+    }
+
+    refreshSettings() {
+        const speed = this.#delegate?.emulatorSettings?.(this)?.speed;
+        if (speed !== undefined) {
+            this.#input.handleInput({type: "set-speed", speed});
+        }
     }
 
     stop() {

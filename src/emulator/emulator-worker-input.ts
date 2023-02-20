@@ -123,4 +123,6 @@ function resetInputBuffer(inputBuffer: Int32Array) {
     inputBuffer[InputBufferAddresses.keyEventFlagAddr] = 0;
     inputBuffer[InputBufferAddresses.keyCodeAddr] = 0;
     inputBuffer[InputBufferAddresses.keyStateAddr] = 0;
+    inputBuffer[InputBufferAddresses.speedFlagAddr] = 0;
+    inputBuffer[InputBufferAddresses.speedAddr] = 0;
 }

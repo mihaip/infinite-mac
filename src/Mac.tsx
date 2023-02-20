@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState, useRef, useCallback} from "react";
 import "./Mac.css";
 import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
 import type {
@@ -7,8 +7,11 @@ import type {
     EmulatorSettings,
 } from "./emulator/emulator-ui";
 import {Emulator} from "./emulator/emulator-ui";
+import type {EmulatorSpeed, EmulatorType} from "./emulator/emulator-common";
 import {
+    emulatorSupportsSpeedSetting,
     emulatorHandlesDiskImages,
+    EMULATOR_SPEEDS,
     isDiskImageFile,
 } from "./emulator/emulator-common";
 import {usePersistentState} from "./usePersistentState";
@@ -53,9 +56,13 @@ export function Mac({
     const emulatorRef = useRef<Emulator>();
     const ethernetProviderRef = useRef<EmulatorEthernetProvider>();
 
+    const onEmulatorSettingsChange = useCallback(() => {
+        emulatorRef.current?.refreshSettings();
+    }, []);
     const [emulatorSettings, setEmulatorSettings] = usePersistentState(
         DEFAULT_EMULATOR_SETTINGS,
-        "emulator-settings"
+        "emulator-settings",
+        onEmulatorSettingsChange
     );
     const emulatorSettingsRef = useRef(emulatorSettings);
     emulatorSettingsRef.current = emulatorSettings;
@@ -94,6 +101,7 @@ export function Mac({
                 },
                 emulatorDidFinishLoading(emulator: Emulator) {
                     setEmulatorLoaded(true);
+                    emulator.refreshSettings();
                 },
                 emulatorDidMakeLoadingProgress(
                     emulator: Emulator,
@@ -334,6 +342,7 @@ export function Mac({
             )}
             {settingsVisible && (
                 <MacSettings
+                    emulatorType={machine.emulator}
                     emulatorSettings={emulatorSettings}
                     setEmulatorSettings={setEmulatorSettings}
                     onDone={() => setSettingsVisible(false)}
@@ -366,6 +375,7 @@ const SCREEN_SIZE_FOR_WINDOW = (() => {
 
 const DEFAULT_EMULATOR_SETTINGS: EmulatorSettings = {
     swapControlAndCommand: false,
+    speed: -2,
 };
 
 function MacEthernetStatus({
@@ -432,10 +442,12 @@ function MacEthernetStatus({
 }
 
 function MacSettings({
+    emulatorType,
     emulatorSettings,
     setEmulatorSettings,
     onDone,
 }: {
+    emulatorType: EmulatorType;
     emulatorSettings: EmulatorSettings;
     setEmulatorSettings: (settings: EmulatorSettings) => void;
     onDone: () => void;
@@ -461,6 +473,34 @@ function MacSettings({
                     browser or OS).
                 </div>
             </label>
+            {emulatorSupportsSpeedSetting(emulatorType) && (
+                <label>
+                    Speed:
+                    <select
+                        value={emulatorSettings.speed}
+                        onChange={event =>
+                            setEmulatorSettings({
+                                ...emulatorSettings,
+                                speed: parseInt(
+                                    event.target.value
+                                ) as EmulatorSpeed,
+                            })
+                        }>
+                        {Array.from(
+                            EMULATOR_SPEEDS.entries(),
+                            ([speed, label]) => (
+                                <option key={`speed-${speed}`} value={speed}>
+                                    {label}
+                                </option>
+                            )
+                        )}
+                    </select>
+                    <div className="Dialog-Description">
+                        Very old softwre may be timing dependent and thus only
+                        work at 1x speeds.
+                    </div>
+                </label>
+            )}
         </Dialog>
     );
 }

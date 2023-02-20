@@ -1740,9 +1740,11 @@ var ASM_CONSTS = {
  11448: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
  11533: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
  11613: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
- 11694: function() {workerApi.releaseInputLock();},  
- 11728: function($0, $1, $2) {workerApi.didOpenAudio($0, $1, $2);},  
- 11768: function($0, $1) {workerApi.didOpenVideo($0, $1);}
+ 11694: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr);},  
+ 11776: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.speedAddr);},  
+ 11854: function() {workerApi.releaseInputLock();},  
+ 11888: function($0, $1, $2) {workerApi.didOpenAudio($0, $1, $2);},  
+ 11928: function($0, $1) {workerApi.didOpenVideo($0, $1);}
 };
 function consumeDiskImagePath(){ const diskImagePath = workerApi.consumeDiskImagePath(); if (!diskImagePath || !diskImagePath.length) { return 0; } const diskImagePathLength = lengthBytesUTF8(diskImagePath) + 1; const diskImagePathCstr = _malloc(diskImagePathLength); stringToUTF8(diskImagePath, diskImagePathCstr, diskImagePathLength); return diskImagePathCstr; }
 
