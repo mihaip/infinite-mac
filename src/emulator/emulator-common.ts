@@ -6,6 +6,25 @@ export function emulatorHandlesDiskImages(type: EmulatorType): boolean {
     return type === "Mini vMac";
 }
 
+export function emulatorSupportsSpeedSetting(type: EmulatorType): boolean {
+    return type === "Mini vMac";
+}
+
+// -2 is a special value meaning the default that Mini vMac was built with,
+// other values are what it uses in CONTROLM.h for speeds.
+export type EmulatorSpeed = -2 | 0 | 1 | 2 | 3 | 4 | 5 | -1;
+
+export const EMULATOR_SPEEDS = new Map<EmulatorSpeed, string>([
+    [-2, "Default"],
+    [0, "1x"],
+    [1, "2x"],
+    [2, "4x"],
+    [3, "8x"],
+    [4, "16x"],
+    [5, "32x"],
+    [-1, "All Out"],
+]);
+
 export const InputBufferAddresses = {
     globalLockAddr: 0,
     mousePositionFlagAddr: 1,
@@ -18,6 +37,8 @@ export const InputBufferAddresses = {
     stopFlagAddr: 8,
     ethernetInterruptFlagAddr: 9,
     audioContextRunningFlagAddr: 10,
+    speedFlagAddr: 11,
+    speedAddr: 12,
 };
 
 export type EmulatorMouseEvent =
@@ -45,6 +66,11 @@ export type EmulatorAudioContextRunningEvent = {
     type: "audio-context-running";
 };
 
+export type EmulatorSetSpeedEvent = {
+    type: "set-speed";
+    speed: EmulatorSpeed;
+};
+
 export type EmulatorInputEvent =
     | EmulatorMouseEvent
     | EmulatorTouchEvent
@@ -52,7 +78,8 @@ export type EmulatorInputEvent =
     | EmulatorStopEvent
     | EmulatorStartEvent
     | EmulatorEthernetInterruptEvent
-    | EmulatorAudioContextRunningEvent;
+    | EmulatorAudioContextRunningEvent
+    | EmulatorSetSpeedEvent;
 
 export enum LockStates {
     READY_FOR_UI_THREAD,
@@ -278,6 +305,8 @@ export function updateInputBufferWithEvents(
     let hasStart = false;
     let hasEthernetInterrupt = false;
     let hasAudioContextRunning = false;
+    let hasSpeeed = false;
+    let speed = -2;
     // currently only one key event can be sent per sync
     // TODO: better key handling code
     const remainingEvents: EmulatorInputEvent[] = [];
@@ -327,6 +356,9 @@ export function updateInputBufferWithEvents(
             case "audio-context-running":
                 hasAudioContextRunning = true;
                 break;
+            case "set-speed":
+                hasSpeeed = true;
+                speed = inputEvent.speed;
         }
     }
     if (hasMousePosition) {
@@ -353,6 +385,10 @@ export function updateInputBufferWithEvents(
         hasEthernetInterrupt ? 1 : 0;
     if (hasAudioContextRunning) {
         inputBufferView[InputBufferAddresses.audioContextRunningFlagAddr] = 1;
+    }
+    if (hasSpeeed) {
+        inputBufferView[InputBufferAddresses.speedFlagAddr] = 1;
+        inputBufferView[InputBufferAddresses.speedAddr] = speed;
     }
     return remainingEvents;
 }
