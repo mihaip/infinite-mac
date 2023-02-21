@@ -1,0 +1,25 @@
+.Browser {
+    background: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    min-width: 300px;
+}
+
+.Browser h1 {
+    margin-top: 0;
+}
+
+.Browser ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.Browser li {
+    cursor: pointer;
+}
+
+.Browser li:hover {
+    background: #eee;
+}

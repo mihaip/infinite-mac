@@ -28,6 +28,7 @@ export type MacProps = {
     ethernetProvider?: EmulatorEthernetProvider;
     useSharedMemory?: boolean;
     debugAudio?: boolean;
+    onDone?: () => void;
 };
 
 export function Mac({
@@ -36,6 +37,7 @@ export function Mac({
     ethernetProvider,
     useSharedMemory = true,
     debugAudio,
+    onDone,
 }: MacProps) {
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
@@ -292,6 +294,14 @@ export function Mac({
         bezelSize = "Medium";
     }
 
+    const controls = [
+        {label: "Full-screen", handler: handleFullScreenClick},
+        {label: "Settings", handler: handleSettingsClick},
+    ];
+    if (onDone) {
+        controls.push({label: "Done", handler: onDone});
+    }
+
     return (
         <ScreenFrame
             className="Mac"
@@ -307,10 +317,7 @@ export function Mac({
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            controls={[
-                {label: "Full-screen", handler: handleFullScreenClick},
-                {label: "Settings", handler: handleSettingsClick},
-            ]}
+            controls={controls}
             screen={
                 <canvas
                     className="Mac-Screen"
