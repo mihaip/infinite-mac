@@ -496,7 +496,7 @@ function MacSettings({
                         )}
                     </select>
                     <div className="Dialog-Description">
-                        Very old softwre may be timing dependent and thus only
+                        Very old software may be timing dependent and thus only
                         work at 1x speeds.
                     </div>
                 </label>
