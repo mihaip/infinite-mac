@@ -127,6 +127,15 @@ export const DISKS_BY_DOMAIN: {
     "macos9.app": MAC_OS_9_0_4,
 };
 
+export const DISKS_BY_YEAR: {
+    [year: number]: DiskDef[];
+} = {
+    1991: [SYSTEM_6_0_8],
+    1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
+    1998: [MAC_OS_8_1],
+    1999: [MAC_OS_9_0_4],
+};
+
 export const ALL_DISKS = [
     SYSTEM_6_0_8,
     SYSTEM_7_5_3,
