@@ -35,6 +35,10 @@ body.fullscreen {
     touch-action: none;
 }
 
+.fullscreen .Mac-Screen {
+    image-rendering: auto;
+}
+
 .Mac-Overlay {
     position: absolute;
     top: var(--screen-underscan);
