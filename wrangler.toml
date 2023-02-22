@@ -31,6 +31,8 @@ routes = [
     {pattern = "*.macos9.app/*", zone_name = "macos9.app"},
     {pattern = "kanjitalk7.app/*", zone_name = "kanjitalk7.app"},
     {pattern = "*.kanjitalk7.app/*", zone_name = "kanjitalk7.app"},
+    {pattern = "infinitemac.org/*", zone_name = "infinitemac.org"},
+    {pattern = "*.infinitemac.org/*", zone_name = "infinitemac.org"},
     {pattern = "mac.persistent.info/*", zone_name = "persistent.info"},
 ]
 durable_objects.bindings = [
