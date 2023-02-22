@@ -1,7 +1,7 @@
 import React from "react";
 import "./ScreenFrame.css";
-import {ReactComponent as AppleLogoColor} from "./AppleLogoColor.svg";
-import {ReactComponent as AppleLogoGrey} from "./AppleLogoGrey.svg";
+import {ReactComponent as AppleLogoColor} from "./Images/AppleLogoColor.svg";
+import {ReactComponent as AppleLogoGrey} from "./Images/AppleLogoGrey.svg";
 
 export type ScreenFrameProps = {
     className?: string;
@@ -11,10 +11,10 @@ export type ScreenFrameProps = {
     height: number;
     scale?: number;
     fullscreen?: boolean;
-    loading?: boolean;
-    controls: ScreenControl[];
+    led?: "None" | "On" | "Loading";
+    controls?: ScreenControl[];
     screen?: React.ReactElement;
-    children: React.ReactNode;
+    children?: React.ReactNode;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export type ScreenControl = {
@@ -31,8 +31,8 @@ export function ScreenFrame(props: ScreenFrameProps) {
         height,
         scale,
         fullscreen,
-        loading,
-        controls,
+        led = "None",
+        controls = [],
         screen,
         children,
         ...divProps
@@ -76,12 +76,14 @@ export function ScreenFrame(props: ScreenFrameProps) {
                     </div>
                 ))}
             </div>
-            <div
-                className={
-                    "ScreenFrame-Led" +
-                    (loading ? " ScreenFrame-Led-Loading" : "")
-                }
-            />
+            {led !== "None" && (
+                <div
+                    className={
+                        "ScreenFrame-Led" +
+                        (led === "Loading" ? " ScreenFrame-Led-Loading" : "")
+                    }
+                />
+            )}
             <div
                 className="ScreenFrame-ScreenContainer"
                 style={{

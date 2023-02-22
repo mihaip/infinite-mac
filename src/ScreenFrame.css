@@ -227,7 +227,7 @@
     /* Add inner dark border */
     box-shadow: inset 0 0 0 2px #282c34;
     /* Cover up pinstripe pattern - border-images do not respect border-radius .*/
-    outline: solid 100px #282c34;
+    outline: solid var(--screen-bezel-size) #282c34;
 }
 
 .ScreenFrame-Bezel-Pinstripes .ScreenFrame-Controls-Container {

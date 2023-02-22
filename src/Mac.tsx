@@ -21,6 +21,7 @@ import {ScreenFrame} from "./ScreenFrame";
 import {Dialog} from "./Dialog";
 import type {DiskDef} from "./disks";
 import type {MachineDef} from "./machines";
+import type {ButtonProps} from "./Button";
 
 export type MacProps = {
     disk: DiskDef;
@@ -311,7 +312,7 @@ export function Mac({
             height={screenHeight}
             scale={scale}
             fullscreen={fullscreen}
-            loading={!emulatorLoaded || emulatorLoadingDiskChunk}
+            led={!emulatorLoaded || emulatorLoadingDiskChunk ? "Loading" : "On"}
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
@@ -351,6 +352,9 @@ export function Mac({
                 <MacSettings
                     emulatorType={machine.emulator}
                     emulatorSettings={emulatorSettings}
+                    buttonAppearance={
+                        disk.bezelStyle === "Beige" ? "Classic" : "Platinum"
+                    }
                     setEmulatorSettings={setEmulatorSettings}
                     onDone={() => setSettingsVisible(false)}
                 />
@@ -451,16 +455,21 @@ function MacEthernetStatus({
 function MacSettings({
     emulatorType,
     emulatorSettings,
+    buttonAppearance,
     setEmulatorSettings,
     onDone,
 }: {
     emulatorType: EmulatorType;
     emulatorSettings: EmulatorSettings;
+    buttonAppearance: ButtonProps["appearance"];
     setEmulatorSettings: (settings: EmulatorSettings) => void;
     onDone: () => void;
 }) {
     return (
-        <Dialog title="Settings" onDone={onDone}>
+        <Dialog
+            title="Settings"
+            onDone={onDone}
+            buttonAppearance={buttonAppearance}>
             <label>
                 <input
                     type="checkbox"

@@ -42,16 +42,6 @@
     justify-content: flex-end;
 }
 
-.Dialog button {
-    border-radius: 8px;
-    background: #fff;
-    border: solid 1px #000;
-    color: #000;
-    padding: 2px 4px;
-    min-width: 60px;
-    font-size: 14px;
-}
-
 .Dialog a,
 .Dialog .link {
     cursor: pointer;

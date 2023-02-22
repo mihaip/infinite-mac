@@ -1,25 +1,93 @@
+@font-face {
+    font-family: "Apple Garamond";
+    src: url(./Fonts/AppleGaramond.woff2);
+}
+
 .Browser {
-    background: #fff;
-    padding: 8px;
-    border-radius: 8px;
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-    min-width: 300px;
+    padding: 40px;
+}
+
+@media (max-width: 400px) {
+    .Browser {
+        padding: 10px;
+    }
 }
 
 .Browser h1 {
     margin-top: 0;
+    color: #fff;
 }
 
-.Browser ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.Browser .Year {
+    margin: 2em 0 3em 0;
 }
 
-.Browser li {
-    cursor: pointer;
+.Browser .Year h2 {
+    color: #fff;
+    z-index: 1;
+    position: relative;
 }
 
-.Browser li:hover {
-    background: #eee;
+.Browser .Year .Disks {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.Disk {
+    margin: 20px;
+}
+
+@media (max-width: 400px) {
+    .Disk {
+        margin: 10px;
+    }
+}
+
+.DiskContents {
+    background: #fff;
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    padding: 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+.DiskContents h3 {
+    font-family: "Apple Garamond";
+    font-weight: normal;
+    font-size: 28px;
+    margin: 0 0 8px 0;
+}
+
+.DiskContents h3 .Subtitle {
+    color: #999;
+}
+
+.DiskContents .Row {
+    margin-bottom: 1em;
+}
+
+.DiskContents .Row.Buttons {
+    text-align: right;
+}
+
+.DiskContents .Row:last-child {
+    margin-bottom: 0;
+}
+
+.DiskContents .Row .Button {
+    margin: 0 4px;
+}
+
+.Disk .CustomizeButton {
+    visibility: hidden;
+    font-weight: normal;
+}
+
+.Disk:hover .CustomizeButton {
+    visibility: visible;
 }

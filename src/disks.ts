@@ -15,6 +15,9 @@ import {
 } from "./machines";
 
 export type DiskDef = EmulatorChunkedFileSpec & {
+    displayName: string;
+    displaySubtitle?: string;
+    description: string;
     machines: MachineDef[];
     bezelStyle: "Beige" | "Platinum" | "Pinstripes";
 };
@@ -22,6 +25,9 @@ export type DiskDef = EmulatorChunkedFileSpec & {
 // prefetchChunks are semi-automatically generated -- we will get a
 // warning via validateSpecPrefetchChunks() if these are incorrect.
 const SYSTEM_6_0_8: DiskDef = {
+    displayName: "System 6.0.8",
+    description:
+        "Final release of System 6, updated printing software to match the printing software of System 7.",
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_PLUS, MAC_II],
@@ -30,6 +36,9 @@ const SYSTEM_6_0_8: DiskDef = {
 };
 
 const SYSTEM_7_5_3: DiskDef = {
+    displayName: "System 7.5.3",
+    description:
+        "Brought Open Transport and other improvements released with the PCI Power Mac-only 7.5.2 release to a broader set of Macs.",
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24,
@@ -44,6 +53,10 @@ const SYSTEM_7_5_3: DiskDef = {
 };
 
 const SYSTEM_7_5_3_PPC: DiskDef = {
+    displayName: "System 7.5.3",
+    displaySubtitle: "PowerPC",
+    description:
+        "Installation with OpenDoc, QuickDraw GX and other PowerPC-only software.",
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23,
@@ -55,11 +68,13 @@ const SYSTEM_7_5_3_PPC: DiskDef = {
         140, 141, 142, 143, 144, 145, 146, 147, 148, 152, 153, 155,
     ],
     machines: [OLD_WORLD_POWERMAC],
-    bezelStyle: "Platinum",
+    bezelStyle: "Beige",
     ...system753PpcHdManifest,
 };
 
 const KANJITALK_7_5_3: DiskDef = {
+    displayName: "KanjiTalk 7.5.3",
+    description: "Japanese edition of System 7.5.3.",
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 27, 28,
@@ -75,6 +90,8 @@ const KANJITALK_7_5_3: DiskDef = {
 };
 
 const MAC_OS_8_1: DiskDef = {
+    displayName: "Mac OS 8.1",
+    description: "Added support for the HFS+ file system.",
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 22, 23, 24, 25, 26, 27, 28, 29,
@@ -92,6 +109,8 @@ const MAC_OS_8_1: DiskDef = {
 };
 
 const MAC_OS_9_0_4: DiskDef = {
+    displayName: "Mac OS 9.0.4",
+    description: "Bug fix release.",
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24,
@@ -133,7 +152,7 @@ export const DISKS_BY_YEAR: {
     1991: [SYSTEM_6_0_8],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
-    1999: [MAC_OS_9_0_4],
+    2000: [MAC_OS_9_0_4],
 };
 
 export const ALL_DISKS = [

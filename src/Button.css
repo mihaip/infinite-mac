@@ -1,0 +1,33 @@
+.Button {
+    border-image-slice: 4 fill;
+    border-image-width: 4px;
+    border-width: 4px;
+    image-rendering: pixelated;
+    background: transparent;
+    padding: 1px 8px;
+    font-size: 13px;
+    color: #000;
+    font-family: "Helvetica", "Arial", sans-serif;
+    font-weight: bold;
+    user-select: none;
+}
+
+.Button:active {
+    color: #fff;
+}
+
+.Button.Button-Classic {
+    border-image-source: url(./Images/ClassicButton.png);
+}
+
+.Button.Button-Classic:active {
+    border-image-source: url(./Images/ClassicButton-Active.png);
+}
+
+.Button.Button-Platinum {
+    border-image-source: url(./Images/PlatinumButton.png);
+}
+
+.Button.Button-Platinum:active {
+    border-image-source: url(./Images/PlatinumButton-Active.png);
+}
