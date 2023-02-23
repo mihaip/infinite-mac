@@ -20,6 +20,7 @@ export type ScreenFrameProps = {
 export type ScreenControl = {
     label: string;
     handler: () => void;
+    alwaysVisible?: boolean;
 };
 
 export function ScreenFrame(props: ScreenFrameProps) {
@@ -66,9 +67,12 @@ export function ScreenFrame(props: ScreenFrameProps) {
                     <AppleLogo className="Background" />
                     <AppleLogo className="Foreground" />
                 </div>
-                {controls.map(({label, handler}, i) => (
+                {controls.map(({label, handler, alwaysVisible}, i) => (
                     <div
                         className="ScreenFrame-Control ScreenFrame-Bezel-Text"
+                        style={{
+                            visibility: alwaysVisible ? "visible" : undefined,
+                        }}
                         onClick={handler}
                         data-text={label}
                         key={label}>

@@ -19,6 +19,7 @@ export type DiskDef = EmulatorChunkedFileSpec & {
     displaySubtitle?: string;
     description: string;
     machines: MachineDef[];
+    appleTalkSupported?: boolean;
     bezelStyle: "Beige" | "Platinum" | "Pinstripes";
 };
 
@@ -48,6 +49,7 @@ const SYSTEM_7_5_3: DiskDef = {
         114, 116, 117, 166,
     ],
     machines: [QUADRA, MAC_II, MAC_PLUS],
+    appleTalkSupported: true,
     bezelStyle: "Beige",
     ...system753HdManifest,
 };
@@ -68,6 +70,7 @@ const SYSTEM_7_5_3_PPC: DiskDef = {
         140, 141, 142, 143, 144, 145, 146, 147, 148, 152, 153, 155,
     ],
     machines: [OLD_WORLD_POWERMAC],
+    appleTalkSupported: true,
     bezelStyle: "Beige",
     ...system753PpcHdManifest,
 };
@@ -86,6 +89,7 @@ const KANJITALK_7_5_3: DiskDef = {
     ],
     bezelStyle: "Beige",
     machines: [QUADRA, MAC_II, MAC_PLUS],
+    appleTalkSupported: true,
     ...kanjiTalk753HdManifest,
 };
 
@@ -105,6 +109,7 @@ const MAC_OS_8_1: DiskDef = {
     ],
     bezelStyle: "Platinum",
     machines: [QUADRA, OLD_WORLD_POWERMAC],
+    appleTalkSupported: true,
     ...macos81HdManifest,
 };
 
