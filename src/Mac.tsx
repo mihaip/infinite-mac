@@ -16,7 +16,7 @@ import {
 } from "./emulator/emulator-common";
 import {usePersistentState} from "./usePersistentState";
 import * as varz from "./varz";
-import type {ScreenFrameProps} from "./ScreenFrame";
+import type {ScreenControl, ScreenFrameProps} from "./ScreenFrame";
 import {ScreenFrame} from "./ScreenFrame";
 import {Dialog} from "./Dialog";
 import type {DiskDef} from "./disks";
@@ -295,12 +295,16 @@ export function Mac({
         bezelSize = "Medium";
     }
 
-    const controls = [
+    const controls: ScreenControl[] = [
         {label: "Full-screen", handler: handleFullScreenClick},
         {label: "Settings", handler: handleSettingsClick},
     ];
     if (onDone) {
-        controls.push({label: "Done", handler: onDone});
+        controls.unshift({
+            label: "‹ Done",
+            handler: onDone,
+            alwaysVisible: true,
+        });
     }
 
     return (
@@ -444,7 +448,7 @@ function MacEthernetStatus({
         <div
             className="Mac-Ethernet-Status"
             onClick={() => setExpanded(!expanded)}>
-            <div className="Mac-Screen-Bezel-Text" data-text={text}>
+            <div className="ScreenFrame-Bezel-Text" data-text={text}>
                 {text}
             </div>
             {details}

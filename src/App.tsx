@@ -17,6 +17,7 @@ function App() {
                 <Mac
                     disk={runDef.disk}
                     machine={runDef.machine}
+                    ethernetProvider={runDef.ethernetProvider}
                     onDone={() => setRunDef(undefined)}
                 />
             );
