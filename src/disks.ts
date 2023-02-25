@@ -1,3 +1,5 @@
+import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
+import system10Manifest from "./Data/System 1.0.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
@@ -7,6 +9,7 @@ import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
 import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
 import type {MachineDef} from "./machines";
 import {
+    MAC_128K,
     MAC_II,
     MAC_PLUS,
     NEW_WORLD_POWERMAC,
@@ -14,17 +17,29 @@ import {
     QUADRA,
 } from "./machines";
 
+// prefetchChunks are semi-automatically generated -- we will get a
+// warning via validateSpecPrefetchChunks() if these are incorrect.
 export type DiskDef = EmulatorChunkedFileSpec & {
     displayName: string;
     displaySubtitle?: string;
     description: string;
     machines: MachineDef[];
     appleTalkSupported?: boolean;
+    mfsOnly?: boolean;
     bezelStyle: "Beige" | "Platinum" | "Pinstripes";
 };
 
-// prefetchChunks are semi-automatically generated -- we will get a
-// warning via validateSpecPrefetchChunks() if these are incorrect.
+const SYSTEM_1_0: DiskDef = {
+    displayName: "System 1.0",
+    description: "Initial system software release, shipped with the Mac 128K.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1],
+    machines: [MAC_128K],
+    bezelStyle: "Beige",
+    mfsOnly: true,
+    ...system10Manifest,
+};
+
 const SYSTEM_6_0_8: DiskDef = {
     displayName: "System 6.0.8",
     description:
@@ -154,6 +169,7 @@ export const DISKS_BY_DOMAIN: {
 export const DISKS_BY_YEAR: {
     [year: number]: DiskDef[];
 } = {
+    1984: [SYSTEM_1_0],
     1991: [SYSTEM_6_0_8],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
@@ -161,6 +177,7 @@ export const DISKS_BY_YEAR: {
 };
 
 export const ALL_DISKS = [
+    SYSTEM_1_0,
     SYSTEM_6_0_8,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
@@ -172,3 +189,9 @@ export const ALL_DISKS = [
 export const DISKS_BY_NAME = Object.fromEntries(
     ALL_DISKS.map(disk => [disk.name, disk])
 );
+
+export const INFINITE_HD = {
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 3346, 3350, 3351, 3352],
+    ...infiniteHdManifest,
+};
