@@ -410,7 +410,8 @@ export function isDiskImageFile(name: string): boolean {
         name.endsWith(".dsk") ||
         name.endsWith(".img") ||
         name.endsWith(".toast") ||
-        name.endsWith(".cdr")
+        name.endsWith(".cdr") ||
+        name.endsWith(".smi")
     );
 }
 
