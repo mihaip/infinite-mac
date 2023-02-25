@@ -364,7 +364,7 @@ def traverse_folders(parent: machfs.Folder, folder_path: str) -> machfs.Folder:
 
 
 def fix_name(name: str) -> str:
-    return name.replace(":", "/")
+    return unicodedata.normalize("NFC", name.replace(":", "/"))
 
 
 def clear_folder_window_position(folder: machfs.Folder) -> None:
@@ -511,6 +511,7 @@ def build_library_image(base_name: str, dest_dir: str) -> ImageDef:
     for folder_path, folder in import_folders.items():
         parent_folder_path, folder_name = os.path.split(folder_path)
         parent = traverse_folders(v, parent_folder_path)
+        folder_name = fix_name(folder_name)
         if folder_name in parent:
             sys.stderr.write(
                 "  Skipping %s, already installed in the image\n" %
