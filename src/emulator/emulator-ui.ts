@@ -35,6 +35,8 @@ import {
     handleDirectoryExtraction,
     uploadsFromDirectoryExtractionFile,
 } from "./emulator-ui-extractor";
+import MinivMac128KPath from "./minivmac-128K.jsz";
+import MinivMac128KWasmPath from "./minivmac-128K.wasmz";
 import MinivMacIIPath from "./minivmac-II.jsz";
 import MinivMacIIWasmPath from "./minivmac-II.wasmz";
 import MinivMacPlusPath from "./minivmac-Plus.jsz";
@@ -267,6 +269,12 @@ export class Emulator {
                 break;
             case "Mini vMac":
                 switch (this.#config.machine.emulatorSubtype) {
+                    case "128K":
+                        emulatorPaths = [
+                            MinivMac128KPath,
+                            MinivMac128KWasmPath,
+                        ];
+                        break;
                     case "Plus":
                         emulatorPaths = [
                             MinivMacPlusPath,

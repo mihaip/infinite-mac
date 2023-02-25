@@ -1,3 +1,4 @@
+import mac128KRomPath from "./Data/Mac-128K.rom";
 import macPlusRomPath from "./Data/Mac-Plus.rom";
 import macIIRomPath from "./Data/Mac-II.rom";
 import quadraRomPath from "./Data/Quadra-650.rom";
@@ -15,6 +16,15 @@ export type MachineDef = {
     emulatorSubtype?: EmulatorSubtype;
     prefsPath: string;
     fixedScreenSize?: {width: number; height: number};
+};
+
+export const MAC_128K: MachineDef = {
+    name: "Mac 128K",
+    romPath: mac128KRomPath,
+    emulator: "Mini vMac",
+    emulatorSubtype: "128K",
+    prefsPath: minivMacPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
 };
 
 export const MAC_PLUS: MachineDef = {

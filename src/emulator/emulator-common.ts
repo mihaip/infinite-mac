@@ -1,6 +1,6 @@
 export type EmulatorType = "BasiliskII" | "SheepShaver" | "Mini vMac";
 
-export type EmulatorSubtype = "Plus" | "II";
+export type EmulatorSubtype = "128K" | "Plus" | "II";
 
 export function emulatorHandlesDiskImages(type: EmulatorType): boolean {
     return type === "Mini vMac";

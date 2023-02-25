@@ -1,13 +1,16 @@
 import React, {useEffect, useState, useRef, useCallback} from "react";
 import "./Mac.css";
-import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
 import type {
     EmulatorEthernetProvider,
     EmulatorEthernetPeer,
     EmulatorSettings,
 } from "./emulator/emulator-ui";
 import {Emulator} from "./emulator/emulator-ui";
-import type {EmulatorSpeed, EmulatorType} from "./emulator/emulator-common";
+import type {
+    EmulatorChunkedFileSpec,
+    EmulatorSpeed,
+    EmulatorType,
+} from "./emulator/emulator-common";
 import {
     emulatorSupportsSpeedSetting,
     emulatorHandlesDiskImages,
@@ -20,6 +23,7 @@ import type {ScreenControl, ScreenFrameProps} from "./ScreenFrame";
 import {ScreenFrame} from "./ScreenFrame";
 import {Dialog} from "./Dialog";
 import type {DiskDef} from "./disks";
+import {INFINITE_HD} from "./disks";
 import type {MachineDef} from "./machines";
 import type {ButtonProps} from "./Button";
 
@@ -82,11 +86,10 @@ export function Mac({
             "webkitfullscreenchange",
             handleFullScreenChange
         );
-        const libraryDisk = {
-            baseUrl: "/Disk",
-            prefetchChunks: [0, 3346, 3350, 3351, 3352],
-            ...infiniteHdManifest,
-        };
+        const disks: EmulatorChunkedFileSpec[] = [disk];
+        if (!disk.mfsOnly) {
+            disks.push(INFINITE_HD);
+        }
         const emulator = new Emulator(
             {
                 machine,
@@ -94,7 +97,7 @@ export function Mac({
                 screenWidth: initialScreenWidth,
                 screenHeight: initialScreenHeight,
                 screenCanvas: screenRef.current!,
-                disks: [disk, libraryDisk],
+                disks,
                 ethernetProvider,
                 debugAudio,
             },
