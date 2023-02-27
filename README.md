@@ -82,9 +82,12 @@ Once it has built, use `npm run import-sheepshaver` from the host to update the 
 
 ```sh
 cd /minivmac
-# Configure for building for WASM (builds the Mac Plus model by default --
-# add `-m 128K` or `-m II` to build the Mac 128K or II models instead).
+# Configure for building for WASM
 ./emscripten_setup.sh
+# This configures the Mac Plus model by default, alternative outputs can be
+# configured with additionl arguments:
+# - `-m 128K -speed z`: Mac 128K (uses 1x speed by default to be more realistic)
+# - `-m II`: Mac II
 # Actually compile Mini vMac targetting WASM
 make -j8
 ```
