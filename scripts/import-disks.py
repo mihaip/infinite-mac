@@ -490,11 +490,11 @@ def build_system_image(
                 "skipping customization for %s", len(stickies_data),
                 len(stickies_placeholder), disk.name)
         else:
-            # Replace the leftover placeholder data with with nil bytes, so that
-            # TextText does not render it (not needed for Stickies since they
-            # have a length field, but it doesn't hurt either).
+            # Replace the leftover placeholder data, so that TextText does not
+            # render it (not needed for Stickies since they have a length
+            # field, but it doesn't hurt either).
             image_data = image_data[:stickies_index] + stickies_data + \
-                b'\x00' * (len(stickies_placeholder) - len(stickies_data)) + \
+                disk.sticky_placeholder_overwrite_byte * (len(stickies_placeholder) - len(stickies_data)) + \
                 image_data[stickies_index + len(stickies_placeholder):]
 
     return write_image_def(image_data, disk.name, dest_dir)
@@ -564,10 +564,24 @@ STICKIES = [
         bottom=525,
         right=638,
         color=stickies.Color.PURPLE,
+        skip_in_ttxt=True,
         text="""Tips
 • To add additional files (e.g. downloads from archives like Macintosh Repository and Macintosh Garden), simply drag them onto the screen. They will appear in the “Downloads” folder in The Outside World.
 • Conversely, to get folders or files out the Mac, you put them in the “Uploads” folder. A .zip archive with them will be generated and downloaded by your browser.
 • Files in the “Saved” folder will be saved across emulator runs (best-effort)
+• To go full screen, you can use the command that appears next to the monitor's Apple logo.
+• Additional settings can be toggled by using the “Settings” command, also next to the monitor's Apple logo.
+• If you're on an iOS device, you can add this site to your home screen via the share icon.""",
+    ),
+    stickies.Sticky(
+        top=300,
+        left=444,
+        bottom=525,
+        right=638,
+        color=stickies.Color.PURPLE,
+        skip_in_stickies=True,
+        text="""Tips
+• To load additional software, drag disk images (.dsk, .iso, etc.) onto the screen. They will be mounted on the desktop.
 • To go full screen, you can use the command that appears next to the monitor's Apple logo.
 • Additional settings can be toggled by using the “Settings” command, also next to the monitor's Apple logo.
 • If you're on an iOS device, you can add this site to your home screen via the share icon.""",
