@@ -1,5 +1,6 @@
 import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
 import system10Manifest from "./Data/System 1.0.dsk.json";
+import system11Manifest from "./Data/System 1.1.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
@@ -38,6 +39,18 @@ const SYSTEM_1_0: DiskDef = {
     bezelStyle: "Beige",
     mfsOnly: true,
     ...system10Manifest,
+};
+
+const SYSTEM_1_1: DiskDef = {
+    displayName: "System 1.1",
+    description:
+        "Maintenance release that improved disk copying speeds and added the “Clean Up” command and the Finder about box.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1],
+    machines: [MAC_128K],
+    bezelStyle: "Beige",
+    mfsOnly: true,
+    ...system11Manifest,
 };
 
 const SYSTEM_6_0_8: DiskDef = {
@@ -169,7 +182,7 @@ export const DISKS_BY_DOMAIN: {
 export const DISKS_BY_YEAR: {
     [year: number]: DiskDef[];
 } = {
-    1984: [SYSTEM_1_0],
+    1984: [SYSTEM_1_0, SYSTEM_1_1],
     1991: [SYSTEM_6_0_8],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
@@ -178,6 +191,7 @@ export const DISKS_BY_YEAR: {
 
 export const ALL_DISKS = [
     SYSTEM_1_0,
+    SYSTEM_1_1,
     SYSTEM_6_0_8,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
