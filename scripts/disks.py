@@ -27,6 +27,14 @@ SYSTEM_10 = Disk(
     # non-breaking space does.
     sticky_placeholder_overwrite_byte=b'\xca')
 
+SYSTEM_11 = Disk(
+    name="System 1.1.dsk",
+    domain="system1.app",
+    # NULL byte does not work in TechText when run on System 1.1, but a
+    # non-breaking space does.
+    sticky_placeholder_overwrite_byte=b'\xca',
+)
+
 SYSTEM_608 = Disk(
     name="System 6.0.8 HD.dsk",
     domain="system6.app",
@@ -80,6 +88,7 @@ MAC_OS_904 = Disk(
 
 ALL_DISKS = [
     SYSTEM_10,
+    SYSTEM_11,
     SYSTEM_608,
     SYSTEM_753,
     SYSTEM_753_PPC,
