@@ -14,6 +14,7 @@ class Disk:
         ["System Folder", "Preferences", "Stickies file"])
     stickies_encoding: str = "mac_roman"
     welcome_sticky_override: stickies.Sticky = None
+    sticky_placeholder_overwrite_byte: bytes = b'\x00'
 
     def path(self) -> str:
         return os.path.join(paths.IMAGES_DIR, self.name)
@@ -22,7 +23,9 @@ class Disk:
 SYSTEM_10 = Disk(
     name="System 1.0.dsk",
     domain="system1.app",
-)
+    # NULL byte does not work in TechText when run on System 1.0, but a
+    # non-breaking space does.
+    sticky_placeholder_overwrite_byte=b'\xca')
 
 SYSTEM_608 = Disk(
     name="System 6.0.8 HD.dsk",

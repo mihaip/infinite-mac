@@ -64,6 +64,7 @@ class Sticky:
 
     # Skip this note when generating the TextText version of Stickies.
     skip_in_ttxt: bool = False
+    skip_in_stickies: bool = False
 
     STRUCT = struct.Struct(">hhhh Q LL HBBH H")
 
@@ -127,10 +128,13 @@ class StickiesFile:
 
     def to_bytes(self, encoding: str = "mac_roman") -> bytes:
         stickies_raw = b""
+        count = 0
         for sticky in self.stickies:
+            if sticky.skip_in_stickies:
+                continue
             stickies_raw += sticky.to_bytes(encoding)
-        return StickiesFile.STRUCT.pack(self.header, len(
-            self.stickies)) + stickies_raw
+            count += 1
+        return StickiesFile.STRUCT.pack(self.header, count) + stickies_raw
 
     def to_ttxt_bytes(self, encoding: str = "mac_roman") -> bytes:
         text = ""
