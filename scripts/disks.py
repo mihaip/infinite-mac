@@ -8,12 +8,14 @@ import typing
 @dataclasses.dataclass
 class Disk:
     name: str
-    domain: str
+    domain: str = None
     stickies_path: typing.List[str] = dataclasses.field(
         default_factory=lambda:
         ["System Folder", "Preferences", "Stickies file"])
     stickies_encoding: str = "mac_roman"
     welcome_sticky_override: stickies.Sticky = None
+    # NULL byte does not work in TechText when run on older versions, but a
+    # non-breaking space does, so we allow it to be overridden per-disk.
     sticky_placeholder_overwrite_byte: bytes = b'\x00'
 
     def path(self) -> str:
@@ -22,16 +24,21 @@ class Disk:
 
 SYSTEM_10 = Disk(
     name="System 1.0.dsk",
-    domain="system1.app",
-    # NULL byte does not work in TechText when run on System 1.0, but a
-    # non-breaking space does.
-    sticky_placeholder_overwrite_byte=b'\xca')
+    sticky_placeholder_overwrite_byte=b'\xca',
+)
 
 SYSTEM_11 = Disk(
     name="System 1.1.dsk",
-    domain="system1.app",
-    # NULL byte does not work in TechText when run on System 1.1, but a
-    # non-breaking space does.
+    sticky_placeholder_overwrite_byte=b'\xca',
+)
+
+SYSTEM_20 = Disk(
+    name="System 2.0.dsk",
+    sticky_placeholder_overwrite_byte=b'\xca',
+)
+
+SYSTEM_21 = Disk(
+    name="System 2.1.dsk",
     sticky_placeholder_overwrite_byte=b'\xca',
 )
 
@@ -89,6 +96,8 @@ MAC_OS_904 = Disk(
 ALL_DISKS = [
     SYSTEM_10,
     SYSTEM_11,
+    SYSTEM_20,
+    SYSTEM_21,
     SYSTEM_608,
     SYSTEM_753,
     SYSTEM_753_PPC,

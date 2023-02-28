@@ -37,6 +37,8 @@ import {
 } from "./emulator-ui-extractor";
 import MinivMac128KPath from "./minivmac-128K.jsz";
 import MinivMac128KWasmPath from "./minivmac-128K.wasmz";
+import MinivMac512KePath from "./minivmac-512Ke.jsz";
+import MinivMac512KeWasmPath from "./minivmac-512Ke.wasmz";
 import MinivMacIIPath from "./minivmac-II.jsz";
 import MinivMacIIWasmPath from "./minivmac-II.wasmz";
 import MinivMacPlusPath from "./minivmac-Plus.jsz";
@@ -275,6 +277,13 @@ export class Emulator {
                             MinivMac128KWasmPath,
                         ];
                         break;
+                    case "512Ke":
+                        emulatorPaths = [
+                            MinivMac512KePath,
+                            MinivMac512KeWasmPath,
+                        ];
+                        break;
+
                     case "Plus":
                         emulatorPaths = [
                             MinivMacPlusPath,

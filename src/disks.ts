@@ -1,6 +1,8 @@
 import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
 import system10Manifest from "./Data/System 1.0.dsk.json";
 import system11Manifest from "./Data/System 1.1.dsk.json";
+import system20Manifest from "./Data/System 2.0.dsk.json";
+import system21Manifest from "./Data/System 2.1.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
@@ -11,6 +13,7 @@ import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
 import type {MachineDef} from "./machines";
 import {
     MAC_128K,
+    MAC_512KE,
     MAC_II,
     MAC_PLUS,
     NEW_WORLD_POWERMAC,
@@ -51,6 +54,30 @@ const SYSTEM_1_1: DiskDef = {
     bezelStyle: "Beige",
     mfsOnly: true,
     ...system11Manifest,
+};
+
+const SYSTEM_2_0: DiskDef = {
+    displayName: "System 2.0",
+    description:
+        "Introduced the ”New Folder” and ”Shut Down” commands, the MiniFinder, and Chooser. Also added the Command-Shift-3 screenshot command.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1],
+    machines: [MAC_128K],
+    bezelStyle: "Beige",
+    mfsOnly: true,
+    ...system20Manifest,
+};
+
+const SYSTEM_2_1: DiskDef = {
+    displayName: "System 2.1",
+    description:
+        "Added support for the Hard Disk 20 drive and the HFS file system.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1],
+    // The Mac 128K is supported, but HFS is not loaded in that case.
+    machines: [MAC_512KE, MAC_128K],
+    bezelStyle: "Beige",
+    ...system21Manifest,
 };
 
 const SYSTEM_6_0_8: DiskDef = {
@@ -183,6 +210,7 @@ export const DISKS_BY_YEAR: {
     [year: number]: DiskDef[];
 } = {
     1984: [SYSTEM_1_0, SYSTEM_1_1],
+    1985: [SYSTEM_2_0, SYSTEM_2_1],
     1991: [SYSTEM_6_0_8],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
@@ -192,6 +220,8 @@ export const DISKS_BY_YEAR: {
 export const ALL_DISKS = [
     SYSTEM_1_0,
     SYSTEM_1_1,
+    SYSTEM_2_0,
+    SYSTEM_2_1,
     SYSTEM_6_0_8,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
