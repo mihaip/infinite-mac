@@ -27,6 +27,15 @@ export const MAC_128K: MachineDef = {
     fixedScreenSize: {width: 512, height: 342},
 };
 
+export const MAC_512KE: MachineDef = {
+    name: "Mac 512Ke",
+    romPath: macPlusRomPath,
+    emulator: "Mini vMac",
+    emulatorSubtype: "512Ke",
+    prefsPath: minivMacPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
+};
+
 export const MAC_PLUS: MachineDef = {
     name: "Mac Plus",
     romPath: macPlusRomPath,

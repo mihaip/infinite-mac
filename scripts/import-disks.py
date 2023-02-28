@@ -469,7 +469,8 @@ def build_system_image(
                 disk.welcome_sticky_override)
         for sticky in customized_stickies:
             sticky.text = sticky.text.replace("CHANGELOG", changelog)
-            sticky.text = sticky.text.replace("DOMAIN", disk.domain)
+            if disk.domain is not None:
+                sticky.text = sticky.text.replace("DOMAIN", disk.domain)
             sticky.text = sticky.text.replace(
                 "SISTER_SITES",
                 f"{', '.join(sister_sites[:-1])} and {sister_sites[-1]}")

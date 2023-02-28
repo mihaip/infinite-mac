@@ -87,6 +87,7 @@ cd /minivmac
 # This configures the Mac Plus model by default, alternative outputs can be
 # configured with additionl arguments:
 # - `-m 128K -speed z`: Mac 128K (uses 1x speed by default to be more realistic)
+# - `-m 512Ke`: Mac 512ke
 # - `-m II`: Mac II
 # Actually compile Mini vMac targetting WASM
 make -j8
