@@ -28,6 +28,10 @@ export class CloudflareWorkerEthernetProvider
         return `Zone ${this.#zoneName}`;
     }
 
+    zoneName(): string {
+        return this.#zoneName;
+    }
+
     macAddress(): string | undefined {
         return this.#macAddress;
     }
