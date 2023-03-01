@@ -8,14 +8,8 @@ import {Button} from "./Button";
 import type {EmulatorEthernetProvider} from "./emulator/emulator-ui";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 
-export type BrowserRunDef = {
-    disk: DiskDef;
-    machine: MachineDef;
-    ethernetProvider?: EmulatorEthernetProvider;
-};
-
 export type BrowserProps = {
-    onRun: (def: BrowserRunDef) => void;
+    onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
 };
 
 export function Browser({onRun}: BrowserProps) {
@@ -38,7 +32,7 @@ export function Browser({onRun}: BrowserProps) {
 
 export type DiskProps = {
     disk: DiskDef;
-    onRun: (def: BrowserRunDef) => void;
+    onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
 };
 
 function Disk(props: DiskProps) {
@@ -59,14 +53,17 @@ function DiskContents({disk, onRun}: DiskProps) {
     const [machine, setMachine] = useState(disk.machines[0]);
     const [appleTalkEnabled, setAppleTalkEnabled] = useState(false);
     const [appleTalkZoneName, setAppleTalkZoneName] = useState("");
-    const run = () => {
+    const run = (event: React.MouseEvent) => {
         let ethernetProvider;
         if (appleTalkEnabled && appleTalkZoneName) {
             ethernetProvider = new CloudflareWorkerEthernetProvider(
                 appleTalkZoneName
             );
         }
-        onRun({disk, machine, ethernetProvider});
+        const runDef = {disk, machine, ethernetProvider};
+        const inNewWindow =
+            event.button === 2 || event.metaKey || event.ctrlKey;
+        onRun(runDef, inNewWindow);
     };
 
     let contents;
@@ -141,4 +138,72 @@ function DiskContents({disk, onRun}: DiskProps) {
             </div>
         </div>
     );
+}
+
+export type BrowserRunDef = {
+    disk: DiskDef;
+    machine: MachineDef;
+    ethernetProvider?: EmulatorEthernetProvider;
+};
+
+export function runDefFromUrl(urlString: string): BrowserRunDef | undefined {
+    let url;
+    try {
+        url = new URL(urlString);
+    } catch (e) {
+        return undefined;
+    }
+
+    const pieces = url.pathname.split("/");
+    if (pieces.length !== 3) {
+        return undefined;
+    }
+    const year = parseInt(pieces[1]);
+    if (isNaN(year)) {
+        return undefined;
+    }
+    const disks = DISKS_BY_YEAR[year];
+    if (!disks) {
+        return undefined;
+    }
+    const diskName = decodeURIComponent(pieces[2]);
+    const disk = disks.find(disk => disk.displayName === diskName);
+    if (!disk) {
+        return undefined;
+    }
+    const searchParams = url.searchParams;
+    let machine = disk.machines[0];
+    const machineName = searchParams.get("machine");
+    if (machineName) {
+        machine =
+            disk.machines.find(machine => machine.name === machineName) ??
+            machine;
+    }
+    let ethernetProvider;
+    const appleTalkZoneName = searchParams.get("appleTalk");
+    if (appleTalkZoneName) {
+        ethernetProvider = new CloudflareWorkerEthernetProvider(
+            appleTalkZoneName
+        );
+    }
+    return {
+        disk,
+        machine,
+        ethernetProvider,
+    };
+}
+
+export function runDefToUrl(runDef: BrowserRunDef, baseUrl: string): string {
+    const {disk, machine, ethernetProvider} = runDef;
+    const year = Object.entries(DISKS_BY_YEAR).find(([year, disks]) =>
+        disks.includes(disk)
+    )?.[0];
+    const url = new URL(`/${year}/${disk.displayName}`, baseUrl);
+    if (machine !== disk.machines[0]) {
+        url.searchParams.set("machine", machine.name);
+    }
+    if (ethernetProvider instanceof CloudflareWorkerEthernetProvider) {
+        url.searchParams.set("appleTalk", ethernetProvider.zoneName());
+    }
+    return url.toString();
 }

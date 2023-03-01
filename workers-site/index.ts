@@ -114,6 +114,17 @@ function mapRequestToAsset(request: Request): Request {
         pathname = pathname.concat("index.html");
     }
 
+    // Let the client-side handle runDef URLs (minimal version of runDefFromUrl).
+    if (
+        parsedUrl.hostname === "infinitemac.org" ||
+        parsedUrl.hostname.endsWith(".infinitemac.org")
+    ) {
+        const pieces = parsedUrl.pathname.split("/");
+        if (pieces.length === 3 && parseInt(pieces[1]) >= 1984) {
+            pathname = "/index.html";
+        }
+    }
+
     parsedUrl.pathname = pathname;
     return new Request(parsedUrl.toString(), request);
 }
