@@ -615,9 +615,9 @@ Files can be shared between instances, and muti-player games like Marathon, Bolo
         right=614,
         color=stickies.Color.GREEN,
         text=
-        """A project to have an easily browsable collection of classic Macintosh software from the comfort of a (modern) web browser.
+        """A collection of classic Macintosh system releases and software, all easily accessible from the comfort of a (modern) web browser.
 
-Browse around the Infinite HD to see what using a Mac in the mid 1990s was like.""",
+Browse around the Infinite HD to see what using a Mac in the 80s and 90s was like.""",
     ),
     stickies.Sticky(
         top=135,
