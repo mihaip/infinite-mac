@@ -3,6 +3,7 @@ import system10Manifest from "./Data/System 1.0.dsk.json";
 import system11Manifest from "./Data/System 1.1.dsk.json";
 import system20Manifest from "./Data/System 2.0.dsk.json";
 import system21Manifest from "./Data/System 2.1.dsk.json";
+import system30Manifest from "./Data/System 3.0.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
@@ -78,6 +79,17 @@ const SYSTEM_2_1: DiskDef = {
     machines: [MAC_512KE, MAC_128K],
     bezelStyle: "Beige",
     ...system21Manifest,
+};
+
+const SYSTEM_3_0: DiskDef = {
+    displayName: "System 3.0",
+    description:
+        "Added more complete support for HFS, zoom boxes for windows and a redesigned control panel.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2],
+    machines: [MAC_PLUS, MAC_512KE],
+    bezelStyle: "Beige",
+    ...system30Manifest,
 };
 
 const SYSTEM_6_0_8: DiskDef = {
@@ -211,6 +223,7 @@ export const DISKS_BY_YEAR: {
 } = {
     1984: [SYSTEM_1_0, SYSTEM_1_1],
     1985: [SYSTEM_2_0, SYSTEM_2_1],
+    1986: [SYSTEM_3_0],
     1991: [SYSTEM_6_0_8],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
@@ -222,6 +235,7 @@ export const ALL_DISKS = [
     SYSTEM_1_1,
     SYSTEM_2_0,
     SYSTEM_2_1,
+    SYSTEM_3_0,
     SYSTEM_6_0_8,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
@@ -236,6 +250,6 @@ export const DISKS_BY_NAME = Object.fromEntries(
 
 export const INFINITE_HD = {
     baseUrl: "/Disk",
-    prefetchChunks: [0, 3346, 3350, 3351, 3352],
+    prefetchChunks: [0, 3345, 3346, 3349, 3350, 3351, 3352],
     ...infiniteHdManifest,
 };
