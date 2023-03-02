@@ -9,7 +9,10 @@ import {Mac} from "./Mac";
 function App() {
     const [domain, url] = useMemo(() => {
         const searchParams = new URLSearchParams(location.search);
-        const domain = searchParams.get("domain") ?? location.host;
+        const domain =
+            searchParams.get("domain") ??
+            sessionStorage["domain"] ??
+            location.host;
         const url = searchParams.get("url") ?? location.href;
         return [domain, url];
     }, []);
