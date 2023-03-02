@@ -4,6 +4,7 @@ import system11Manifest from "./Data/System 1.1.dsk.json";
 import system20Manifest from "./Data/System 2.0.dsk.json";
 import system21Manifest from "./Data/System 2.1.dsk.json";
 import system30Manifest from "./Data/System 3.0.dsk.json";
+import system32Manifest from "./Data/System 3.2.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
@@ -90,6 +91,17 @@ const SYSTEM_3_0: DiskDef = {
     machines: [MAC_PLUS, MAC_512KE],
     bezelStyle: "Beige",
     ...system30Manifest,
+};
+
+const SYSTEM_3_2: DiskDef = {
+    displayName: "System 3.2",
+    description:
+        "Includs redesigned Calculator and Chooser desktop accessories (System 3.1 was very bug and was superseded by 3.2 shortly after release).",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2],
+    machines: [MAC_PLUS, MAC_512KE],
+    bezelStyle: "Beige",
+    ...system32Manifest,
 };
 
 const SYSTEM_6_0_8: DiskDef = {
@@ -223,7 +235,7 @@ export const DISKS_BY_YEAR: {
 } = {
     1984: [SYSTEM_1_0, SYSTEM_1_1],
     1985: [SYSTEM_2_0, SYSTEM_2_1],
-    1986: [SYSTEM_3_0],
+    1986: [SYSTEM_3_0, SYSTEM_3_2],
     1991: [SYSTEM_6_0_8],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
@@ -236,6 +248,7 @@ export const ALL_DISKS = [
     SYSTEM_2_0,
     SYSTEM_2_1,
     SYSTEM_3_0,
+    SYSTEM_3_2,
     SYSTEM_6_0_8,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
