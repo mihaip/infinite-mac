@@ -133,7 +133,7 @@ const SYSTEM_4_0: DiskDef = {
 const SYSTEM_4_1: DiskDef = {
     displayName: "System 4.1",
     description:
-        "Improved compatibility with larger hard drives. Released with the Mac II.",
+        "Added Easy Access accessibility features. Improved compatibility with larger hard drives. Released with the Mac II.",
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
