@@ -43,6 +43,8 @@ import MinivMacIIPath from "./minivmac-II.jsz";
 import MinivMacIIWasmPath from "./minivmac-II.wasmz";
 import MinivMacPlusPath from "./minivmac-Plus.jsz";
 import MinivMacPlusWasmPath from "./minivmac-Plus.wasmz";
+import MinivMacSEPath from "./minivmac-SE.jsz";
+import MinivMacSEWasmPath from "./minivmac-SE.wasmz";
 import BasiliskIIPath from "./BasiliskII.jsz";
 import BasiliskIIWasmPath from "./BasiliskII.wasmz";
 import SheepShaverPath from "./SheepShaver.jsz";
@@ -270,36 +272,13 @@ export class Emulator {
                 emulatorPaths = [SheepShaverPath, SheepShaverWasmPath];
                 break;
             case "Mini vMac":
-                switch (this.#config.machine.emulatorSubtype) {
-                    case "128K":
-                        emulatorPaths = [
-                            MinivMac128KPath,
-                            MinivMac128KWasmPath,
-                        ];
-                        break;
-                    case "512Ke":
-                        emulatorPaths = [
-                            MinivMac512KePath,
-                            MinivMac512KeWasmPath,
-                        ];
-                        break;
-
-                    case "Plus":
-                        emulatorPaths = [
-                            MinivMacPlusPath,
-                            MinivMacPlusWasmPath,
-                        ];
-                        break;
-                    case "II":
-                        emulatorPaths = [MinivMacIIPath, MinivMacIIWasmPath];
-                        break;
-                    default:
-                        throw new Error(
-                            `Unknown Mini vMac subtype: ${
-                                this.#config.machine.emulatorSubtype
-                            }`
-                        );
-                }
+                emulatorPaths = {
+                    "128K": [MinivMac128KPath, MinivMac128KWasmPath],
+                    "512Ke": [MinivMac512KePath, MinivMac512KeWasmPath],
+                    "Plus": [MinivMacPlusPath, MinivMacPlusWasmPath],
+                    "SE": [MinivMacSEPath, MinivMacSEWasmPath],
+                    "II": [MinivMacIIPath, MinivMacIIWasmPath],
+                }[this.#config.machine.emulatorSubtype!] as [string, string];
                 break;
         }
 

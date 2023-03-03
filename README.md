@@ -88,9 +88,10 @@ cd /minivmac
 # configured with additionl arguments:
 # - `-m 128K -speed z`: Mac 128K (uses 1x speed by default to be more realistic)
 # - `-m 512Ke`: Mac 512ke
+# - `-m SE`: Mac SE
 # - `-m II`: Mac II
 # Actually compile Mini vMac targetting WASM
 make -j8
 ```
 
-Once it has built, use `npm run import-minivmac` from the host to update the files in `src/emulator`.
+Once it has built, use `npm run import-minivmac-<model>` from the host to update the files in `src/emulator`.

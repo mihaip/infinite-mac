@@ -6,6 +6,8 @@ import system21Manifest from "./Data/System 2.1.dsk.json";
 import system30Manifest from "./Data/System 3.0.dsk.json";
 import system32Manifest from "./Data/System 3.2.dsk.json";
 import system33Manifest from "./Data/System 3.3.dsk.json";
+import system40Manifest from "./Data/System 4.0.dsk.json";
+import system41Manifest from "./Data/System 4.1.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
@@ -17,6 +19,7 @@ import type {MachineDef} from "./machines";
 import {
     MAC_128K,
     MAC_512KE,
+    MAC_SE,
     MAC_II,
     MAC_PLUS,
     NEW_WORLD_POWERMAC,
@@ -97,7 +100,7 @@ const SYSTEM_3_0: DiskDef = {
 const SYSTEM_3_2: DiskDef = {
     displayName: "System 3.2",
     description:
-        "Includs redesigned Calculator and Chooser desktop accessories (System 3.1 was very buggy and was superseded by 3.2 shortly after release).",
+        "Includes redesigned Calculator and Chooser desktop accessories (System 3.1 was very buggy and was superseded by 3.2 shortly after release).",
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
@@ -114,6 +117,28 @@ const SYSTEM_3_3: DiskDef = {
     machines: [MAC_PLUS, MAC_512KE],
     bezelStyle: "Beige",
     ...system33Manifest,
+};
+
+const SYSTEM_4_0: DiskDef = {
+    displayName: "System 4.0",
+    description:
+        "Added the Find File desktop accessory and the Restart command. Features a redesigned control panel. Released with the Mac SE.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2],
+    machines: [MAC_SE],
+    bezelStyle: "Beige",
+    ...system40Manifest,
+};
+
+const SYSTEM_4_1: DiskDef = {
+    displayName: "System 4.1",
+    description:
+        "Improved compatibility with larger hard drives. Released with the Mac II.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2],
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    bezelStyle: "Beige",
+    ...system41Manifest,
 };
 
 const SYSTEM_6_0_8: DiskDef = {
@@ -248,7 +273,7 @@ export const DISKS_BY_YEAR: {
     1984: [SYSTEM_1_0, SYSTEM_1_1],
     1985: [SYSTEM_2_0, SYSTEM_2_1],
     1986: [SYSTEM_3_0, SYSTEM_3_2],
-    1987: [SYSTEM_3_3],
+    1987: [SYSTEM_3_3, SYSTEM_4_0, SYSTEM_4_1],
     1991: [SYSTEM_6_0_8],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
@@ -263,6 +288,8 @@ export const ALL_DISKS = [
     SYSTEM_3_0,
     SYSTEM_3_2,
     SYSTEM_3_3,
+    SYSTEM_4_0,
+    SYSTEM_4_1,
     SYSTEM_6_0_8,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,

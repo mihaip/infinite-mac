@@ -57,6 +57,16 @@ SYSTEM_33 = Disk(
     sticky_placeholder_overwrite_byte=b'\xca',
 )
 
+SYSTEM_40 = Disk(
+    name="System 4.0.dsk",
+    sticky_placeholder_overwrite_byte=b'\xca',
+)
+
+SYSTEM_41 = Disk(
+    name="System 4.1.dsk",
+    sticky_placeholder_overwrite_byte=b'\xca',
+)
+
 SYSTEM_608 = Disk(
     name="System 6.0.8 HD.dsk",
     domain="system6.app",
@@ -116,6 +126,8 @@ ALL_DISKS = [
     SYSTEM_30,
     SYSTEM_32,
     SYSTEM_33,
+    SYSTEM_40,
+    SYSTEM_41,
     SYSTEM_608,
     SYSTEM_753,
     SYSTEM_753_PPC,

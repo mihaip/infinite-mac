@@ -1,5 +1,6 @@
 import mac128KRomPath from "./Data/Mac-128K.rom";
 import macPlusRomPath from "./Data/Mac-Plus.rom";
+import macSERomPath from "./Data/Mac-SE.rom";
 import macIIRomPath from "./Data/Mac-II.rom";
 import quadraRomPath from "./Data/Quadra-650.rom";
 import newWorldRomPath from "./Data/New-World.rom";
@@ -41,6 +42,15 @@ export const MAC_PLUS: MachineDef = {
     romPath: macPlusRomPath,
     emulator: "Mini vMac",
     emulatorSubtype: "Plus",
+    prefsPath: minivMacPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
+};
+
+export const MAC_SE: MachineDef = {
+    name: "Mac SE",
+    romPath: macSERomPath,
+    emulator: "Mini vMac",
+    emulatorSubtype: "SE",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
 };
