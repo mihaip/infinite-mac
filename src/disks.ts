@@ -154,7 +154,7 @@ const SYSTEM_7_5_3: DiskDef = {
         94, 96, 98, 99, 100, 102, 103, 104, 106, 107, 108, 109, 110, 111, 113,
         114, 116, 117, 166,
     ],
-    machines: [QUADRA, MAC_II, MAC_PLUS],
+    machines: [QUADRA, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
     ...system753HdManifest,
 };
@@ -191,7 +191,7 @@ const KANJITALK_7_5_3: DiskDef = {
         172, 174, 175, 176, 177, 179, 180, 181, 182, 183, 185, 186, 187, 189,
         190, 191, 192, 193, 194, 195, 196, 197, 399,
     ],
-    machines: [QUADRA, MAC_II, MAC_PLUS],
+    machines: [QUADRA, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
     ...kanjiTalk753HdManifest,
 };

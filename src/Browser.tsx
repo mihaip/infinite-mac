@@ -7,6 +7,7 @@ import {useState} from "react";
 import {Button} from "./Button";
 import type {EmulatorEthernetProvider} from "./emulator/emulator-ui";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
+import {emulatorSupportsAppleTalk} from "./emulator/emulator-common";
 
 export type BrowserProps = {
     onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
@@ -77,6 +78,9 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsContents) {
 
     let contents;
     if (customizing) {
+        const appleTalkSupported =
+            disk.appleTalkSupported &&
+            emulatorSupportsAppleTalk(machine.emulator);
         contents = (
             <>
                 <div className="Row">
@@ -96,7 +100,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsContents) {
                         ))}
                     </select>
                 </div>
-                {disk.appleTalkSupported && (
+                {appleTalkSupported && (
                     <div className="Row">
                         <label>
                             <input
