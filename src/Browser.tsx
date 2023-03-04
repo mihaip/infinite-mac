@@ -36,19 +36,28 @@ export type DiskProps = {
 };
 
 function Disk(props: DiskProps) {
+    const [bezelStyle, setBezelStyle] = useState(
+        props.disk.machines[0].bezelStyle
+    );
     return (
         <ScreenFrame
             className="Disk"
-            bezelStyle={props.disk.bezelStyle}
+            bezelStyle={bezelStyle}
             width={320}
             height={240}
             bezelSize="Medium"
-            screen={<DiskContents {...props} />}
+            screen={<DiskContents setBezelStyle={setBezelStyle} {...props} />}
         />
     );
 }
 
-function DiskContents({disk, onRun}: DiskProps) {
+export type DiskContentsContents = {
+    disk: DiskDef;
+    onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
+    setBezelStyle: (bezelStyle: MachineDef["bezelStyle"]) => void;
+};
+
+function DiskContents({disk, onRun, setBezelStyle}: DiskContentsContents) {
     const [customizing, setCustomizing] = useState(false);
     const [machine, setMachine] = useState(disk.machines[0]);
     const [appleTalkEnabled, setAppleTalkEnabled] = useState(false);
@@ -74,9 +83,12 @@ function DiskContents({disk, onRun}: DiskProps) {
                     Machine:{" "}
                     <select
                         value={machine.name}
-                        onChange={e =>
-                            setMachine(disk.machines[e.target.selectedIndex])
-                        }>
+                        onChange={e => {
+                            const machine =
+                                disk.machines[e.target.selectedIndex];
+                            setMachine(machine);
+                            setBezelStyle(machine.bezelStyle);
+                        }}>
                         {disk.machines.map((machine, i) => (
                             <option value={machine.name} key={i}>
                                 {machine.name}
@@ -114,8 +126,9 @@ function DiskContents({disk, onRun}: DiskProps) {
     } else {
         contents = <div className="Row">{disk.description}</div>;
     }
-    const buttonAppearance =
-        disk.bezelStyle === "Beige" ? "Classic" : "Platinum";
+    const buttonAppearance = disk.hasPlatinumAppearance
+        ? "Platinum"
+        : "Classic";
     return (
         <div className="DiskContents">
             <h3 className="Row">
