@@ -10,6 +10,10 @@ export function emulatorSupportsSpeedSetting(type: EmulatorType): boolean {
     return type === "Mini vMac";
 }
 
+export function emulatorSupportsAppleTalk(type: EmulatorType): boolean {
+    return type === "BasiliskII" || type === "SheepShaver";
+}
+
 // -2 is a special value meaning the default that Mini vMac was built with,
 // other values are what it uses in CONTROLM.h for speeds.
 export type EmulatorSpeed = -2 | 0 | 1 | 2 | 3 | 4 | 5 | -1;
