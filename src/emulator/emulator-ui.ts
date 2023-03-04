@@ -70,6 +70,7 @@ import {
     SharedMemoryEmulatorClipboard,
 } from "./emulator-ui-clipboard";
 import type {MachineDef} from "../machines";
+import {canUseCanvasDirtyRect} from "../canUseCanvasDirtyRect";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -652,7 +653,7 @@ export class Emulator {
         }
         this.#screenImageData.data.set(imageData);
         const dirtyRect = this.#video.consumeBlitRect();
-        if (dirtyRect) {
+        if (dirtyRect && canUseCanvasDirtyRect()) {
             this.#screenCanvasContext.putImageData(
                 this.#screenImageData,
                 0,
