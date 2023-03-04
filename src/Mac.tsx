@@ -17,6 +17,7 @@ import {
     EMULATOR_SPEEDS,
     isDiskImageFile,
 } from "./emulator/emulator-common";
+import {useDevicePixelRatio} from "./useDevicePixelRatio";
 import {usePersistentState} from "./usePersistentState";
 import * as varz from "./varz";
 import type {ScreenControl, ScreenFrameProps} from "./ScreenFrame";
@@ -86,6 +87,7 @@ export function Mac({
             "webkitfullscreenchange",
             handleFullScreenChange
         );
+
         const disks: EmulatorChunkedFileSpec[] = [disk];
         if (!disk.mfsOnly) {
             disks.push(INFINITE_HD);
@@ -310,6 +312,12 @@ export function Mac({
         });
     }
 
+    const screenClasses = ["Mac-Screen"];
+    const devicePixelRatio = useDevicePixelRatio();
+    if (fullscreen || devicePixelRatio !== Math.floor(devicePixelRatio)) {
+        screenClasses.push("Mac-Screen-Smooth-Scaling");
+    }
+
     return (
         <ScreenFrame
             className="Mac"
@@ -328,7 +336,7 @@ export function Mac({
             controls={controls}
             screen={
                 <canvas
-                    className="Mac-Screen"
+                    className={screenClasses.join(" ")}
                     ref={screenRef}
                     width={screenWidth}
                     height={screenHeight}
