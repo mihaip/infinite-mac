@@ -31,6 +31,10 @@ export abstract class EmulatorAudio {
             latencyHint: "interactive",
             sampleRate,
         });
+        if (!this.#audioContext.audioWorklet) {
+            console.warn("AudioWorklet not supported");
+            return;
+        }
         await this.#audioContext.audioWorklet.addModule(audioWorkletPath);
         this.emulatorPlaybackNode = new AudioWorkletNode(
             this.#audioContext,
