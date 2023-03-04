@@ -35,7 +35,7 @@ body.fullscreen {
     touch-action: none;
 }
 
-.fullscreen .Mac-Screen {
+.Mac-Screen.Mac-Screen-Smooth-Scaling {
     image-rendering: auto;
 }
 
