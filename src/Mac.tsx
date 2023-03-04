@@ -313,7 +313,7 @@ export function Mac({
     return (
         <ScreenFrame
             className="Mac"
-            bezelStyle={disk.bezelStyle}
+            bezelStyle={machine.bezelStyle}
             bezelSize={bezelSize}
             width={screenWidth}
             height={screenHeight}
@@ -360,7 +360,7 @@ export function Mac({
                     emulatorType={machine.emulator}
                     emulatorSettings={emulatorSettings}
                     buttonAppearance={
-                        disk.bezelStyle === "Beige" ? "Classic" : "Platinum"
+                        disk.hasPlatinumAppearance ? "Platinum" : "Classic"
                     }
                     setEmulatorSettings={setEmulatorSettings}
                     onDone={() => setSettingsVisible(false)}

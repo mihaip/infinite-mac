@@ -17,6 +17,7 @@ export type MachineDef = {
     emulatorSubtype?: EmulatorSubtype;
     prefsPath: string;
     fixedScreenSize?: {width: number; height: number};
+    bezelStyle: "Beige" | "Platinum" | "Pinstripes";
 };
 
 export const MAC_128K: MachineDef = {
@@ -26,6 +27,7 @@ export const MAC_128K: MachineDef = {
     emulatorSubtype: "128K",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Beige",
 };
 
 export const MAC_512KE: MachineDef = {
@@ -35,6 +37,7 @@ export const MAC_512KE: MachineDef = {
     emulatorSubtype: "512Ke",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Beige",
 };
 
 export const MAC_PLUS: MachineDef = {
@@ -44,6 +47,7 @@ export const MAC_PLUS: MachineDef = {
     emulatorSubtype: "Plus",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Beige",
 };
 
 export const MAC_SE: MachineDef = {
@@ -53,6 +57,7 @@ export const MAC_SE: MachineDef = {
     emulatorSubtype: "SE",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Platinum",
 };
 
 export const MAC_II: MachineDef = {
@@ -62,6 +67,7 @@ export const MAC_II: MachineDef = {
     emulatorSubtype: "II",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 640, height: 480},
+    bezelStyle: "Platinum",
 };
 
 export const QUADRA: MachineDef = {
@@ -69,6 +75,7 @@ export const QUADRA: MachineDef = {
     romPath: quadraRomPath,
     emulator: "BasiliskII",
     prefsPath: basiliskPrefsPath,
+    bezelStyle: "Platinum",
 };
 
 export const OLD_WORLD_POWERMAC: MachineDef = {
@@ -76,6 +83,7 @@ export const OLD_WORLD_POWERMAC: MachineDef = {
     romPath: oldWorldRomPath,
     emulator: "SheepShaver",
     prefsPath: sheepShaverPrefsPath,
+    bezelStyle: "Platinum",
 };
 
 export const NEW_WORLD_POWERMAC: MachineDef = {
@@ -83,6 +91,7 @@ export const NEW_WORLD_POWERMAC: MachineDef = {
     romPath: newWorldRomPath,
     emulator: "SheepShaver",
     prefsPath: sheepShaverPrefsPath,
+    bezelStyle: "Pinstripes",
 };
 
 export const ALL_MACHINES = [

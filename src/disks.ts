@@ -36,7 +36,7 @@ export type DiskDef = EmulatorChunkedFileSpec & {
     machines: MachineDef[];
     appleTalkSupported?: boolean;
     mfsOnly?: boolean;
-    bezelStyle: "Beige" | "Platinum" | "Pinstripes";
+    hasPlatinumAppearance?: boolean;
 };
 
 const SYSTEM_1_0: DiskDef = {
@@ -45,7 +45,6 @@ const SYSTEM_1_0: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
-    bezelStyle: "Beige",
     mfsOnly: true,
     ...system10Manifest,
 };
@@ -57,7 +56,6 @@ const SYSTEM_1_1: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
-    bezelStyle: "Beige",
     mfsOnly: true,
     ...system11Manifest,
 };
@@ -69,7 +67,6 @@ const SYSTEM_2_0: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
-    bezelStyle: "Beige",
     mfsOnly: true,
     ...system20Manifest,
 };
@@ -82,7 +79,6 @@ const SYSTEM_2_1: DiskDef = {
     prefetchChunks: [0, 1],
     // The Mac 128K is supported, but HFS is not loaded in that case.
     machines: [MAC_512KE, MAC_128K],
-    bezelStyle: "Beige",
     ...system21Manifest,
 };
 
@@ -93,7 +89,6 @@ const SYSTEM_3_0: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
-    bezelStyle: "Beige",
     ...system30Manifest,
 };
 
@@ -104,7 +99,6 @@ const SYSTEM_3_2: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
-    bezelStyle: "Beige",
     ...system32Manifest,
 };
 
@@ -115,7 +109,6 @@ const SYSTEM_3_3: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
-    bezelStyle: "Beige",
     ...system33Manifest,
 };
 
@@ -126,7 +119,6 @@ const SYSTEM_4_0: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE],
-    bezelStyle: "Beige",
     ...system40Manifest,
 };
 
@@ -137,7 +129,6 @@ const SYSTEM_4_1: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
-    bezelStyle: "Beige",
     ...system41Manifest,
 };
 
@@ -147,8 +138,7 @@ const SYSTEM_6_0_8: DiskDef = {
         "Final release of System 6, updated printing software to match the printing software of System 7.",
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    machines: [MAC_PLUS, MAC_II],
-    bezelStyle: "Beige",
+    machines: [MAC_PLUS, MAC_SE, MAC_II],
     ...system608HdManifest,
 };
 
@@ -166,7 +156,6 @@ const SYSTEM_7_5_3: DiskDef = {
     ],
     machines: [QUADRA, MAC_II, MAC_PLUS],
     appleTalkSupported: true,
-    bezelStyle: "Beige",
     ...system753HdManifest,
 };
 
@@ -187,7 +176,6 @@ const SYSTEM_7_5_3_PPC: DiskDef = {
     ],
     machines: [OLD_WORLD_POWERMAC],
     appleTalkSupported: true,
-    bezelStyle: "Beige",
     ...system753PpcHdManifest,
 };
 
@@ -203,7 +191,6 @@ const KANJITALK_7_5_3: DiskDef = {
         172, 174, 175, 176, 177, 179, 180, 181, 182, 183, 185, 186, 187, 189,
         190, 191, 192, 193, 194, 195, 196, 197, 399,
     ],
-    bezelStyle: "Beige",
     machines: [QUADRA, MAC_II, MAC_PLUS],
     appleTalkSupported: true,
     ...kanjiTalk753HdManifest,
@@ -223,9 +210,9 @@ const MAC_OS_8_1: DiskDef = {
         155, 158, 159, 160, 161, 162, 163, 169, 170, 171, 172, 175, 176, 177,
         179, 181,
     ],
-    bezelStyle: "Platinum",
     machines: [QUADRA, OLD_WORLD_POWERMAC],
     appleTalkSupported: true,
+    hasPlatinumAppearance: true,
     ...macos81HdManifest,
 };
 
@@ -252,7 +239,7 @@ const MAC_OS_9_0_4: DiskDef = {
         379,
     ],
     machines: [NEW_WORLD_POWERMAC, OLD_WORLD_POWERMAC],
-    bezelStyle: "Pinstripes",
+    hasPlatinumAppearance: true,
     ...macos904HdManifest,
 };
 
