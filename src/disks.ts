@@ -8,6 +8,8 @@ import system32Manifest from "./Data/System 3.2.dsk.json";
 import system33Manifest from "./Data/System 3.3.dsk.json";
 import system40Manifest from "./Data/System 4.0.dsk.json";
 import system41Manifest from "./Data/System 4.1.dsk.json";
+import system50Manifest from "./Data/System 5.0 HD.dsk.json";
+import system51Manifest from "./Data/System 5.1 HD.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
@@ -130,6 +132,25 @@ const SYSTEM_4_1: DiskDef = {
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
     ...system41Manifest,
+};
+
+const SYSTEM_5_0: DiskDef = {
+    displayName: "System 5.0",
+    description:
+        "Introduced the MultiFinder, revised the Finder about box, and improved printing support.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2],
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    ...system50Manifest,
+};
+
+const SYSTEM_5_1: DiskDef = {
+    displayName: "System 5.1",
+    description: "Updated the LaserWriter Driver and Apple HD SC Setup.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2],
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    ...system51Manifest,
 };
 
 const SYSTEM_6_0_8: DiskDef = {
@@ -260,7 +281,7 @@ export const DISKS_BY_YEAR: {
     1984: [SYSTEM_1_0, SYSTEM_1_1],
     1985: [SYSTEM_2_0, SYSTEM_2_1],
     1986: [SYSTEM_3_0, SYSTEM_3_2],
-    1987: [SYSTEM_3_3, SYSTEM_4_0, SYSTEM_4_1],
+    1987: [SYSTEM_3_3, SYSTEM_4_0, SYSTEM_4_1, SYSTEM_5_0, SYSTEM_5_1],
     1991: [SYSTEM_6_0_8],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
@@ -277,6 +298,8 @@ export const ALL_DISKS = [
     SYSTEM_3_3,
     SYSTEM_4_0,
     SYSTEM_4_1,
+    SYSTEM_5_0,
+    SYSTEM_5_1,
     SYSTEM_6_0_8,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
