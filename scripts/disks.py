@@ -82,6 +82,11 @@ SYSTEM_60 = Disk(
     domain="system6.app",
 )
 
+SYSTEM_602 = Disk(
+    name="System 6.0.2 HD.dsk",
+    domain="system6.app",
+)
+
 SYSTEM_608 = Disk(
     name="System 6.0.8 HD.dsk",
     domain="system6.app",
@@ -146,6 +151,7 @@ ALL_DISKS = [
     SYSTEM_50,
     SYSTEM_51,
     SYSTEM_60,
+    SYSTEM_602,
     SYSTEM_608,
     SYSTEM_753,
     SYSTEM_753_PPC,

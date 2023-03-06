@@ -11,6 +11,7 @@ import system41Manifest from "./Data/System 4.1.dsk.json";
 import system50Manifest from "./Data/System 5.0 HD.dsk.json";
 import system51Manifest from "./Data/System 5.1 HD.dsk.json";
 import system60HdManifest from "./Data/System 6.0 HD.dsk.json";
+import system602HdManifest from "./Data/System 6.0.2 HD.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
@@ -163,6 +164,16 @@ const SYSTEM_6_0: DiskDef = {
     ...system60HdManifest,
 };
 
+const SYSTEM_6_0_2: DiskDef = {
+    displayName: "System 6.0.2",
+    description:
+        "Updated LaserWriter and other printing-related utilites. System 6.0.1 was released with the Mac IIx but was buggy and short-lived.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
+    machines: [MAC_PLUS, MAC_SE, MAC_II, MAC_512KE],
+    ...system602HdManifest,
+};
+
 const SYSTEM_6_0_8: DiskDef = {
     displayName: "System 6.0.8",
     description:
@@ -292,7 +303,7 @@ export const DISKS_BY_YEAR: {
     1985: [SYSTEM_2_0, SYSTEM_2_1],
     1986: [SYSTEM_3_0, SYSTEM_3_2],
     1987: [SYSTEM_3_3, SYSTEM_4_0, SYSTEM_4_1, SYSTEM_5_0, SYSTEM_5_1],
-    1988: [SYSTEM_6_0],
+    1988: [SYSTEM_6_0, SYSTEM_6_0_2],
     1991: [SYSTEM_6_0_8],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
@@ -312,6 +323,7 @@ export const ALL_DISKS = [
     SYSTEM_5_0,
     SYSTEM_5_1,
     SYSTEM_6_0,
+    SYSTEM_6_0_2,
     SYSTEM_6_0_8,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
