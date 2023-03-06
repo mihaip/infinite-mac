@@ -160,7 +160,7 @@ const SYSTEM_6_0: DiskDef = {
     description: "Added MacroMaker, Map and CloseView utilities.",
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    machines: [MAC_PLUS, MAC_SE, MAC_II, MAC_512KE],
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
     ...system60HdManifest,
 };
 
@@ -170,7 +170,7 @@ const SYSTEM_6_0_2: DiskDef = {
         "Updated LaserWriter and other printing-related utilites. System 6.0.1 was released with the Mac IIx but was buggy and short-lived.",
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    machines: [MAC_PLUS, MAC_SE, MAC_II, MAC_512KE],
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
     ...system602HdManifest,
 };
 
@@ -180,7 +180,7 @@ const SYSTEM_6_0_8: DiskDef = {
         "Final release of System 6, updated printing software to match the printing software of System 7.",
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    machines: [MAC_PLUS, MAC_SE, MAC_II],
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
     ...system608HdManifest,
 };
 
