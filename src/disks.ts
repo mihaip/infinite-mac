@@ -12,6 +12,10 @@ import system50Manifest from "./Data/System 5.0 HD.dsk.json";
 import system51Manifest from "./Data/System 5.1 HD.dsk.json";
 import system60HdManifest from "./Data/System 6.0 HD.dsk.json";
 import system602HdManifest from "./Data/System 6.0.2 HD.dsk.json";
+import system603HdManifest from "./Data/System 6.0.3 HD.dsk.json";
+import system604HdManifest from "./Data/System 6.0.4 HD.dsk.json";
+import system605HdManifest from "./Data/System 6.0.5 HD.dsk.json";
+import system607HdManifest from "./Data/System 6.0.7 HD.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
@@ -174,6 +178,45 @@ const SYSTEM_6_0_2: DiskDef = {
     ...system602HdManifest,
 };
 
+const SYSTEM_6_0_3: DiskDef = {
+    displayName: "System 6.0.3",
+    description: "Added support for the Mac IIcx and SE/30.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    ...system603HdManifest,
+};
+
+const SYSTEM_6_0_4: DiskDef = {
+    displayName: "System 6.0.4",
+    description:
+        "Added support for the Mac IIci and Portable. Improved the installer. Holding down the option key when double-clicking in the Finder closes the parent window.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    ...system604HdManifest,
+};
+
+const SYSTEM_6_0_5: DiskDef = {
+    displayName: "System 6.0.5",
+    description:
+        "Bundled 32-bit QuidckDraw (previously a separate package). Added support for the Mac IIfx.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    ...system605HdManifest,
+};
+
+const SYSTEM_6_0_7: DiskDef = {
+    displayName: "System 6.0.7",
+    description:
+        "First release to ship on 1440K disks. Added support for the Classic, LC and IIsi. System 6.0.6 was never officially released due to an AppleTalk bug.",
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    ...system607HdManifest,
+};
+
 const SYSTEM_6_0_8: DiskDef = {
     displayName: "System 6.0.8",
     description:
@@ -304,6 +347,8 @@ export const DISKS_BY_YEAR: {
     1986: [SYSTEM_3_0, SYSTEM_3_2],
     1987: [SYSTEM_3_3, SYSTEM_4_0, SYSTEM_4_1, SYSTEM_5_0, SYSTEM_5_1],
     1988: [SYSTEM_6_0, SYSTEM_6_0_2],
+    1989: [SYSTEM_6_0_3, SYSTEM_6_0_4],
+    1990: [SYSTEM_6_0_5, SYSTEM_6_0_7],
     1991: [SYSTEM_6_0_8],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
@@ -324,6 +369,10 @@ export const ALL_DISKS = [
     SYSTEM_5_1,
     SYSTEM_6_0,
     SYSTEM_6_0_2,
+    SYSTEM_6_0_3,
+    SYSTEM_6_0_4,
+    SYSTEM_6_0_5,
+    SYSTEM_6_0_7,
     SYSTEM_6_0_8,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
