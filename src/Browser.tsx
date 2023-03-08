@@ -8,6 +8,8 @@ import {Button} from "./Button";
 import type {EmulatorEthernetProvider} from "./emulator/emulator-ui";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 import {emulatorSupportsAppleTalk} from "./emulator/emulator-common";
+import {About} from "./About";
+import {Donate} from "./Donate";
 
 export type BrowserProps = {
     onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
@@ -16,7 +18,12 @@ export type BrowserProps = {
 export function Browser({onRun}: BrowserProps) {
     return (
         <div className="Browser">
-            <h1>Infinite Mac</h1>
+            <header>
+                <div className="Logo">
+                    <h1>Infinite Mac</h1>
+                </div>
+            </header>
+            <Description />
             {Array.from(Object.entries(DISKS_BY_YEAR), ([year, disks]) => (
                 <div className="Year" key={year}>
                     <h2>{year}</h2>
@@ -31,7 +38,45 @@ export function Browser({onRun}: BrowserProps) {
     );
 }
 
-export type DiskProps = {
+function Description() {
+    const [aboutVisible, setAboutVisible] = useState(false);
+    const [donateVisible, setDonateVisible] = useState(false);
+
+    return (
+        <div className="Description">
+            <p>
+                Infinite Mac is a collection of classic Macintosh system
+                releases and software, all easily accessible from the comfort of
+                a (modern) web browser.
+            </p>
+            <p>
+                Pick any version of System Software/Mac OS from the 1980s or
+                1990s and run it (and major software of that era) within a
+                virtual machine. Files can imported and exported using drag and
+                drop, and System 7 and onward have more advanced integrations as
+                well – refer to the welcome screen in each machine for more
+                details.
+            </p>
+            <p>
+                {aboutVisible && (
+                    <About
+                        hideSites={true}
+                        onDone={() => setAboutVisible(false)}
+                    />
+                )}
+                {donateVisible && (
+                    <Donate onDone={() => setDonateVisible(false)} />
+                )}
+                You can{" "}
+                <span onClick={() => setAboutVisible(true)}>learn more</span> or{" "}
+                <span onClick={() => setDonateVisible(true)}>donate</span> to
+                support this project.
+            </p>
+        </div>
+    );
+}
+
+type DiskProps = {
     disk: DiskDef;
     onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
 };
@@ -52,7 +97,7 @@ function Disk(props: DiskProps) {
     );
 }
 
-export type DiskContentsContents = {
+type DiskContentsContents = {
     disk: DiskDef;
     onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
     setBezelStyle: (bezelStyle: MachineDef["bezelStyle"]) => void;
