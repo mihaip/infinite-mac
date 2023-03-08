@@ -1,6 +1,7 @@
 @font-face {
     font-family: "Apple Garamond";
     src: url(./Fonts/AppleGaramond.woff2);
+    font-display: swap;
 }
 
 .Browser {
