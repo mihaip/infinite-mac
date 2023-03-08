@@ -28,6 +28,7 @@ function App() {
     }, []);
 
     let contents;
+    let footer: React.ReactElement | undefined = <Footer />;
     if (domain.endsWith("infinitemac.org")) {
         if (runDef) {
             contents = (
@@ -55,6 +56,7 @@ function App() {
                     }}
                 />
             );
+            footer = undefined;
         }
     } else {
         contents = <AppDomain />;
@@ -63,7 +65,7 @@ function App() {
     return (
         <div className="App">
             {contents}
-            <Footer />
+            {footer}
         </div>
     );
 }
