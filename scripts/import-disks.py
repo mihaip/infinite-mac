@@ -14,6 +14,7 @@ import minivmac
 import os
 import paths
 import shutil
+import ssl
 import struct
 import sys
 import tempfile
@@ -39,7 +40,14 @@ def read_url_to_path(url: str) -> str:
     cache_key = hashlib.sha256(url.encode()).hexdigest()
     cache_path = os.path.join(paths.CACHE_DIR, cache_key)
     if not os.path.exists(cache_path):
-        response = urllib.request.urlopen(url)
+        try:
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+            response = urllib.request.urlopen(url, context=context)
+        except:
+            sys.stderr.write("Failed to download %s\n" % url)
+            raise
         response_body = response.read()
         with open(cache_path, "wb+") as f:
             f.write(response_body)
@@ -166,9 +174,16 @@ def import_archive(
                 clear_folder_window_position(root_folder)
 
         if "src_image" in manifest_json:
-            with open(os.path.join(tmp_dir_path, manifest_json["src_image"]),
-                      "rb") as f:
-                return import_disk_image_data(f.read(), manifest_json)
+            try:
+                with open(
+                        os.path.join(tmp_dir_path, manifest_json["src_image"]),
+                        "rb") as f:
+                    return import_disk_image_data(f.read(), manifest_json)
+            except FileNotFoundError:
+                sys.stderr.write("Directory contents:\n")
+                for f in os.listdir(tmp_dir_path):
+                    sys.stderr.write("  %s\n", f)
+                raise
 
         if root_dir_path is None:
             root_dir_path = tmp_dir_path
