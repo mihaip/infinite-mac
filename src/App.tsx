@@ -31,17 +31,19 @@ function App() {
     let footer: React.ReactElement | undefined = <Footer />;
     if (domain.endsWith("infinitemac.org")) {
         if (runDef) {
+            const handleDone = () => {
+                history.pushState({}, "", "/");
+                setRunDef(undefined);
+            };
             contents = (
                 <Mac
                     disk={runDef.disk}
                     machine={runDef.machine}
                     ethernetProvider={runDef.ethernetProvider}
-                    onDone={() => {
-                        history.pushState({}, "", "/");
-                        setRunDef(undefined);
-                    }}
+                    onDone={handleDone}
                 />
             );
+            footer = <Footer onLogoClick={handleDone} />;
         } else {
             contents = (
                 <Browser
