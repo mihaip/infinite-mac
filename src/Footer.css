@@ -11,8 +11,31 @@
 }
 
 .Footer span {
-    text-decoration: underline;
+    display: inline-block;
+    height: 9px;
+    color: transparent;
     cursor: pointer;
+    background-size: cover;
+    image-rendering: pixelated;
+}
+
+.Footer span:not(:first-child) {
+    margin-left: 12px;
+}
+
+.Footer .Footer-Logo {
+    background-image: url(./Images/Footer-Logo.png);
+    width: 79px;
+}
+
+.Footer .Footer-About {
+    background-image: url(./Images/Footer-About.png);
+    width: 36px;
+}
+
+.Footer .Footer-Donate {
+    background-image: url(./Images/Footer-Donate.png);
+    width: 44px;
 }
 
 .fullscreen .Footer {
