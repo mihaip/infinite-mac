@@ -10,6 +10,7 @@
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
     max-width: 600px;
     min-width: 320px;
+    z-index: 1;
 }
 
 .Dialog h1 {
