@@ -17,6 +17,7 @@ import system604HdManifest from "./Data/System 6.0.4 HD.dsk.json";
 import system605HdManifest from "./Data/System 6.0.5 HD.dsk.json";
 import system607HdManifest from "./Data/System 6.0.7 HD.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
+import system70HdManifest from "./Data/System 7.0 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
@@ -29,6 +30,7 @@ import {
     MAC_512KE,
     MAC_SE,
     MAC_II,
+    MAC_IIFX,
     MAC_PLUS,
     NEW_WORLD_POWERMAC,
     OLD_WORLD_POWERMAC,
@@ -227,6 +229,17 @@ const SYSTEM_6_0_8: DiskDef = {
     ...system608HdManifest,
 };
 
+const SYSTEM_7_0: DiskDef = {
+    displayName: "System 7.0",
+    description:
+        "Fully 32-bit clean, the MultiFinder is now mandatory, reorganized the System Folder into subfolders, made the Apple menu customizable, revamped the window appearance, and much more.",
+    baseUrl: "/Disk",
+    prefetchChunks: [],
+    machines: [MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    appleTalkSupported: true,
+    ...system70HdManifest,
+};
+
 const SYSTEM_7_5_3: DiskDef = {
     displayName: "System 7.5.3",
     description:
@@ -239,7 +252,7 @@ const SYSTEM_7_5_3: DiskDef = {
         94, 96, 98, 99, 100, 102, 103, 104, 106, 107, 108, 109, 110, 111, 113,
         114, 116, 117, 166,
     ],
-    machines: [QUADRA, MAC_PLUS, MAC_SE, MAC_II],
+    machines: [QUADRA, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
     appleTalkSupported: true,
     ...system753HdManifest,
 };
@@ -276,7 +289,7 @@ const KANJITALK_7_5_3: DiskDef = {
         172, 174, 175, 176, 177, 179, 180, 181, 182, 183, 185, 186, 187, 189,
         190, 191, 192, 193, 194, 195, 196, 197, 399,
     ],
-    machines: [QUADRA, MAC_PLUS, MAC_SE, MAC_II],
+    machines: [QUADRA, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
     appleTalkSupported: true,
     ...kanjiTalk753HdManifest,
 };
@@ -349,7 +362,7 @@ export const DISKS_BY_YEAR: {
     1988: [SYSTEM_6_0, SYSTEM_6_0_2],
     1989: [SYSTEM_6_0_3, SYSTEM_6_0_4],
     1990: [SYSTEM_6_0_5, SYSTEM_6_0_7],
-    1991: [SYSTEM_6_0_8],
+    1991: [SYSTEM_6_0_8, SYSTEM_7_0],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
     2000: [MAC_OS_9_0_4],
@@ -374,6 +387,7 @@ export const ALL_DISKS = [
     SYSTEM_6_0_5,
     SYSTEM_6_0_7,
     SYSTEM_6_0_8,
+    SYSTEM_7_0,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
     KANJITALK_7_5_3,

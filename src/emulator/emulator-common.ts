@@ -2,6 +2,16 @@ export type EmulatorType = "BasiliskII" | "SheepShaver" | "Mini vMac";
 
 export type EmulatorSubtype = "128K" | "512Ke" | "Plus" | "SE" | "II";
 
+export type EmulatorCpu =
+    | "68000"
+    | "68020"
+    | "68030"
+    | "68040"
+    | "601"
+    | "603"
+    | "604"
+    | "G3";
+
 export function emulatorHandlesDiskImages(type: EmulatorType): boolean {
     return type === "Mini vMac";
 }
@@ -12,6 +22,35 @@ export function emulatorSupportsSpeedSetting(type: EmulatorType): boolean {
 
 export function emulatorSupportsAppleTalk(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";
+}
+
+export function emulatorCpuId(
+    type: EmulatorType,
+    cpu: EmulatorCpu
+): number | undefined {
+    if (type !== "BasiliskII") {
+        return undefined;
+    }
+    switch (cpu) {
+        case "68020":
+            return 2;
+        case "68030":
+            return 3;
+        case "68040":
+            return 4;
+        default:
+            return undefined;
+    }
+}
+
+export function emulatorModelId(
+    type: EmulatorType,
+    gestaltID: number
+): number | undefined {
+    if (type !== "BasiliskII") {
+        return undefined;
+    }
+    return gestaltID - 6;
 }
 
 // -2 is a special value meaning the default that Mini vMac was built with,
