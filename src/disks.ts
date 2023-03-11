@@ -19,6 +19,7 @@ import system607HdManifest from "./Data/System 6.0.7 HD.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system70HdManifest from "./Data/System 7.0 HD.dsk.json";
 import system71HdManifest from "./Data/System 7.1 HD.dsk.json";
+import system711HdManifest from "./Data/System 7.1.1 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
@@ -257,6 +258,21 @@ const SYSTEM_7_1: DiskDef = {
     ...system71HdManifest,
 };
 
+const SYSTEM_7_1_1: DiskDef = {
+    displayName: "System 7.1.1",
+    displaySubtitle: "Pro",
+    description: "Bundled PowerTalk and AppleScript.",
+    baseUrl: "/Disk",
+    prefetchChunks: [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 21, 22, 23,
+        24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
+        44,
+    ],
+    machines: [QUADRA, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    appleTalkSupported: true,
+    ...system711HdManifest,
+};
+
 const SYSTEM_7_5_3: DiskDef = {
     displayName: "System 7.5.3",
     description:
@@ -381,6 +397,7 @@ export const DISKS_BY_YEAR: {
     1990: [SYSTEM_6_0_5, SYSTEM_6_0_7],
     1991: [SYSTEM_6_0_8, SYSTEM_7_0],
     1992: [SYSTEM_7_1],
+    1993: [SYSTEM_7_1_1],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
     2000: [MAC_OS_9_0_4],
@@ -407,6 +424,7 @@ export const ALL_DISKS = [
     SYSTEM_6_0_8,
     SYSTEM_7_0,
     SYSTEM_7_1,
+    SYSTEM_7_1_1,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
     KANJITALK_7_5_3,
