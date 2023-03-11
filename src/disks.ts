@@ -18,6 +18,7 @@ import system605HdManifest from "./Data/System 6.0.5 HD.dsk.json";
 import system607HdManifest from "./Data/System 6.0.7 HD.dsk.json";
 import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system70HdManifest from "./Data/System 7.0 HD.dsk.json";
+import system71HdManifest from "./Data/System 7.1 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
@@ -240,6 +241,20 @@ const SYSTEM_7_0: DiskDef = {
     ...system70HdManifest,
 };
 
+const SYSTEM_7_1: DiskDef = {
+    displayName: "System 7.1",
+    description:
+        "Added the Fonts folder, introduced system enablers to support new Mac models and improved internationalization support.",
+    baseUrl: "/Disk",
+    prefetchChunks: [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 23,
+        24,
+    ],
+    machines: [QUADRA, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    appleTalkSupported: true,
+    ...system71HdManifest,
+};
+
 const SYSTEM_7_5_3: DiskDef = {
     displayName: "System 7.5.3",
     description:
@@ -363,6 +378,7 @@ export const DISKS_BY_YEAR: {
     1989: [SYSTEM_6_0_3, SYSTEM_6_0_4],
     1990: [SYSTEM_6_0_5, SYSTEM_6_0_7],
     1991: [SYSTEM_6_0_8, SYSTEM_7_0],
+    1992: [SYSTEM_7_1],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
     2000: [MAC_OS_9_0_4],
@@ -388,6 +404,7 @@ export const ALL_DISKS = [
     SYSTEM_6_0_7,
     SYSTEM_6_0_8,
     SYSTEM_7_0,
+    SYSTEM_7_1,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
     KANJITALK_7_5_3,
