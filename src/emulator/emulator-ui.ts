@@ -7,6 +7,7 @@ import type {
     EmulatorWorkerDirectorExtraction,
     EmulatorWorkerVideoBlit,
 } from "./emulator-common";
+import {emulatorCpuId, emulatorModelId} from "./emulator-common";
 import Worker from "worker-loader!./emulator-worker";
 import registerServiceWorker, {
     ServiceWorkerNoSupportError,
@@ -305,6 +306,20 @@ export class Emulator {
 
         let prefsStr = new TextDecoder().decode(basePrefs);
         prefsStr += `rom ${romFileName}\n`;
+        const cpuId = emulatorCpuId(
+            this.#config.machine.emulator,
+            this.#config.machine.cpu
+        );
+        if (cpuId !== undefined) {
+            prefsStr += `cpu ${cpuId}\n`;
+        }
+        const modelId = emulatorModelId(
+            this.#config.machine.emulator,
+            this.#config.machine.gestaltID
+        );
+        if (modelId !== undefined) {
+            prefsStr += `modelid ${modelId}\n`;
+        }
         prefsStr += `screen win/${this.#config.screenWidth}/${
             this.#config.screenHeight
         }\n`;
