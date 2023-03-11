@@ -117,6 +117,11 @@ SYSTEM_70 = Disk(
     domain="system7.app",
 )
 
+SYSTEM_71 = Disk(
+    name="System 7.1 HD.dsk",
+    domain="system7.app",
+)
+
 SYSTEM_753 = Disk(
     name="System 7.5.3 HD.dsk",
     domain="system7.app",
@@ -183,6 +188,7 @@ ALL_DISKS = [
     SYSTEM_607,
     SYSTEM_608,
     SYSTEM_70,
+    SYSTEM_71,
     SYSTEM_753,
     SYSTEM_753_PPC,
     MAC_OS_81,
