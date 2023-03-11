@@ -235,7 +235,9 @@ const SYSTEM_7_0: DiskDef = {
     description:
         "Fully 32-bit clean, the MultiFinder is now mandatory, reorganized the System Folder into subfolders, made the Apple menu customizable, revamped the window appearance, and much more.",
     baseUrl: "/Disk",
-    prefetchChunks: [],
+    prefetchChunks: [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19,
+    ],
     machines: [MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
     ...system70HdManifest,
@@ -248,7 +250,7 @@ const SYSTEM_7_1: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 23,
-        24,
+        24, 25, 26, 27,
     ],
     machines: [QUADRA, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,

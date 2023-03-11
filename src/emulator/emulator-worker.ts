@@ -84,6 +84,7 @@ class EmulatorWorkerApi {
     #ethernet: EmulatorWorkerEthernet;
     #clipboard: EmulatorWorkerClipboard;
 
+    #videoOpenTime = 0;
     #lastBlitFrameId = 0;
     #nextExpectedBlitTime = 0;
     #lastIdleWaitFrameId = 0;
@@ -162,6 +163,7 @@ class EmulatorWorkerApi {
 
     didOpenVideo(width: number, height: number) {
         postMessage({type: "emulator_video_open", width, height});
+        this.#videoOpenTime = performance.now();
     }
 
     blit(bufPtr: number, bufSize: number, rect?: EmulatorWorkerVideoBlitRect) {
@@ -260,6 +262,15 @@ class EmulatorWorkerApi {
             if (
                 this.#lastDiskWriteTime !== 0 &&
                 performance.now() - this.#lastDiskWriteTime > 1000
+            ) {
+                this.#markQuiescent();
+            }
+
+            // System 7.0 doesn't have idlewait and doesn't do disk writes, so
+            // we assume that it's done 10 seconds after video started.
+            if (
+                this.#videoOpenTime !== 0 &&
+                performance.now() - this.#lastDiskWriteTime > 10000
             ) {
                 this.#markQuiescent();
             }
