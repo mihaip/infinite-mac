@@ -3,9 +3,9 @@ import macPlusRomPath from "./Data/Mac-Plus.rom";
 import macSERomPath from "./Data/Mac-SE.rom";
 import macIIRomPath from "./Data/Mac-II.rom";
 import macIIfxRomPath from "./Data/Mac-IIfx.rom";
-import quadraRomPath from "./Data/Quadra-650.rom";
+import quadra650RomPath from "./Data/Quadra-650.rom";
 import newWorldRomPath from "./Data/New-World.rom";
-import oldWorldRomPath from "./Data/Old-World.rom";
+import powerMacintosh9500RomPath from "./Data/Power-Macintosh-9500.rom";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
 import minivMacPrefsPath from "./Data/MinivMacPrefs.txt";
@@ -97,28 +97,28 @@ export const MAC_IIFX: MachineDef = {
     bezelStyle: "Platinum",
 };
 
-export const QUADRA: MachineDef = {
+export const QUADRA_650: MachineDef = {
     name: "Quadra 650",
     cpu: "68040",
-    romPath: quadraRomPath,
+    romPath: quadra650RomPath,
     gestaltID: 36,
     emulator: "BasiliskII",
     prefsPath: basiliskPrefsPath,
     bezelStyle: "Platinum",
 };
 
-export const OLD_WORLD_POWERMAC: MachineDef = {
-    name: "Old World PowerMac",
+export const POWER_MACINTOSH_9500: MachineDef = {
+    name: "Power Macintosh 9500",
     cpu: "604",
-    romPath: oldWorldRomPath,
-    gestaltID: 68, // PowerMac 8500/120
+    romPath: powerMacintosh9500RomPath,
+    gestaltID: 67,
     emulator: "SheepShaver",
     prefsPath: sheepShaverPrefsPath,
     bezelStyle: "Platinum",
 };
 
-export const NEW_WORLD_POWERMAC: MachineDef = {
-    name: "New World PowerMac",
+export const POWER_MACINTOSH_G3: MachineDef = {
+    name: "Power Macintosh G3",
     cpu: "G3",
     romPath: newWorldRomPath,
     gestaltID: 406,
@@ -134,9 +134,9 @@ export const ALL_MACHINES = [
     MAC_SE,
     MAC_II,
     MAC_IIFX,
-    QUADRA,
-    OLD_WORLD_POWERMAC,
-    NEW_WORLD_POWERMAC,
+    QUADRA_650,
+    POWER_MACINTOSH_9500,
+    POWER_MACINTOSH_G3,
 ];
 
 export const MACHINES_BY_NAME = Object.fromEntries(

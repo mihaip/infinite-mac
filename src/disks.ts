@@ -34,9 +34,9 @@ import {
     MAC_II,
     MAC_IIFX,
     MAC_PLUS,
-    NEW_WORLD_POWERMAC,
-    OLD_WORLD_POWERMAC,
-    QUADRA,
+    POWER_MACINTOSH_G3,
+    POWER_MACINTOSH_9500,
+    QUADRA_650,
 } from "./machines";
 
 // prefetchChunks are semi-automatically generated -- we will get a
@@ -253,7 +253,7 @@ const SYSTEM_7_1: DiskDef = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 23,
         24, 25, 26, 27,
     ],
-    machines: [QUADRA, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
     ...system71HdManifest,
 };
@@ -268,7 +268,7 @@ const SYSTEM_7_1_1: DiskDef = {
         24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
         44,
     ],
-    machines: [QUADRA, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
     ...system711HdManifest,
 };
@@ -285,7 +285,7 @@ const SYSTEM_7_5_3: DiskDef = {
         94, 96, 98, 99, 100, 102, 103, 104, 106, 107, 108, 109, 110, 111, 113,
         114, 116, 117, 166,
     ],
-    machines: [QUADRA, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
+    machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
     appleTalkSupported: true,
     ...system753HdManifest,
 };
@@ -305,7 +305,7 @@ const SYSTEM_7_5_3_PPC: DiskDef = {
         121, 122, 123, 124, 125, 129, 130, 131, 133, 134, 135, 136, 137, 139,
         140, 141, 142, 143, 144, 145, 146, 147, 148, 152, 153, 155,
     ],
-    machines: [OLD_WORLD_POWERMAC],
+    machines: [POWER_MACINTOSH_9500],
     appleTalkSupported: true,
     ...system753PpcHdManifest,
 };
@@ -322,7 +322,7 @@ const KANJITALK_7_5_3: DiskDef = {
         172, 174, 175, 176, 177, 179, 180, 181, 182, 183, 185, 186, 187, 189,
         190, 191, 192, 193, 194, 195, 196, 197, 399,
     ],
-    machines: [QUADRA, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
+    machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
     appleTalkSupported: true,
     ...kanjiTalk753HdManifest,
 };
@@ -341,7 +341,7 @@ const MAC_OS_8_1: DiskDef = {
         155, 158, 159, 160, 161, 162, 163, 169, 170, 171, 172, 175, 176, 177,
         179, 181,
     ],
-    machines: [QUADRA, OLD_WORLD_POWERMAC],
+    machines: [QUADRA_650, POWER_MACINTOSH_9500],
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
     ...macos81HdManifest,
@@ -369,7 +369,7 @@ const MAC_OS_9_0_4: DiskDef = {
         356, 357, 358, 359, 361, 362, 363, 366, 370, 371, 372, 373, 374, 375,
         379,
     ],
-    machines: [NEW_WORLD_POWERMAC, OLD_WORLD_POWERMAC],
+    machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
     hasPlatinumAppearance: true,
     ...macos904HdManifest,
 };
