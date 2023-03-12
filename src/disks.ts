@@ -20,6 +20,7 @@ import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
 import system70HdManifest from "./Data/System 7.0 HD.dsk.json";
 import system71HdManifest from "./Data/System 7.1 HD.dsk.json";
 import system711HdManifest from "./Data/System 7.1.1 HD.dsk.json";
+import system75HdManifest from "./Data/System 7.5 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
@@ -273,6 +274,21 @@ const SYSTEM_7_1_1: DiskDef = {
     ...system711HdManifest,
 };
 
+const SYSTEM_7_5: DiskDef = {
+    displayName: "System 7.5",
+    description:
+        "Featured a new startup screen, drag-and-drop support and the Launcher. Included a hierarchical Apple menu, Extensions Manager, menu bar clock, Find File, Stickies, WindowShade, all based on licensed third-party utilities.",
+    baseUrl: "/Disk",
+    prefetchChunks: [
+        0, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
+        23, 25, 26, 27, 28, 29, 30, 31, 34, 35, 41, 42, 43, 45, 46, 47, 48, 49,
+        50, 53, 55, 57, 63, 64, 65, 67, 68, 69, 70, 71, 72, 73, 75,
+    ],
+    machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    appleTalkSupported: true,
+    ...system75HdManifest,
+};
+
 const SYSTEM_7_5_3: DiskDef = {
     displayName: "System 7.5.3",
     description:
@@ -398,6 +414,7 @@ export const DISKS_BY_YEAR: {
     1991: [SYSTEM_6_0_8, SYSTEM_7_0],
     1992: [SYSTEM_7_1],
     1993: [SYSTEM_7_1_1],
+    1994: [SYSTEM_7_5],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
     2000: [MAC_OS_9_0_4],
@@ -425,6 +442,7 @@ export const ALL_DISKS = [
     SYSTEM_7_0,
     SYSTEM_7_1,
     SYSTEM_7_1_1,
+    SYSTEM_7_5,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
     KANJITALK_7_5_3,
