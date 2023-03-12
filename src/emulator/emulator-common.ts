@@ -448,6 +448,7 @@ export type EmulatorWorkerDirectorExtraction = {
 };
 
 export function isDiskImageFile(name: string): boolean {
+    name = name.toLowerCase();
     return (
         name.endsWith(".iso") ||
         name.endsWith(".dsk") ||
