@@ -280,9 +280,9 @@ const SYSTEM_7_5: DiskDef = {
         "Featured a new startup screen, drag-and-drop support and the Launcher. Included a hierarchical Apple menu, Extensions Manager, menu bar clock, Find File, Stickies, WindowShade, all based on licensed third-party utilities.",
     baseUrl: "/Disk",
     prefetchChunks: [
-        0, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
-        23, 25, 26, 27, 28, 29, 30, 31, 34, 35, 41, 42, 43, 45, 46, 47, 48, 49,
-        50, 53, 55, 57, 63, 64, 65, 67, 68, 69, 70, 71, 72, 73, 75,
+        0, 1, 2, 6, 7, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+        26, 27, 28, 33, 39, 40, 41, 43, 44, 45, 46, 47, 48, 50, 51, 54, 55, 56,
+        57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 70, 71, 72,
     ],
     machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
