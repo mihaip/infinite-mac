@@ -21,6 +21,7 @@ import system70HdManifest from "./Data/System 7.0 HD.dsk.json";
 import system71HdManifest from "./Data/System 7.1 HD.dsk.json";
 import system711HdManifest from "./Data/System 7.1.1 HD.dsk.json";
 import system75HdManifest from "./Data/System 7.5 HD.dsk.json";
+import system751HdManifest from "./Data/System 7.5.1 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
@@ -289,6 +290,22 @@ const SYSTEM_7_5: DiskDef = {
     ...system75HdManifest,
 };
 
+const SYSTEM_7_5_1: DiskDef = {
+    displayName: "System 7.5.1",
+    description:
+        "Bug fixes and small tweaks. Sartup screen now now features the Mac OS logo.",
+    baseUrl: "/Disk",
+    prefetchChunks: [
+        0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
+        27, 28, 29, 31, 32, 33, 34, 35, 39, 41, 48, 50, 51, 54, 55, 57, 58, 59,
+        64, 65, 66, 67, 68, 69, 70, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
+        90, 91, 92, 93, 94,
+    ],
+    machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    appleTalkSupported: true,
+    ...system751HdManifest,
+};
+
 const SYSTEM_7_5_3: DiskDef = {
     displayName: "System 7.5.3",
     description:
@@ -415,6 +432,7 @@ export const DISKS_BY_YEAR: {
     1992: [SYSTEM_7_1],
     1993: [SYSTEM_7_1_1],
     1994: [SYSTEM_7_5],
+    1995: [SYSTEM_7_5_1],
     1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
     1998: [MAC_OS_8_1],
     2000: [MAC_OS_9_0_4],
@@ -443,6 +461,7 @@ export const ALL_DISKS = [
     SYSTEM_7_1,
     SYSTEM_7_1_1,
     SYSTEM_7_5,
+    SYSTEM_7_5_1,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
     KANJITALK_7_5_3,
