@@ -52,7 +52,22 @@ export type DiskDef = EmulatorChunkedFileSpec & {
     appleTalkSupported?: boolean;
     mfsOnly?: boolean;
     hasPlatinumAppearance?: boolean;
+    isUnstable?: boolean;
 };
+
+export type PlaceholderDiskDef = {
+    type: "placeholder";
+    displayName: string;
+    displaySubtitle?: string;
+    description: string;
+    machines: MachineDef[];
+};
+
+export function isPlaceholderDiskDef(
+    disk: DiskDef | PlaceholderDiskDef
+): disk is PlaceholderDiskDef {
+    return "type" in disk && disk.type === "placeholder";
+}
 
 const SYSTEM_1_0: DiskDef = {
     displayName: "System 1.0",
@@ -107,10 +122,18 @@ const SYSTEM_3_0: DiskDef = {
     ...system30Manifest,
 };
 
+const SYSTEM_3_1: PlaceholderDiskDef = {
+    type: "placeholder",
+    displayName: "System 3.1",
+    description:
+        "Caused data corruption and was superseded by 3.2 shortly after release.",
+    machines: [MAC_PLUS, MAC_512KE],
+};
+
 const SYSTEM_3_2: DiskDef = {
     displayName: "System 3.2",
     description:
-        "Includes redesigned Calculator and Chooser desktop accessories (System 3.1 was very buggy and was superseded by 3.2 shortly after release).",
+        "Includes redesigned Calculator and Chooser desktop accessories.",
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
@@ -175,10 +198,16 @@ const SYSTEM_6_0: DiskDef = {
     ...system60HdManifest,
 };
 
+const SYSTEM_6_0_1: PlaceholderDiskDef = {
+    type: "placeholder",
+    displayName: "System 6.0.1",
+    description: "Released with the Mac IIx, buggy and short-lived.",
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+};
+
 const SYSTEM_6_0_2: DiskDef = {
     displayName: "System 6.0.2",
-    description:
-        "Updated LaserWriter and other printing-related utilites. System 6.0.1 was released with the Mac IIx but was buggy and short-lived.",
+    description: "Updated LaserWriter and other printing-related utilites.",
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
@@ -214,10 +243,17 @@ const SYSTEM_6_0_5: DiskDef = {
     ...system605HdManifest,
 };
 
+const SYSTEM_6_0_6: PlaceholderDiskDef = {
+    type: "placeholder",
+    displayName: "System 6.0.6.",
+    description: "Never officially released due to an AppleTalk bug.",
+    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+};
+
 const SYSTEM_6_0_7: DiskDef = {
     displayName: "System 6.0.7",
     description:
-        "First release to ship on 1440K disks. Added support for the Classic, LC and IIsi. System 6.0.6 was never officially released due to an AppleTalk bug.",
+        "First release to ship on 1440K disks. Added support for the Classic, LC and IIsi.",
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
@@ -320,6 +356,7 @@ const SYSTEM_7_5_2: DiskDef = {
     ],
     machines: [POWER_MACINTOSH_9500],
     appleTalkSupported: true,
+    isUnstable: true,
     ...system752HdManifest,
 };
 
@@ -375,6 +412,14 @@ const KANJITALK_7_5_3: DiskDef = {
     machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
     appleTalkSupported: true,
     ...kanjiTalk753HdManifest,
+};
+
+const SYSTEM_7_5_4: PlaceholderDiskDef = {
+    type: "placeholder",
+    displayName: "System 7.5.4",
+    description:
+        "Withdrawn from release at the last minute due a showstopper bug.",
+    machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
 };
 
 const MAC_OS_8_1: DiskDef = {
@@ -436,21 +481,21 @@ export const DISKS_BY_DOMAIN: {
 };
 
 export const DISKS_BY_YEAR: {
-    [year: number]: DiskDef[];
+    [year: number]: (DiskDef | PlaceholderDiskDef)[];
 } = {
     1984: [SYSTEM_1_0, SYSTEM_1_1],
     1985: [SYSTEM_2_0, SYSTEM_2_1],
-    1986: [SYSTEM_3_0, SYSTEM_3_2],
+    1986: [SYSTEM_3_0, SYSTEM_3_1, SYSTEM_3_2],
     1987: [SYSTEM_3_3, SYSTEM_4_0, SYSTEM_4_1, SYSTEM_5_0, SYSTEM_5_1],
-    1988: [SYSTEM_6_0, SYSTEM_6_0_2],
+    1988: [SYSTEM_6_0, SYSTEM_6_0_1, SYSTEM_6_0_2],
     1989: [SYSTEM_6_0_3, SYSTEM_6_0_4],
-    1990: [SYSTEM_6_0_5, SYSTEM_6_0_7],
+    1990: [SYSTEM_6_0_5, SYSTEM_6_0_6, SYSTEM_6_0_7],
     1991: [SYSTEM_6_0_8, SYSTEM_7_0],
     1992: [SYSTEM_7_1],
     1993: [SYSTEM_7_1_1],
     1994: [SYSTEM_7_5],
     1995: [SYSTEM_7_5_1, SYSTEM_7_5_2],
-    1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3],
+    1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3, SYSTEM_7_5_4],
     1998: [MAC_OS_8_1],
     2000: [MAC_OS_9_0_4],
 };

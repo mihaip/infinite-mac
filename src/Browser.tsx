@@ -1,5 +1,5 @@
-import type {DiskDef} from "./disks";
-import {DISKS_BY_YEAR} from "./disks";
+import type {DiskDef, PlaceholderDiskDef} from "./disks";
+import {DISKS_BY_YEAR, isPlaceholderDiskDef} from "./disks";
 import type {MachineDef} from "./machines";
 import "./Browser.css";
 import {ScreenFrame} from "./ScreenFrame";
@@ -28,8 +28,8 @@ export function Browser({onRun}: BrowserProps) {
                 <div className="Year" key={year}>
                     <h2>{year}</h2>
                     <div className="Disks">
-                        {disks.map(disk => (
-                            <Disk disk={disk} onRun={onRun} key={disk.name} />
+                        {disks.map((disk, i) => (
+                            <Disk disk={disk} onRun={onRun} key={i} />
                         ))}
                     </div>
                 </div>
@@ -77,14 +77,12 @@ function Description() {
 }
 
 type DiskProps = {
-    disk: DiskDef;
+    disk: DiskDef | PlaceholderDiskDef;
     onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
 };
 
-function Disk(props: DiskProps) {
-    const [bezelStyle, setBezelStyle] = useState(
-        props.disk.machines[0].bezelStyle
-    );
+function Disk({disk, onRun}: DiskProps) {
+    const [bezelStyle, setBezelStyle] = useState(disk.machines[0].bezelStyle);
     return (
         <ScreenFrame
             className="Disk"
@@ -92,18 +90,28 @@ function Disk(props: DiskProps) {
             width={320}
             height={240}
             bezelSize="Medium"
-            screen={<DiskContents setBezelStyle={setBezelStyle} {...props} />}
+            screen={
+                isPlaceholderDiskDef(disk) ? (
+                    <PlaceholderDiskContents disk={disk} />
+                ) : (
+                    <DiskContents
+                        setBezelStyle={setBezelStyle}
+                        disk={disk}
+                        onRun={onRun}
+                    />
+                )
+            }
         />
     );
 }
 
-type DiskContentsContents = {
+type DiskContentsProps = {
     disk: DiskDef;
     onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
     setBezelStyle: (bezelStyle: MachineDef["bezelStyle"]) => void;
 };
 
-function DiskContents({disk, onRun, setBezelStyle}: DiskContentsContents) {
+function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
     const [customizing, setCustomizing] = useState(false);
     const [machine, setMachine] = useState(disk.machines[0]);
     const [appleTalkEnabled, setAppleTalkEnabled] = useState(false);
@@ -173,7 +181,16 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsContents) {
             </>
         );
     } else {
-        contents = <div className="Row">{disk.description}</div>;
+        contents = (
+            <>
+                <div className="Row">{disk.description}</div>
+                {disk.isUnstable && (
+                    <div className="Row Unstable-Warning">
+                        Unstable under emulation.
+                    </div>
+                )}
+            </>
+        );
     }
     const buttonAppearance = disk.hasPlatinumAppearance
         ? "Platinum"
@@ -198,6 +215,24 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsContents) {
                     Run
                 </Button>
             </div>
+        </div>
+    );
+}
+
+type PlaceholderDiskContentsProps = {
+    disk: PlaceholderDiskDef;
+};
+
+function PlaceholderDiskContents({disk}: PlaceholderDiskContentsProps) {
+    return (
+        <div className="DiskContents DiskContents-Placeholder">
+            <h3 className="Row">
+                {disk.displayName}
+                {disk.displaySubtitle && (
+                    <span className="Subtitle"> ({disk.displaySubtitle})</span>
+                )}
+            </h3>
+            <div className="Row">{disk.description}</div>
         </div>
     );
 }
@@ -230,7 +265,7 @@ export function runDefFromUrl(urlString: string): BrowserRunDef | undefined {
     }
     const diskName = decodeURIComponent(pieces[2]);
     const disk = disks.find(disk => disk.displayName === diskName);
-    if (!disk) {
+    if (!disk || isPlaceholderDiskDef(disk)) {
         return undefined;
     }
     const searchParams = url.searchParams;
