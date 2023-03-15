@@ -89,6 +89,10 @@
     font-family: Helvetica, Arial, sans-serif;
 }
 
+.DiskContents.DiskContents-Placeholder {
+    opacity: 0.5;
+}
+
 .DiskContents h3 {
     font-family: "Apple Garamond";
     font-weight: normal;
@@ -102,6 +106,10 @@
 
 .DiskContents .Row {
     margin-bottom: 1em;
+}
+
+.DiskContents .Row.Unstable-Warning {
+    color: #f88;
 }
 
 .DiskContents .Row.Buttons {
