@@ -64,7 +64,7 @@ cd /macemu/BasiliskII/src/Unix
 make -j8
 ```
 
-Once it has built, use `npm run import-basilisk-ii` from the host to update the files in `src/emulator`.
+Once it has built, use `npm run import-emulator basiliskii` from the host to update the files in `src/emulator`.
 
 #### SheepShaver
 
@@ -76,7 +76,7 @@ cd /macemu/SheepShaver/src/Unix
 make -j8
 ```
 
-Once it has built, use `npm run import-sheepshaver` from the host to update the files in `src/emulator`.
+Once it has built, use `npm run import-emulator sheepshaver` from the host to update the files in `src/emulator`.
 
 #### Mini vMac
 
@@ -94,4 +94,4 @@ cd /minivmac
 make -j8
 ```
 
-Once it has built, use `npm run import-minivmac-<model>` from the host to update the files in `src/emulator`.
+Once it has built, use `npm run import-emulator minivmac-<model>` from the host to update the files in `src/emulator`.
