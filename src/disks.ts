@@ -27,6 +27,7 @@ import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
 import system755HdManifest from "./Data/System 7.5.5 HD.dsk.json";
+import macos76HdManifest from "./Data/Mac OS 7.6 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
 import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
@@ -447,6 +448,25 @@ const SYSTEM_7_5_5: DiskDef = {
     ...system755HdManifest,
 };
 
+const MAC_OS_7_6: DiskDef = {
+    displayName: "Mac OS 7.6",
+    description:
+        "First to be officially called “Mac OS”. Improved performance and reliability. Featured a revamped Extensions Manager and speech support.",
+    baseUrl: "/Disk",
+    prefetchChunks: [
+        0, 3, 6, 11, 12, 13, 18, 29, 30, 32, 33, 34, 35, 36, 37, 38, 39, 40, 54,
+        55, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 69, 70, 78, 79, 80, 81,
+        82, 84, 85, 86, 88, 92, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108,
+        109, 110, 112, 113, 114, 115, 116, 117, 119, 120, 121, 122, 126, 127,
+        128, 134, 136, 139, 140, 141, 145, 146, 147, 148, 149, 150, 151, 152,
+        153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166,
+        167, 168, 169, 170, 171,
+    ],
+    machines: [QUADRA_650, MAC_IIFX, POWER_MACINTOSH_9500],
+    appleTalkSupported: true,
+    ...macos76HdManifest,
+};
+
 const MAC_OS_8_1: DiskDef = {
     displayName: "Mac OS 8.1",
     description: "Added support for the HFS+ file system.",
@@ -527,6 +547,7 @@ export const DISKS_BY_YEAR: {
         SYSTEM_7_5_4,
         SYSTEM_7_5_5,
     ],
+    1997: [MAC_OS_7_6],
     1998: [MAC_OS_8_1],
     2000: [MAC_OS_9_0_4],
 };
@@ -560,6 +581,7 @@ export const ALL_DISKS = [
     SYSTEM_7_5_3_PPC,
     KANJITALK_7_5_3,
     SYSTEM_7_5_5,
+    MAC_OS_7_6,
     MAC_OS_8_1,
     MAC_OS_9_0_4,
 ];
