@@ -152,6 +152,11 @@ SYSTEM_753_PPC = Disk(
     domain="system7.app",
 )
 
+SYSTEM_755 = Disk(
+    name="System 7.5.5 HD.dsk",
+    domain="system7.app",
+)
+
 MAC_OS_81 = Disk(
     name="Mac OS 8.1 HD.dsk",
     domain="macos8.app",
@@ -215,6 +220,7 @@ ALL_DISKS = [
     SYSTEM_752,
     SYSTEM_753,
     SYSTEM_753_PPC,
+    SYSTEM_755,
     MAC_OS_81,
     KANJITALK_753,
     MAC_OS_904,

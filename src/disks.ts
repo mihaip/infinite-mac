@@ -26,6 +26,7 @@ import system752HdManifest from "./Data/System 7.5.2 HD.dsk.json";
 import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
 import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
+import system755HdManifest from "./Data/System 7.5.5 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
 import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
@@ -422,6 +423,30 @@ const SYSTEM_7_5_4: PlaceholderDiskDef = {
     machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
 };
 
+const SYSTEM_7_5_5: DiskDef = {
+    displayName: "System 7.5.5",
+    description: "Improved memory system performance and reliability.",
+    baseUrl: "/Disk",
+    prefetchChunks: [
+        0, 2, 5, 6, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+        24, 25, 27, 28, 30, 31, 32, 33, 34, 35, 38, 45, 46, 49, 50, 51, 57, 59,
+        61, 64, 66, 70, 71, 79, 83, 84, 86, 87, 88, 89, 90, 95, 96, 97, 100,
+        103, 107, 114, 115, 125, 126, 130, 131, 132, 150, 151, 159, 161, 162,
+        163, 164, 165, 168, 170, 171, 172, 180, 181, 182, 183, 184, 185, 186,
+        187, 188, 189, 190,
+    ],
+    machines: [
+        QUADRA_650,
+        MAC_PLUS,
+        MAC_SE,
+        MAC_II,
+        MAC_IIFX,
+        POWER_MACINTOSH_9500,
+    ],
+    appleTalkSupported: true,
+    ...system755HdManifest,
+};
+
 const MAC_OS_8_1: DiskDef = {
     displayName: "Mac OS 8.1",
     description: "Added support for the HFS+ file system.",
@@ -495,7 +520,13 @@ export const DISKS_BY_YEAR: {
     1993: [SYSTEM_7_1_1],
     1994: [SYSTEM_7_5],
     1995: [SYSTEM_7_5_1, SYSTEM_7_5_2],
-    1996: [SYSTEM_7_5_3, SYSTEM_7_5_3_PPC, KANJITALK_7_5_3, SYSTEM_7_5_4],
+    1996: [
+        SYSTEM_7_5_3,
+        SYSTEM_7_5_3_PPC,
+        KANJITALK_7_5_3,
+        SYSTEM_7_5_4,
+        SYSTEM_7_5_5,
+    ],
     1998: [MAC_OS_8_1],
     2000: [MAC_OS_9_0_4],
 };
@@ -528,6 +559,7 @@ export const ALL_DISKS = [
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
     KANJITALK_7_5_3,
+    SYSTEM_7_5_5,
     MAC_OS_8_1,
     MAC_OS_9_0_4,
 ];
