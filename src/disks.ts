@@ -314,6 +314,14 @@ const SYSTEM_7_1_1: DiskDef = {
     ...system711HdManifest,
 };
 
+const SYSTEM_7_1_2: PlaceholderDiskDef = {
+    type: "placeholder",
+    displayName: "System 7.1.2",
+    description:
+        "Initial system software for the Power Macintosh computers. Does not run under emulation.",
+    machines: [POWER_MACINTOSH_9500],
+};
+
 const SYSTEM_7_5: DiskDef = {
     displayName: "System 7.5",
     description:
@@ -538,7 +546,7 @@ export const DISKS_BY_YEAR: {
     1991: [SYSTEM_6_0_8, SYSTEM_7_0],
     1992: [SYSTEM_7_1],
     1993: [SYSTEM_7_1_1],
-    1994: [SYSTEM_7_5],
+    1994: [SYSTEM_7_1_2, SYSTEM_7_5],
     1995: [SYSTEM_7_5_1, SYSTEM_7_5_2],
     1996: [
         SYSTEM_7_5_3,
