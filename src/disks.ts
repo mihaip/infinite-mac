@@ -30,6 +30,7 @@ import system755HdManifest from "./Data/System 7.5.5 HD.dsk.json";
 import macos76HdManifest from "./Data/Mac OS 7.6 HD.dsk.json";
 import macos80HdManifest from "./Data/Mac OS 8.0 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
+import macos85HdManifest from "./Data/Mac OS 8.5 HD.dsk.json";
 import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
 import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
 import type {MachineDef} from "./machines";
@@ -518,6 +519,33 @@ const MAC_OS_8_1: DiskDef = {
     ...macos81HdManifest,
 };
 
+const MAC_OS_8_5: DiskDef = {
+    displayName: "Mac OS 8.5",
+    description:
+        "Introduced Sherlock, 32-bit icons in the Finder, font smoothing, a new help system and the application palette.",
+    baseUrl: "/Disk",
+    prefetchChunks: [
+        0, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22, 23, 24, 25,
+        26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44,
+        45, 46, 47, 48, 49, 51, 52, 53, 54, 55, 56, 57, 58, 62, 68, 69, 70, 71,
+        72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 87, 88, 89, 90, 91,
+        92, 93, 94, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113,
+        114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
+        128, 129, 130, 131, 132, 134, 135, 136, 137, 138, 139, 140, 181, 182,
+        183, 184, 185, 186, 187, 191, 192, 194, 195, 196, 197, 198, 200, 204,
+        205, 207, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220,
+        221, 222, 223, 224, 225, 228, 229, 230, 231, 232, 234, 240, 241, 243,
+        244, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259,
+        260, 261, 263, 264, 270, 272, 273, 280, 281, 334, 345, 347, 349, 350,
+        351, 352, 353, 354, 363, 364, 414, 415, 416, 421, 422, 423, 425, 426,
+        427, 428, 432, 453, 454, 458,
+    ],
+    machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+    appleTalkSupported: true,
+    hasPlatinumAppearance: true,
+    ...macos85HdManifest,
+};
+
 const MAC_OS_9_0_4: DiskDef = {
     displayName: "Mac OS 9.0.4",
     description: "Bug fix release.",
@@ -579,7 +607,7 @@ export const DISKS_BY_YEAR: {
         SYSTEM_7_5_5,
     ],
     1997: [MAC_OS_7_6, MAC_OS_8_0],
-    1998: [MAC_OS_8_1],
+    1998: [MAC_OS_8_1, MAC_OS_8_5],
     2000: [MAC_OS_9_0_4],
 };
 
@@ -615,6 +643,7 @@ export const ALL_DISKS = [
     MAC_OS_7_6,
     MAC_OS_8_0,
     MAC_OS_8_1,
+    MAC_OS_8_5,
     MAC_OS_9_0_4,
 ];
 
