@@ -191,7 +191,7 @@
     --screen-bezel-color-light2: hsl(0deg 0% 95%);
 }
 
-/* Pintripes tries to replicate the style of the 1999 Apple Cinema Display. */
+/* Pinstripes tries to replicate the style of the 1999 Apple Cinema Display. */
 .ScreenFrame-Bezel-Pinstripes {
     --screen-bezel-color: hsl(0deg 0% 95%);
     --screen-bezel-color-dark1: hsl(0deg 0% 80%);
@@ -226,8 +226,6 @@
     border-color: var(--screen-bezel-color);
     /* Add inner dark border */
     box-shadow: inset 0 0 0 2px #282c34;
-    /* Cover up pinstripe pattern - border-images do not respect border-radius .*/
-    outline: solid var(--screen-bezel-size) #282c34;
 }
 
 .ScreenFrame-Bezel-Pinstripes .ScreenFrame-Controls-Container {
