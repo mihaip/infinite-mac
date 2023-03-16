@@ -172,6 +172,11 @@ MAC_OS_81 = Disk(
     domain="macos8.app",
 )
 
+MAC_OS_85 = Disk(
+    name="Mac OS 8.5 HD.dsk",
+    domain="macos8.app",
+)
+
 JAPANESE_WELCOME_STICKY = stickies.Sticky(
     top=125,
     left=468,
@@ -230,10 +235,11 @@ ALL_DISKS = [
     SYSTEM_752,
     SYSTEM_753,
     SYSTEM_753_PPC,
+    KANJITALK_753,
     SYSTEM_755,
     MAC_OS_76,
     MAC_OS_8,
     MAC_OS_81,
-    KANJITALK_753,
+    MAC_OS_85,
     MAC_OS_904,
 ]
