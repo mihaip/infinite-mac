@@ -208,6 +208,11 @@ KANJITALK_753 = Disk(
     stickies_encoding="shift_jis",
     welcome_sticky_override=JAPANESE_WELCOME_STICKY)
 
+MAC_OS_9 = Disk(
+    name="Mac OS 9.0 HD.dsk",
+    domain="macos9.app",
+)
+
 MAC_OS_904 = Disk(
     name="Mac OS 9.0.4 HD.dsk",
     domain="macos9.app",
@@ -247,5 +252,6 @@ ALL_DISKS = [
     MAC_OS_81,
     MAC_OS_85,
     MAC_OS_86,
+    MAC_OS_9,
     MAC_OS_904,
 ]
