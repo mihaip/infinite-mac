@@ -28,6 +28,7 @@ import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
 import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
 import system755HdManifest from "./Data/System 7.5.5 HD.dsk.json";
 import macos76HdManifest from "./Data/Mac OS 7.6 HD.dsk.json";
+import macos80HdManifest from "./Data/Mac OS 8.0 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
 import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
@@ -475,6 +476,28 @@ const MAC_OS_7_6: DiskDef = {
     ...macos76HdManifest,
 };
 
+const MAC_OS_8_0: DiskDef = {
+    displayName: "Mac OS 8.0",
+    description:
+        "Introduced the Platinum appearance, multi-threaded Finder, context menus, popup windows, and other features.",
+    baseUrl: "/Disk",
+    prefetchChunks: [
+        0, 3, 6, 7, 10, 11, 12, 22, 23, 25, 28, 29, 30, 31, 33, 34, 35, 36, 37,
+        39, 40, 42, 44, 56, 58, 59, 60, 62, 63, 65, 66, 67, 68, 70, 71, 72, 73,
+        74, 75, 80, 81, 82, 83, 84, 85, 86, 87, 88, 94, 95, 96, 97, 100, 101,
+        102, 103, 104, 105, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122,
+        123, 124, 126, 130, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149,
+        150, 151, 152, 153, 154, 155, 156, 157, 158, 160, 165, 166, 172, 173,
+        174, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188,
+        189, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204,
+        205, 206, 208,
+    ],
+    machines: [QUADRA_650, POWER_MACINTOSH_9500],
+    appleTalkSupported: true,
+    hasPlatinumAppearance: true,
+    ...macos80HdManifest,
+};
+
 const MAC_OS_8_1: DiskDef = {
     displayName: "Mac OS 8.1",
     description: "Added support for the HFS+ file system.",
@@ -555,7 +578,7 @@ export const DISKS_BY_YEAR: {
         SYSTEM_7_5_4,
         SYSTEM_7_5_5,
     ],
-    1997: [MAC_OS_7_6],
+    1997: [MAC_OS_7_6, MAC_OS_8_0],
     1998: [MAC_OS_8_1],
     2000: [MAC_OS_9_0_4],
 };
@@ -590,6 +613,7 @@ export const ALL_DISKS = [
     KANJITALK_7_5_3,
     SYSTEM_7_5_5,
     MAC_OS_7_6,
+    MAC_OS_8_0,
     MAC_OS_8_1,
     MAC_OS_9_0_4,
 ];
