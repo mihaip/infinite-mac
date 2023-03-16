@@ -32,6 +32,7 @@ import macos80HdManifest from "./Data/Mac OS 8.0 HD.dsk.json";
 import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
 import macos85HdManifest from "./Data/Mac OS 8.5 HD.dsk.json";
 import macos86HdManifest from "./Data/Mac OS 8.6 HD.dsk.json";
+import macos90HdManifest from "./Data/Mac OS 9.0 HD.dsk.json";
 import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
 import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
 import type {MachineDef} from "./machines";
@@ -575,9 +576,60 @@ const MAC_OS_8_6: DiskDef = {
     ...macos86HdManifest,
 };
 
+const MAC_OS_9_0: DiskDef = {
+    displayName: "Mac OS 9.0",
+    description:
+        "Introduced the Keychain, multiple user support, iTools integration, Sherlock internet channels and online software updates.",
+    baseUrl: "/Disk",
+    prefetchChunks: [
+        0, 4, 5, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 33, 38, 39, 41,
+        42, 43, 44, 45, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
+        61, 62, 63, 64, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+        81, 82, 83, 84, 85, 87, 88, 89, 92, 97, 102, 103, 104, 105, 106, 107,
+        108, 116, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
+        130, 131, 132, 133, 134, 135, 136, 137, 138, 140, 141, 142, 144, 145,
+        147, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162,
+        163, 165, 166, 167, 168, 169, 170, 172, 173, 174, 175, 176, 177, 178,
+        179, 180, 181, 182, 183, 185, 251, 252, 253, 254, 255, 256, 258, 259,
+        260, 261, 262, 263, 264, 272, 273, 274, 275, 277, 278, 280, 282, 284,
+        285, 286, 287, 306, 308, 309, 310, 311, 313, 314, 318, 320, 321, 322,
+        324, 325, 327, 331, 337, 338, 339, 342, 343, 347, 352, 353, 354, 356,
+        357, 359, 360, 361, 365, 368, 369, 370, 371, 373, 374, 378, 379, 380,
+        381, 383, 384, 385, 386, 387, 388, 389, 397, 399, 400, 406, 408, 409,
+        410, 411, 412, 413, 416, 417, 419, 422, 424, 428, 429, 430, 431, 432,
+        433, 441, 446, 492, 494, 499, 500, 501, 502, 503, 506, 507, 508, 511,
+        512, 515, 554, 559, 560, 562, 563, 564, 565, 566, 567, 568,
+    ],
+    machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+    hasPlatinumAppearance: true,
+    ...macos90HdManifest,
+};
+
+const MAC_OS_9_0_1: PlaceholderDiskDef = {
+    type: "placeholder",
+    displayName: "Mac OS 9.0.1",
+    description: "Under development but never released.",
+    machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+};
+
+const MAC_OS_9_0_2: PlaceholderDiskDef = {
+    type: "placeholder",
+    displayName: "Mac OS 9.0.2",
+    description: "Released with the PowerBook G3 (FireWire) only.",
+    machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+};
+
+const MAC_OS_9_0_3: PlaceholderDiskDef = {
+    type: "placeholder",
+    displayName: "Mac OS 9.0.3",
+    description: "Released with iMacs only.",
+    machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+};
+
 const MAC_OS_9_0_4: DiskDef = {
     displayName: "Mac OS 9.0.4",
-    description: "Bug fix release.",
+    description:
+        "Bug fixes, final release supported by the SheepShaver emulator.",
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24,
@@ -637,8 +689,8 @@ export const DISKS_BY_YEAR: {
     ],
     1997: [MAC_OS_7_6, MAC_OS_8_0],
     1998: [MAC_OS_8_1, MAC_OS_8_5],
-    1999: [MAC_OS_8_6],
-    2000: [MAC_OS_9_0_4],
+    1999: [MAC_OS_8_6, MAC_OS_9_0],
+    2000: [MAC_OS_9_0_1, MAC_OS_9_0_2, MAC_OS_9_0_3, MAC_OS_9_0_4],
 };
 
 export const ALL_DISKS = [
@@ -675,6 +727,7 @@ export const ALL_DISKS = [
     MAC_OS_8_1,
     MAC_OS_8_5,
     MAC_OS_8_6,
+    MAC_OS_9_0,
     MAC_OS_9_0_4,
 ];
 
