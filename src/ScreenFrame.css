@@ -228,8 +228,19 @@
     box-shadow: inset 0 0 0 2px #282c34;
 }
 
+/* Center Apple logo by making the entire container full-width */
 .ScreenFrame-Bezel-Pinstripes .ScreenFrame-Controls-Container {
-    /* Center Apple logo */
+    width: 100%;
+}
+
+.ScreenFrame-Bezel-Pinstripes
+    .ScreenFrame-Controls-Container
+    .ScreenFrame-Apple-Logo
+    + .ScreenFrame-Control {
+    margin-left: 0;
+}
+
+.ScreenFrame-Bezel-Pinstripes .ScreenFrame-Apple-Logo {
     left: calc(50% - 10px);
 }
 
