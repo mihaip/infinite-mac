@@ -66,13 +66,22 @@ declare const workerCommands: EmulatorFallbackCommand[];
 
 const PERSISTED_DIRECTORY_PATH = "/Shared/Saved";
 
-self.onmessage = function (event) {
+addEventListener("message", event => {
     const {data} = event;
     const {type} = data;
     if (type === "start") {
         startEmulator(data.config);
     }
-};
+});
+
+addEventListener("unhandledrejection", event => {
+    const reasonString = event.reason.toString();
+    if (reasonString.toLowerCase().includes("out of memory")) {
+        postMessage({type: "emulator_did_run_out_memory"});
+    } else {
+        postMessage({type: "emulator_did_have_error", error: reasonString});
+    }
+});
 
 class EmulatorWorkerApi {
     InputBufferAddresses = InputBufferAddresses;
