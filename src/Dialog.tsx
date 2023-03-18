@@ -8,11 +8,18 @@ export type DialogProps = {
     title: string;
     children: React.ReactNode;
     onDone: () => void;
+    doneLabel?: string;
     buttonAppearance?: ButtonProps["appearance"];
 };
 
 export function Dialog(props: DialogProps) {
-    const {title, children, onDone, buttonAppearance = "Classic"} = props;
+    const {
+        title,
+        children,
+        onDone,
+        doneLabel = "Done",
+        buttonAppearance = "Classic",
+    } = props;
     const dialog = (
         <div className="Dialog">
             <h1>{title}</h1>
@@ -26,7 +33,7 @@ export function Dialog(props: DialogProps) {
                         e.preventDefault();
                         onDone();
                     }}>
-                    Done
+                    {doneLabel}
                 </Button>
             </footer>
         </div>

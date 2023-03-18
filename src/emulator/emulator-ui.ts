@@ -118,6 +118,8 @@ export interface EmulatorDelegate {
         emulator: Emulator,
         peers: ReadonlyArray<EmulatorEthernetPeer>
     ): void;
+    emulatorDidRunOutOfMemory?(emulator: Emulator): void;
+    emulatorDidHaveError?(emulator: Emulator, error: string): void;
     emulatorSettings?(emulator: Emulator): EmulatorSettings;
 }
 
@@ -634,6 +636,10 @@ export class Emulator {
                     console.error("Could not set clipboard text:", error);
                 }
             );
+        } else if (e.data.type === "emulator_did_run_out_memory") {
+            this.#delegate?.emulatorDidRunOutOfMemory?.(this);
+        } else if (e.data.type === "emulator_did_have_error") {
+            this.#delegate?.emulatorDidHaveError?.(this, e.data.error);
         } else {
             console.warn("Unexpected postMessage event", e);
         }

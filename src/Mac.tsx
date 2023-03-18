@@ -54,6 +54,7 @@ export function Mac({
     ]);
     const [emulatorLoadingDiskChunk, setEmulatorLoadingDiskChunk] =
         useState(false);
+    const [emulatorErrorText, setEmulatorErrorText] = useState("");
     const [hasPendingDiskImage, setHasPendingDiskImage] = useState(false);
     const [ethernetPeers, setEthernetPeers] = useState<
         ReadonlyArray<EmulatorEthernetPeer>
@@ -135,6 +136,18 @@ export function Mac({
                     if (ethernetProvider) {
                         setEthernetPeers(peers);
                     }
+                },
+                emulatorDidRunOutOfMemory(emulator: Emulator) {
+                    varz.increment("emulator_error:out_of_memory");
+                    setEmulatorErrorText(
+                        "The emulator ran out of memory.\n\nIf you are running it in a mobile app's in-app browser, try switching to the native browser (Safari or Chrome) on your device."
+                    );
+                },
+                emulatorDidHaveError(emulator: Emulator, error: string) {
+                    varz.increment("emulator_error:other");
+                    setEmulatorErrorText(
+                        `The emulator encountered an error:\n\n${error}`
+                    );
                 },
                 emulatorSettings(emulator) {
                     return emulatorSettingsRef.current;
@@ -401,6 +414,12 @@ export function Mac({
                     onDone={() => setSettingsVisible(false)}
                 />
             )}
+            {emulatorErrorText && (
+                <MacError
+                    text={emulatorErrorText}
+                    onDone={() => setEmulatorErrorText("")}
+                />
+            )}
         </ScreenFrame>
     );
 }
@@ -559,6 +578,14 @@ function MacSettings({
                     </div>
                 </label>
             )}
+        </Dialog>
+    );
+}
+
+function MacError({text, onDone}: {text: string; onDone: () => void}) {
+    return (
+        <Dialog title="Emulator Error" onDone={onDone} doneLabel="Bummer">
+            <p style={{whiteSpace: "pre-line"}}>{text}</p>
         </Dialog>
     );
 }
