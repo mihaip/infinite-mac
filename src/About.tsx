@@ -62,25 +62,15 @@ export function About({
                     </li>
                 </ul>
             )}
-            {hideSites && (
-                <p>
-                    For a demo of the kinds of capabilities the emulators have,
-                    see this video:
-                </p>
-            )}
-            {hideSites && (
-                <iframe
-                    width="600"
-                    height="420"
-                    src="https://www.youtube.com/embed/tljxs9zuaA8"
-                    title="YouTube video player"
-                    frameBorder="0"
-                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
-                    allowFullScreen
-                />
-            )}
             <p>
-                To learn more, including how it was built, see{" "}
+                For a demo of the kinds of capabilities the emulators have, see{" "}
+                <a
+                    href="https://www.youtube.com/embed/tljxs9zuaA8"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    this video
+                </a>
+                . To learn more, including how it was built, see{" "}
                 <a href="https://blog.persistent.info/search/label/Infinite%20Mac">
                     this series of blog posts
                 </a>
