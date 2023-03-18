@@ -103,13 +103,18 @@
 }
 
 .ScreenFrame-Controls-Container .ScreenFrame-Control {
-    visibility: hidden;
     margin-left: 16px;
     cursor: pointer;
 }
 
-.ScreenFrame-Controls-Container:hover .ScreenFrame-Control {
-    visibility: visible;
+@media (hover: hover) {
+    .ScreenFrame-Controls-Container .ScreenFrame-Control {
+        visibility: hidden;
+    }
+
+    .ScreenFrame-Controls-Container:hover .ScreenFrame-Control {
+        visibility: visible;
+    }
 }
 
 .ScreenFrame-Apple-Logo {

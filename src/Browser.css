@@ -125,10 +125,15 @@
 }
 
 .Disk .CustomizeButton {
-    visibility: hidden;
     font-weight: normal;
 }
 
-.Disk:hover .CustomizeButton {
-    visibility: visible;
+@media (hover: hover) {
+    .Disk .CustomizeButton {
+        visibility: hidden;
+    }
+
+    .Disk:hover .CustomizeButton {
+        visibility: visible;
+    }
 }
