@@ -9,7 +9,12 @@ export function Footer({onLogoClick}: {onLogoClick?: () => void}) {
 
     return (
         <div className="Footer">
-            {aboutVisible && <About onDone={() => setAboutVisible(false)} />}
+            {aboutVisible && (
+                <About
+                    onDone={() => setAboutVisible(false)}
+                    hideSites={onLogoClick !== undefined}
+                />
+            )}
             {donateVisible && <Donate onDone={() => setDonateVisible(false)} />}
             <span onClick={onLogoClick} className="Footer-Logo">
                 Infinite Mac
