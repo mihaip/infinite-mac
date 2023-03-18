@@ -118,6 +118,11 @@
     width: 18px;
 }
 
+.ScreenFrame-Bezel-Medium .ScreenFrame-Apple-Logo {
+    height: 28px;
+    width: 14px;
+}
+
 .ScreenFrame-Apple-Logo svg {
     height: 100%;
     width: 100%;
