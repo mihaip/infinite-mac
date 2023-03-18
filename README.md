@@ -1,6 +1,6 @@
 # Infinite Mac
 
-A 90's era classic Mac with everything you'd want. Available in [System 7](https://system7.app/), [Mac OS 8](https://macos8.app/), [Mac OS 9](https://macos9.app/) and [KanjiTalk](https://kanjitalk7.app) (Japanese) flavors. For a high-level overview and the backstory, see [the launch blog post](https://blog.persistent.info/2022/03/blog-post.html) and [subsequent ones](https://blog.persistent.info/search/label/Infinite%20Mac).
+80's and 90's era classic Macs that load instantly in a browser and have access to a large software library. The full collection is at [infinitemac.org](https://infinitemac.org). Shortcuts are available for [System 6](https://system6.app/), [System 7](https://system7.app/), [Mac OS 8](https://macos8.app/), [Mac OS 9](https://macos9.app/) and [KanjiTalk](https://kanjitalk7.app) (Japanese). For a high-level overview and the backstory, see [the launch blog post](https://blog.persistent.info/2022/03/blog-post.html) and [subsequent ones](https://blog.persistent.info/search/label/Infinite%20Mac).
 
 ## Development
 
@@ -36,7 +36,7 @@ npm run build-xadmaster
 
 ### Building the emulators
 
-Basilisk II and SheepShaver the original 68K and PowerPC emulators that enable this project.They are hosted in [a separate repo](https://github.com/mihaip/macemu/) and are included via a Git submodule. Rebuilding them is only required when making changes to the emulator core, the generated files are in `src/emulator` and included in the Git repository.
+Basilisk II, SheepShaver and Mini vMac are the original 68K and PowerPC emulators that enable this project.They are hosted in [separate](https://github.com/mihaip/minivmac/) [repos](https://github.com/mihaip/macemu/) and are included via Git submodules. Rebuilding them is only required when making changes to the emulator core, the generated files are in `src/emulator` and included in the Git repository.
 
 To begin, ensure that you have a Docker image built with the Emscripten toolchain and supporting libraries:
 
