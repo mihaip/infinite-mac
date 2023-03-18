@@ -241,13 +241,9 @@ export function Mac({
         setDragCount(value => value - 1);
     }
 
-    async function handleDrop(event: React.DragEvent) {
+    function handleDrop(event: React.DragEvent) {
         event.preventDefault();
         setDragCount(0);
-        const emulator = emulatorRef.current;
-        if (!emulator) {
-            return;
-        }
         const files = [];
 
         if (event.dataTransfer.items) {
@@ -260,6 +256,36 @@ export function Mac({
             for (const file of event.dataTransfer.files) {
                 files.push(file);
             }
+        }
+
+        uploadFiles(files);
+    }
+
+    function handleLoadFileClick() {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.multiple = true;
+        input.onchange = () => {
+            // Use the drag overlay to instruct users what will happen when they
+            // select a file. We can't show this sooner (as as soon as we send
+            // the synthetic click event below) because we may not get a change
+            // event if the user cancels the file picker.
+            setDragCount(1);
+            if (input.files) {
+                uploadFiles(Array.from(input.files));
+            }
+            input.remove();
+            // Delay removing the overlay a bit so that users have a chance to
+            // read it.
+            setTimeout(() => setDragCount(0), 500);
+        };
+        input.click();
+    }
+
+    function uploadFiles(files: File[]) {
+        const emulator = emulatorRef.current;
+        if (!emulator) {
+            return;
         }
 
         const diskImages = [];
@@ -301,7 +327,8 @@ export function Mac({
     }
 
     const controls: ScreenControl[] = [
-        {label: "Full-screen", handler: handleFullScreenClick},
+        {label: "Load File", handler: handleLoadFileClick},
+        {label: "Full Screen", handler: handleFullScreenClick},
         {label: "Settings", handler: handleSettingsClick},
     ];
     if (onDone) {
