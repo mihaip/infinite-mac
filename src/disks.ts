@@ -118,7 +118,7 @@ const SYSTEM_2_1: DiskDef = {
         "Added support for the Hard Disk 20 drive and the HFS file system.",
     releaseDate: [1985, 9, 17],
     baseUrl: "/Disk",
-    prefetchChunks: [0, 1],
+    prefetchChunks: [0, 1, 2],
     // The Mac 128K is supported, but HFS is not loaded in that case.
     machines: [MAC_512KE, MAC_128K],
     ...system21Manifest,
