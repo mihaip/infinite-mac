@@ -104,12 +104,23 @@
     color: #999;
 }
 
+.DiskContents h3 .ReleaseDate {
+    color: #999;
+    font-size: 14px;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
 .DiskContents .Row {
     margin-bottom: 1em;
 }
 
 .DiskContents .Row.Unstable-Warning {
     color: #f88;
+}
+
+.DiskContents .Row.DiskDescription {
+    flex-grow: 1;
+    overflow: auto;
 }
 
 .DiskContents .Row.Buttons {

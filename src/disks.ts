@@ -53,6 +53,7 @@ import {
 export type DiskDef = EmulatorChunkedFileSpec & {
     displayName: string;
     displaySubtitle?: string;
+    releaseDate: [year: number, month: number, date: number];
     description: string;
     machines: MachineDef[];
     appleTalkSupported?: boolean;
@@ -65,6 +66,7 @@ export type PlaceholderDiskDef = {
     type: "placeholder";
     displayName: string;
     displaySubtitle?: string;
+    releaseDate: [year: number, month: number, date: number];
     description: string;
     machines: MachineDef[];
 };
@@ -78,6 +80,7 @@ export function isPlaceholderDiskDef(
 const SYSTEM_1_0: DiskDef = {
     displayName: "System 1.0",
     description: "Initial system software release, shipped with the Mac 128K.",
+    releaseDate: [1984, 1, 24],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
@@ -89,6 +92,7 @@ const SYSTEM_1_1: DiskDef = {
     displayName: "System 1.1",
     description:
         "Maintenance release that improved disk copying speeds and added the “Clean Up” command and the Finder about box.",
+    releaseDate: [1984, 5, 5],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
@@ -100,6 +104,7 @@ const SYSTEM_2_0: DiskDef = {
     displayName: "System 2.0",
     description:
         "Introduced the ”New Folder” and ”Shut Down” commands, the MiniFinder, and Chooser. Also added the Command-Shift-3 screenshot command.",
+    releaseDate: [1985, 4, 8],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
@@ -111,6 +116,7 @@ const SYSTEM_2_1: DiskDef = {
     displayName: "System 2.1",
     description:
         "Added support for the Hard Disk 20 drive and the HFS file system.",
+    releaseDate: [1985, 9, 17],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     // The Mac 128K is supported, but HFS is not loaded in that case.
@@ -122,6 +128,7 @@ const SYSTEM_3_0: DiskDef = {
     displayName: "System 3.0",
     description:
         "Added more complete support for HFS, zoom boxes for windows and a redesigned control panel.",
+    releaseDate: [1986, 1, 16],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
@@ -131,6 +138,7 @@ const SYSTEM_3_0: DiskDef = {
 const SYSTEM_3_1: PlaceholderDiskDef = {
     type: "placeholder",
     displayName: "System 3.1",
+    releaseDate: [1986, 2, 14], // Precise date is not known
     description:
         "Caused data corruption and was superseded by 3.2 shortly after release.",
     machines: [MAC_PLUS, MAC_512KE],
@@ -140,6 +148,7 @@ const SYSTEM_3_2: DiskDef = {
     displayName: "System 3.2",
     description:
         "Includes redesigned Calculator and Chooser desktop accessories.",
+    releaseDate: [1986, 6, 2],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
@@ -150,6 +159,7 @@ const SYSTEM_3_3: DiskDef = {
     displayName: "System 3.3",
     description:
         "Enhanced AppleShare file serving support. The Trash can icon now bulges when it's not empty.",
+    releaseDate: [1987, 1, 12],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
@@ -160,6 +170,7 @@ const SYSTEM_4_0: DiskDef = {
     displayName: "System 4.0",
     description:
         "Added the Find File desktop accessory and the Restart command. Features a redesigned control panel. Released with the Mac SE.",
+    releaseDate: [1987, 3, 2],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE],
@@ -170,9 +181,10 @@ const SYSTEM_4_1: DiskDef = {
     displayName: "System 4.1",
     description:
         "Added Easy Access accessibility features. Improved compatibility with larger hard drives. Released with the Mac II.",
+    releaseDate: [1987, 4, 14],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    machines: [MAC_II, MAC_SE, MAC_PLUS, MAC_512KE],
     ...system41Manifest,
 };
 
@@ -180,6 +192,7 @@ const SYSTEM_5_0: DiskDef = {
     displayName: "System 5.0",
     description:
         "Introduced the MultiFinder, revised the Finder about box, and improved printing support.",
+    releaseDate: [1987, 10, 8],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
@@ -189,6 +202,7 @@ const SYSTEM_5_0: DiskDef = {
 const SYSTEM_5_1: DiskDef = {
     displayName: "System 5.1",
     description: "Updated the LaserWriter Driver and Apple HD SC Setup.",
+    releaseDate: [1987, 12, 1],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
@@ -198,6 +212,7 @@ const SYSTEM_5_1: DiskDef = {
 const SYSTEM_6_0: DiskDef = {
     displayName: "System 6.0",
     description: "Added MacroMaker, Map and CloseView utilities.",
+    releaseDate: [1988, 4, 30],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
@@ -208,12 +223,14 @@ const SYSTEM_6_0_1: PlaceholderDiskDef = {
     type: "placeholder",
     displayName: "System 6.0.1",
     description: "Released with the Mac IIx, buggy and short-lived.",
+    releaseDate: [1988, 9, 19],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
 };
 
 const SYSTEM_6_0_2: DiskDef = {
     displayName: "System 6.0.2",
     description: "Updated LaserWriter and other printing-related utilites.",
+    releaseDate: [1988, 9, 19],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
@@ -223,6 +240,7 @@ const SYSTEM_6_0_2: DiskDef = {
 const SYSTEM_6_0_3: DiskDef = {
     displayName: "System 6.0.3",
     description: "Added support for the Mac IIcx and SE/30.",
+    releaseDate: [1989, 3, 7],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
@@ -233,6 +251,7 @@ const SYSTEM_6_0_4: DiskDef = {
     displayName: "System 6.0.4",
     description:
         "Added support for the Mac IIci and Portable. Improved the installer. Holding down the option key when double-clicking in the Finder closes the parent window.",
+    releaseDate: [1989, 9, 20],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
@@ -243,6 +262,7 @@ const SYSTEM_6_0_5: DiskDef = {
     displayName: "System 6.0.5",
     description:
         "Bundled 32-bit QuidckDraw (previously a separate package). Added support for the Mac IIfx.",
+    releaseDate: [1990, 3, 19],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
@@ -252,6 +272,7 @@ const SYSTEM_6_0_5: DiskDef = {
 const SYSTEM_6_0_6: PlaceholderDiskDef = {
     type: "placeholder",
     displayName: "System 6.0.6.",
+    releaseDate: [1990, 10, 15], // Officual release date is not known.
     description: "Never officially released due to an AppleTalk bug.",
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
 };
@@ -260,6 +281,7 @@ const SYSTEM_6_0_7: DiskDef = {
     displayName: "System 6.0.7",
     description:
         "First release to ship on 1440K disks. Added support for the Classic, LC and IIsi.",
+    releaseDate: [1990, 10, 15],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
@@ -270,6 +292,7 @@ const SYSTEM_6_0_8: DiskDef = {
     displayName: "System 6.0.8",
     description:
         "Final release of System 6, updated printing software to match the printing software of System 7.",
+    releaseDate: [1991, 5, 13],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
@@ -280,6 +303,7 @@ const SYSTEM_7_0: DiskDef = {
     displayName: "System 7.0",
     description:
         "Fully 32-bit clean, the MultiFinder is now mandatory, reorganized the System Folder into subfolders, made the Apple menu customizable, revamped the window appearance, and much more.",
+    releaseDate: [1991, 5, 13],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19,
@@ -293,6 +317,7 @@ const SYSTEM_7_1: DiskDef = {
     displayName: "System 7.1",
     description:
         "Added the Fonts folder, introduced system enablers to support new Mac models and improved internationalization support.",
+    releaseDate: [1992, 8, 28],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 23,
@@ -307,6 +332,7 @@ const SYSTEM_7_1_1: DiskDef = {
     displayName: "System 7.1.1",
     displaySubtitle: "Pro",
     description: "Bundled PowerTalk and AppleScript.",
+    releaseDate: [1993, 10, 21],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 21, 22, 23,
@@ -323,6 +349,7 @@ const SYSTEM_7_1_2: PlaceholderDiskDef = {
     displayName: "System 7.1.2",
     description:
         "Initial system software for the Power Macintosh computers. Does not run under emulation.",
+    releaseDate: [1994, 3, 14],
     machines: [POWER_MACINTOSH_9500],
 };
 
@@ -330,6 +357,7 @@ const SYSTEM_7_5: DiskDef = {
     displayName: "System 7.5",
     description:
         "Featured a new startup screen, drag-and-drop support and the Launcher. Included a hierarchical Apple menu, Extensions Manager, menu bar clock, Find File, Stickies, WindowShade, all based on licensed third-party utilities.",
+    releaseDate: [1994, 9, 12],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 6, 7, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
@@ -345,6 +373,7 @@ const SYSTEM_7_5_1: DiskDef = {
     displayName: "System 7.5.1",
     description:
         "Bug fixes and small tweaks. Sartup screen now now features the Mac OS logo.",
+    releaseDate: [1995, 3, 23],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
@@ -361,6 +390,7 @@ const SYSTEM_7_5_2: DiskDef = {
     displayName: "System 7.5.2",
     description:
         "Introduced the Open Transport networking stack. Added support for PCI-based Power Macs.",
+    releaseDate: [1995, 6, 19],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
@@ -378,6 +408,7 @@ const SYSTEM_7_5_3: DiskDef = {
     displayName: "System 7.5.3",
     description:
         "Brought Open Transport and other improvements released with the PCI Power Mac-only 7.5.2 release to a broader set of Macs.",
+    releaseDate: [1996, 3, 11],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24,
@@ -396,6 +427,7 @@ const SYSTEM_7_5_3_PPC: DiskDef = {
     displaySubtitle: "PowerPC",
     description:
         "Installation with OpenDoc, QuickDraw GX and other PowerPC-only software.",
+    releaseDate: [1996, 3, 11],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23,
@@ -414,6 +446,7 @@ const SYSTEM_7_5_3_PPC: DiskDef = {
 const KANJITALK_7_5_3: DiskDef = {
     displayName: "KanjiTalk 7.5.3",
     description: "Japanese edition of System 7.5.3.",
+    releaseDate: [1996, 3, 11],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 27, 28,
@@ -433,12 +466,14 @@ const SYSTEM_7_5_4: PlaceholderDiskDef = {
     displayName: "System 7.5.4",
     description:
         "Withdrawn from release at the last minute due a showstopper bug.",
+    releaseDate: [1996, 9, 18],
     machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
 };
 
 const SYSTEM_7_5_5: DiskDef = {
     displayName: "System 7.5.5",
     description: "Improved memory system performance and reliability.",
+    releaseDate: [1996, 9, 18],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 2, 5, 6, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
@@ -464,6 +499,7 @@ const MAC_OS_7_6: DiskDef = {
     displayName: "Mac OS 7.6",
     description:
         "First to be officially called “Mac OS”. Improved performance and reliability. Featured a revamped Extensions Manager and speech support.",
+    releaseDate: [1997, 1, 7],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 11, 12, 13, 18, 29, 30, 32, 33, 34, 35, 36, 37, 38, 39, 40, 54,
@@ -483,6 +519,7 @@ const MAC_OS_8_0: DiskDef = {
     displayName: "Mac OS 8.0",
     description:
         "Introduced the Platinum appearance, multi-threaded Finder, context menus, popup windows, and other features.",
+    releaseDate: [1997, 7, 26],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 10, 11, 12, 22, 23, 25, 28, 29, 30, 31, 33, 34, 35, 36, 37,
@@ -504,6 +541,7 @@ const MAC_OS_8_0: DiskDef = {
 const MAC_OS_8_1: DiskDef = {
     displayName: "Mac OS 8.1",
     description: "Added support for the HFS+ file system.",
+    releaseDate: [1998, 1, 19],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 22, 23, 24, 25, 26, 27, 28, 29,
@@ -525,6 +563,7 @@ const MAC_OS_8_5: DiskDef = {
     displayName: "Mac OS 8.5",
     description:
         "Introduced Sherlock, 32-bit icons in the Finder, font smoothing, a new help system and the application palette.",
+    releaseDate: [1998, 10, 17],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22, 23, 24, 25,
@@ -552,6 +591,7 @@ const MAC_OS_8_6: DiskDef = {
     displayName: "Mac OS 8.6",
     description:
         "Added a revised nanokernel for improved multi-processing and multi-threading.",
+    releaseDate: [1999, 5, 10],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
@@ -580,6 +620,7 @@ const MAC_OS_9_0: DiskDef = {
     displayName: "Mac OS 9.0",
     description:
         "Introduced the Keychain, multiple user support, iTools integration, Sherlock internet channels and online software updates.",
+    releaseDate: [1999, 10, 23],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 4, 5, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 33, 38, 39, 41,
@@ -609,6 +650,7 @@ const MAC_OS_9_0_1: PlaceholderDiskDef = {
     type: "placeholder",
     displayName: "Mac OS 9.0.1",
     description: "Under development but never released.",
+    releaseDate: [2000, 1, 1], // Planned release date unknown
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
 };
 
@@ -616,6 +658,7 @@ const MAC_OS_9_0_2: PlaceholderDiskDef = {
     type: "placeholder",
     displayName: "Mac OS 9.0.2",
     description: "Released with the PowerBook G3 (FireWire) only.",
+    releaseDate: [2000, 2, 16],
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
 };
 
@@ -623,6 +666,7 @@ const MAC_OS_9_0_3: PlaceholderDiskDef = {
     type: "placeholder",
     displayName: "Mac OS 9.0.3",
     description: "Released with iMacs only.",
+    releaseDate: [2000, 3, 1], // Exact date unknown
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
 };
 
@@ -630,6 +674,7 @@ const MAC_OS_9_0_4: DiskDef = {
     displayName: "Mac OS 9.0.4",
     description:
         "Bug fixes, final release supported by the SheepShaver emulator.",
+    releaseDate: [2000, 4, 4],
     baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
@@ -668,40 +713,13 @@ export const DISKS_BY_DOMAIN: {
     "macos9.app": MAC_OS_9_0_4,
 };
 
-export const DISKS_BY_YEAR: {
-    [year: number]: (DiskDef | PlaceholderDiskDef)[];
-} = {
-    1984: [SYSTEM_1_0, SYSTEM_1_1],
-    1985: [SYSTEM_2_0, SYSTEM_2_1],
-    1986: [SYSTEM_3_0, SYSTEM_3_1, SYSTEM_3_2],
-    1987: [SYSTEM_3_3, SYSTEM_4_0, SYSTEM_4_1, SYSTEM_5_0, SYSTEM_5_1],
-    1988: [SYSTEM_6_0, SYSTEM_6_0_1, SYSTEM_6_0_2],
-    1989: [SYSTEM_6_0_3, SYSTEM_6_0_4],
-    1990: [SYSTEM_6_0_5, SYSTEM_6_0_6, SYSTEM_6_0_7],
-    1991: [SYSTEM_6_0_8, SYSTEM_7_0],
-    1992: [SYSTEM_7_1],
-    1993: [SYSTEM_7_1_1],
-    1994: [SYSTEM_7_1_2, SYSTEM_7_5],
-    1995: [SYSTEM_7_5_1, SYSTEM_7_5_2],
-    1996: [
-        SYSTEM_7_5_3,
-        SYSTEM_7_5_3_PPC,
-        KANJITALK_7_5_3,
-        SYSTEM_7_5_4,
-        SYSTEM_7_5_5,
-    ],
-    1997: [MAC_OS_7_6, MAC_OS_8_0],
-    1998: [MAC_OS_8_1, MAC_OS_8_5],
-    1999: [MAC_OS_8_6, MAC_OS_9_0],
-    2000: [MAC_OS_9_0_1, MAC_OS_9_0_2, MAC_OS_9_0_3, MAC_OS_9_0_4],
-};
-
-export const ALL_DISKS = [
+const ALL_DISKS = [
     SYSTEM_1_0,
     SYSTEM_1_1,
     SYSTEM_2_0,
     SYSTEM_2_1,
     SYSTEM_3_0,
+    SYSTEM_3_1,
     SYSTEM_3_2,
     SYSTEM_3_3,
     SYSTEM_4_0,
@@ -709,21 +727,25 @@ export const ALL_DISKS = [
     SYSTEM_5_0,
     SYSTEM_5_1,
     SYSTEM_6_0,
+    SYSTEM_6_0_1,
     SYSTEM_6_0_2,
     SYSTEM_6_0_3,
     SYSTEM_6_0_4,
     SYSTEM_6_0_5,
+    SYSTEM_6_0_6,
     SYSTEM_6_0_7,
     SYSTEM_6_0_8,
     SYSTEM_7_0,
     SYSTEM_7_1,
     SYSTEM_7_1_1,
+    SYSTEM_7_1_2,
     SYSTEM_7_5,
     SYSTEM_7_5_1,
     SYSTEM_7_5_2,
     SYSTEM_7_5_3,
     SYSTEM_7_5_3_PPC,
     KANJITALK_7_5_3,
+    SYSTEM_7_5_4,
     SYSTEM_7_5_5,
     MAC_OS_7_6,
     MAC_OS_8_0,
@@ -731,12 +753,29 @@ export const ALL_DISKS = [
     MAC_OS_8_5,
     MAC_OS_8_6,
     MAC_OS_9_0,
+    MAC_OS_9_0_1,
+    MAC_OS_9_0_2,
+    MAC_OS_9_0_3,
     MAC_OS_9_0_4,
 ];
 
-export const DISKS_BY_NAME = Object.fromEntries(
-    ALL_DISKS.map(disk => [disk.name, disk])
-);
+export const DISKS_BY_YEAR: {
+    [year: number]: (DiskDef | PlaceholderDiskDef)[];
+} = {};
+
+export const DISKS_BY_NAME: {[name: string]: DiskDef} = {};
+
+ALL_DISKS.forEach(disk => {
+    const [year] = disk.releaseDate;
+    if (!DISKS_BY_YEAR[year]) {
+        DISKS_BY_YEAR[year] = [];
+    }
+    DISKS_BY_YEAR[year].push(disk);
+
+    if (!isPlaceholderDiskDef(disk)) {
+        DISKS_BY_NAME[disk.name] = disk;
+    }
+});
 
 export const INFINITE_HD = {
     baseUrl: "/Disk",
