@@ -93,17 +93,26 @@ function handleIdleWait(event: FetchEvent) {
 }
 
 async function handleDiskCacheRequest(request: Request): Promise<Response> {
-    const cache = await caches.open(DISK_CACHE_NAME);
+    // Ignore cache-related errors, we don't want to block the fetch if the
+    // cache fails (appears to happen on iOS when running with more constrained
+    // quotas, e.g. in SFSafariViewController).
+    let cache: Cache | undefined;
+    try {
+        cache = await caches.open(DISK_CACHE_NAME);
+    } catch (e) {
+        console.error("Error opening cache:", e);
+    }
 
     // Kick off (but don't wait for) a prefetch of the next chunk regardless
     // of whether this is a cache hit (if prefetching is working, we should
     // almost always end up with a cache hit, but we want to keep fetching
     // subsequent chunks).
-    prefetchNextChunk(cache, request.url);
-
-    const match = await cache.match(request);
-    if (match) {
-        return match;
+    if (cache) {
+        prefetchNextChunk(cache, request.url);
+        const match = await cache.match(request);
+        if (match) {
+            return match;
+        }
     }
     async function postMessage(data: any) {
         const clients = await self.clients.matchAll({type: "window"});
@@ -112,7 +121,11 @@ async function handleDiskCacheRequest(request: Request): Promise<Response> {
 
     postMessage({type: "disk_chunk_fetch_start"});
     const response = await fetch(request);
-    cache.put(request, response.clone());
+    try {
+        cache?.put(request, response.clone());
+    } catch (e) {
+        console.error("Ignoring cache error: ", e);
+    }
     postMessage({type: "disk_chunk_fetch_end"});
     return response;
 }
