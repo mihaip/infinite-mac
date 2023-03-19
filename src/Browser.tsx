@@ -183,7 +183,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
     } else {
         contents = (
             <>
-                <div className="Row">{disk.description}</div>
+                <div className="Row DiskDescription">{disk.description}</div>
                 {disk.isUnstable && (
                     <div className="Row Unstable-Warning">
                         Unstable under emulation.
@@ -197,12 +197,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
         : "Classic";
     return (
         <div className="DiskContents">
-            <h3 className="Row">
-                {disk.displayName}
-                {disk.displaySubtitle && (
-                    <span className="Subtitle"> ({disk.displaySubtitle})</span>
-                )}
-            </h3>
+            <DiskHeader disk={disk} />
             {contents}
             <div className="Row Buttons">
                 <Button
@@ -226,14 +221,32 @@ type PlaceholderDiskContentsProps = {
 function PlaceholderDiskContents({disk}: PlaceholderDiskContentsProps) {
     return (
         <div className="DiskContents DiskContents-Placeholder">
+            <DiskHeader disk={disk} />
+            <div className="Row DiskDescription">{disk.description}</div>
+        </div>
+    );
+}
+
+function DiskHeader({disk}: {disk: DiskDef | PlaceholderDiskDef}) {
+    const [year, month, day] = disk.releaseDate;
+    const releaseDateString = new Date(year, month - 1, day).toLocaleDateString(
+        undefined,
+        {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        }
+    );
+    return (
+        <>
             <h3 className="Row">
                 {disk.displayName}
                 {disk.displaySubtitle && (
                     <span className="Subtitle"> ({disk.displaySubtitle})</span>
                 )}
+                <div className="ReleaseDate">{releaseDateString}</div>
             </h3>
-            <div className="Row">{disk.description}</div>
-        </div>
+        </>
     );
 }
 
