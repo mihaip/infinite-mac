@@ -182,7 +182,7 @@ def import_archive(
             except FileNotFoundError:
                 sys.stderr.write("Directory contents:\n")
                 for f in os.listdir(tmp_dir_path):
-                    sys.stderr.write("  %s\n", f)
+                    sys.stderr.write("  %s\n" % f)
                 raise
 
         if root_dir_path is None:
