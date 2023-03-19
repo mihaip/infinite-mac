@@ -562,6 +562,19 @@ function startEmulator(config: EmulatorWorkerConfig) {
         },
 
         printErr: console.warn.bind(console),
+
+        quit(status: number, toThrow?: Error) {
+            console.log("Emulator quit with status", status);
+            if (status !== 0) {
+                console.error(toThrow);
+                postMessage({
+                    type: "emulator_did_have_error",
+                    error: toThrow
+                        ? toThrow.toString()
+                        : `Exit status ${status}`,
+                });
+            }
+        },
     };
     (self as any).Module = moduleOverrides;
 

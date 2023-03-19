@@ -94,3 +94,7 @@ declare module "ringbuf.js" {
         available_write(): number;
     }
 }
+
+interface EmscriptenModule {
+    quit: (status: number, toThrow?: Error) => void;
+}
