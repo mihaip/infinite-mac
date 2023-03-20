@@ -24,7 +24,7 @@ import type {ScreenControl, ScreenFrameProps} from "./ScreenFrame";
 import {ScreenFrame} from "./ScreenFrame";
 import {Dialog} from "./Dialog";
 import type {DiskDef} from "./disks";
-import {INFINITE_HD} from "./disks";
+import {INFINITE_HD, INFINITE_HD_MFS} from "./disks";
 import type {MachineDef} from "./machines";
 import type {ButtonProps} from "./Button";
 
@@ -89,10 +89,10 @@ export function Mac({
             handleFullScreenChange
         );
 
-        const disks: EmulatorChunkedFileSpec[] = [disk];
-        if (!disk.mfsOnly) {
-            disks.push(INFINITE_HD);
-        }
+        const disks: EmulatorChunkedFileSpec[] = [
+            disk,
+            disk.mfsOnly ? INFINITE_HD_MFS : INFINITE_HD,
+        ];
         const emulator = new Emulator(
             {
                 machine,
