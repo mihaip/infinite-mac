@@ -545,6 +545,12 @@ def build_library_image(base_name: str, dest_dir: str) -> ImageDef:
     return write_image_def(image, base_name, dest_dir)
 
 
+def build_passthrough_image(base_name: str, dest_dir: str) -> ImageDef:
+    with open(os.path.join(paths.IMAGES_DIR, base_name), "rb") as base:
+        image_data = base.read()
+    return write_image_def(image_data, base_name, dest_dir)
+
+
 def build_desktop_db(images: typing.List[ImageDef]) -> bytes:
     sys.stderr.write("Rebuilding Desktop DB for %s...\n" %
                      ",".join([i.name for i in images]))
@@ -665,6 +671,9 @@ if __name__ == "__main__":
             images.append(infinite_hd_image)
             if not library_filter:
                 build_desktop_db([infinite_hd_image])
+
+            images.append(build_passthrough_image(
+                "Infinite HD (MFS).dsk", dest_dir=temp_dir))
 
         for image in images:
             write_chunked_image(image)

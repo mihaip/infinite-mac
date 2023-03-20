@@ -1,4 +1,5 @@
 import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
+import infiniteHdMfsManifest from "./Data/Infinite HD (MFS).dsk.json";
 import system10Manifest from "./Data/System 1.0.dsk.json";
 import system11Manifest from "./Data/System 1.1.dsk.json";
 import system20Manifest from "./Data/System 2.0.dsk.json";
@@ -781,4 +782,10 @@ export const INFINITE_HD = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 3345, 3346, 3349, 3350, 3351, 3352],
     ...infiniteHdManifest,
+};
+
+export const INFINITE_HD_MFS = {
+    baseUrl: "/Disk",
+    prefetchChunks: [0, 1, 2],
+    ...infiniteHdMfsManifest,
 };
