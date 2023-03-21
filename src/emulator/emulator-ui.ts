@@ -80,6 +80,7 @@ export type EmulatorConfig = {
     screenHeight: number;
     screenCanvas: HTMLCanvasElement;
     disks: EmulatorChunkedFileSpec[];
+    delayedDisks?: EmulatorChunkedFileSpec[];
     ethernetProvider?: EmulatorEthernetProvider;
     debugAudio?: boolean;
 };
@@ -344,6 +345,7 @@ export class Emulator {
             jsUrl: jsBlobUrl,
             wasmUrl: wasmBlobUrl,
             disks: this.#config.disks,
+            delayedDisks: this.#config.delayedDisks,
             diskImages: this.#diskImages,
             autoloadFiles: {
                 [romFileName]: rom,

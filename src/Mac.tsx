@@ -89,10 +89,20 @@ export function Mac({
             handleFullScreenChange
         );
 
-        const disks: EmulatorChunkedFileSpec[] = [
-            disk,
-            disk.mfsOnly ? INFINITE_HD_MFS : INFINITE_HD,
-        ];
+        const disks: EmulatorChunkedFileSpec[] = [disk];
+        const delayedDisks: EmulatorChunkedFileSpec[] = [];
+        const infiniteHd = disk.mfsOnly ? INFINITE_HD_MFS : INFINITE_HD;
+        if (disk.delayAdditionalDiskMount) {
+            if (!emulatorHandlesDiskImages(machine.emulator)) {
+                console.warn(
+                    "delayAdditionalDiskMount may not work for the machine",
+                    machine
+                );
+            }
+            delayedDisks.push(infiniteHd);
+        } else {
+            disks.push(infiniteHd);
+        }
         const emulator = new Emulator(
             {
                 machine,
@@ -101,6 +111,7 @@ export function Mac({
                 screenHeight: initialScreenHeight,
                 screenCanvas: screenRef.current!,
                 disks,
+                delayedDisks,
                 ethernetProvider,
                 debugAudio,
             },
