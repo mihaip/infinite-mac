@@ -102,6 +102,7 @@ class EmulatorWorkerApi {
     #lastDiskWriteTime = 0;
     #handledStop = false;
     #diskSpecs: EmulatorChunkedFileSpec[];
+    #delayedDiskSpecs: EmulatorChunkedFileSpec[] | undefined;
     #ethernetMacAddress?: Uint8Array;
     #pendingDiskImagePaths: string[] = [];
 
@@ -114,6 +115,7 @@ class EmulatorWorkerApi {
             ethernet: ethernetConfig,
             clipboard: clipboardConfig,
             disks,
+            delayedDisks,
         } = config;
         const blitSender = (
             data: EmulatorWorkerVideoBlit,
@@ -168,6 +170,7 @@ class EmulatorWorkerApi {
                   );
 
         this.#diskSpecs = disks;
+        this.#delayedDiskSpecs = delayedDisks;
     }
 
     didOpenVideo(width: number, height: number) {
@@ -279,7 +282,7 @@ class EmulatorWorkerApi {
             // we assume that it's done 10 seconds after video started.
             if (
                 this.#videoOpenTime !== 0 &&
-                performance.now() - this.#lastDiskWriteTime > 10000
+                performance.now() - this.#videoOpenTime > 10000
             ) {
                 this.#markQuiescent();
             }
@@ -292,6 +295,14 @@ class EmulatorWorkerApi {
             postMessage({type: "emulator_quiescent"});
             for (const spec of this.#diskSpecs) {
                 validateSpecPrefetchChunks(spec);
+            }
+
+            if (this.#delayedDiskSpecs) {
+                for (const disk of this.#delayedDiskSpecs) {
+                    console.log("Mounting delayed disk", disk.name);
+                    this.#pendingDiskImagePaths.push(`/${disk.name}`);
+                }
+                this.#delayedDiskSpecs = undefined;
             }
         }
     }
@@ -523,6 +534,11 @@ function startEmulator(config: EmulatorWorkerConfig) {
 
                 for (const spec of config.disks) {
                     createChunkedFile("/", spec.name, spec, true, true);
+                }
+                if (config.delayedDisks) {
+                    for (const spec of config.delayedDisks) {
+                        createChunkedFile("/", spec.name, spec, true, true);
+                    }
                 }
 
                 for (const diskImage of config.diskImages) {

@@ -59,6 +59,7 @@ export type DiskDef = EmulatorChunkedFileSpec & {
     machines: MachineDef[];
     appleTalkSupported?: boolean;
     mfsOnly?: boolean;
+    delayAdditionalDiskMount?: boolean;
     hasPlatinumAppearance?: boolean;
     isUnstable?: boolean;
 };
@@ -86,6 +87,10 @@ const SYSTEM_1_0: DiskDef = {
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
     mfsOnly: true,
+    // Loading the Infinite HD disk as part of the initial set of images does
+    // appear to work in System 1.0 under Mini vMac, but if we delay it until
+    // after the system is booted, it appears to work.
+    delayAdditionalDiskMount: true,
     ...system10Manifest,
 };
 

@@ -171,6 +171,7 @@ export type EmulatorWorkerConfig = {
     jsUrl: string;
     wasmUrl: string;
     disks: EmulatorChunkedFileSpec[];
+    delayedDisks?: EmulatorChunkedFileSpec[];
     diskImages: EmulatorDiskImage[];
     autoloadFiles: {[name: string]: ArrayBuffer};
     persistedData?: EmulatorWorkerDirectorExtraction;
