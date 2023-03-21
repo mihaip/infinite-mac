@@ -97,7 +97,7 @@ const SYSTEM_1_0: DiskDef = {
 const SYSTEM_1_1: DiskDef = {
     displayName: "System 1.1",
     description:
-        "Maintenance release that improved disk copying speeds and added the “Clean Up” command and the Finder about box.",
+        "Maintenance release that improved disk copying speeds and added the “Set Startup” command and the Finder about box.",
     releaseDate: [1984, 5, 5],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
@@ -109,7 +109,7 @@ const SYSTEM_1_1: DiskDef = {
 const SYSTEM_2_0: DiskDef = {
     displayName: "System 2.0",
     description:
-        "Introduced the ”New Folder” and ”Shut Down” commands, the MiniFinder, and Chooser. Also added the Command-Shift-3 screenshot command.",
+        "Introduced the ”New Folder” and ”Shut Down” commands, the MiniFinder, and the Choose Printer DA. Also added icons to list view and the Command-Shift-3 screenshot FKEY.",
     releaseDate: [1985, 4, 8],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
@@ -133,7 +133,7 @@ const SYSTEM_2_1: DiskDef = {
 const SYSTEM_3_0: DiskDef = {
     displayName: "System 3.0",
     description:
-        "Added more complete support for HFS, zoom boxes for windows and a redesigned control panel.",
+        "Added more complete support for HFS, a RAM disk cache, zoom boxes for windows and a redesigned control panel. Introduced with the Mac Plus.",
     releaseDate: [1986, 1, 16],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
@@ -298,7 +298,7 @@ const SYSTEM_6_0_8: DiskDef = {
     displayName: "System 6.0.8",
     description:
         "Final release of System 6, updated printing software to match the printing software of System 7.",
-    releaseDate: [1991, 5, 13],
+    releaseDate: [1991, 4, 17],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
