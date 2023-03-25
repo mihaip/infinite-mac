@@ -6,7 +6,7 @@ import {ReactComponent as AppleLogoGrey} from "./Images/AppleLogoGrey.svg";
 export type ScreenFrameProps = {
     className?: string;
     bezelStyle: "Beige" | "Platinum" | "Pinstripes";
-    bezelSize?: "Small" | "Medium" | "Large";
+    bezelSize?: "Small" | "Small-ish" | "Medium" | "Large";
     width: number;
     height: number;
     scale?: number;
