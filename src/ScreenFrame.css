@@ -242,9 +242,16 @@
     --screen-underscan: 8px;
 }
 
-.ScreenFrame-Bezel-Pinstripes.ScreenFrame-Medium-Bezel {
+.ScreenFrame-Bezel-Pinstripes.ScreenFrame-Bezel-Medium {
     --screen-outer-chamfer-size: 8px;
     border-image-slice: 40;
+    --screen-outer-corner-radius: 28px;
+}
+
+.ScreenFrame-Bezel-Pinstripes.ScreenFrame-Bezel-Small-ish {
+    --screen-outer-chamfer-size: 8px;
+    border-image-slice: 30;
+    --screen-outer-corner-radius: 24px;
 }
 
 .ScreenFrame-Bezel-Pinstripes.ScreenFrame::before {
