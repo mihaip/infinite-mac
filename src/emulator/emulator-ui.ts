@@ -364,7 +364,7 @@ export class Emulator {
 
         const serviceWorkerAvailable = await this.#serviceWorkerReady;
         if (serviceWorkerAvailable) {
-            for (const spec of config.disks) {
+            for (const spec of config.disks.concat(config.delayedDisks ?? [])) {
                 this.#serviceWorker!.postMessage({
                     type: "init-disk-cache",
                     spec,
