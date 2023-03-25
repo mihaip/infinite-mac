@@ -10,6 +10,7 @@ import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvid
 import {emulatorSupportsAppleTalk} from "./emulator/emulator-common";
 import {About} from "./About";
 import {Donate} from "./Donate";
+import {useWindowWidth} from "./useWindowWidth";
 
 export type BrowserProps = {
     onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
@@ -82,14 +83,21 @@ type DiskProps = {
 };
 
 function Disk({disk, onRun}: DiskProps) {
+    const windowWidth = useWindowWidth();
     const [bezelStyle, setBezelStyle] = useState(disk.machines[0].bezelStyle);
+    // Match 10 vs. 40px padding chosen via the media query.
+    const isSmallScreen = windowWidth <= 400;
+    let screenWidth = windowWidth - (isSmallScreen ? 110 : 180);
+    const bezelSize = isSmallScreen ? "Small-ish" : "Medium";
+    screenWidth = Math.max(Math.min(screenWidth, 320), 200);
+    const screenHeight = Math.round(screenWidth * 0.75);
     return (
         <ScreenFrame
             className="Disk"
             bezelStyle={bezelStyle}
-            width={320}
-            height={240}
-            bezelSize="Medium"
+            width={screenWidth}
+            height={screenHeight}
+            bezelSize={bezelSize}
             screen={
                 isPlaceholderDiskDef(disk) ? (
                     <PlaceholderDiskContents disk={disk} />

@@ -34,6 +34,16 @@
     --screen-ethernet-status-bottom: -34px;
 }
 
+.ScreenFrame-Bezel-Small-ish {
+    --screen-bezel-size: 30px;
+    --screen-outer-chamfer-size: 2px;
+    --screen-inner-chamfer-size: 4px;
+    --screen-underscan: 6px;
+    --screen-controls-bottom: -34px;
+    --screen-led-bottom: -28px;
+    --screen-ethernet-status-bottom: -34px;
+}
+
 .ScreenFrame-Bezel-Small {
     --screen-bezel-size: 10px;
     --screen-outer-chamfer-size: 1px;
@@ -126,6 +136,11 @@
 .ScreenFrame-Bezel-Medium .ScreenFrame-Apple-Logo {
     height: 28px;
     width: 14px;
+}
+
+.ScreenFrame-Bezel-Small-ish .ScreenFrame-Apple-Logo {
+    height: 36px;
+    width: 12px;
 }
 
 .ScreenFrame-Apple-Logo svg {
