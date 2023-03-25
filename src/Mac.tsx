@@ -234,6 +234,20 @@ export function Mac({
         setSettingsVisible(true);
     };
 
+    const keyboardInputRef = useRef<HTMLInputElement>(null);
+    const handleKeyboardClick = () => {
+        const input = keyboardInputRef.current;
+        if (!input) {
+            return;
+        }
+        // Bringing up the on-screen keyboard on iOS requires that the input
+        // is visible, but only for the focus request to be honored. We can
+        // hide it immediately after to avoid ending up with a blinking caret.
+        input.style.visibility = "visible";
+        input.focus();
+        input.style.removeProperty("visibility");
+    };
+
     let progress;
     if (!emulatorLoaded) {
         const [total, left] = emulatorLoadingProgress;
@@ -362,6 +376,9 @@ export function Mac({
             alwaysVisible: true,
         });
     }
+    if (NEEDS_KEYBOARD_BUTTON) {
+        controls.push({label: "Keyboard", handler: handleKeyboardClick});
+    }
 
     const screenClasses = ["Mac-Screen"];
     const devicePixelRatio = useDevicePixelRatio();
@@ -386,13 +403,22 @@ export function Mac({
             onDrop={handleDrop}
             controls={controls}
             screen={
-                <canvas
-                    className={screenClasses.join(" ")}
-                    ref={screenRef}
-                    width={screenWidth}
-                    height={screenHeight}
-                    onContextMenu={e => e.preventDefault()}
-                />
+                <>
+                    <canvas
+                        className={screenClasses.join(" ")}
+                        ref={screenRef}
+                        width={screenWidth}
+                        height={screenHeight}
+                        onContextMenu={e => e.preventDefault()}
+                    />
+                    {NEEDS_KEYBOARD_BUTTON && (
+                        <input
+                            type="text"
+                            className="Mac-Keyboard-Input"
+                            ref={keyboardInputRef}
+                        />
+                    )}
+                </>
             }>
             {progress}
             {dragCount > 0 && <div className="Mac-Overlay Mac-Drag-Overlay" />}
@@ -455,6 +481,11 @@ const SCREEN_SIZE_FOR_WINDOW = (() => {
     }
     return {width: 640, height: 480};
 })();
+
+// Assume that mobile devices that can't do hover events also need an explicit
+// control for bringing up the on-screen keyboard.
+const NEEDS_KEYBOARD_BUTTON =
+    "matchMedia" in window && !window.matchMedia("(hover: hover)").matches;
 
 const DEFAULT_EMULATOR_SETTINGS: EmulatorSettings = {
     swapControlAndCommand: false,
