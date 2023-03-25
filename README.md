@@ -80,6 +80,8 @@ Once it has built, use `npm run import-emulator sheepshaver` from the host to up
 
 #### Mini vMac
 
+See [this page](https://www.gryphel.com/c/minivmac/options.html) for the full set set of build options (and [this one](https://www.gryphel.com/c/minivmac/develop.html) for more estoeric ones).
+
 ```sh
 cd /minivmac
 # Configure for building for WASM
