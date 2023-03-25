@@ -532,13 +532,10 @@ function startEmulator(config: EmulatorWorkerConfig) {
                     );
                 }
 
-                for (const spec of config.disks) {
+                for (const spec of config.disks.concat(
+                    config.delayedDisks || []
+                )) {
                     createChunkedFile("/", spec.name, spec, true, true);
-                }
-                if (config.delayedDisks) {
-                    for (const spec of config.delayedDisks) {
-                        createChunkedFile("/", spec.name, spec, true, true);
-                    }
                 }
 
                 for (const diskImage of config.diskImages) {
