@@ -312,7 +312,7 @@ const SYSTEM_7_0: DiskDef = {
     releaseDate: [1991, 5, 13],
     baseUrl: "/Disk",
     prefetchChunks: [
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 16, 17, 18, 19,
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     ],
     machines: [MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
@@ -326,8 +326,8 @@ const SYSTEM_7_1: DiskDef = {
     releaseDate: [1992, 8, 28],
     baseUrl: "/Disk",
     prefetchChunks: [
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 23,
-        24, 25, 26, 27,
+        0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22,
+        25, 26,
     ],
     machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
