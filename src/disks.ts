@@ -378,7 +378,7 @@ const SYSTEM_7_5: DiskDef = {
 const SYSTEM_7_5_1: DiskDef = {
     displayName: "System 7.5.1",
     description:
-        "Bug fixes and small tweaks. Sartup screen now now features the Mac OS logo.",
+        "Bug fixes and small tweaks. Startup screen now now features the Mac OS logo.",
     releaseDate: [1995, 3, 23],
     baseUrl: "/Disk",
     prefetchChunks: [
