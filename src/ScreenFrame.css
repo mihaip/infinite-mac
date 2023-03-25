@@ -51,7 +51,7 @@
     --screen-outer-corner-radius: 4px;
     --screen-inner-corner-radius: 4px;
     --screen-underscan: 1px;
-    --screen-controls-display: none;
+    --screen-controls-bottom: -32px;
     --screen-led-display: none;
     --screen-ethernet-status-display: none;
 }
@@ -141,6 +141,18 @@
 .ScreenFrame-Bezel-Small-ish .ScreenFrame-Apple-Logo {
     height: 36px;
     width: 12px;
+}
+
+/* Hide the Apple logo if it's not top of the bezel */
+.ScreenFrame-Bezel-Small .ScreenFrame-Apple-Logo {
+    display: none;
+}
+
+/* And if the Apple logo is not there, the controls don't need space on the left */
+.ScreenFrame-Bezel-Small .ScreenFrame-Control {
+    margin-left: 0;
+    margin-right: 16px;
+    font-size: 0.8em;
 }
 
 .ScreenFrame-Apple-Logo svg {
