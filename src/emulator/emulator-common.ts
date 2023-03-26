@@ -153,16 +153,21 @@ export function generateChunkUrl(
 export function generateNextChunkUrl(
     url: string,
     specs: EmulatorChunkedFileSpec[]
-): string {
+): string | undefined {
     const match = url.match(/.*\/([0-9a-f]+)\.chunk#(\d+)$/);
     if (!match) {
-        throw new Error(`Could not parse chunk URL ${url}`);
+        console.warn(`Could not parse chunk URL ${url}`);
+        return undefined;
     }
     const [chunkSignature, chunkStr] = match.slice(1);
     const chunk = parseInt(chunkStr, 10);
     const spec = specs.find(spec => spec.chunks[chunk] === chunkSignature);
     if (!spec) {
-        throw new Error(`Could not find spec that served ${url}`);
+        console.warn(`Could not find spec that served ${url}`);
+        return undefined;
+    }
+    if (chunk + 1 >= spec.chunks.length) {
+        return undefined;
     }
     return generateChunkUrl(spec, chunk + 1);
 }

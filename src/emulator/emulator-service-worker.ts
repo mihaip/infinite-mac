@@ -132,6 +132,9 @@ async function handleDiskCacheRequest(request: Request): Promise<Response> {
 
 async function prefetchNextChunk(cache: Cache, url: string) {
     const nextChunkUrl = generateNextChunkUrl(url, diskCacheSpecs);
+    if (!nextChunkUrl) {
+        return;
+    }
     const nextChunkRequest = new Request(nextChunkUrl);
     const cachedResponse = await cache.match(nextChunkRequest);
     if (!cachedResponse) {
