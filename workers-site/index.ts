@@ -33,6 +33,14 @@ async function handleRequest(
         return varz.handleRequest(request, env.VARZ);
     }
 
+    const legacyDomainRedirect = getLegacyDomainRedirect(url);
+    if (legacyDomainRedirect) {
+        return Response.redirect(
+            "https://infinitemac.org" + legacyDomainRedirect,
+            301
+        );
+    }
+
     const fetchEvent = {
         request,
         waitUntil(promise: Promise<any>) {
@@ -127,4 +135,37 @@ function mapRequestToAsset(request: Request): Request {
 
     parsedUrl.pathname = pathname;
     return new Request(parsedUrl.toString(), request);
+}
+
+const LEGACY_DOMAINS = {
+    // TODO: enable these when infinitemac.org is officially launched.
+    // "system6.app": "/1991/System%206.0.8",
+    // "system7.app": "/1996/System%207.5.3",
+    // "kanjitalk7.app": "/1996/KanjiTalk%207.5.3",
+    // "macos8.app": "/1998/Mac%20OS%208.1",
+    // "macos9.app": "/2000/Mac%20OS%209.0.4",
+};
+
+function getLegacyDomainRedirect(url: URL): string | undefined {
+    let appleTalkZone;
+    let domain = url.hostname;
+    const pieces = domain.split(".");
+    if (pieces.length === 3) {
+        appleTalkZone = pieces[0];
+        domain = pieces.slice(1).join(".");
+    }
+
+    const redirectPath = LEGACY_DOMAINS[domain];
+    if (!redirectPath) {
+        return undefined;
+    }
+    const params = url.searchParams;
+    if (appleTalkZone) {
+        params.set("appleTalk", appleTalkZone);
+    }
+    let search = params.toString();
+    if (search) {
+        search = "?" + search;
+    }
+    return redirectPath + search + url.hash;
 }
