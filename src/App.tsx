@@ -7,17 +7,17 @@ import {Footer} from "./Footer";
 import {Mac} from "./Mac";
 
 function App() {
-    const [domain, url] = useMemo(() => {
+    const [domain, url, initialRunDef] = useMemo(() => {
         const searchParams = new URLSearchParams(location.search);
         const domain =
             searchParams.get("domain") ??
             sessionStorage["domain"] ??
             location.host;
         const url = searchParams.get("url") ?? location.href;
-        return [domain, url];
+        return [domain, url, runDefFromUrl(url)];
     }, []);
     const [runDef, setRunDef] = useState<BrowserRunDef | undefined>(
-        runDefFromUrl(url)
+        initialRunDef
     );
     useEffect(() => {
         const listener = () => {
@@ -32,8 +32,14 @@ function App() {
     if (domain.endsWith("infinitemac.org")) {
         if (runDef) {
             const handleDone = () => {
-                history.pushState({}, "", "/");
-                setRunDef(undefined);
+                // Going back in the history is preferred over reseting the
+                // state because the browser will restore the scroll position.
+                if (runDef !== initialRunDef) {
+                    history.back();
+                } else {
+                    history.pushState({}, "", "/");
+                    setRunDef(undefined);
+                }
             };
             contents = (
                 <Mac
