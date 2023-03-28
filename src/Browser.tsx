@@ -60,10 +60,7 @@ function Description() {
             </p>
             <p>
                 {aboutVisible && (
-                    <About
-                        hideSites={true}
-                        onDone={() => setAboutVisible(false)}
-                    />
+                    <About onDone={() => setAboutVisible(false)} />
                 )}
                 {donateVisible && (
                     <Donate onDone={() => setDonateVisible(false)} />

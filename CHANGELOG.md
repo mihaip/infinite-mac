@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2023-03-28: A new home at https://infinitemac.org, with a library of all classic System Software releases.
+
 2023-02-09: Improved audio playback reliability, especially on Mac OS 9.
 
 2023-01-22: Initial System 6 support is now available, see https://system6.app.

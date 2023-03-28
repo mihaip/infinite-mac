@@ -138,12 +138,11 @@ function mapRequestToAsset(request: Request): Request {
 }
 
 const LEGACY_DOMAINS = {
-    // TODO: enable these when infinitemac.org is officially launched.
-    // "system6.app": "/1991/System%206.0.8",
-    // "system7.app": "/1996/System%207.5.3",
-    // "kanjitalk7.app": "/1996/KanjiTalk%207.5.3",
-    // "macos8.app": "/1998/Mac%20OS%208.1",
-    // "macos9.app": "/2000/Mac%20OS%209.0.4",
+    "system6.app": "/1991/System%206.0.8",
+    "system7.app": "/1996/System%207.5.3",
+    "kanjitalk7.app": "/1996/KanjiTalk%207.5.3",
+    "macos8.app": "/1998/Mac%20OS%208.1",
+    "macos9.app": "/2000/Mac%20OS%209.0.4",
 };
 
 function getLegacyDomainRedirect(url: URL): string | undefined {

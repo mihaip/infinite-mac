@@ -8,7 +8,6 @@ import typing
 @dataclasses.dataclass
 class Disk:
     name: str
-    domain: str = None
     stickies_path: typing.List[str] = dataclasses.field(
         default_factory=lambda:
         ["System Folder", "Preferences", "Stickies file"])
@@ -77,110 +76,47 @@ SYSTEM_51 = Disk(
     sticky_placeholder_overwrite_byte=b'\xca',
 )
 
-SYSTEM_60 = Disk(
-    name="System 6.0 HD.dsk",
-    domain="system6.app",
-)
+SYSTEM_60 = Disk(name="System 6.0 HD.dsk")
 
-SYSTEM_602 = Disk(
-    name="System 6.0.2 HD.dsk",
-    domain="system6.app",
-)
+SYSTEM_602 = Disk(name="System 6.0.2 HD.dsk")
 
-SYSTEM_603 = Disk(
-    name="System 6.0.3 HD.dsk",
-    domain="system6.app",
-)
+SYSTEM_603 = Disk(name="System 6.0.3 HD.dsk")
 
-SYSTEM_604 = Disk(
-    name="System 6.0.4 HD.dsk",
-    domain="system6.app",
-)
+SYSTEM_604 = Disk(name="System 6.0.4 HD.dsk")
 
-SYSTEM_605 = Disk(
-    name="System 6.0.5 HD.dsk",
-    domain="system6.app",
-)
+SYSTEM_605 = Disk(name="System 6.0.5 HD.dsk")
 
-SYSTEM_607 = Disk(
-    name="System 6.0.7 HD.dsk",
-    domain="system6.app",
-)
+SYSTEM_607 = Disk(name="System 6.0.7 HD.dsk")
 
-SYSTEM_608 = Disk(
-    name="System 6.0.8 HD.dsk",
-    domain="system6.app",
-)
+SYSTEM_608 = Disk(name="System 6.0.8 HD.dsk")
 
-SYSTEM_70 = Disk(
-    name="System 7.0 HD.dsk",
-    domain="system7.app",
-)
+SYSTEM_70 = Disk(name="System 7.0 HD.dsk")
 
-SYSTEM_71 = Disk(
-    name="System 7.1 HD.dsk",
-    domain="system7.app",
-)
+SYSTEM_71 = Disk(name="System 7.1 HD.dsk")
 
-SYSTEM_711 = Disk(
-    name="System 7.1.1 HD.dsk",
-    domain="system7.app",
-)
+SYSTEM_711 = Disk(name="System 7.1.1 HD.dsk")
 
-SYSTEM_75 = Disk(
-    name="System 7.5 HD.dsk",
-    domain="system7.app",
-)
+SYSTEM_75 = Disk(name="System 7.5 HD.dsk")
 
-SYSTEM_751 = Disk(
-    name="System 7.5.1 HD.dsk",
-    domain="system7.app",
-)
+SYSTEM_751 = Disk(name="System 7.5.1 HD.dsk")
 
-SYSTEM_752 = Disk(
-    name="System 7.5.2 HD.dsk",
-    domain="system7.app",
-)
+SYSTEM_752 = Disk(name="System 7.5.2 HD.dsk")
 
-SYSTEM_753 = Disk(
-    name="System 7.5.3 HD.dsk",
-    domain="system7.app",
-)
+SYSTEM_753 = Disk(name="System 7.5.3 HD.dsk")
 
-SYSTEM_753_PPC = Disk(
-    name="System 7.5.3 (PPC) HD.dsk",
-    domain="system7.app",
-)
+SYSTEM_753_PPC = Disk(name="System 7.5.3 (PPC) HD.dsk")
 
-SYSTEM_755 = Disk(
-    name="System 7.5.5 HD.dsk",
-    domain="system7.app",
-)
+SYSTEM_755 = Disk(name="System 7.5.5 HD.dsk")
 
-MAC_OS_76 = Disk(
-    name="Mac OS 7.6 HD.dsk",
-    domain="macos76.app",
-)
+MAC_OS_76 = Disk(name="Mac OS 7.6 HD.dsk")
 
-MAC_OS_8 = Disk(
-    name="Mac OS 8.0 HD.dsk",
-    domain="macos8.app",
-)
+MAC_OS_8 = Disk(name="Mac OS 8.0 HD.dsk")
 
-MAC_OS_81 = Disk(
-    name="Mac OS 8.1 HD.dsk",
-    domain="macos8.app",
-)
+MAC_OS_81 = Disk(name="Mac OS 8.1 HD.dsk")
 
-MAC_OS_85 = Disk(
-    name="Mac OS 8.5 HD.dsk",
-    domain="macos8.app",
-)
+MAC_OS_85 = Disk(name="Mac OS 8.5 HD.dsk")
 
-MAC_OS_86 = Disk(
-    name="Mac OS 8.6 HD.dsk",
-    domain="macos8.app",
-)
+MAC_OS_86 = Disk(name="Mac OS 8.6 HD.dsk")
 
 JAPANESE_WELCOME_STICKY = stickies.Sticky(
     top=125,
@@ -195,7 +131,6 @@ JAPANESE_WELCOME_STICKY = stickies.Sticky(
 
 KANJITALK_753 = Disk(
     name="KanjiTalk 7.5.3 HD.dsk",
-    domain="kanjitalk7.app",
     # Generate Mojibake of Shift-JIS interpreted as MacRoman, the machfs
     # library always assumes the latter.
     stickies_path=[
@@ -208,15 +143,9 @@ KANJITALK_753 = Disk(
     stickies_encoding="shift_jis",
     welcome_sticky_override=JAPANESE_WELCOME_STICKY)
 
-MAC_OS_9 = Disk(
-    name="Mac OS 9.0 HD.dsk",
-    domain="macos9.app",
-)
+MAC_OS_9 = Disk(name="Mac OS 9.0 HD.dsk")
 
-MAC_OS_904 = Disk(
-    name="Mac OS 9.0.4 HD.dsk",
-    domain="macos9.app",
-)
+MAC_OS_904 = Disk(name="Mac OS 9.0.4 HD.dsk")
 
 ALL_DISKS = [
     SYSTEM_10,
