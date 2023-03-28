@@ -58,6 +58,9 @@ export abstract class EmulatorAudio {
             window.addEventListener("mousedown", this.#resumeOnGesture, {
                 once: true,
             });
+            window.addEventListener("touchstart", this.#resumeOnGesture, {
+                once: true,
+            });
         } else {
             this.#handleAudioContextRunning();
         }
@@ -97,6 +100,7 @@ export abstract class EmulatorAudio {
     stop() {
         this.#audioContext?.close();
         window.removeEventListener("mousedown", this.#resumeOnGesture);
+        window.removeEventListener("touchstart", this.#resumeOnGesture);
         if (this.#debugInterval) {
             window.clearInterval(this.#debugInterval);
         }
