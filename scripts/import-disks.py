@@ -453,13 +453,6 @@ def build_system_image(
     sys.stderr.write("Building system image %s\n" % (disk.name, ))
     input_path = disk.path()
 
-    sister_sites = [
-        f"https://{s}" for s in [
-            "system6.app", "system7.app", "macos8.app", "macos9.app",
-            "kanjitalk7.app"
-        ] if s != disk.domain
-    ]
-
     stickies_placeholder = stickies.generate_placeholder()
     with open(input_path, "rb") as image:
         image_data = image.read()
@@ -484,11 +477,6 @@ def build_system_image(
                 disk.welcome_sticky_override)
         for sticky in customized_stickies:
             sticky.text = sticky.text.replace("CHANGELOG", changelog)
-            if disk.domain is not None:
-                sticky.text = sticky.text.replace("DOMAIN", disk.domain)
-            sticky.text = sticky.text.replace(
-                "SISTER_SITES",
-                f"{', '.join(sister_sites[:-1])} and {sister_sites[-1]}")
             if disk.stickies_encoding == "shift_jis":
                 # Bullets are not directly representable in Shift-JIS, replace
                 # them with a KATAKANA MIDDLE DOT.
@@ -611,23 +599,15 @@ STICKIES = [
     stickies.Sticky(
         top=315,
         left=638,
-        bottom=500,
+        bottom=484,
         right=794,
         color=stickies.Color.PINK,
         text="""Networking is supported!
 
-Visting the same subdomain of the site as your friends (e.g. https://office.DOMAIN or https://thelair.DOMAIN) will automatically create an AppleTalk zone where you can interact with each other.
+You can use the “Customize…” option before starting to join an virtual AppleTalk zone. All emulated Macs using the same zone name should be able to see each other.
 
-Files can be shared between instances, and muti-player games like Marathon, Bolo and Strategic Conquest will also work.""",
+Files can be shared between instances, and muti-player games like Marathon, Bolo and Strategic Conquest should also work.""",
         skip_in_ttxt=True,
-    ),
-    stickies.Sticky(
-        top=531,
-        left=484,
-        bottom=570,
-        right=724,
-        color=stickies.Color.BLUE,
-        text='See also the sister sites at SISTER_SITES',
     ),
     stickies.Sticky(
         top=187,
@@ -672,8 +652,9 @@ if __name__ == "__main__":
             if not library_filter:
                 build_desktop_db([infinite_hd_image])
 
-            images.append(build_passthrough_image(
-                "Infinite HD (MFS).dsk", dest_dir=temp_dir))
+            images.append(
+                build_passthrough_image("Infinite HD (MFS).dsk",
+                                        dest_dir=temp_dir))
 
         for image in images:
             write_chunked_image(image)
