@@ -604,7 +604,7 @@ STICKIES = [
         color=stickies.Color.PINK,
         text="""Networking is supported!
 
-You can use the “Customize…” option before starting to join an virtual AppleTalk zone. All emulated Macs using the same zone name should be able to see each other.
+You can use the “Customize…” option before starting to join a virtual AppleTalk zone. All emulated Macs using the same zone name should be able to see each other.
 
 Files can be shared between instances, and muti-player games like Marathon, Bolo and Strategic Conquest should also work.""",
         skip_in_ttxt=True,
