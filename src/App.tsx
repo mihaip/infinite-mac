@@ -7,14 +7,17 @@ import {Footer} from "./Footer";
 import {Mac} from "./Mac";
 
 function App() {
-    const [domain, url, initialRunDef] = useMemo(() => {
+    const [domain, url, initialRunDef, useSharedMemory] = useMemo(() => {
         const searchParams = new URLSearchParams(location.search);
         const domain =
             searchParams.get("domain") ??
             sessionStorage["domain"] ??
             location.host;
         const url = searchParams.get("url") ?? location.href;
-        return [domain, url, runDefFromUrl(url)];
+        const useSharedMemory =
+            typeof SharedArrayBuffer !== "undefined" &&
+            searchParams.get("use_shared_memory") !== "false";
+        return [domain, url, runDefFromUrl(url), useSharedMemory];
     }, []);
     const [runDef, setRunDef] = useState<BrowserRunDef | undefined>(
         initialRunDef
@@ -47,6 +50,7 @@ function App() {
                     machine={runDef.machine}
                     ethernetProvider={runDef.ethernetProvider}
                     onDone={handleDone}
+                    useSharedMemory={useSharedMemory}
                 />
             );
             footer = <Footer onLogoClick={handleDone} />;
