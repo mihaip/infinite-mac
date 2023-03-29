@@ -267,7 +267,7 @@ const SYSTEM_6_0_4: DiskDef = {
 const SYSTEM_6_0_5: DiskDef = {
     displayName: "System 6.0.5",
     description:
-        "Bundled 32-bit QuidckDraw (previously a separate package). Added support for the Mac IIfx.",
+        "Bundled 32-bit QuickDraw (previously a separate package). Added support for the Mac IIfx.",
     releaseDate: [1990, 3, 19],
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
