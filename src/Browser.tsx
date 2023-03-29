@@ -53,10 +53,10 @@ function Description() {
             <p>
                 Pick any version of System Software/Mac OS from the 1980s or
                 1990s and run it (and major software of that era) within a
-                virtual machine. Files can imported and exported using drag and
-                drop, and System 7 and onward have more advanced integrations as
-                well – refer to the welcome screen in each machine for more
-                details.
+                virtual machine. Files can be imported and exported using drag
+                and drop, and System 7 and onward have more advanced
+                integrations as well – refer to the welcome screen in each
+                machine for more details.
             </p>
             <p>
                 {aboutVisible && (
