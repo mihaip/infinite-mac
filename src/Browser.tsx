@@ -1,7 +1,6 @@
 import type {DiskDef, PlaceholderDiskDef} from "./disks";
 import {DISKS_BY_YEAR, isPlaceholderDiskDef} from "./disks";
 import type {MachineDef} from "./machines";
-import "./Browser.css";
 import {ScreenFrame} from "./ScreenFrame";
 import {useState} from "react";
 import {Button} from "./Button";
@@ -11,6 +10,7 @@ import {emulatorSupportsAppleTalk} from "./emulator/emulator-common";
 import {About} from "./About";
 import {Donate} from "./Donate";
 import {useWindowWidth} from "./useWindowWidth";
+import "./Browser.css";
 
 export type BrowserProps = {
     onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;

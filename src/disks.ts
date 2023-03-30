@@ -708,17 +708,6 @@ const MAC_OS_9_0_4: DiskDef = {
     ...macos904HdManifest,
 };
 
-export const DISKS_BY_DOMAIN: {
-    [domain: string]: DiskDef;
-} = {
-    "system6.app": SYSTEM_6_0_8,
-    "system7.app": SYSTEM_7_5_3,
-    "system7-ppc.app": SYSTEM_7_5_3_PPC,
-    "kanjitalk7.app": KANJITALK_7_5_3,
-    "macos8.app": MAC_OS_8_1,
-    "macos9.app": MAC_OS_9_0_4,
-};
-
 const ALL_DISKS = [
     SYSTEM_1_0,
     SYSTEM_1_1,
