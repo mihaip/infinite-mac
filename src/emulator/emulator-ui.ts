@@ -71,7 +71,6 @@ import {
     SharedMemoryEmulatorClipboard,
 } from "./emulator-ui-clipboard";
 import type {MachineDef} from "../machines";
-import {canUseCanvasDirtyRect} from "../canUseCanvasDirtyRect";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -194,7 +193,6 @@ export class Emulator {
         }
 
         this.#screenCanvasContext = canvas.getContext("2d", {
-            alpha: false,
             desynchronized: true,
         })!;
         this.#screenImageData = this.#screenCanvasContext.createImageData(
@@ -676,7 +674,7 @@ export class Emulator {
         }
         this.#screenImageData.data.set(imageData);
         const dirtyRect = this.#video.consumeBlitRect();
-        if (dirtyRect && canUseCanvasDirtyRect()) {
+        if (dirtyRect) {
             this.#screenCanvasContext.putImageData(
                 this.#screenImageData,
                 0,
