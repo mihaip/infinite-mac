@@ -1,6 +1,6 @@
 /**
- * Chrome on Windows, Android and Chrome OS appears to be buggy when using the
- * dirty rect option of putImageData. This function returns true if we can use
+ * Chrome on many operating sytems appears to be buggy when using the dirty
+ * rect option of putImageData. This function returns true if we can use
  * it.
  * https://github.com/mihaip/infinite-mac/issues/95
  */
@@ -23,7 +23,8 @@ function check(): boolean {
     return (
         !userAgent.includes("Android") &&
         !userAgent.includes("CrOS") &&
-        !userAgent.includes("Windows")
+        !userAgent.includes("Windows") &&
+        !userAgent.includes("Linux")
     );
 }
 
