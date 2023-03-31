@@ -24,6 +24,10 @@ export abstract class EmulatorAudio {
         channels: number,
         debug: boolean
     ) {
+        if (typeof AudioContext === "undefined") {
+            console.warn("AudioContext not supported");
+            return;
+        }
         console.log(
             `Initializing audio (sampleRate=${sampleRate}, sampleSize=${sampleSize}, channels=${channels})`
         );
