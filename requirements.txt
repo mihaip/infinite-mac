@@ -1,1 +1,1 @@
-git+https://github.com/mihaip/machfs.git@4ec07d4918566bb14ddabbe1f898bc44c2c25d1a#egg=machfs
+git+https://github.com/mihaip/machfs.git@0d2a3b200b2bd08f64039fdfed34c7f535479398#egg=machfs
