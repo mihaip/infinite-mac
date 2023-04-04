@@ -10,4 +10,4 @@
 	url = https://github.com/MacPaw/universal-detector
 [submodule "minivmac"]
 	path = minivmac
-	url = git@github.com:mihaip/minivmac.git
+	url = https://github.com/mihaip/minivmac
