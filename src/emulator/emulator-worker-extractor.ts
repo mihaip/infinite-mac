@@ -11,34 +11,39 @@ export function handleExtractionRequests() {
     // Give file system a chance to settle (e.g. if copying a folder in). We
     // can't use setTimeout to schedule an extraction in the future because we
     // don't have an event loop.
-    const MAX_MTIME = Date.now() - 2000;
+    const SEEN_CUTOFF_TIME = Date.now() - 2000;
 
     for (const childName of FS.readdir(EXTRACTOR_DIRECTORY)) {
         if (childName.startsWith(".")) {
             continue;
         }
         const childPath = EXTRACTOR_DIRECTORY + "/" + childName;
+        if (extractedPaths.has(childPath)) {
+            continue;
+        }
+        const seenTime = seenTimes.get(childPath);
+        if (seenTime === undefined) {
+            seenTimes.set(childPath, Date.now());
+            continue;
+        } else if (seenTime >= SEEN_CUTOFF_TIME) {
+            continue;
+        }
+
         const {object: fsObject} = FS.analyzePath(childPath);
-        if (FS.isDir(fsObject.mode) && !extractedDirectories.has(childPath)) {
-            const stat = FS.stat(childPath);
-            if (stat.mtime.getTime() < MAX_MTIME) {
-                extractedDirectories.add(childPath);
-                extractDirectory(childPath);
-            }
-        } else if (FS.isFile(fsObject.mode) && !extractedFiles.has(childPath)) {
-            const stat = FS.stat(childPath);
-            if (stat.mtime.getTime() < MAX_MTIME) {
-                extractedFiles.add(childPath);
-                extractFile(childPath);
-            }
+        if (FS.isDir(fsObject.mode)) {
+            extractedPaths.add(childPath);
+            extractDirectory(childPath);
+        } else if (FS.isFile(fsObject.mode)) {
+            extractedPaths.add(childPath);
+            extractFile(childPath);
         }
     }
 }
 
 const EXTRACTOR_DIRECTORY = "/Shared/Uploads";
 
-const extractedDirectories = new Set<string>();
-const extractedFiles = new Set<string>();
+const seenTimes = new Map<string, number>();
+const extractedPaths = new Set<string>();
 
 export function prepareDirectoryExtraction(
     dirPath: string
