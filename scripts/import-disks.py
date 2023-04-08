@@ -548,7 +548,7 @@ def build_desktop_db(images: typing.List[ImageDef]) -> bytes:
     # is supposed to prevent this, but it also prevents the Desktop file from
     # being built at all).
     # We also need to ensure that Finder has an increased preferred memory
-    # size (384K instead of 160K), otherwise it will run out of memory when
+    # size (512K instead of 160K), otherwise it will run out of memory when
     # doing the rebuild.
     minivmac.run([disks.SYSTEM_608.path()] + [i.path for i in images])
 
