@@ -77,7 +77,7 @@ def import_manifests() -> typing.Dict[str, machfs.Folder]:
         with open(manifest_path, "r") as manifest:
             manifest_json = json.load(manifest)
         src_url = manifest_json["src_url"]
-        _, src_ext = os.path.splitext(src_url)
+        _, src_ext = os.path.splitext(src_url.lower())
         if src_ext in [".img", ".dsk", ".iso"]:
             folder = import_disk_image(manifest_json)
         elif src_ext in [".hqx", ".sit", ".bin", ".zip"]:
@@ -243,10 +243,12 @@ def update_file_from_lsar_entry(file: machfs.File,
     def convert_os_type(os_type: int) -> bytes:
         return os_type.to_bytes(4, byteorder="big")
 
-    file.type = convert_os_type(entry["XADFileType"])
-    file.creator = convert_os_type(entry["XADFileCreator"])
+    if "XADFileType" in entry:
+        file.type = convert_os_type(entry["XADFileType"])
+        file.creator = convert_os_type(entry["XADFileCreator"])
 
-    file.flags = entry["XADFinderFlags"]
+    if "XADFinderFlags" in entry:
+        file.flags = entry["XADFinderFlags"]
     if "XADFinderLocationX" in entry:
         file.x = entry["XADFinderLocationX"]
         file.y = entry["XADFinderLocationY"]
