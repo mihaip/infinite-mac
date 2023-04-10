@@ -774,7 +774,7 @@ ALL_DISKS.forEach(disk => {
 
 export const INFINITE_HD = {
     baseUrl: "/Disk",
-    prefetchChunks: [0, 3345, 3346, 3349, 3350, 3351, 3352],
+    prefetchChunks: [0, 3692, 3696, 3697, 3698],
     ...infiniteHdManifest,
 };
 
