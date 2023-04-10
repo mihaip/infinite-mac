@@ -2,6 +2,7 @@
 
 import copy
 import basilisk
+import bs4
 import datetime
 import disks
 import glob
@@ -40,18 +41,43 @@ def read_url_to_path(url: str) -> str:
     cache_key = hashlib.sha256(url.encode()).hexdigest()
     cache_path = os.path.join(paths.CACHE_DIR, cache_key)
     if not os.path.exists(cache_path):
-        try:
-            context = ssl.create_default_context()
-            context.check_hostname = False
-            context.verify_mode = ssl.CERT_NONE
-            response = urllib.request.urlopen(url, context=context)
-        except:
-            sys.stderr.write("Failed to download %s\n" % url)
-            raise
-        response_body = response.read()
+        if url.startswith("https://macgui.com/downloads/"):
+            contents = fetch_macgui_url(url)
+        else:
+            contents = fetch_url(url)
         with open(cache_path, "wb+") as f:
-            f.write(response_body)
+            f.write(contents)
     return cache_path
+
+
+def fetch_url(url: str) -> bytes:
+    try:
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+        request = urllib.request.Request(
+            url,
+            data=None,
+            headers={'User-Agent': 'Infinite Mac (+https://infinitemac.org)'})
+        response = urllib.request.urlopen(request, context=context)
+        return response.read()
+    except:
+        sys.stderr.write("Failed to download %s\n" % url)
+        raise
+
+
+# macgui.com has a nonce in the download URL, so we need to fetch the page first
+# to get it, and then do the download.
+def fetch_macgui_url(page_url: str) -> str:
+    page_body = fetch_url(page_url)
+    soup = bs4.BeautifulSoup(page_body, 'html.parser')
+    download_link = soup.find('a', {'title': 'Download File'})
+    if download_link:
+        download_url = urllib.parse.urljoin(page_url,
+                                            download_link.get('href'))
+        return fetch_url(download_url)
+    else:
+        raise Exception("Could not find download link on page %s" % page_url)
 
 
 def get_import_folders() -> typing.Dict[str, machfs.Folder]:
@@ -77,7 +103,10 @@ def import_manifests() -> typing.Dict[str, machfs.Folder]:
         with open(manifest_path, "r") as manifest:
             manifest_json = json.load(manifest)
         src_url = manifest_json["src_url"]
-        _, src_ext = os.path.splitext(src_url.lower())
+        src_ext = manifest_json.get("src_ext")
+        if not src_ext:
+            _, src_ext = os.path.splitext(src_url.lower())
+
         if src_ext in [".img", ".dsk", ".iso"]:
             folder = import_disk_image(manifest_json)
         elif src_ext in [".hqx", ".sit", ".bin", ".zip"]:
@@ -137,7 +166,8 @@ def import_archive(
         ],
                                     stdout=subprocess.DEVNULL)
         if unar_code != 0:
-            assert False, "Could not unpack archive: %s:" % src_url
+            assert False, "Could not unpack archive: %s (cached at %s):" % (
+                src_url, archive_path)
 
         # While unar does set some Finder metadata, it appears to be a lossy
         # process (e.g. locations are not preserved). Get the full parsed
