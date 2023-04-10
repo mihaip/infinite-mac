@@ -1,1 +1,2 @@
 git+https://github.com/mihaip/machfs.git@0d2a3b200b2bd08f64039fdfed34c7f535479398#egg=machfs
+beautifulsoup4 == 4.12.2
