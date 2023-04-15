@@ -43,10 +43,7 @@ import {
     initializeExtractor,
     prepareDirectoryExtraction,
 } from "./emulator-worker-extractor";
-import {
-    createChunkedFile,
-    validateSpecPrefetchChunks,
-} from "./emulator-worker-chunked-file";
+import {EmulatorWorkerChunkedDisk} from "./emulator-worker-chunked-disk";
 import {restorePersistedData} from "./emulator-worker-persistence";
 import type {EmulatorWorkerEthernet} from "./emulator-worker-ethernet";
 import {
@@ -60,6 +57,8 @@ import {
     FallbackEmulatorWorkerClipboard,
     SharedMemoryEmulatorWorkerClipboard,
 } from "./emulator-worker-clipboard";
+import {EmulatorWorkerDisksApi} from "./emulator-worker-disks";
+import {EmulatorWorkerUploadDisk} from "./emulator-worker-upload-disk";
 
 declare const Module: EmscriptenModule;
 declare const workerCommands: EmulatorFallbackCommand[];
@@ -99,12 +98,11 @@ class EmulatorWorkerApi {
     #lastIdleWaitFrameId = 0;
 
     #markedQuiescent = false;
-    #lastDiskWriteTime = 0;
     #handledStop = false;
-    #diskSpecs: EmulatorChunkedFileSpec[];
+
+    disks: EmulatorWorkerDisksApi;
     #delayedDiskSpecs: EmulatorChunkedFileSpec[] | undefined;
     #ethernetMacAddress?: Uint8Array;
-    #pendingDiskImagePaths: string[] = [];
 
     constructor(config: EmulatorWorkerConfig) {
         const {
@@ -115,6 +113,7 @@ class EmulatorWorkerApi {
             ethernet: ethernetConfig,
             clipboard: clipboardConfig,
             disks,
+            diskImages,
             delayedDisks,
         } = config;
         const blitSender = (
@@ -169,7 +168,10 @@ class EmulatorWorkerApi {
                       getFallbackEndpoint()
                   );
 
-        this.#diskSpecs = disks;
+        this.disks = new EmulatorWorkerDisksApi([
+            ...disks.map(spec => new EmulatorWorkerChunkedDisk(spec)),
+            ...diskImages.map(spec => new EmulatorWorkerUploadDisk(spec)),
+        ]);
         this.#delayedDiskSpecs = delayedDisks;
     }
 
@@ -271,10 +273,7 @@ class EmulatorWorkerApi {
             // We don't have a more accurate way to determine when Mini vMac
             // is idle/quiscent (the Mac has finished booting), so we wait for
             // the disk writes done during boot to finish.
-            if (
-                this.#lastDiskWriteTime !== 0 &&
-                performance.now() - this.#lastDiskWriteTime > 1000
-            ) {
+            if (this.disks.isDoneWithDiskWrites()) {
                 this.#markQuiescent();
             }
 
@@ -293,14 +292,12 @@ class EmulatorWorkerApi {
         if (!this.#markedQuiescent) {
             this.#markedQuiescent = true;
             postMessage({type: "emulator_quiescent"});
-            for (const spec of this.#diskSpecs) {
-                validateSpecPrefetchChunks(spec);
-            }
+            this.disks.validate();
 
             if (this.#delayedDiskSpecs) {
-                for (const disk of this.#delayedDiskSpecs) {
-                    console.log("Mounting delayed disk", disk.name);
-                    this.#pendingDiskImagePaths.push(`/${disk.name}`);
+                for (const spec of this.#delayedDiskSpecs) {
+                    console.log("Mounting delayed disk", spec.name);
+                    this.disks.addDisk(new EmulatorWorkerChunkedDisk(spec));
                 }
                 this.#delayedDiskSpecs = undefined;
             }
@@ -322,6 +319,10 @@ class EmulatorWorkerApi {
         const fileUploads = this.#files.fileUploads();
         for (const upload of fileUploads) {
             const isDiskImage = isDiskImageFile(upload.name);
+            if (isDiskImage) {
+                this.disks.addDisk(new EmulatorWorkerUploadDisk(upload));
+                continue;
+            }
             let parent = isDiskImage ? "/Disk Images/" : "/Shared/Downloads/";
             let name = upload.name;
             const pathPieces = upload.name.split("/");
@@ -336,9 +337,6 @@ class EmulatorWorkerApi {
                 name = pathPieces[pathPieces.length - 1];
             }
             createLazyFile(parent, name, upload.url, upload.size, true, true);
-            if (isDiskImage) {
-                this.#pendingDiskImagePaths.push(parent + "/" + name);
-            }
         }
     }
 
@@ -351,14 +349,6 @@ class EmulatorWorkerApi {
             PERSISTED_DIRECTORY_PATH
         );
         postMessage({type: "emulator_stopped", extraction}, arrayBuffers);
-    }
-
-    didDiskWrite(offset: number, length: number) {
-        this.#lastDiskWriteTime = performance.now();
-    }
-
-    consumeDiskImagePath(): string | undefined {
-        return this.#pendingDiskImagePaths.shift();
     }
 
     acquireInputLock(): number {
@@ -529,23 +519,6 @@ function startEmulator(config: EmulatorWorkerConfig) {
                         true,
                         true,
                         true
-                    );
-                }
-
-                for (const spec of config.disks.concat(
-                    config.delayedDisks || []
-                )) {
-                    createChunkedFile("/", spec.name, spec, true, true);
-                }
-
-                for (const diskImage of config.diskImages) {
-                    createLazyFile(
-                        "/",
-                        diskImage.name,
-                        diskImage.url,
-                        diskImage.size,
-                        true,
-                        false
                     );
                 }
             },
