@@ -328,7 +328,7 @@ export class Emulator {
             prefsStr = `disk ${spec.name}\n` + prefsStr;
         }
         for (const diskImage of this.#diskImages) {
-            prefsStr += `cdrom /${diskImage.name}\n`;
+            prefsStr += `cdrom ${diskImage.name}\n`;
         }
         if (this.#config.ethernetProvider) {
             prefsStr += "appletalk true\n";

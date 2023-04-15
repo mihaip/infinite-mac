@@ -1727,26 +1727,31 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  10868: function($0, $1) {workerApi.didDiskWrite($0, $1);},  
- 10904: function($0) {workerApi.sleep($0);},  
- 10929: function() {workerApi.blit(0, 0);},  
- 10955: function($0, $1, $2, $3, $4, $5) {workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5});},  
- 11027: function($0, $1) {return workerApi.enqueueAudio($0, $1);},  
- 11070: function() {return workerApi.acquireInputLock();},  
- 11111: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
- 11200: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr);},  
- 11290: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr);},  
- 11377: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr);},  
- 11464: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
- 11549: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
- 11629: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
- 11710: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr);},  
- 11792: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.speedAddr);},  
- 11870: function() {workerApi.releaseInputLock();},  
- 11904: function($0, $1, $2) {workerApi.didOpenAudio($0, $1, $2);},  
- 11944: function($0, $1) {workerApi.didOpenVideo($0, $1);}
+  10820: function($0, $1, $2, $3) {return workerApi.disks.write($0, $1, $2, $3);},  
+ 10870: function($0, $1, $2, $3) {return workerApi.disks.read($0, $1, $2, $3);},  
+ 10919: function($0) {return workerApi.disks.size($0);},  
+ 10956: function($0) {workerApi.sleep($0);},  
+ 10981: function($0) {workerApi.disks.close($0);},  
+ 11012: function() {workerApi.blit(0, 0);},  
+ 11038: function($0, $1, $2, $3, $4, $5) {workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5});},  
+ 11110: function($0, $1) {return workerApi.enqueueAudio($0, $1);},  
+ 11153: function($0) {return workerApi.disks.open(UTF8ToString($0));},  
+ 11204: function($0) {workerApi.disks.close($0);},  
+ 11235: function() {return workerApi.acquireInputLock();},  
+ 11276: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);},  
+ 11365: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr);},  
+ 11455: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr);},  
+ 11542: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr);},  
+ 11629: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);},  
+ 11714: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);},  
+ 11794: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);},  
+ 11875: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr);},  
+ 11957: function() {return workerApi.getInputValue(workerApi.InputBufferAddresses.speedAddr);},  
+ 12035: function() {workerApi.releaseInputLock();},  
+ 12069: function($0, $1, $2) {workerApi.didOpenAudio($0, $1, $2);},  
+ 12109: function($0, $1) {workerApi.didOpenVideo($0, $1);}
 };
-function consumeDiskImagePath(){ const diskImagePath = workerApi.consumeDiskImagePath(); if (!diskImagePath || !diskImagePath.length) { return 0; } const diskImagePathLength = lengthBytesUTF8(diskImagePath) + 1; const diskImagePathCstr = _malloc(diskImagePathLength); stringToUTF8(diskImagePath, diskImagePathCstr, diskImagePathLength); return diskImagePathCstr; }
+function consumeDiskName(){ const diskName = workerApi.disks.consumeDiskName(); if (!diskName || !diskName.length) { return 0; } const diskNameLength = lengthBytesUTF8(diskName) + 1; const diskNameCstr = _malloc(diskNameLength); stringToUTF8(diskName, diskNameCstr, diskNameLength); return diskNameCstr; }
 
 
 
@@ -4739,7 +4744,7 @@ var asmLibraryArg = {
   "__syscall_open": ___syscall_open,
   "__syscall_rmdir": ___syscall_rmdir,
   "__syscall_unlink": ___syscall_unlink,
-  "consumeDiskImagePath": consumeDiskImagePath,
+  "consumeDiskName": consumeDiskName,
   "emscripten_asm_const_int": _emscripten_asm_const_int,
   "emscripten_memcpy_big": _emscripten_memcpy_big,
   "emscripten_resize_heap": _emscripten_resize_heap,
