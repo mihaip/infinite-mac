@@ -74,7 +74,6 @@ export function ScreenFrame(props: ScreenFrameProps) {
                             visibility: alwaysVisible ? "visible" : undefined,
                         }}
                         onClick={handler}
-                        data-text={label}
                         key={label}>
                         {label}
                     </div>

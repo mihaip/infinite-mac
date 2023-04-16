@@ -196,27 +196,9 @@
 }
 
 .ScreenFrame-Bezel-Text {
-    color: rgba(255, 255, 255, 0.5);
-    position: relative;
-}
-
-.ScreenFrame-Bezel-Text::before,
-.ScreenFrame-Bezel-Text::after {
-    content: attr(data-text);
-    position: absolute;
-}
-
-.ScreenFrame-Bezel-Text::before {
-    top: -1px;
-    left: -1px;
-    color: rgba(0, 0, 0, 0.5);
-}
-
-.ScreenFrame-Bezel-Text::after {
-    position: absolute;
-    top: -0.5px;
-    left: -0.5px;
-    color: var(--screen-bezel-color);
+    color: var(--screen-bezel-color-dark1);
+    text-shadow: 0.5px 0.5px rgba(255, 255, 255, 0.6),
+        -0.5px -0.5px rgba(0, 0, 0, 0.6);
 }
 
 /* Platinum is a simple set of color overrides. */
