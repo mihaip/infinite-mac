@@ -547,9 +547,7 @@ function MacEthernetStatus({
         <div
             className="Mac-Ethernet-Status"
             onClick={() => setExpanded(!expanded)}>
-            <div className="ScreenFrame-Bezel-Text" data-text={text}>
-                {text}
-            </div>
+            <div className="ScreenFrame-Bezel-Text">{text}</div>
             {details}
         </div>
     );
