@@ -482,12 +482,15 @@ export class Emulator {
 
     #getTouchLocation(event: TouchEvent): {x: number; y: number} {
         const touch = event.touches[0];
-        const targetBounds = (
-            touch.target as HTMLElement
-        ).getBoundingClientRect();
+        const target = touch.target as HTMLElement;
+        const targetBounds = target.getBoundingClientRect();
+        // The touch coordinates and the target bounds are affected by the scale
+        // transform that we do when in full-screen mode, so we need to undo
+        // it.
+        const scaleFactor = targetBounds.width / target.offsetWidth;
         return {
-            x: touch.clientX - targetBounds.left,
-            y: touch.clientY - targetBounds.top,
+            x: (touch.clientX - targetBounds.left) / scaleFactor,
+            y: (touch.clientY - targetBounds.top) / scaleFactor,
         };
     }
 
