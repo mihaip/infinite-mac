@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Assumes that the https://github.com/mihaip/XADMAster and
 # https://github.com/MacPaw/universal-detector submodules have been fetched.
 
