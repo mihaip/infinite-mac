@@ -1,13 +1,17 @@
 import type {
     EmulatorChunkedFileSpec,
-    EmulatorDiskImage,
     EmulatorFallbackCommand,
     EmulatorSpeed,
     EmulatorWorkerConfig,
     EmulatorWorkerDirectorExtraction,
     EmulatorWorkerVideoBlit,
 } from "./emulator-common";
-import {emulatorCpuId, emulatorModelId} from "./emulator-common";
+import {
+    EMULATOR_CD_DRIVE_COUNT,
+    emulatorCpuId,
+    emulatorModelId,
+    emulatorUsesCDROMDrive,
+} from "./emulator-common";
 import Worker from "worker-loader!./emulator-worker";
 import registerServiceWorker, {
     ServiceWorkerNoSupportError,
@@ -147,8 +151,6 @@ export class Emulator {
     #serviceWorkerReady?: Promise<boolean>;
 
     #gotFirstBlit = false;
-
-    #diskImages: EmulatorDiskImage[] = [];
 
     #ethernetPinger: EthernetPinger;
 
@@ -327,8 +329,11 @@ export class Emulator {
         for (const spec of Array.from(this.#config.disks).reverse()) {
             prefsStr = `disk ${spec.name}\n` + prefsStr;
         }
-        for (const diskImage of this.#diskImages) {
-            prefsStr += `cdrom ${diskImage.name}\n`;
+        const useCDROM = emulatorUsesCDROMDrive(this.#config.machine.emulator);
+        if (useCDROM) {
+            for (let i = 0; i < EMULATOR_CD_DRIVE_COUNT; i++) {
+                prefsStr += `cdrom /cdrom/${i}\n`;
+            }
         }
         if (this.#config.ethernetProvider) {
             prefsStr += "appletalk true\n";
@@ -344,7 +349,7 @@ export class Emulator {
             wasmUrl: wasmBlobUrl,
             disks: this.#config.disks,
             delayedDisks: this.#config.delayedDisks,
-            diskImages: this.#diskImages,
+            useCDROM,
             autoloadFiles: {
                 [romFileName]: rom,
                 "prefs": prefs,
@@ -431,14 +436,6 @@ export class Emulator {
             return;
         }
         this.#files.uploadFile({
-            name: file.name,
-            url: URL.createObjectURL(file),
-            size: file.size,
-        });
-    }
-
-    uploadDiskImage(file: File) {
-        this.#diskImages.push({
             name: file.name,
             url: URL.createObjectURL(file),
             size: file.size,

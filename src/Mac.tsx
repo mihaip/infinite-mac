@@ -13,7 +13,6 @@ import type {
 } from "./emulator/emulator-common";
 import {
     emulatorSupportsSpeedSetting,
-    emulatorHandlesDiskImages,
     EMULATOR_SPEEDS,
     isDiskImageFile,
 } from "./emulator/emulator-common";
@@ -55,7 +54,6 @@ export function Mac({
     const [emulatorLoadingDiskChunk, setEmulatorLoadingDiskChunk] =
         useState(false);
     const [emulatorErrorText, setEmulatorErrorText] = useState("");
-    const [hasPendingDiskImage, setHasPendingDiskImage] = useState(false);
     const [ethernetPeers, setEthernetPeers] = useState<
         ReadonlyArray<EmulatorEthernetPeer>
     >([]);
@@ -93,12 +91,6 @@ export function Mac({
         const delayedDisks: EmulatorChunkedFileSpec[] = [];
         const infiniteHd = disk.mfsOnly ? INFINITE_HD_MFS : INFINITE_HD;
         if (disk.delayAdditionalDiskMount) {
-            if (!emulatorHandlesDiskImages(machine.emulator)) {
-                console.warn(
-                    "delayAdditionalDiskMount may not work for the machine",
-                    machine
-                );
-            }
             delayedDisks.push(infiniteHd);
         } else {
             disks.push(infiniteHd);
@@ -326,16 +318,11 @@ export function Mac({
             return;
         }
 
-        const diskImages = [];
         let fileCount = 0;
         let diskImageCount = 0;
         for (const file of files) {
             if (isDiskImageFile(file.name)) {
                 diskImageCount++;
-                if (!emulatorHandlesDiskImages(machine.emulator)) {
-                    diskImages.push(file);
-                    continue;
-                }
             } else {
                 fileCount++;
             }
@@ -346,10 +333,6 @@ export function Mac({
             "emulator_uploads:files": fileCount,
             "emulator_uploads:disks": diskImageCount,
         });
-        if (diskImages.length) {
-            diskImages.map(file => emulator.uploadDiskImage(file));
-            setHasPendingDiskImage(true);
-        }
     }
 
     // Can't use media queries because they would need to depend on the
@@ -422,18 +405,6 @@ export function Mac({
             }>
             {progress}
             {dragCount > 0 && <div className="Mac-Overlay Mac-Drag-Overlay" />}
-            {hasPendingDiskImage && (
-                <div className="Mac-Pending-Disk-Image">
-                    The Mac needs to be restarted to pick up the new disk image.
-                    <button
-                        onClick={() => {
-                            setHasPendingDiskImage(false);
-                            emulatorRef.current?.restart();
-                        }}>
-                        Restart
-                    </button>
-                </div>
-            )}
             {ethernetProviderRef.current && (
                 <MacEthernetStatus
                     provider={ethernetProviderRef.current}

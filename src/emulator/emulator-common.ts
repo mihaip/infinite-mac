@@ -12,8 +12,10 @@ export type EmulatorCpu =
     | "604"
     | "G3";
 
-export function emulatorHandlesDiskImages(type: EmulatorType): boolean {
-    return type === "Mini vMac";
+export const EMULATOR_CD_DRIVE_COUNT = 7;
+
+export function emulatorUsesCDROMDrive(type: EmulatorType): boolean {
+    return type === "BasiliskII" || type === "SheepShaver";
 }
 
 export function emulatorSupportsSpeedSetting(type: EmulatorType): boolean {
@@ -177,7 +179,7 @@ export type EmulatorWorkerConfig = {
     wasmUrl: string;
     disks: EmulatorChunkedFileSpec[];
     delayedDisks?: EmulatorChunkedFileSpec[];
-    diskImages: EmulatorDiskImage[];
+    useCDROM: boolean;
     autoloadFiles: {[name: string]: ArrayBuffer};
     persistedData?: EmulatorWorkerDirectorExtraction;
     arguments: string[];
@@ -308,8 +310,6 @@ export type EmulatorWorkerFallbackClipboardConfig = {
 };
 
 export type EmulatorFileUpload = {name: string; url: string; size: number};
-
-export type EmulatorDiskImage = EmulatorFileUpload;
 
 export type EmulatorFallbackCommand =
     | EmulatorFallbackInputCommand
