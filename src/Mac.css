@@ -88,25 +88,6 @@ view the screen will still be visible. */
     content: "Files will be placed in the “Downloads” folder.";
 }
 
-.Mac-Pending-Disk-Image {
-    position: absolute;
-    bottom: calc(var(--screen-underscan) + 8px);
-    right: calc(var(--screen-underscan) + 8px);
-    font-size: 16px;
-    padding: 8px;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-}
-
-.Mac-Pending-Disk-Image button {
-    margin-left: 8px;
-    background: #fff;
-    border: solid 1px #000;
-    color: #000;
-    border-radius: 8px;
-}
-
 .Mac-Ethernet-Status {
     position: absolute;
     bottom: var(--screen-ethernet-status-bottom);

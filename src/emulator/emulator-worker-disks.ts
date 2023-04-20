@@ -1,3 +1,5 @@
+import {EMULATOR_CD_DRIVE_COUNT} from "./emulator-common";
+
 declare const Module: EmscriptenModule;
 type DiskId = number;
 
@@ -17,18 +19,63 @@ export class EmulatorWorkerDisksApi {
     #lastDiskWriteTime = 0;
     #diskIdCounter = 0;
 
-    constructor(disks: EmulatorWorkerDisk[]) {
+    #cdroms: EmulatorCDROMDrive[] = [];
+    #useCDROM: boolean;
+
+    constructor(disks: EmulatorWorkerDisk[], useCDROM: boolean) {
         this.#disks = disks;
+        this.#useCDROM = useCDROM;
+        if (useCDROM) {
+            for (let i = 0; i < EMULATOR_CD_DRIVE_COUNT; i++) {
+                this.#cdroms.push(new EmulatorCDROMDrive());
+            }
+        }
+    }
+
+    isMediaPresent(diskId: DiskId): boolean {
+        const disk = this.#openedDisks.get(diskId);
+        if (!disk) {
+            throw new Error(`Disk not found: ${diskId}`);
+        }
+        return disk instanceof EmulatorCDROMDrive && disk.hasDisk();
+    }
+
+    eject(diskId: DiskId) {
+        const disk = this.#openedDisks.get(diskId);
+        if (!disk) {
+            throw new Error(`Disk not found: ${diskId}`);
+        }
+        if (!(disk instanceof EmulatorCDROMDrive)) {
+            console.warn("Cannot eject non-CD-ROM disk");
+            return;
+        }
+        disk.eject();
     }
 
     addDisk(disk: EmulatorWorkerDisk) {
+        if (this.#useCDROM) {
+            const cdrom = this.#cdroms.find(cd => !cd.hasDisk());
+            if (cdrom) {
+                cdrom.insert(disk);
+                return;
+            } else {
+                console.warn("No empty CD-ROM drive found, discarding disk");
+            }
+            return;
+        }
         this.#disks.push(disk);
         this.#pendingDiskNames.push(disk.name);
     }
 
     open(name: string): DiskId {
         const diskId = this.#diskIdCounter++;
-        const disk = this.#disks.find(d => d.name === name);
+        let disk: EmulatorWorkerDisk | undefined;
+        if (name.startsWith("/cdrom/")) {
+            const cdIndex = parseInt(name.slice("/cdrom/".length));
+            disk = this.#cdroms[cdIndex];
+        } else {
+            disk = this.#disks.find(d => d.name === name);
+        }
         if (!disk) {
             console.warn(`Disk not found: ${name}`);
             return -1;
@@ -38,9 +85,14 @@ export class EmulatorWorkerDisksApi {
     }
 
     close(diskId: DiskId) {
-        const removed = this.#openedDisks.delete(diskId);
-        if (!removed) {
+        console.log("close");
+        const disk = this.#openedDisks.get(diskId);
+        if (!disk) {
             throw new Error(`Disk not found: ${diskId}`);
+        }
+        this.#openedDisks.delete(diskId);
+        if (disk instanceof EmulatorCDROMDrive) {
+            disk.eject();
         }
     }
 
@@ -98,5 +150,69 @@ export class EmulatorWorkerDisksApi {
 
     consumeDiskName(): string | undefined {
         return this.#pendingDiskNames.shift();
+    }
+}
+
+class EmulatorCDROMDrive implements EmulatorWorkerDisk {
+    #disk: EmulatorWorkerDisk | undefined;
+
+    get name() {
+        if (!this.#disk) {
+            console.warn("CD-ROM drive is empty, cannot get name");
+            return "";
+        }
+        return this.#disk.name;
+    }
+
+    get size() {
+        if (!this.#disk) {
+            console.warn("CD-ROM drive is empty, cannot get size");
+            return 0;
+        }
+        return this.#disk.size;
+    }
+
+    insert(disk: EmulatorWorkerDisk) {
+        if (this.#disk) {
+            console.warn("CD-ROM drive was not empty");
+            return;
+        }
+        this.#disk = disk;
+    }
+
+    eject() {
+        if (!this.#disk) {
+            console.warn("CD-ROM drive is empty, cannot eject");
+            return;
+        }
+        this.#disk = undefined;
+    }
+
+    hasDisk(): boolean {
+        return this.#disk !== undefined;
+    }
+
+    read(buffer: Uint8Array, offset: number, length: number): number {
+        if (!this.#disk) {
+            console.warn("CD-ROM drive is empty, cannot read");
+            return 0;
+        }
+        return this.#disk.read(buffer, offset, length);
+    }
+
+    write(buffer: Uint8Array, offset: number, length: number): number {
+        if (!this.#disk) {
+            console.warn("CD-ROM drive is empty, cannot write");
+            return 0;
+        }
+        return this.#disk.write(buffer, offset, length);
+    }
+
+    validate(): void {
+        if (!this.#disk) {
+            console.warn("CD-ROM drive is empty, cannot validate");
+            return;
+        }
+        return this.#disk.validate?.();
     }
 }

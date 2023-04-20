@@ -113,7 +113,6 @@ class EmulatorWorkerApi {
             ethernet: ethernetConfig,
             clipboard: clipboardConfig,
             disks,
-            diskImages,
             delayedDisks,
         } = config;
         const blitSender = (
@@ -168,10 +167,10 @@ class EmulatorWorkerApi {
                       getFallbackEndpoint()
                   );
 
-        this.disks = new EmulatorWorkerDisksApi([
-            ...disks.map(spec => new EmulatorWorkerChunkedDisk(spec)),
-            ...diskImages.map(spec => new EmulatorWorkerUploadDisk(spec)),
-        ]);
+        this.disks = new EmulatorWorkerDisksApi(
+            disks.map(spec => new EmulatorWorkerChunkedDisk(spec)),
+            config.useCDROM
+        );
         this.#delayedDiskSpecs = delayedDisks;
     }
 
