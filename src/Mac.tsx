@@ -98,6 +98,7 @@ export function Mac({
         const emulator = new Emulator(
             {
                 machine,
+                nameEncoding: disk.nameEncoding,
                 useSharedMemory,
                 screenWidth: initialScreenWidth,
                 screenHeight: initialScreenHeight,

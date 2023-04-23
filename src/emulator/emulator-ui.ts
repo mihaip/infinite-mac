@@ -75,9 +75,11 @@ import {
     SharedMemoryEmulatorClipboard,
 } from "./emulator-ui-clipboard";
 import type {MachineDef} from "../machines";
+import type {NameEncoding} from "../disks";
 
 export type EmulatorConfig = {
     machine: MachineDef;
+    nameEncoding: NameEncoding;
     useSharedMemory: boolean;
     screenWidth: number;
     screenHeight: number;
@@ -335,6 +337,7 @@ export class Emulator {
                 prefsStr += `cdrom /cdrom/${i}\n`;
             }
         }
+        prefsStr += `name_encoding ${this.#config.nameEncoding}\n`;
         if (this.#config.ethernetProvider) {
             prefsStr += "appletalk true\n";
         }

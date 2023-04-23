@@ -49,6 +49,11 @@ import {
     QUADRA_650,
 } from "./machines";
 
+export enum NameEncoding {
+    MacRoman = 0,
+    MacJapanese = 1,
+}
+
 // prefetchChunks are semi-automatically generated -- we will get a
 // warning via validateSpecPrefetchChunks() if these are incorrect.
 export type DiskDef = EmulatorChunkedFileSpec & {
@@ -57,6 +62,7 @@ export type DiskDef = EmulatorChunkedFileSpec & {
     releaseDate: [year: number, month: number, date: number];
     description: string;
     machines: MachineDef[];
+    nameEncoding: NameEncoding;
     appleTalkSupported?: boolean;
     mfsOnly?: boolean;
     delayAdditionalDiskMount?: boolean;
@@ -86,6 +92,7 @@ const SYSTEM_1_0: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
+    nameEncoding: NameEncoding.MacRoman,
     mfsOnly: true,
     // Loading the Infinite HD disk as part of the initial set of images does
     // appear to work in System 1.0 under Mini vMac, but if we delay it until
@@ -102,6 +109,7 @@ const SYSTEM_1_1: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
+    nameEncoding: NameEncoding.MacRoman,
     mfsOnly: true,
     ...system11Manifest,
 };
@@ -114,6 +122,7 @@ const SYSTEM_2_0: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
+    nameEncoding: NameEncoding.MacRoman,
     mfsOnly: true,
     ...system20Manifest,
 };
@@ -127,6 +136,7 @@ const SYSTEM_2_1: DiskDef = {
     prefetchChunks: [0, 1, 2],
     // The Mac 128K is supported, but HFS is not loaded in that case.
     machines: [MAC_512KE, MAC_128K],
+    nameEncoding: NameEncoding.MacRoman,
     ...system21Manifest,
 };
 
@@ -138,6 +148,7 @@ const SYSTEM_3_0: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system30Manifest,
 };
 
@@ -158,6 +169,7 @@ const SYSTEM_3_2: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system32Manifest,
 };
 
@@ -169,6 +181,7 @@ const SYSTEM_3_3: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system33Manifest,
 };
 
@@ -180,6 +193,7 @@ const SYSTEM_4_0: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system40Manifest,
 };
 
@@ -191,6 +205,7 @@ const SYSTEM_4_1: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_II, MAC_SE, MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system41Manifest,
 };
 
@@ -202,6 +217,7 @@ const SYSTEM_5_0: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system50Manifest,
 };
 
@@ -212,6 +228,7 @@ const SYSTEM_5_1: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system51Manifest,
 };
 
@@ -222,6 +239,7 @@ const SYSTEM_6_0: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system60HdManifest,
 };
 
@@ -240,6 +258,7 @@ const SYSTEM_6_0_2: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system602HdManifest,
 };
 
@@ -250,6 +269,7 @@ const SYSTEM_6_0_3: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system603HdManifest,
 };
 
@@ -261,6 +281,7 @@ const SYSTEM_6_0_4: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system604HdManifest,
 };
 
@@ -272,6 +293,7 @@ const SYSTEM_6_0_5: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system605HdManifest,
 };
 
@@ -291,6 +313,7 @@ const SYSTEM_6_0_7: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system607HdManifest,
 };
 
@@ -302,6 +325,7 @@ const SYSTEM_6_0_8: DiskDef = {
     baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    nameEncoding: NameEncoding.MacRoman,
     ...system608HdManifest,
 };
 
@@ -315,6 +339,7 @@ const SYSTEM_7_0: DiskDef = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     ],
     machines: [MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     ...system70HdManifest,
 };
@@ -330,6 +355,7 @@ const SYSTEM_7_1: DiskDef = {
         25, 26,
     ],
     machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     ...system71HdManifest,
 };
@@ -346,6 +372,7 @@ const SYSTEM_7_1_1: DiskDef = {
         44,
     ],
     machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     ...system711HdManifest,
 };
@@ -371,6 +398,7 @@ const SYSTEM_7_5: DiskDef = {
         57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 70, 71, 72,
     ],
     machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     ...system75HdManifest,
 };
@@ -388,6 +416,7 @@ const SYSTEM_7_5_1: DiskDef = {
         90, 91, 92, 93, 94,
     ],
     machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     ...system751HdManifest,
 };
@@ -405,6 +434,7 @@ const SYSTEM_7_5_2: DiskDef = {
         90, 91, 92, 93, 94,
     ],
     machines: [POWER_MACINTOSH_9500],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     isUnstable: true,
     ...system752HdManifest,
@@ -424,6 +454,7 @@ const SYSTEM_7_5_3: DiskDef = {
         114, 116, 117, 166,
     ],
     machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     ...system753HdManifest,
 };
@@ -445,6 +476,7 @@ const SYSTEM_7_5_3_PPC: DiskDef = {
         140, 141, 142, 143, 144, 145, 146, 147, 148, 152, 153, 155,
     ],
     machines: [POWER_MACINTOSH_9500],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     ...system753PpcHdManifest,
 };
@@ -463,6 +495,7 @@ const KANJITALK_7_5_3: DiskDef = {
         190, 191, 192, 193, 194, 195, 196, 197, 399,
     ],
     machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
+    nameEncoding: NameEncoding.MacJapanese,
     appleTalkSupported: true,
     ...kanjiTalk753HdManifest,
 };
@@ -497,6 +530,7 @@ const SYSTEM_7_5_5: DiskDef = {
         MAC_IIFX,
         POWER_MACINTOSH_9500,
     ],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     ...system755HdManifest,
 };
@@ -517,6 +551,7 @@ const MAC_OS_7_6: DiskDef = {
         167, 168, 169, 170, 171,
     ],
     machines: [QUADRA_650, MAC_IIFX, POWER_MACINTOSH_9500],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     ...macos76HdManifest,
 };
@@ -539,6 +574,7 @@ const MAC_OS_8_0: DiskDef = {
         205, 206, 208,
     ],
     machines: [QUADRA_650, POWER_MACINTOSH_9500],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
     ...macos80HdManifest,
@@ -560,6 +596,7 @@ const MAC_OS_8_1: DiskDef = {
         179, 181,
     ],
     machines: [QUADRA_650, POWER_MACINTOSH_9500],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
     ...macos81HdManifest,
@@ -588,6 +625,7 @@ const MAC_OS_8_5: DiskDef = {
         427, 428, 432, 453, 454, 458,
     ],
     machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
     ...macos85HdManifest,
@@ -617,6 +655,7 @@ const MAC_OS_8_6: DiskDef = {
         449, 456, 457, 458, 483, 488,
     ],
     machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3],
+    nameEncoding: NameEncoding.MacRoman,
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
     ...macos86HdManifest,
@@ -648,6 +687,7 @@ const MAC_OS_9_0: DiskDef = {
         512, 515, 554, 559, 560, 562, 563, 564, 565, 566, 567, 568,
     ],
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+    nameEncoding: NameEncoding.MacRoman,
     hasPlatinumAppearance: true,
     ...macos90HdManifest,
 };
@@ -704,6 +744,7 @@ const MAC_OS_9_0_4: DiskDef = {
         598,
     ],
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+    nameEncoding: NameEncoding.MacRoman,
     hasPlatinumAppearance: true,
     ...macos904HdManifest,
 };
