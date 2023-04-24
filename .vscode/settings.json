@@ -1,4 +1,13 @@
 {
     "editor.formatOnSave": true,
+    // The emulators are large C/C++ codebases with their own style, we don't
+    // want auto-formatting for them. There is a format-macemu NPM script that
+    // can be used to format our code.
+    "[c]": {
+        "editor.formatOnSave": false
+    },
+    "[cpp]": {
+        "editor.formatOnSave": false
+    },
     "python.formatting.provider": "yapf"
 }
