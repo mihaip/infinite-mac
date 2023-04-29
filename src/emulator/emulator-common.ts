@@ -146,9 +146,10 @@ export function generateChunkUrl(
     spec: EmulatorChunkedFileSpec,
     chunk: number
 ): string {
-    // Includ the chunk number in the URL so that we can easily generate the
+    // Include the chunk number in the URL so that we can easily generate the
     // next chunk URL. By having it in the hash we should still allow chunks
-    // that have the same content hash still be an HTTP cache hit.
+    // that have the same content hash (but are at different numbers) to still
+    // be an HTTP cache hit.
     return `${spec.baseUrl}/${spec.chunks[chunk]}.chunk#${chunk}`;
 }
 
@@ -272,6 +273,7 @@ export type EmulatorWorkerSharedMemoryFilesConfig = {
 
 export type EmulatorFileActions = {
     uploads: EmulatorFileUpload[];
+    cdroms: EmulatorCDROM[];
 };
 
 export type EmulatorWorkerFallbackFilesConfig = {
@@ -314,6 +316,7 @@ export type EmulatorFileUpload = {name: string; url: string; size: number};
 export type EmulatorFallbackCommand =
     | EmulatorFallbackInputCommand
     | EmulatorFallbackUploadFileCommand
+    | EmulatorFallbackLoadCDROMCommand
     | EmulatorFallbackEthernetReceiveCommand
     | EmlatorFallbackSetClipboardDataCommand;
 
@@ -325,6 +328,11 @@ export type EmulatorFallbackInputCommand = {
 export type EmulatorFallbackUploadFileCommand = {
     type: "upload_file";
     upload: EmulatorFileUpload;
+};
+
+export type EmulatorFallbackLoadCDROMCommand = {
+    type: "load_cdrom";
+    cdrom: EmulatorCDROM;
 };
 
 export type EmulatorFallbackEthernetReceiveCommand = {
@@ -484,3 +492,14 @@ export const ETHERNET_PONG_HEADER = [112, 105, 110, 103, 80, 79, 78, 71, 33]; //
 export const ETHERNET_PONG_PAYLOAD_LENGTH = ETHERNET_PONG_HEADER.length + 4;
 export const ETHERNET_PONG_PACKET_LENGTH =
     6 + 6 + 2 + ETHERNET_PONG_PAYLOAD_LENGTH;
+
+export type EmulatorCDROM = {
+    name: string;
+    srcUrl: string;
+    fileSize: number;
+    coverImageHash: string;
+    coverImageSize: [width: number, height: number];
+    coverImageType?: "square" | "round";
+};
+
+export type EmulatorCDROMLibrary = {[path: string]: EmulatorCDROM};

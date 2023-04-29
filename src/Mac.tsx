@@ -7,6 +7,8 @@ import type {
 } from "./emulator/emulator-ui";
 import {Emulator} from "./emulator/emulator-ui";
 import type {
+    EmulatorCDROM,
+    EmulatorCDROMLibrary,
     EmulatorChunkedFileSpec,
     EmulatorSpeed,
     EmulatorType,
@@ -34,6 +36,7 @@ export type MacProps = {
     useSharedMemory?: boolean;
     debugAudio?: boolean;
     onDone?: () => void;
+    cdroms?: EmulatorCDROMLibrary;
 };
 
 export function Mac({
@@ -43,6 +46,7 @@ export function Mac({
     useSharedMemory = true,
     debugAudio,
     onDone,
+    cdroms,
 }: MacProps) {
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
@@ -335,6 +339,10 @@ export function Mac({
         });
     }
 
+    function loadCDROM(cdrom: EmulatorCDROM) {
+        emulatorRef.current?.loadCDROM(cdrom);
+    }
+
     // Can't use media queries because they would need to depend on the
     // emulator screen size, but we can't pass that in via CSS variables. We
     // could in theory dynamically generate the media query via JS, but it's not
@@ -428,6 +436,7 @@ export function Mac({
                     onDone={() => setEmulatorErrorText("")}
                 />
             )}
+            {cdroms && <MacCDROMs cdroms={cdroms} onRun={loadCDROM} />}
         </ScreenFrame>
     );
 }
@@ -598,5 +607,47 @@ function MacError({text, onDone}: {text: string; onDone: () => void}) {
         <Dialog title="Emulator Error" onDone={onDone} doneLabel="Bummer">
             <p style={{whiteSpace: "pre-line"}}>{text}</p>
         </Dialog>
+    );
+}
+
+function MacCDROMs({
+    cdroms,
+    onRun,
+}: {
+    cdroms: EmulatorCDROMLibrary;
+    onRun: (cdrom: EmulatorCDROM) => void;
+}) {
+    const [expanded, setExpanded] = useState(false);
+    const toggleExpanded = () => setExpanded(value => !value);
+    const classNames = ["Mac-CDROMs"];
+    if (expanded) {
+        classNames.push("Mac-CDROMs-Expanded");
+    }
+
+    return (
+        <div className={classNames.join(" ")}>
+            <div className="Mac-CDROMs-Title" onClick={toggleExpanded}>
+                CD-ROMs
+            </div>
+            {expanded && (
+                <div className="Mac-CDROMs-List">
+                    {Object.entries(cdroms).map(([folderPath, cdrom]) => (
+                        <MacCDROM
+                            key={folderPath}
+                            cdrom={cdrom}
+                            onLoad={() => onRun(cdrom)}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function MacCDROM({cdrom, onLoad}: {cdrom: EmulatorCDROM; onLoad: () => void}) {
+    return (
+        <div className="Mac-CDROM" onClick={onLoad}>
+            <div className="Mac-CDROM-Name">{cdrom.name}</div>
+        </div>
     );
 }

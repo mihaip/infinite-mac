@@ -1,10 +1,12 @@
 import type {
     EmlatorFallbackSetClipboardDataCommand,
+    EmulatorCDROM,
     EmulatorChunkedFileSpec,
     EmulatorClipboardData,
     EmulatorFallbackCommand,
     EmulatorFallbackEthernetReceiveCommand,
     EmulatorFallbackInputCommand,
+    EmulatorFallbackLoadCDROMCommand,
     EmulatorFallbackUploadFileCommand,
     EmulatorFileUpload,
     EmulatorInputEvent,
@@ -59,6 +61,7 @@ import {
 } from "./emulator-worker-clipboard";
 import {EmulatorWorkerDisksApi} from "./emulator-worker-disks";
 import {EmulatorWorkerUploadDisk} from "./emulator-worker-upload-disk";
+import {createEmulatorWorkerCDROMDisk} from "./emulator-worker-cdrom-disk";
 
 declare const Module: EmscriptenModule;
 declare const workerCommands: EmulatorFallbackCommand[];
@@ -306,7 +309,7 @@ class EmulatorWorkerApi {
     #periodicTasks() {
         // TODO: better place to poll for this? On the other hand, only doing it
         // when the machine is idle seems reasonable.
-        this.#handleFileUploads();
+        this.#handleFileRequests();
         handleExtractionRequests();
 
         if (this.getInputValue(InputBufferAddresses.stopFlagAddr)) {
@@ -314,29 +317,36 @@ class EmulatorWorkerApi {
         }
     }
 
-    #handleFileUploads() {
-        const fileUploads = this.#files.fileUploads();
-        for (const upload of fileUploads) {
+    #handleFileRequests() {
+        const {uploads, cdroms} = this.#files.consumeRequests();
+        for (const upload of uploads) {
             const isDiskImage = isDiskImageFile(upload.name);
             if (isDiskImage) {
                 this.disks.addDisk(new EmulatorWorkerUploadDisk(upload));
-                continue;
+            } else {
+                this.#handleFileUpload(upload);
             }
-            let parent = isDiskImage ? "/Disk Images/" : "/Shared/Downloads/";
-            let name = upload.name;
-            const pathPieces = upload.name.split("/");
-            if (pathPieces.length > 1) {
-                for (let i = 0; i < pathPieces.length - 1; i++) {
-                    const dir = parent + pathPieces.slice(0, i + 1).join("/");
-                    if (!FS.analyzePath(dir).exists) {
-                        FS.mkdir(dir);
-                    }
-                }
-                parent += pathPieces.slice(0, pathPieces.length - 1).join("/");
-                name = pathPieces[pathPieces.length - 1];
-            }
-            createLazyFile(parent, name, upload.url, upload.size, true, true);
         }
+        for (const cdrom of cdroms) {
+            this.disks.addDisk(createEmulatorWorkerCDROMDisk(cdrom));
+        }
+    }
+
+    #handleFileUpload(upload: EmulatorFileUpload) {
+        let parent = "/Shared/Downloads/";
+        let name = upload.name;
+        const pathPieces = upload.name.split("/");
+        if (pathPieces.length > 1) {
+            for (let i = 0; i < pathPieces.length - 1; i++) {
+                const dir = parent + pathPieces.slice(0, i + 1).join("/");
+                if (!FS.analyzePath(dir).exists) {
+                    FS.mkdir(dir);
+                }
+            }
+            parent += pathPieces.slice(0, pathPieces.length - 1).join("/");
+            name = pathPieces[pathPieces.length - 1];
+        }
+        createLazyFile(parent, name, upload.url, upload.size, true, true);
     }
 
     #handleStop() {
@@ -432,6 +442,14 @@ export class EmulatorFallbackEndpoint {
         );
     }
 
+    consumeCDROMs(): EmulatorCDROM[] {
+        return this.#consumeCommands(
+            (c): c is EmulatorFallbackLoadCDROMCommand =>
+                c.type === "load_cdrom",
+            c => c.cdrom
+        );
+    }
+
     consumeEthernetReceives(): Uint8Array[] {
         return this.#consumeCommands(
             (c): c is EmulatorFallbackEthernetReceiveCommand =>
@@ -498,7 +516,6 @@ function startEmulator(config: EmulatorWorkerConfig) {
             function () {
                 FS.mkdir("/Shared");
                 FS.mkdir("/Shared/Downloads");
-                FS.mkdir("/Disk Images");
                 FS.mkdir(PERSISTED_DIRECTORY_PATH);
                 if (config.persistedData) {
                     restorePersistedData(

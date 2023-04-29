@@ -5,28 +5,38 @@ import type {BrowserRunDef} from "./Browser";
 import {Browser, runDefFromUrl, runDefToUrl} from "./Browser";
 import {Footer} from "./Footer";
 import {Mac} from "./Mac";
+import cdromsManifest from "./Data/CD-ROMs.json";
+import type {EmulatorCDROMLibrary} from "./emulator/emulator-common";
 
 function App() {
-    const [url, initialRunDef, useSharedMemory, debugAudio, ethernetProvider] =
-        useMemo(() => {
-            const searchParams = new URLSearchParams(location.search);
-            const url = searchParams.get("url") ?? location.href;
-            const useSharedMemory =
-                typeof SharedArrayBuffer !== "undefined" &&
-                searchParams.get("use_shared_memory") !== "false";
-            const debugAudio = searchParams.get("debug_audio") === "true";
-            const ethernetProvider =
-                searchParams.get("broadcast_channel_ethernet") === "true"
-                    ? new BroadcastChannelEthernetProvider()
-                    : undefined;
-            return [
-                url,
-                runDefFromUrl(url),
-                useSharedMemory,
-                debugAudio,
-                ethernetProvider,
-            ];
-        }, []);
+    const [
+        url,
+        initialRunDef,
+        useSharedMemory,
+        debugAudio,
+        ethernetProvider,
+        showCDROMs,
+    ] = useMemo(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const url = searchParams.get("url") ?? location.href;
+        const useSharedMemory =
+            typeof SharedArrayBuffer !== "undefined" &&
+            searchParams.get("use_shared_memory") !== "false";
+        const debugAudio = searchParams.get("debug_audio") === "true";
+        const ethernetProvider =
+            searchParams.get("broadcast_channel_ethernet") === "true"
+                ? new BroadcastChannelEthernetProvider()
+                : undefined;
+        const showCDROMs = searchParams.get("cdroms") === "true";
+        return [
+            url,
+            runDefFromUrl(url),
+            useSharedMemory,
+            debugAudio,
+            ethernetProvider,
+            showCDROMs,
+        ];
+    }, []);
     const [runDef, setRunDef] = useState<BrowserRunDef | undefined>(
         initialRunDef
     );
@@ -59,6 +69,11 @@ function App() {
                 onDone={handleDone}
                 useSharedMemory={useSharedMemory}
                 debugAudio={debugAudio}
+                cdroms={
+                    showCDROMs
+                        ? (cdromsManifest as any as EmulatorCDROMLibrary)
+                        : undefined
+                }
             />
         );
         footer = <Footer onLogoClick={handleDone} />;

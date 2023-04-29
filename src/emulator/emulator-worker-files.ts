@@ -1,4 +1,5 @@
 import type {
+    EmulatorCDROM,
     EmulatorFileActions,
     EmulatorFileUpload,
     EmulatorWorkerFallbackFilesConfig,
@@ -7,7 +8,7 @@ import type {
 import type {EmulatorFallbackEndpoint} from "./emulator-worker";
 
 export interface EmulatorWorkerFiles {
-    fileUploads(): EmulatorFileUpload[];
+    consumeRequests(): {uploads: EmulatorFileUpload[]; cdroms: EmulatorCDROM[]};
 }
 
 export class SharedMemoryEmulatorWorkerFiles implements EmulatorWorkerFiles {
@@ -21,12 +22,15 @@ export class SharedMemoryEmulatorWorkerFiles implements EmulatorWorkerFiles {
         );
     }
 
-    fileUploads(): EmulatorFileUpload[] {
+    consumeRequests(): {
+        uploads: EmulatorFileUpload[];
+        cdroms: EmulatorCDROM[];
+    } {
         // Data is a JSON-encoded string and null-terminated.
         const endOfString = this.#filesBufferView.indexOf(0);
         if (endOfString === -1) {
             console.warn("Could not find null terminator.");
-            return [];
+            return {uploads: [], cdroms: []};
         }
         const actionsString = new TextDecoder().decode(
             // TextDecoder does not like shared buffers, and we need to truncate
@@ -34,17 +38,22 @@ export class SharedMemoryEmulatorWorkerFiles implements EmulatorWorkerFiles {
             this.#filesBufferView.slice(0, endOfString)
         );
         const actions = JSON.parse(actionsString) as EmulatorFileActions;
-        if (!actions.uploads || actions.uploads.length === 0) {
-            return [];
+        if (
+            (!actions.uploads || actions.uploads.length === 0) &&
+            (!actions.cdroms || actions.cdroms.length === 0)
+        ) {
+            return {uploads: [], cdroms: []};
         }
         const uploads = Array.from(actions.uploads);
+        const cdroms = Array.from(actions.cdroms);
         actions.uploads = [];
+        actions.cdroms = [];
         // Locking might be nice, but in practive we're uploading so rarely
         // that it's not likely to be an issue.
         const actionsBytes = new TextEncoder().encode(JSON.stringify(actions));
         this.#filesBufferView.set(actionsBytes);
         this.#filesBufferView.set([0], actionsBytes.length);
-        return uploads;
+        return {uploads, cdroms};
     }
 }
 
@@ -58,8 +67,13 @@ export class FallbackEmulatorWorkerFiles implements EmulatorWorkerFiles {
         this.#fallbackEndpoint = fallbackEndpoint;
     }
 
-    fileUploads(): EmulatorFileUpload[] {
-        return this.#fallbackEndpoint.consumeFileUploads();
+    consumeRequests(): {
+        uploads: EmulatorFileUpload[];
+        cdroms: EmulatorCDROM[];
+    } {
+        const uploads = this.#fallbackEndpoint.consumeFileUploads();
+        const cdroms = this.#fallbackEndpoint.consumeCDROMs();
+        return {uploads, cdroms};
     }
 }
 

@@ -2,7 +2,6 @@
 
 import copy
 import basilisk
-import bs4
 import datetime
 import disks
 import glob
@@ -15,69 +14,18 @@ import minivmac
 import os
 import paths
 import shutil
-import ssl
 import struct
 import sys
 import tempfile
 import typing
-import urllib.request
 import zipfile
 import subprocess
 import stickies
 import time
 import unicodedata
+import urls
 
 CHUNK_SIZE = 256 * 1024
-
-
-def read_url(url: str) -> bytes:
-    cache_path = read_url_to_path(url)
-    return open(cache_path, "rb").read()
-
-
-def read_url_to_path(url: str) -> str:
-    if not os.path.exists(paths.CACHE_DIR):
-        os.makedirs(paths.CACHE_DIR)
-    cache_key = hashlib.sha256(url.encode()).hexdigest()
-    cache_path = os.path.join(paths.CACHE_DIR, cache_key)
-    if not os.path.exists(cache_path):
-        if url.startswith("https://macgui.com/downloads/"):
-            contents = fetch_macgui_url(url)
-        else:
-            contents = fetch_url(url)
-        with open(cache_path, "wb+") as f:
-            f.write(contents)
-    return cache_path
-
-
-def fetch_url(url: str) -> bytes:
-    try:
-        context = ssl.create_default_context()
-        context.check_hostname = False
-        context.verify_mode = ssl.CERT_NONE
-        request = urllib.request.Request(
-            url,
-            data=None,
-            headers={'User-Agent': 'Infinite Mac (+https://infinitemac.org)'})
-        response = urllib.request.urlopen(request, context=context)
-        return response.read()
-    except:
-        sys.stderr.write("Failed to download %s\n" % url)
-        raise
-
-
-# macgui.com has a nonce in the download URL, so we need to fetch the page first
-# to get it, and then do the download.
-def fetch_macgui_url(page_url: str) -> str:
-    page_body = fetch_url(page_url)
-    soup = bs4.BeautifulSoup(page_body, 'html.parser')
-    download_link = soup.find('a', {'title': 'Download File'})
-    if download_link:
-        download_url = urllib.parse.urljoin(page_url,
-                                            download_link.get('href'))
-        return fetch_url(download_url)
-    else:
-        raise Exception("Could not find download link on page %s" % page_url)
 
 
 def get_import_folders() -> typing.Dict[str, machfs.Folder]:
@@ -120,7 +68,7 @@ def import_manifests() -> typing.Dict[str, machfs.Folder]:
 
 def import_disk_image(
         manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:
-    return import_disk_image_data(read_url(manifest_json["src_url"]),
+    return import_disk_image_data(urls.read_url(manifest_json["src_url"]),
                                   manifest_json)
 
 
@@ -157,7 +105,7 @@ def import_archive(
         return unicodedata.normalize("NFC", name.replace(":", "/"))
 
     src_url = manifest_json["src_url"]
-    archive_path = read_url_to_path(src_url)
+    archive_path = urls.read_url_to_path(src_url)
     root_folder = machfs.Folder()
     with tempfile.TemporaryDirectory() as tmp_dir_path:
         unar_code = subprocess.call([

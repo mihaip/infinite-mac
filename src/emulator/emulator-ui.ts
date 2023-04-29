@@ -1,4 +1,5 @@
 import type {
+    EmulatorCDROM,
     EmulatorChunkedFileSpec,
     EmulatorFallbackCommand,
     EmulatorSpeed,
@@ -440,6 +441,10 @@ export class Emulator {
             url: URL.createObjectURL(file),
             size: file.size,
         });
+    }
+
+    loadCDROM(cdrom: EmulatorCDROM) {
+        this.#files.loadCDROM(cdrom);
     }
 
     #handleMouseMove = (event: MouseEvent) => {
