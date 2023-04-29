@@ -98,6 +98,12 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
         xhr.responseType = "arraybuffer";
         xhr.open("GET", chunkUrl, false);
         xhr.send();
+        if (xhr.status !== 200) {
+            postMessage({
+                type: "emulator_did_have_error",
+                error: `Could not load disk chunk ${chunkUrl}: ${xhr.status} (${xhr.statusText})`,
+            });
+        }
         return new Uint8Array(xhr.response as ArrayBuffer);
     }
 

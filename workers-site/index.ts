@@ -1,4 +1,5 @@
 import * as varz from "./varz";
+import * as cdrom from "./cd-rom";
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
 // @ts-expect-error
 import manifestJSON from "__STATIC_CONTENT_MANIFEST";
@@ -31,6 +32,9 @@ async function handleRequest(
     }
     if (path[0] === "varz") {
         return varz.handleRequest(request, env.VARZ);
+    }
+    if (path[0] === "CD-ROM") {
+        return cdrom.handleRequest(request);
     }
 
     const legacyDomainRedirect = getLegacyDomainRedirect(url);

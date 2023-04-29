@@ -26,3 +26,7 @@ public/minivmac-*.wasm.map
 # generated disk image chunks and manifest
 src/Data/*.dsk.json
 public/Disk
+
+# generated CD-ROM catalog
+src/Data/CD-ROMs.json
+public/Covers

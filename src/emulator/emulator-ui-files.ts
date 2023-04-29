@@ -1,4 +1,5 @@
 import type {
+    EmulatorCDROM,
     EmulatorFileActions,
     EmulatorFileUpload,
     EmulatorWorkerFallbackFilesConfig,
@@ -13,10 +14,11 @@ export interface EmulatorFiles {
     workerConfig(): EmulatorWorkerFilesConfig;
     uploadFile(upload: EmulatorFileUpload): void;
     uploadFiles(upload: EmulatorFileUpload[]): void;
+    loadCDROM(cdrom: EmulatorCDROM): void;
 }
 
 export class SharedMemoryEmulatorFiles implements EmulatorFiles {
-    #actions: EmulatorFileActions = {uploads: []};
+    #actions: EmulatorFileActions = {uploads: [], cdroms: []};
     #filesBuffer = new SharedArrayBuffer(FILES_BUFFER_SIZE);
     #filesBufferView = new Uint8Array(this.#filesBuffer);
 
@@ -41,9 +43,14 @@ export class SharedMemoryEmulatorFiles implements EmulatorFiles {
         this.#updateBuffer();
     }
 
+    loadCDROM(cdrom: EmulatorCDROM) {
+        this.#actions.cdroms.push(cdrom);
+        this.#updateBuffer();
+    }
+
     #updateBuffer() {
         const actionsString = JSON.stringify(this.#actions);
-        this.#actions = {uploads: []};
+        this.#actions = {uploads: [], cdroms: []};
         const actionsBytes = new TextEncoder().encode(actionsString);
         if (actionsBytes.length > FILES_BUFFER_SIZE) {
             console.warn("Files actions is too large, dropping");
@@ -75,5 +82,12 @@ export class FallbackEmulatorFiles implements EmulatorFiles {
         for (const upload of uploads) {
             this.uploadFile(upload);
         }
+    }
+
+    loadCDROM(cdrom: EmulatorCDROM) {
+        this.#commandSender({
+            type: "load_cdrom",
+            cdrom,
+        });
     }
 }
