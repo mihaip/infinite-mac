@@ -854,36 +854,36 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  452768: () => { return workerApi.idleWait(); },  
- 452801: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 452837: () => { workerApi.blit(0, 0); },  
- 452863: ($0, $1) => { workerApi.blit($0, $1); },  
- 452891: () => { return workerApi.etherSeed(); },  
- 452925: ($0) => { workerApi.etherInit(UTF8ToString($0)); },  
- 452968: ($0, $1, $2) => { workerApi.etherWrite(UTF8ToString($0), $1, $2); },  
- 453020: ($0) => { return workerApi.etherRead($0, 1514); },  
- 453062: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
- 453098: () => { return workerApi.audioBufferSize(); },  
- 453138: ($0, $1, $2, $3, $4) => { workerApi.didOpenAudio($0, $1, $2, $3, $4); },  
- 453186: () => { return workerApi.acquireInputLock(); },  
- 453227: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 453316: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 453406: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
- 453493: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
- 453580: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 453665: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 453745: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 453826: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr); },  
- 453920: () => { workerApi.releaseInputLock(); },  
- 453954: () => { workerApi.sleep(0.001); },  
- 453982: ($0) => { workerApi.setClipboardText(UTF8ToString($0)); },  
- 454032: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 454083: ($0) => { workerApi.disks.close($0); },  
- 454114: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 454163: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
- 454213: ($0) => { return workerApi.disks.size($0); },  
- 454250: ($0) => { return workerApi.disks.isMediaPresent($0); },  
- 454297: ($0) => { workerApi.disks.eject($0); }
+  453568: () => { return workerApi.idleWait(); },  
+ 453601: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 453637: () => { workerApi.blit(0, 0); },  
+ 453663: ($0, $1) => { workerApi.blit($0, $1); },  
+ 453691: () => { return workerApi.etherSeed(); },  
+ 453725: ($0) => { workerApi.etherInit(UTF8ToString($0)); },  
+ 453768: ($0, $1, $2) => { workerApi.etherWrite(UTF8ToString($0), $1, $2); },  
+ 453820: ($0) => { return workerApi.etherRead($0, 1514); },  
+ 453862: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 453898: () => { return workerApi.audioBufferSize(); },  
+ 453938: ($0, $1, $2, $3, $4) => { workerApi.didOpenAudio($0, $1, $2, $3, $4); },  
+ 453986: () => { return workerApi.acquireInputLock(); },  
+ 454027: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 454116: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 454206: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
+ 454293: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
+ 454380: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 454465: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 454545: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 454626: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr); },  
+ 454720: () => { workerApi.releaseInputLock(); },  
+ 454754: () => { workerApi.sleep(0.001); },  
+ 454782: ($0) => { workerApi.setClipboardText(UTF8ToString($0)); },  
+ 454832: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 454883: ($0) => { workerApi.disks.close($0); },  
+ 454914: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 454963: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
+ 455013: ($0) => { return workerApi.disks.size($0); },  
+ 455050: ($0) => { return workerApi.disks.isMediaPresent($0); },  
+ 455097: ($0) => { workerApi.disks.eject($0); }
 };
 function getClipboardText() { const clipboardText = workerApi.getClipboardText(); if (!clipboardText || !clipboardText.length) { return 0; } const clipboardTextLength = lengthBytesUTF8(clipboardText) + 1; const clipboardTextCstr = _malloc(clipboardTextLength); stringToUTF8(clipboardText, clipboardTextCstr, clipboardTextLength); return clipboardTextCstr; }
 
@@ -5603,8 +5603,8 @@ var dynCall_iiiiiijj = Module["dynCall_iiiiiijj"] = function() {
   return (dynCall_iiiiiijj = Module["dynCall_iiiiiijj"] = Module["asm"]["dynCall_iiiiiijj"]).apply(null, arguments);
 };
 
-var ___start_em_js = Module['___start_em_js'] = 454328;
-var ___stop_em_js = Module['___stop_em_js'] = 454664;
+var ___start_em_js = Module['___start_em_js'] = 455128;
+var ___stop_em_js = Module['___stop_em_js'] = 455464;
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===
