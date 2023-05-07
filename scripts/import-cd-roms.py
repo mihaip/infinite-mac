@@ -76,6 +76,11 @@ def load_cover_image(
     with Image.open(cover_image_path) as cover_image:
         cover_image.thumbnail((MAX_COVER_SIZE, MAX_COVER_SIZE), Image.LANCZOS)
 
+        # Ensure that we can write the output as JPEG, even if it's a palettized
+        # PNG or GIF.
+        if cover_image.mode != "RGB":
+            cover_image = cover_image.convert("RGB")
+
         cover_image_output = io.BytesIO()
         cover_image.save(cover_image_output, format="JPEG")
         cover_image_content = cover_image_output.getvalue()
