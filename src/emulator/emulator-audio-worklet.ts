@@ -115,6 +115,7 @@ export class EmulatorPlaybackProcessor extends AudioWorkletProcessor {
                     this.#currentAudioData.buffer,
                     this.#currentAudioData.byteOffset
                 );
+                // eslint-disable-next-line no-constant-condition
                 if (this.#options.debug && false) {
                     // too noisy even for debug
                     this.#logCurrentAudioData();
@@ -138,18 +139,20 @@ export class EmulatorPlaybackProcessor extends AudioWorkletProcessor {
         }
 
         switch (this.#options.sampleSize) {
-            case 16:
+            case 16: {
                 const sample16 = this.#currentAudioDataView.getInt16(
                     this.#currentAudioDataOffset
                 );
                 this.#currentAudioDataOffset += 2;
                 return sample16 / 0x8000; // convert i16 to f32 in range -1 to +1
-            case 8:
+            }
+            case 8: {
                 const sample8 = this.#currentAudioDataView.getInt8(
                     this.#currentAudioDataOffset
                 );
                 this.#currentAudioDataOffset += 1;
                 return sample8 / 0x80; // convert u8 to f32 in range -1 to +1
+            }
             default:
                 throw new Error(
                     `Unsupported sample size: ${this.#options.sampleSize}`

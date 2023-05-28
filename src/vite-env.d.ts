@@ -1,45 +1,10 @@
-/// <reference types="react-scripts" />
+/// <reference types="vite/client" />
+/// <reference types="vite-plugin-svgr/client" />
 /// <reference types="emscripten" />
-
-declare module "*.txt" {
-    const path: string;
-    export default path;
-}
 
 declare module "*.rom" {
     const path: string;
     export default path;
-}
-
-declare module "*.jsz" {
-    const path: string;
-    export default path;
-}
-
-declare module "*.wasmz" {
-    const path: string;
-    export default path;
-}
-
-declare module "worker-loader!*" {
-    class WebpackWorker extends Worker {
-        constructor();
-    }
-
-    export default WebpackWorker;
-}
-
-declare module "worklet-loader!*" {
-    const path: string;
-    export default path;
-}
-
-declare module "service-worker-loader!*" {
-    const register: import("service-worker-loader/types").ServiceWorkerRegister;
-    const ServiceWorkerNoSupportError: import("service-worker-loader/types").ServiceWorkerNoSupportError;
-    const scriptUrl: import("service-worker-loader/types").ScriptUrl;
-    export default register;
-    export {ServiceWorkerNoSupportError, scriptUrl};
 }
 
 declare namespace FS {
@@ -57,7 +22,7 @@ declare namespace FS {
         // Internals useful in implementing lazy files
         contents: Uint8Array;
         usedBytes: number;
-        stream_ops: {[name: string]: Function};
+        stream_ops: {[name: string]: (...args: any[]) => any};
     }
 
     interface FSStream {
@@ -97,4 +62,8 @@ declare module "ringbuf.js" {
 
 interface EmscriptenModule {
     quit: (status: number, toThrow?: Error) => void;
+    // We assume that Emscripten is cofigured with
+    // `-s EXPORTED_RUNTIME_METHODS=FS`.
+    FS: typeof FS;
+    preRun: (module: EmscriptenModule) => void;
 }

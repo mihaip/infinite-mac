@@ -13,14 +13,14 @@ import type {
     EmulatorCpu,
     EmulatorSubtype,
     EmulatorType,
-} from "./emulator/emulator-common";
+} from "./emulator/emulator-common-emulators";
 
 export type MachineDef = {
     name: string;
     cpu: EmulatorCpu;
     romPath: string;
     gestaltID: number;
-    emulator: EmulatorType;
+    emulatorType: EmulatorType;
     emulatorSubtype?: EmulatorSubtype;
     prefsPath: string;
     fixedScreenSize?: {width: number; height: number};
@@ -32,7 +32,7 @@ export const MAC_128K: MachineDef = {
     cpu: "68000",
     romPath: mac128KRomPath,
     gestaltID: 1,
-    emulator: "Mini vMac",
+    emulatorType: "Mini vMac",
     emulatorSubtype: "128K",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
@@ -44,7 +44,7 @@ export const MAC_512KE: MachineDef = {
     cpu: "68000",
     romPath: macPlusRomPath,
     gestaltID: 3,
-    emulator: "Mini vMac",
+    emulatorType: "Mini vMac",
     emulatorSubtype: "512Ke",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
@@ -56,7 +56,7 @@ export const MAC_PLUS: MachineDef = {
     cpu: "68000",
     romPath: macPlusRomPath,
     gestaltID: 4,
-    emulator: "Mini vMac",
+    emulatorType: "Mini vMac",
     emulatorSubtype: "Plus",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
@@ -68,7 +68,7 @@ export const MAC_SE: MachineDef = {
     cpu: "68000",
     romPath: macSERomPath,
     gestaltID: 5,
-    emulator: "Mini vMac",
+    emulatorType: "Mini vMac",
     emulatorSubtype: "SE",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
@@ -80,7 +80,7 @@ export const MAC_II: MachineDef = {
     cpu: "68020",
     romPath: macIIRomPath,
     gestaltID: 6,
-    emulator: "Mini vMac",
+    emulatorType: "Mini vMac",
     emulatorSubtype: "II",
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 640, height: 480},
@@ -92,7 +92,7 @@ export const MAC_IIFX: MachineDef = {
     cpu: "68030",
     romPath: macIIfxRomPath,
     gestaltID: 13,
-    emulator: "BasiliskII",
+    emulatorType: "BasiliskII",
     prefsPath: basiliskPrefsPath,
     bezelStyle: "Platinum",
 };
@@ -102,7 +102,7 @@ export const QUADRA_650: MachineDef = {
     cpu: "68040",
     romPath: quadra650RomPath,
     gestaltID: 36,
-    emulator: "BasiliskII",
+    emulatorType: "BasiliskII",
     prefsPath: basiliskPrefsPath,
     bezelStyle: "Platinum",
 };
@@ -112,7 +112,7 @@ export const POWER_MACINTOSH_9500: MachineDef = {
     cpu: "604",
     romPath: powerMacintosh9500RomPath,
     gestaltID: 67,
-    emulator: "SheepShaver",
+    emulatorType: "SheepShaver",
     prefsPath: sheepShaverPrefsPath,
     bezelStyle: "Platinum",
 };
@@ -122,7 +122,7 @@ export const POWER_MACINTOSH_G3: MachineDef = {
     cpu: "G3",
     romPath: newWorldRomPath,
     gestaltID: 406,
-    emulator: "SheepShaver",
+    emulatorType: "SheepShaver",
     prefsPath: sheepShaverPrefsPath,
     bezelStyle: "Pinstripes",
 };

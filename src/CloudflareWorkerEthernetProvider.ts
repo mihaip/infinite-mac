@@ -127,11 +127,12 @@ export class CloudflareWorkerEthernetProvider
         const data = JSON.parse(event.data);
         const {type} = data;
         switch (type) {
-            case "receive":
+            case "receive": {
                 const {packetArray} = data;
                 const packet = new Uint8Array(packetArray);
                 this.#delegate?.receive(packet);
                 break;
+            }
         }
     };
 }

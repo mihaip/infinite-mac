@@ -198,7 +198,7 @@ export class EthernetPinger {
         }
     }
 
-    peers(): ReadonlyArray<EthernetPingerPeer> {
+    peers(): readonly EthernetPingerPeer[] {
         return Array.from(this.#peersByMacAddress.values());
     }
 

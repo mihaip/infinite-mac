@@ -10,14 +10,16 @@ import type {
     EmulatorCDROM,
     EmulatorCDROMLibrary,
     EmulatorChunkedFileSpec,
+} from "./emulator/emulator-common";
+import {isDiskImageFile} from "./emulator/emulator-common";
+import type {
     EmulatorSpeed,
     EmulatorType,
-} from "./emulator/emulator-common";
+} from "./emulator/emulator-common-emulators";
 import {
     emulatorSupportsSpeedSetting,
     EMULATOR_SPEEDS,
-    isDiskImageFile,
-} from "./emulator/emulator-common";
+} from "./emulator/emulator-common-emulators";
 import {useDevicePixelRatio} from "./useDevicePixelRatio";
 import {usePersistentState} from "./usePersistentState";
 import * as varz from "./varz";
@@ -59,7 +61,7 @@ export function Mac({
         useState(false);
     const [emulatorErrorText, setEmulatorErrorText] = useState("");
     const [ethernetPeers, setEthernetPeers] = useState<
-        ReadonlyArray<EmulatorEthernetPeer>
+        readonly EmulatorEthernetPeer[]
     >([]);
     // Don't clear the loading state immediately, to make it clearer that I/O
     // is happening and things may be slow.
@@ -168,7 +170,7 @@ export function Mac({
         varz.incrementMulti({
             "emulator_starts": 1,
             "emulator_ethernet": ethernetProvider ? 1 : 0,
-            [`emulator_type:${machine.emulator}`]: 1,
+            [`emulator_type:${machine.emulatorType}`]: 1,
             [`emulator_disk:${disk.name}`]: 1,
             "emulator_shared_memory": useSharedMemory ? 1 : 0,
         });
@@ -205,7 +207,7 @@ export function Mac({
     };
     const handleFullScreenChange = () => {
         const isFullScreen = Boolean(
-            document.fullscreenElement || document.webkitFullscreenElement
+            document.fullscreenElement ?? document.webkitFullscreenElement
         );
         setFullscreen(isFullScreen);
 
@@ -421,7 +423,7 @@ export function Mac({
             )}
             {settingsVisible && (
                 <MacSettings
-                    emulatorType={machine.emulator}
+                    emulatorType={machine.emulatorType}
                     emulatorSettings={emulatorSettings}
                     buttonAppearance={
                         disk.hasPlatinumAppearance ? "Platinum" : "Classic"
@@ -477,7 +479,7 @@ function MacEthernetStatus({
     peers,
 }: {
     provider: EmulatorEthernetProvider;
-    peers: ReadonlyArray<EmulatorEthernetPeer>;
+    peers: readonly EmulatorEthernetPeer[];
 }) {
     let text = `Ethernet: ${provider.description()}`;
     const activePeerCount = peers.filter(

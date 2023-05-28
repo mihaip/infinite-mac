@@ -3,26 +3,33 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
-        "@types/audioworklet": "^0.0.36",
-        "@types/emscripten": "^1.39.4",
-        "@types/file-saver": "^2.0.3",
-        "@types/react": "^17.0.0",
-        "@types/react-dom": "^17.0.0",
-        "clang-format": "^1.8.0",
         "file-saver": "^2.0.5",
-        "husky": "^6.0.0",
         "idb-keyval": "^6.0.3",
         "jszip": "^3.7.0",
-        "lint-staged": "^11.0.0",
-        "prettier": "^2.3.1",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "react-scripts": "4.0.3",
         "ringbuf.js": "^0.3.3",
-        "service-worker-loader": "^4.0.2",
-        "typescript": "^4.1.2",
-        "worker-loader": "^3.0.8",
-        "worklet-loader": "^2.0.0",
+        "typescript": "^4.1.2"
+    },
+    "devDependencies": {
+        "@types/audioworklet": "^0.0.46",
+        "@types/emscripten": "^1.39.6",
+        "@types/file-saver": "^2.0.5",
+        "@types/react": "^18.2.6",
+        "@types/react-dom": "^18.2.4",
+        "@typescript-eslint/eslint-plugin": "^5.59.5",
+        "@typescript-eslint/parser": "^5.59.5",
+        "@vitejs/plugin-basic-ssl": "^1.0.1",
+        "@vitejs/plugin-react": "^4.0.0",
+        "clang-format": "^1.8.0",
+        "eslint": "^8.40.0",
+        "eslint-plugin-import": "^2.27.5",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "husky": "^6.0.0",
+        "lint-staged": "^11.0.0",
+        "prettier": "^2.3.1",
+        "vite": "^4.3.5",
+        "vite-plugin-svgr": "^3.2.0",
         "wrangler": "^2.14.0"
     },
     "scripts": {
@@ -31,28 +38,107 @@
         "import-cd-roms": "scripts/import-cd-roms.py",
         "load-placeholder-stickies-file": "scripts/load-placeholder-stickies-file.py",
         "build-xadmaster": "scripts/build-xadmaster.sh",
-        "start": "PORT=3127 react-scripts start",
-        "build": "react-scripts build",
-        "eject": "react-scripts eject",
+        "start": "vite",
+        "build": "vite build",
+        "preview": "vite preview --host",
         "worker-dev": "wrangler dev --local --port=3128",
         "worker-deploy": "wrangler publish --env production",
+        "lint": "eslint src",
+        "check": "tsc --noEmit",
         "format-macemu": "clang-format -i --glob=macemu/BasiliskII/src/Unix/JS/*"
     },
     "eslintConfig": {
         "extends": [
-            "react-app"
+            "eslint:recommended",
+            "plugin:@typescript-eslint/recommended",
+            "plugin:react-hooks/recommended",
+            "plugin:import/recommended"
+        ],
+        "parser": "@typescript-eslint/parser",
+        "parserOptions": {
+            "project": true,
+            "tsconfigRootDir": "./"
+        },
+        "plugins": [
+            "@typescript-eslint"
+        ],
+        "root": true,
+        "ignorePatterns": [
+            "src/emulator/minivmac-*.js",
+            "src/emulator/SheepShaver.js",
+            "src/emulator/BasiliskII.js"
         ],
         "rules": {
+            "array-callback-return": "error",
+            "no-constant-binary-expression": "error",
+            "no-constructor-return": "error",
+            "no-promise-executor-return": "error",
+            "no-self-compare": "error",
+            "no-template-curly-in-string": "error",
+            "no-unmodified-loop-condition": "error",
+            "no-unreachable-loop": "error",
+            "require-atomic-updates": [
+                "error",
+                {
+                    "allowProperties": true
+                }
+            ],
+            "no-eval": "error",
+            "no-implied-eval": "error",
+            "no-new-object": "error",
+            "no-new-wrappers": "error",
+            "no-script-url": "error",
+            "no-useless-constructor": "error",
+            "no-useless-rename": "error",
             "no-var": "error",
+            "eqeqeq": "error",
+            "object-shorthand": [
+                "error",
+                "always",
+                {
+                    "avoidQuotes": true
+                }
+            ],
             "prefer-const": "error",
-            "import/no-webpack-loader-syntax": "off",
-            "no-restricted-globals": "off",
+            "import/no-unresolved": "off",
             "@typescript-eslint/consistent-type-imports": [
                 "error",
                 {
                     "disallowTypeAnnotations": false
                 }
-            ]
+            ],
+            "@typescript-eslint/no-unused-vars": [
+                "error",
+                {
+                    "vars": "all",
+                    "args": "none",
+                    "ignoreRestSiblings": false
+                }
+            ],
+            "@typescript-eslint/prefer-optional-chain": "error",
+            "@typescript-eslint/array-type": "error",
+            "@typescript-eslint/consistent-generic-constructors": "error",
+            "@typescript-eslint/no-duplicate-enum-values": "error",
+            "@typescript-eslint/no-mixed-enums": "error",
+            "@typescript-eslint/no-unsafe-enum-comparison": "error",
+            "@typescript-eslint/no-dynamic-delete": "error",
+            "@typescript-eslint/prefer-nullish-coalescing": "error",
+            "@typescript-eslint/no-non-null-asserted-nullish-coalescing": "error",
+            "@typescript-eslint/no-unnecessary-type-arguments": "error",
+            "@typescript-eslint/non-nullable-type-assertion-style": "error",
+            "@typescript-eslint/prefer-for-of": "error",
+            "@typescript-eslint/prefer-includes": "error",
+            "@typescript-eslint/prefer-return-this-type": "error",
+            "@typescript-eslint/prefer-string-starts-ends-with": "error",
+            "@typescript-eslint/require-array-sort-compare": [
+                "error",
+                {
+                    "ignoreStringArrays": true
+                }
+            ],
+            "@typescript-eslint/no-explicit-any": "off",
+            "@typescript-eslint/no-inferrable-types": "off",
+            "@typescript-eslint/no-non-null-assertion": "off"
         }
     },
     "browserslist": {

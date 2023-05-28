@@ -3,8 +3,11 @@ import type {
     EmulatorWorkerFallbackInputConfig,
     EmulatorWorkerSharedMemoryInputConfig,
 } from "./emulator-common";
-import {updateInputBufferWithEvents} from "./emulator-common";
-import {InputBufferAddresses, LockStates} from "./emulator-common";
+import {
+    updateInputBufferWithEvents,
+    InputBufferAddresses,
+    LockStates,
+} from "./emulator-common";
 import type {EmulatorFallbackEndpoint} from "./emulator-worker";
 
 export interface EmulatorWorkerInput {
@@ -66,7 +69,7 @@ function tryToAcquireCyclicalLock(
         lockIndex,
         LockStates.READY_FOR_EMUL_THREAD,
         LockStates.EMUL_THREAD_LOCK
-    );
+    ) as LockStates;
     if (res === LockStates.READY_FOR_EMUL_THREAD) {
         return 1;
     }
