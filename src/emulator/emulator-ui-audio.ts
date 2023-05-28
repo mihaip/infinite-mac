@@ -4,7 +4,7 @@ import type {
     EmulatorWorkerFallbackAudioConfig,
     EmulatorWorkerSharedMemoryAudioConfig,
 } from "./emulator-common";
-import audioWorkletPath from "worklet-loader!./emulator-audio-worklet";
+import audioWorkletPath from "./emulator-audio-worklet?worker&url";
 import type {EmulatorInput} from "./emulator-ui-input";
 import {RingBuffer} from "ringbuf.js";
 
@@ -35,7 +35,10 @@ export abstract class EmulatorAudio {
             latencyHint: "interactive",
             sampleRate,
         });
-        if (!this.#audioContext.audioWorklet) {
+        if (
+            !this.#audioContext.audioWorklet ||
+            typeof AudioWorkletNode === "undefined"
+        ) {
             console.warn("AudioWorklet not supported");
             return;
         }

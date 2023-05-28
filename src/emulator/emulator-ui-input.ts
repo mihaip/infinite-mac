@@ -4,8 +4,11 @@ import type {
     EmulatorWorkerInputConfig,
     EmulatorWorkerSharedMemoryInputConfig,
 } from "./emulator-common";
-import {updateInputBufferWithEvents} from "./emulator-common";
-import {InputBufferAddresses, LockStates} from "./emulator-common";
+import {
+    updateInputBufferWithEvents,
+    InputBufferAddresses,
+    LockStates,
+} from "./emulator-common";
 import type {EmulatorFallbackCommandSender} from "./emulator-ui";
 
 const INPUT_BUFFER_SIZE = 100;
@@ -73,7 +76,7 @@ function acquireLock(bufferView: Int32Array, lockIndex: number) {
         lockIndex,
         LockStates.READY_FOR_UI_THREAD,
         LockStates.UI_THREAD_LOCK
-    );
+    ) as LockStates;
     if (res === LockStates.READY_FOR_UI_THREAD) {
         return true;
     }

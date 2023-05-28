@@ -6,7 +6,7 @@ import {useState} from "react";
 import {Button} from "./Button";
 import type {EmulatorEthernetProvider} from "./emulator/emulator-ui";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
-import {emulatorSupportsAppleTalk} from "./emulator/emulator-common";
+import {emulatorSupportsAppleTalk} from "./emulator/emulator-common-emulators";
 import {About} from "./About";
 import {Donate} from "./Donate";
 import {useWindowWidth} from "./useWindowWidth";
@@ -138,7 +138,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
     if (customizing) {
         const appleTalkSupported =
             disk.appleTalkSupported &&
-            emulatorSupportsAppleTalk(machine.emulator);
+            emulatorSupportsAppleTalk(machine.emulatorType);
         contents = (
             <>
                 <div className="Row">

@@ -29,8 +29,8 @@ if [ ! -f "${EMULATOR_DIR}/${EMULATOR}.wasm" ]; then
 fi
 
 # Build output
-cp "${EMULATOR_DIR}/${EMULATOR}" "${EMULATOR_DESTINATION_DIR}/${EMULATOR}.jsz"
-cp "${EMULATOR_DIR}/${EMULATOR}.wasm" "${EMULATOR_DESTINATION_DIR}/${EMULATOR}.wasmz"
+cp "${EMULATOR_DIR}/${EMULATOR}" "${EMULATOR_DESTINATION_DIR}/${EMULATOR}.js"
+cp "${EMULATOR_DIR}/${EMULATOR}.wasm" "${EMULATOR_DESTINATION_DIR}/${EMULATOR}.wasm"
 # Source map needs massaging and needs to be put into the public directory (we
 # don't control the URL that it's referenced under).
 scripts/rewrite-emulator-source-map.py "${EMULATOR_DIR}/${EMULATOR}.wasm.map" "${PUBLIC_DIR}/${EMULATOR}.wasm.map"

@@ -1,3 +1,10 @@
+
+var emulator = (() => {
+  var _scriptDir = import.meta.url;
+  
+  return (
+async function(emulator = {})  {
+
 // include: shell.js
 // The Module object: Our interface to the outside world. We import
 // and export values on it. There are various ways Module can be used:
@@ -12,7 +19,22 @@
 // after the generated code, you will need to define   var Module = {};
 // before the code. Then that object will be used in the code, and you
 // can continue to use Module afterwards as well.
-var Module = typeof Module != 'undefined' ? Module : {};
+var Module = typeof emulator != 'undefined' ? emulator : {};
+
+// Set up the promise that indicates the Module is initialized
+var readyPromiseResolve, readyPromiseReject;
+Module['ready'] = new Promise(function(resolve, reject) {
+  readyPromiseResolve = resolve;
+  readyPromiseReject = reject;
+});
+["_main","_fflush","onRuntimeInitialized"].forEach((prop) => {
+  if (!Object.getOwnPropertyDescriptor(Module['ready'], prop)) {
+    Object.defineProperty(Module['ready'], prop, {
+      get: () => abort('You are getting ' + prop + ' on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'),
+      set: () => abort('You are setting ' + prop + ' on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'),
+    });
+  }
+});
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
@@ -76,6 +98,9 @@ if (ENVIRONMENT_IS_NODE) {
   // the require()` function.  This is only necessary for multi-environment
   // builds, `-sENVIRONMENT=node` emits a static import declaration instead.
   // TODO: Swap all `require()`'s with `import()`'s?
+  const { createRequire } = await import('module');
+  /** @suppress{duplicate} */
+  var require = createRequire(import.meta.url);
   // These modules will usually be used on Node.js. Load them eagerly to avoid
   // the complexity of lazy-loading.
   var fs = require('fs');
@@ -84,7 +109,10 @@ if (ENVIRONMENT_IS_NODE) {
   if (ENVIRONMENT_IS_WORKER) {
     scriptDirectory = nodePath.dirname(scriptDirectory) + '/';
   } else {
-    scriptDirectory = __dirname + '/';
+    // EXPORT_ES6 + ENVIRONMENT_IS_NODE always requires use of import.meta.url,
+    // since there's no way getting the current absolute path of the module when
+    // support for that is not available.
+    scriptDirectory = require('url').fileURLToPath(new URL('./', import.meta.url)); // includes trailing slash
   }
 
 // include: node_shell_read.js
@@ -120,9 +148,7 @@ readAsync = (filename, onload, onerror) => {
 
   arguments_ = process.argv.slice(2);
 
-  if (typeof module != 'undefined') {
-    module['exports'] = Module;
-  }
+  // MODULARIZE will export the module in the proper place outside, we don't need to export here
 
   process.on('uncaughtException', function(ex) {
     // suppress ExitStatus exceptions from showing an error
@@ -225,6 +251,11 @@ if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
     scriptDirectory = self.location.href;
   } else if (typeof document != 'undefined' && document.currentScript) { // web
     scriptDirectory = document.currentScript.src;
+  }
+  // When MODULARIZE, this JS may be executed later, after document.currentScript
+  // is gone, so we saved it, and we use it here instead of any other info.
+  if (_scriptDir) {
+    scriptDirectory = _scriptDir;
   }
   // blob urls look like blob:http://site.com/etc/etc and we cannot infer anything from them.
   // otherwise, slice off the final part of the url to find the script directory.
@@ -871,6 +902,7 @@ function abort(what) {
   /** @suppress {checkTypes} */
   var e = new WebAssembly.RuntimeError(what);
 
+  readyPromiseReject(e);
   // Throw the error whether or not MODULARIZE is set because abort is used
   // in code paths apart from instantiation where an exception is expected
   // to be thrown when abort is called.
@@ -914,10 +946,15 @@ function createExportWrapper(name, fixedasm) {
 // include: runtime_exceptions.js
 // end include: runtime_exceptions.js
 var wasmBinaryFile;
-  wasmBinaryFile = 'minivmac-Plus.wasm';
+if (Module['locateFile']) {
+  wasmBinaryFile = 'minivmac-128K.wasm';
   if (!isDataURI(wasmBinaryFile)) {
     wasmBinaryFile = locateFile(wasmBinaryFile);
   }
+} else {
+  // Use bundler-friendly `new URL(..., import.meta.url)` pattern; works in browsers too.
+  wasmBinaryFile = new URL('minivmac-128K.wasm', import.meta.url).href;
+}
 
 function getBinary(file) {
   try {
@@ -1081,11 +1118,13 @@ function createWasm() {
       return Module['instantiateWasm'](info, receiveInstance);
     } catch(e) {
       err('Module.instantiateWasm callback failed with error: ' + e);
-        return false;
+        // If instantiation fails, reject the module ready promise.
+        readyPromiseReject(e);
     }
   }
 
-  instantiateAsync(wasmBinary, wasmBinaryFile, info, receiveInstantiationResult);
+  // If instantiation fails, reject the module ready promise.
+  instantiateAsync(wasmBinary, wasmBinaryFile, info, receiveInstantiationResult).catch(readyPromiseReject);
   return {}; // no exports yet; we'll fill them in later
 }
 
@@ -1193,29 +1232,29 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  75320: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
- 75370: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 75419: ($0) => { return workerApi.disks.size($0); },  
- 75456: ($0) => { workerApi.sleep($0); },  
- 75481: ($0) => { workerApi.disks.close($0); },  
- 75512: () => { workerApi.blit(0, 0); },  
- 75538: ($0, $1, $2, $3, $4, $5) => { workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5}); },  
- 75610: ($0, $1) => { return workerApi.enqueueAudio($0, $1); },  
- 75653: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 75704: ($0) => { workerApi.disks.close($0); },  
- 75735: () => { return workerApi.acquireInputLock(); },  
- 75776: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 75865: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 75955: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
- 76042: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
- 76129: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 76214: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 76294: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 76375: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr); },  
- 76457: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedAddr); },  
- 76535: () => { workerApi.releaseInputLock(); },  
- 76569: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
- 76609: ($0, $1) => { workerApi.didOpenVideo($0, $1); }
+  75608: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
+ 75658: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 75707: ($0) => { return workerApi.disks.size($0); },  
+ 75744: ($0) => { workerApi.sleep($0); },  
+ 75769: ($0) => { workerApi.disks.close($0); },  
+ 75800: () => { workerApi.blit(0, 0); },  
+ 75826: ($0, $1, $2, $3, $4, $5) => { workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5}); },  
+ 75898: ($0, $1) => { return workerApi.enqueueAudio($0, $1); },  
+ 75941: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 75992: ($0) => { workerApi.disks.close($0); },  
+ 76023: () => { return workerApi.acquireInputLock(); },  
+ 76064: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 76153: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 76243: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
+ 76330: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
+ 76417: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 76502: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 76582: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 76663: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr); },  
+ 76745: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedAddr); },  
+ 76823: () => { workerApi.releaseInputLock(); },  
+ 76857: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
+ 76897: ($0, $1) => { workerApi.didOpenVideo($0, $1); }
 };
 function consumeDiskName() { const diskName = workerApi.disks.consumeDiskName(); if (!diskName || !diskName.length) { return 0; } const diskNameLength = lengthBytesUTF8(diskName) + 1; const diskNameCstr = _malloc(diskNameLength); stringToUTF8(diskName, diskNameCstr, diskNameLength); return diskNameCstr; }
 
@@ -3992,6 +4031,7 @@ function consumeDiskName() { const diskName = workerApi.disks.consumeDiskName();
       // if exit() was called explicitly, warn the user if the runtime isn't actually being shut down
       if (keepRuntimeAlive() && !implicit) {
         var msg = 'program exited (with status: ' + status + '), but keepRuntimeAlive() is set (counter=' + runtimeKeepaliveCounter + ') due to an async operation, so halting execution but not exiting the runtime or preventing further async execution (you can use emscripten_force_exit, if you want to force a true shutdown)';
+        readyPromiseReject(msg);
         err(msg);
       }
   
@@ -4015,6 +4055,7 @@ function consumeDiskName() { const diskName = workerApi.disks.consumeDiskName();
       }
       quit_(1, e);
     }
+
 
   var FSNode = /** @constructor */ function(parent, name, mode, rdev) {
     if (!parent) {
@@ -4250,12 +4291,13 @@ var _emscripten_stack_get_current = function() {
 
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
-var ___start_em_js = Module['___start_em_js'] = 76645;
-var ___stop_em_js = Module['___stop_em_js'] = 76935;
+var ___start_em_js = Module['___start_em_js'] = 76933;
+var ___stop_em_js = Module['___stop_em_js'] = 77223;
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===
 
+Module["FS"] = FS;
 var missingLibrarySymbols = [
   'stringToNewUTF8',
   'emscripten_realloc_buffer',
@@ -4495,7 +4537,6 @@ var unexportedSymbols = [
   'exceptionCaught',
   'Browser',
   'wget',
-  'FS',
   'MEMFS',
   'TTY',
   'PIPEFS',
@@ -4583,6 +4624,7 @@ function run() {
 
     preMain();
 
+    readyPromiseResolve(Module);
     if (Module['onRuntimeInitialized']) Module['onRuntimeInitialized']();
 
     if (shouldRunNow) callMain();
@@ -4660,3 +4702,11 @@ run();
 
 
 // end include: postamble.js
+
+
+  return emulator.ready
+}
+
+);
+})();
+export default emulator;

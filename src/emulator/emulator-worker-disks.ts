@@ -1,6 +1,5 @@
-import {EMULATOR_CD_DRIVE_COUNT} from "./emulator-common";
+import {EMULATOR_CD_DRIVE_COUNT} from "./emulator-common-emulators";
 
-declare const Module: EmscriptenModule;
 type DiskId = number;
 
 export interface EmulatorWorkerDisk {
@@ -22,9 +21,16 @@ export class EmulatorWorkerDisksApi {
     #cdroms: EmulatorCDROMDrive[] = [];
     #useCDROM: boolean;
 
-    constructor(disks: EmulatorWorkerDisk[], useCDROM: boolean) {
+    #emscriptenModule: EmscriptenModule;
+
+    constructor(
+        disks: EmulatorWorkerDisk[],
+        useCDROM: boolean,
+        emscriptenModule: EmscriptenModule
+    ) {
         this.#disks = disks;
         this.#useCDROM = useCDROM;
+        this.#emscriptenModule = emscriptenModule;
         if (useCDROM) {
             for (let i = 0; i < EMULATOR_CD_DRIVE_COUNT; i++) {
                 this.#cdroms.push(new EmulatorCDROMDrive());
@@ -107,7 +113,10 @@ export class EmulatorWorkerDisksApi {
             throw new Error(`Disk not found: ${diskId}`);
         }
 
-        const buffer = Module.HEAPU8.subarray(bufPtr, bufPtr + length);
+        const buffer = this.#emscriptenModule.HEAPU8.subarray(
+            bufPtr,
+            bufPtr + length
+        );
         return disk.read(buffer, offset, length);
     }
 
@@ -123,7 +132,10 @@ export class EmulatorWorkerDisksApi {
         }
 
         this.#lastDiskWriteTime = performance.now();
-        const buffer = Module.HEAPU8.subarray(bufPtr, bufPtr + length);
+        const buffer = this.#emscriptenModule.HEAPU8.subarray(
+            bufPtr,
+            bufPtr + length
+        );
         return disk.write(buffer, offset, length);
     }
 

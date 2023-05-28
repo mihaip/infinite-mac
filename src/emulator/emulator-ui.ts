@@ -2,21 +2,20 @@ import type {
     EmulatorCDROM,
     EmulatorChunkedFileSpec,
     EmulatorFallbackCommand,
-    EmulatorSpeed,
     EmulatorWorkerConfig,
     EmulatorWorkerDirectorExtraction,
     EmulatorWorkerVideoBlit,
 } from "./emulator-common";
+import type {EmulatorSpeed} from "./emulator-common-emulators";
 import {
     EMULATOR_CD_DRIVE_COUNT,
     emulatorCpuId,
     emulatorModelId,
     emulatorUsesCDROMDrive,
-} from "./emulator-common";
-import Worker from "worker-loader!./emulator-worker";
-import registerServiceWorker, {
-    ServiceWorkerNoSupportError,
-} from "service-worker-loader!./emulator-service-worker";
+} from "./emulator-common-emulators";
+import {getEmulatorWasmPath} from "./emulator-ui-emulators";
+import Worker from "./emulator-worker?worker";
+import serviceWorkerPath from "./emulator-service-worker?worker&url";
 import type {EmulatorAudio} from "./emulator-ui-audio";
 import {
     FallbackEmulatorAudio,
@@ -41,20 +40,6 @@ import {
     handleDirectoryExtraction,
     uploadsFromDirectoryExtractionFile,
 } from "./emulator-ui-extractor";
-import MinivMac128KPath from "./minivmac-128K.jsz";
-import MinivMac128KWasmPath from "./minivmac-128K.wasmz";
-import MinivMac512KePath from "./minivmac-512Ke.jsz";
-import MinivMac512KeWasmPath from "./minivmac-512Ke.wasmz";
-import MinivMacIIPath from "./minivmac-II.jsz";
-import MinivMacIIWasmPath from "./minivmac-II.wasmz";
-import MinivMacPlusPath from "./minivmac-Plus.jsz";
-import MinivMacPlusWasmPath from "./minivmac-Plus.wasmz";
-import MinivMacSEPath from "./minivmac-SE.jsz";
-import MinivMacSEWasmPath from "./minivmac-SE.wasmz";
-import BasiliskIIPath from "./BasiliskII.jsz";
-import BasiliskIIWasmPath from "./BasiliskII.wasmz";
-import SheepShaverPath from "./SheepShaver.jsz";
-import SheepShaverWasmPath from "./SheepShaver.wasmz";
 import {getPersistedData, persistData} from "./emulator-ui-persistence";
 import {
     JS_CODE_TO_ADB_KEYCODE,
@@ -64,8 +49,8 @@ import type {
     EmulatorEthernet,
     EthernetPingerPeer,
 } from "./emulator-ui-ethernet";
-import {handleEthernetWrite} from "./emulator-ui-ethernet";
 import {
+    handleEthernetWrite,
     FallbackEmulatorEthernet,
     SharedMemoryEmulatorEthernet,
     EthernetPinger,
@@ -121,7 +106,7 @@ export interface EmulatorDelegate {
     emulatorDidFinishLoadingDiskChunk?(emulator: Emulator): void;
     emulatorEthernetPeersDidChange?(
         emulator: Emulator,
-        peers: ReadonlyArray<EmulatorEthernetPeer>
+        peers: readonly EmulatorEthernetPeer[]
     ): void;
     emulatorDidRunOutOfMemory?(emulator: Emulator): void;
     emulatorDidHaveError?(emulator: Emulator, error: string): void;
@@ -269,30 +254,13 @@ export class Emulator {
         }
         this.#worker.addEventListener("message", this.#handleWorkerMessage);
 
-        let emulatorPaths: [string, string];
-        switch (this.#config.machine.emulator) {
-            case "BasiliskII":
-                emulatorPaths = [BasiliskIIPath, BasiliskIIWasmPath];
-                break;
-            case "SheepShaver":
-                emulatorPaths = [SheepShaverPath, SheepShaverWasmPath];
-                break;
-            case "Mini vMac":
-                emulatorPaths = {
-                    "128K": [MinivMac128KPath, MinivMac128KWasmPath],
-                    "512Ke": [MinivMac512KePath, MinivMac512KeWasmPath],
-                    "Plus": [MinivMacPlusPath, MinivMacPlusWasmPath],
-                    "SE": [MinivMacSEPath, MinivMacSEWasmPath],
-                    "II": [MinivMacIIPath, MinivMacIIWasmPath],
-                }[this.#config.machine.emulatorSubtype!] as [string, string];
-                break;
-        }
+        const emulatorWasmPath = getEmulatorWasmPath(this.#config.machine);
 
         // Fetch all of the dependent files ourselves, to avoid a waterfall
         // if we let Emscripten handle it (it would first load the JS, and
         // then that would load the WASM and data files).
-        const [[jsBlobUrl, wasmBlobUrl], [rom, basePrefs]] = await load(
-            emulatorPaths,
+        const [[wasmBlobUrl], [rom, basePrefs]] = await load(
+            [emulatorWasmPath],
             [this.#config.machine.romPath, this.#config.machine.prefsPath],
             (total, left) => {
                 this.#delegate?.emulatorDidMakeLoadingProgress?.(
@@ -311,14 +279,14 @@ export class Emulator {
         let prefsStr = new TextDecoder().decode(basePrefs);
         prefsStr += `rom ${romFileName}\n`;
         const cpuId = emulatorCpuId(
-            this.#config.machine.emulator,
+            this.#config.machine.emulatorType,
             this.#config.machine.cpu
         );
         if (cpuId !== undefined) {
             prefsStr += `cpu ${cpuId}\n`;
         }
         const modelId = emulatorModelId(
-            this.#config.machine.emulator,
+            this.#config.machine.emulatorType,
             this.#config.machine.gestaltID
         );
         if (modelId !== undefined) {
@@ -330,7 +298,9 @@ export class Emulator {
         for (const spec of Array.from(this.#config.disks).reverse()) {
             prefsStr = `disk ${spec.name}\n` + prefsStr;
         }
-        const useCDROM = emulatorUsesCDROMDrive(this.#config.machine.emulator);
+        const useCDROM = emulatorUsesCDROMDrive(
+            this.#config.machine.emulatorType
+        );
         if (useCDROM) {
             for (let i = 0; i < EMULATOR_CD_DRIVE_COUNT; i++) {
                 prefsStr += `cdrom /cdrom/${i}\n`;
@@ -346,7 +316,8 @@ export class Emulator {
         const prefs = new TextEncoder().encode(prefsStr).buffer;
 
         const config: EmulatorWorkerConfig = {
-            jsUrl: jsBlobUrl,
+            emulatorType: this.#config.machine.emulatorType,
+            emulatorSubtype: this.#config.machine.emulatorSubtype,
             wasmUrl: wasmBlobUrl,
             disks: this.#config.disks,
             delayedDisks: this.#config.delayedDisks,
@@ -566,7 +537,7 @@ export class Emulator {
                 code = "Control" + code.slice("Meta".length);
             }
         }
-        if (this.#config.machine.emulator === "Mini vMac") {
+        if (this.#config.machine.emulatorType === "Mini vMac") {
             const keyCode = JS_CODE_TO_MINI_VMAC_KEYCODE[code];
             if (keyCode !== undefined) {
                 return keyCode;
@@ -704,8 +675,18 @@ export class Emulator {
     }
 
     #initServiceWorker() {
+        if (!("serviceWorker" in navigator)) {
+            console.warn("Service workers not available");
+            return;
+        }
+        // We need to use modules for service workers in dev mode (because
+        // Vite will generate a file with import statements), but we don't
+        // need it in prod (where Vite will bundle all dependencies, and
+        // old Safari does not support module workers).
+        const workerType = import.meta.env.DEV ? "module" : "classic";
         this.#serviceWorkerReady = new Promise((resolve, reject) => {
-            registerServiceWorker()
+            navigator.serviceWorker
+                .register(serviceWorkerPath, {scope: "/", type: workerType})
                 .then(registration => {
                     const init = (serviceWorker: ServiceWorker) => {
                         this.#serviceWorker = serviceWorker;
@@ -737,11 +718,7 @@ export class Emulator {
                     }
                 })
                 .catch(err => {
-                    if (err instanceof ServiceWorkerNoSupportError) {
-                        console.error("Service workers are not supported");
-                    } else {
-                        console.error("Other service worker error", err);
-                    }
+                    console.error("Service worker error", err);
                     resolve(false);
                 });
         });

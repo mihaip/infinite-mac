@@ -68,13 +68,6 @@ async function handleRequest(
             response.headers.set("Content-Type", "multipart/mixed");
         }
 
-        // Mirror MIME type overriding done by setupProxy.js
-        if (pathname.endsWith(".jsz")) {
-            response.headers.set("Content-Type", "text/javascript");
-        } else if (pathname.endsWith(".wasmz")) {
-            response.headers.set("Content-Type", "application/wasm");
-        }
-
         response.headers.set("X-XSS-Protection", "1; mode=block");
         response.headers.set("X-Content-Type-Options", "nosniff");
         response.headers.set("X-Frame-Options", "DENY");
@@ -83,6 +76,9 @@ async function handleRequest(
         // Allow SharedArrayBuffer to work
         response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
         response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+        // Allow the service worker to intercept all paths, even when
+        // initiated from a year subpath.
+        response.headers.set("Service-Worker-Allowed", "/");
 
         // Static content uses a content hash in the URL, so it can be cached
         // for a while (30 days).
@@ -116,8 +112,7 @@ async function handleRequest(
 }
 
 // Override default mapRequestToAsset to not append index.html to unknown
-// MIME types (which is what some of the extensions like .wasmz and .jsz
-// end up with).
+// MIME types.
 function mapRequestToAsset(request: Request): Request {
     const parsedUrl = new URL(request.url);
     let pathname = parsedUrl.pathname;

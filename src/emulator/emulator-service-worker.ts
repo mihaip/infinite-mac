@@ -8,12 +8,12 @@ declare const self: ServiceWorkerGlobalScope;
 
 let workerCommands: EmulatorFallbackCommand[] = [];
 
-function constructJsResponse(js: string) {
-    return new Response(js, {
+function constructJsonResponse(json: any) {
+    return new Response(JSON.stringify(json), {
         status: 200,
         statusText: "OK",
         headers: {
-            "Content-Type": "text/javascript",
+            "Content-Type": "application/json",
         },
     });
 }
@@ -51,9 +51,9 @@ self.addEventListener("message", event => {
 
 self.addEventListener("fetch", (event: FetchEvent) => {
     const requestUrl = new URL(event.request.url);
-    if (requestUrl.pathname.endsWith("/worker-commands.js")) {
+    if (requestUrl.pathname.endsWith("/worker-commands")) {
         handleWorkerCommands(event);
-    } else if (requestUrl.pathname.endsWith("/worker-idlewait.js")) {
+    } else if (requestUrl.pathname.endsWith("/worker-idlewait")) {
         handleIdleWait(event);
     } else if (
         diskCacheSpecs.some(spec =>
@@ -65,9 +65,7 @@ self.addEventListener("fetch", (event: FetchEvent) => {
 });
 
 function handleWorkerCommands(event: FetchEvent) {
-    const fetchResponse = constructJsResponse(
-        `globalThis["workerCommands"] = ${JSON.stringify(workerCommands)};`
-    );
+    const fetchResponse = constructJsonResponse(workerCommands);
     workerCommands = [];
     event.respondWith(fetchResponse);
 }
@@ -85,7 +83,7 @@ function handleIdleWait(event: FetchEvent) {
                 // come in.
                 if (workerCommands.length || performance.now() >= endTime) {
                     self.clearInterval(interval);
-                    resolve(constructJsResponse(""));
+                    resolve(constructJsonResponse({}));
                 }
             }, 1);
         })

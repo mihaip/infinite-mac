@@ -62,17 +62,18 @@ import {
 import {EmulatorWorkerDisksApi} from "./emulator-worker-disks";
 import {EmulatorWorkerUploadDisk} from "./emulator-worker-upload-disk";
 import {createEmulatorWorkerCDROMDisk} from "./emulator-worker-cdrom-disk";
-
-declare const Module: EmscriptenModule;
-declare const workerCommands: EmulatorFallbackCommand[];
+import {
+    importEmulator,
+    importEmulatorFallback,
+} from "./emulator-worker-emulators";
 
 const PERSISTED_DIRECTORY_PATH = "/Shared/Saved";
 
-addEventListener("message", event => {
+addEventListener("message", async event => {
     const {data} = event;
     const {type} = data;
     if (type === "start") {
-        startEmulator(data.config);
+        await startEmulator(data.config);
     }
 });
 
@@ -87,6 +88,8 @@ addEventListener("unhandledrejection", event => {
 
 class EmulatorWorkerApi {
     InputBufferAddresses = InputBufferAddresses;
+
+    #emscriptenModule: EmscriptenModule;
 
     #video: EmulatorWorkerVideo;
     #input: EmulatorWorkerInput;
@@ -107,7 +110,11 @@ class EmulatorWorkerApi {
     #delayedDiskSpecs: EmulatorChunkedFileSpec[] | undefined;
     #ethernetMacAddress?: Uint8Array;
 
-    constructor(config: EmulatorWorkerConfig) {
+    constructor(
+        config: EmulatorWorkerConfig,
+        emscriptenModule: EmscriptenModule
+    ) {
+        this.#emscriptenModule = emscriptenModule;
         const {
             video: videoConfig,
             input: inputConfig,
@@ -172,7 +179,8 @@ class EmulatorWorkerApi {
 
         this.disks = new EmulatorWorkerDisksApi(
             disks.map(spec => new EmulatorWorkerChunkedDisk(spec)),
-            config.useCDROM
+            config.useCDROM,
+            this.#emscriptenModule
         );
         this.#delayedDiskSpecs = delayedDisks;
     }
@@ -185,7 +193,10 @@ class EmulatorWorkerApi {
     blit(bufPtr: number, bufSize: number, rect?: EmulatorWorkerVideoBlitRect) {
         this.#lastBlitFrameId++;
         if (bufPtr) {
-            const data = Module.HEAPU8.subarray(bufPtr, bufPtr + bufSize);
+            const data = this.#emscriptenModule.HEAPU8.subarray(
+                bufPtr,
+                bufPtr + bufSize
+            );
             this.#video.blit(data, rect);
         }
         this.#nextExpectedBlitTime = performance.now() + 16;
@@ -214,7 +225,10 @@ class EmulatorWorkerApi {
             return;
         }
 
-        const newAudio = Module.HEAPU8.slice(bufPtr, bufPtr + nbytes);
+        const newAudio = this.#emscriptenModule.HEAPU8.slice(
+            bufPtr,
+            bufPtr + nbytes
+        );
         this.#audio.enqueueAudio(newAudio);
     }
 
@@ -384,14 +398,17 @@ class EmulatorWorkerApi {
     }
 
     etherWrite(destination: string, packetPtr: number, packetLength: number) {
-        const packet = Module.HEAPU8.slice(packetPtr, packetPtr + packetLength);
+        const packet = this.#emscriptenModule.HEAPU8.slice(
+            packetPtr,
+            packetPtr + packetLength
+        );
         sendEthernetPacket(destination, packet);
     }
 
     etherRead(packetPtr: number, packetMaxLength: number): number {
         const packet = new Uint8Array(
-            Module.HEAPU8.buffer,
-            Module.HEAPU8.byteOffset + packetPtr,
+            this.#emscriptenModule.HEAPU8.buffer,
+            this.#emscriptenModule.HEAPU8.byteOffset + packetPtr,
             packetMaxLength
         );
         const length = this.#ethernet.read(packet);
@@ -418,13 +435,7 @@ export class EmulatorFallbackEndpoint {
     #commandQueue: EmulatorFallbackCommand[] = [];
 
     idleWait(timeout: number) {
-        try {
-            importScripts(
-                `./worker-idlewait.js?timeout=${timeout}&t=${Date.now()}`
-            );
-        } catch (err) {
-            console.error("Error during idlewait", err);
-        }
+        this.#fetchSync(`./worker-idlewait?timeout=${timeout}&t=${Date.now()}`);
     }
 
     consumeInputEvents(): EmulatorInputEvent[] {
@@ -486,23 +497,34 @@ export class EmulatorFallbackEndpoint {
     }
 
     #fetchCommands() {
-        try {
-            importScripts(`./worker-commands.js?t=${Date.now()}`);
-        } catch (err) {
-            console.error("Error during command fetch", err);
-        }
-        if (typeof workerCommands !== "undefined") {
-            const commands = workerCommands;
+        const commands = this.#fetchSync(`./worker-commands?t=${Date.now()}`);
+        if (commands) {
             this.#commandQueue = this.#commandQueue.concat(commands);
-        } else {
-            console.warn("Could not load worker commands");
+        }
+    }
+
+    #fetchSync(url: string): any | undefined {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", url, false);
+        xhr.send(null);
+        if (xhr.status !== 200) {
+            console.warn(
+                "Could not do fetchSync",
+                url,
+                xhr.status,
+                xhr.statusText
+            );
+            return undefined;
+        }
+        try {
+            return JSON.parse(xhr.responseText);
+        } catch (err) {
+            console.warn("Could not parse JSON", err, xhr.responseText);
         }
     }
 }
 
-function startEmulator(config: EmulatorWorkerConfig) {
-    const workerApi = new EmulatorWorkerApi(config);
-
+async function startEmulator(config: EmulatorWorkerConfig) {
     const moduleOverrides: Partial<EmscriptenModule> = {
         arguments: config.arguments,
         locateFile(path: string, scriptDirectory: string) {
@@ -514,6 +536,10 @@ function startEmulator(config: EmulatorWorkerConfig) {
 
         preRun: [
             function () {
+                // Manually export FS to the global scope since this matches the
+                // type definitions that Emscripten has (and there's no ESM
+                // export of the FS module).
+                globalThis["FS"] = moduleOverrides.FS!;
                 FS.mkdir("/Shared");
                 FS.mkdir("/Shared/Downloads");
                 FS.mkdir(PERSISTED_DIRECTORY_PATH);
@@ -541,17 +567,16 @@ function startEmulator(config: EmulatorWorkerConfig) {
         ],
 
         onRuntimeInitialized() {
-            const globalScope = globalThis as any;
-            globalScope.workerApi = workerApi;
             postMessage({type: "emulator_ready"});
         },
 
         print(...args: any[]) {
-            // Chrome's console.groupCollapsed works like a log statement,
-            // so we can use it to wrap the current stack trace, which is
-            // handy for debugging.
+            // Chrome and Safari's console.groupCollapsed works like a log
+            // statement, so we can use it to wrap the current stack trace,
+            // which is handy for debugging.
             if (
-                navigator.userAgent.indexOf("Chrome") !== -1 &&
+                (navigator.userAgent.includes("Chrome") ||
+                    navigator.userAgent.includes("Safari")) &&
                 args.length === 1 &&
                 typeof args[0] === "string"
             ) {
@@ -578,7 +603,31 @@ function startEmulator(config: EmulatorWorkerConfig) {
             }
         },
     };
-    (self as any).Module = moduleOverrides;
 
-    importScripts(config.jsUrl);
+    function runEmulatorModule(emulatorModule: {
+        default: (module: EmscriptenModule) => void;
+    }) {
+        // The module overrides get populated with the complete Emscripten
+        // module API once it is loaded.
+        const emscriptenModule: EmscriptenModule =
+            moduleOverrides as EmscriptenModule;
+        const workerApi = new EmulatorWorkerApi(config, emscriptenModule);
+        // Inject into global scope as `workerApi` so that the Emscripten
+        // code can call into it.
+        const globalScope = globalThis as any;
+        globalScope.workerApi = workerApi;
+
+        emulatorModule.default(emscriptenModule);
+    }
+
+    try {
+        runEmulatorModule(await importEmulator(config));
+    } catch (error) {
+        console.log("Could not import emulator, will try fallback mode", error);
+        try {
+            runEmulatorModule(await importEmulatorFallback(config));
+        } catch (error) {
+            postMessage({type: "emulator_did_have_error", error});
+        }
+    }
 }
