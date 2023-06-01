@@ -1,10 +1,10 @@
-import {useEffect, useMemo, useState} from "react";
+import React, {Suspense, useEffect, useMemo, useState} from "react";
 import "./App.css";
 import {BroadcastChannelEthernetProvider} from "./BroadcastChannelEthernetProvider";
 import type {BrowserRunDef} from "./Browser";
 import {Browser, runDefFromUrl, runDefToUrl} from "./Browser";
 import {Footer} from "./Footer";
-import {Mac} from "./Mac";
+import type {MacProps} from "./Mac";
 import cdromsManifest from "./Data/CD-ROMs.json";
 import type {EmulatorCDROMLibrary} from "./emulator/emulator-common";
 
@@ -61,6 +61,7 @@ function App() {
                 setRunDef(undefined);
             }
         };
+        runDef.disk.generatedSpec(); // Prefetch the disk definition
         contents = (
             <Mac
                 disk={runDef.disk}
@@ -101,5 +102,12 @@ function App() {
         </div>
     );
 }
+
+const LazyMac = React.lazy(() => import("./Mac"));
+const Mac = (props: MacProps) => (
+    <Suspense fallback={<div />}>
+        <LazyMac {...props} />
+    </Suspense>
+);
 
 export default App;

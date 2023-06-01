@@ -9,7 +9,6 @@ import {Emulator} from "./emulator/emulator-ui";
 import type {
     EmulatorCDROM,
     EmulatorCDROMLibrary,
-    EmulatorChunkedFileSpec,
 } from "./emulator/emulator-common";
 import {isDiskImageFile} from "./emulator/emulator-common";
 import type {
@@ -26,13 +25,13 @@ import * as varz from "./varz";
 import type {ScreenControl, ScreenFrameProps} from "./ScreenFrame";
 import {ScreenFrame} from "./ScreenFrame";
 import {Dialog} from "./Dialog";
-import type {DiskDef} from "./disks";
+import type {EmulatorDiskDef, SystemDiskDef} from "./disks";
 import {INFINITE_HD, INFINITE_HD_MFS} from "./disks";
 import type {MachineDef} from "./machines";
 import type {ButtonProps} from "./Button";
 
 export type MacProps = {
-    disk: DiskDef;
+    disk: SystemDiskDef;
     machine: MachineDef;
     ethernetProvider?: EmulatorEthernetProvider;
     useSharedMemory?: boolean;
@@ -41,7 +40,7 @@ export type MacProps = {
     cdroms?: EmulatorCDROMLibrary;
 };
 
-export function Mac({
+export default function Mac({
     disk,
     machine,
     ethernetProvider,
@@ -93,8 +92,8 @@ export function Mac({
             handleFullScreenChange
         );
 
-        const disks: EmulatorChunkedFileSpec[] = [disk];
-        const delayedDisks: EmulatorChunkedFileSpec[] = [];
+        const disks: EmulatorDiskDef[] = [disk];
+        const delayedDisks: EmulatorDiskDef[] = [];
         const infiniteHd = disk.mfsOnly ? INFINITE_HD_MFS : INFINITE_HD;
         if (disk.delayAdditionalDiskMount) {
             delayedDisks.push(infiniteHd);
@@ -171,7 +170,9 @@ export function Mac({
             "emulator_starts": 1,
             "emulator_ethernet": ethernetProvider ? 1 : 0,
             [`emulator_type:${machine.emulatorType}`]: 1,
-            [`emulator_disk:${disk.name}`]: 1,
+            [`emulator_disk:${disk.displayName}${
+                disk.displaySubtitle ? "-" + disk.displaySubtitle : ""
+            }}`]: 1,
             "emulator_shared_memory": useSharedMemory ? 1 : 0,
         });
 
