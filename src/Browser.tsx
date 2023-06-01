@@ -1,4 +1,4 @@
-import type {DiskDef, PlaceholderDiskDef} from "./disks";
+import type {SystemDiskDef, PlaceholderDiskDef} from "./disks";
 import {DISKS_BY_YEAR, isPlaceholderDiskDef} from "./disks";
 import type {MachineDef} from "./machines";
 import {ScreenFrame} from "./ScreenFrame";
@@ -75,7 +75,7 @@ function Description() {
 }
 
 type DiskProps = {
-    disk: DiskDef | PlaceholderDiskDef;
+    disk: SystemDiskDef | PlaceholderDiskDef;
     onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
 };
 
@@ -111,7 +111,7 @@ function Disk({disk, onRun}: DiskProps) {
 }
 
 type DiskContentsProps = {
-    disk: DiskDef;
+    disk: SystemDiskDef;
     onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
     setBezelStyle: (bezelStyle: MachineDef["bezelStyle"]) => void;
 };
@@ -232,7 +232,7 @@ function PlaceholderDiskContents({disk}: PlaceholderDiskContentsProps) {
     );
 }
 
-function DiskHeader({disk}: {disk: DiskDef | PlaceholderDiskDef}) {
+function DiskHeader({disk}: {disk: SystemDiskDef | PlaceholderDiskDef}) {
     const [year, month, day] = disk.releaseDate;
     const releaseDateString = new Date(year, month - 1, day).toLocaleDateString(
         undefined,
@@ -256,7 +256,7 @@ function DiskHeader({disk}: {disk: DiskDef | PlaceholderDiskDef}) {
 }
 
 export type BrowserRunDef = {
-    disk: DiskDef;
+    disk: SystemDiskDef;
     machine: MachineDef;
     ethernetProvider?: EmulatorEthernetProvider;
 };

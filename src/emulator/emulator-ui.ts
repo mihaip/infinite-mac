@@ -61,6 +61,7 @@ import {
     SharedMemoryEmulatorClipboard,
 } from "./emulator-ui-clipboard";
 import type {MachineDef} from "../machines";
+import type {EmulatorDiskDef} from "../disks";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -68,8 +69,8 @@ export type EmulatorConfig = {
     screenWidth: number;
     screenHeight: number;
     screenCanvas: HTMLCanvasElement;
-    disks: EmulatorChunkedFileSpec[];
-    delayedDisks?: EmulatorChunkedFileSpec[];
+    disks: EmulatorDiskDef[];
+    delayedDisks?: EmulatorDiskDef[];
     ethernetProvider?: EmulatorEthernetProvider;
     debugAudio?: boolean;
 };
@@ -276,6 +277,23 @@ export class Emulator {
 
         const extraction = await getPersistedData();
 
+        async function loadDisks(
+            disks: EmulatorDiskDef[]
+        ): Promise<EmulatorChunkedFileSpec[]> {
+            const diskSpecs = await Promise.all(
+                disks.map(d => d.generatedSpec().then(i => i.default))
+            );
+            return disks.map((d, i) => ({
+                ...diskSpecs[i],
+                baseUrl: "/Disk",
+                prefetchChunks: d.prefetchChunks,
+            }));
+        }
+        const disks = await loadDisks(this.#config.disks);
+        const delayedDisks = this.#config.delayedDisks
+            ? await loadDisks(this.#config.delayedDisks)
+            : undefined;
+
         let prefsStr = new TextDecoder().decode(basePrefs);
         prefsStr += `rom ${romFileName}\n`;
         const cpuId = emulatorCpuId(
@@ -295,7 +313,7 @@ export class Emulator {
         prefsStr += `screen win/${this.#config.screenWidth}/${
             this.#config.screenHeight
         }\n`;
-        for (const spec of Array.from(this.#config.disks).reverse()) {
+        for (const spec of Array.from(disks).reverse()) {
             prefsStr = `disk ${spec.name}\n` + prefsStr;
         }
         const useCDROM = emulatorUsesCDROMDrive(
@@ -319,8 +337,8 @@ export class Emulator {
             emulatorType: this.#config.machine.emulatorType,
             emulatorSubtype: this.#config.machine.emulatorSubtype,
             wasmUrl: wasmBlobUrl,
-            disks: this.#config.disks,
-            delayedDisks: this.#config.delayedDisks,
+            disks,
+            delayedDisks,
             useCDROM,
             autoloadFiles: {
                 [romFileName]: rom,

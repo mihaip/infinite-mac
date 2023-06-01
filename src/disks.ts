@@ -1,40 +1,3 @@
-import infiniteHdManifest from "./Data/Infinite HD.dsk.json";
-import infiniteHdMfsManifest from "./Data/Infinite HD (MFS).dsk.json";
-import system10Manifest from "./Data/System 1.0.dsk.json";
-import system11Manifest from "./Data/System 1.1.dsk.json";
-import system20Manifest from "./Data/System 2.0.dsk.json";
-import system21Manifest from "./Data/System 2.1.dsk.json";
-import system30Manifest from "./Data/System 3.0.dsk.json";
-import system32Manifest from "./Data/System 3.2.dsk.json";
-import system33Manifest from "./Data/System 3.3.dsk.json";
-import system40Manifest from "./Data/System 4.0.dsk.json";
-import system41Manifest from "./Data/System 4.1.dsk.json";
-import system50Manifest from "./Data/System 5.0 HD.dsk.json";
-import system51Manifest from "./Data/System 5.1 HD.dsk.json";
-import system60HdManifest from "./Data/System 6.0 HD.dsk.json";
-import system602HdManifest from "./Data/System 6.0.2 HD.dsk.json";
-import system603HdManifest from "./Data/System 6.0.3 HD.dsk.json";
-import system604HdManifest from "./Data/System 6.0.4 HD.dsk.json";
-import system605HdManifest from "./Data/System 6.0.5 HD.dsk.json";
-import system607HdManifest from "./Data/System 6.0.7 HD.dsk.json";
-import system608HdManifest from "./Data/System 6.0.8 HD.dsk.json";
-import system70HdManifest from "./Data/System 7.0 HD.dsk.json";
-import system71HdManifest from "./Data/System 7.1 HD.dsk.json";
-import system711HdManifest from "./Data/System 7.1.1 HD.dsk.json";
-import system75HdManifest from "./Data/System 7.5 HD.dsk.json";
-import system751HdManifest from "./Data/System 7.5.1 HD.dsk.json";
-import system752HdManifest from "./Data/System 7.5.2 HD.dsk.json";
-import system753HdManifest from "./Data/System 7.5.3 HD.dsk.json";
-import system753PpcHdManifest from "./Data/System 7.5.3 (PPC) HD.dsk.json";
-import kanjiTalk753HdManifest from "./Data/KanjiTalk 7.5.3 HD.dsk.json";
-import system755HdManifest from "./Data/System 7.5.5 HD.dsk.json";
-import macos76HdManifest from "./Data/Mac OS 7.6 HD.dsk.json";
-import macos80HdManifest from "./Data/Mac OS 8.0 HD.dsk.json";
-import macos81HdManifest from "./Data/Mac OS 8.1 HD.dsk.json";
-import macos85HdManifest from "./Data/Mac OS 8.5 HD.dsk.json";
-import macos86HdManifest from "./Data/Mac OS 8.6 HD.dsk.json";
-import macos90HdManifest from "./Data/Mac OS 9.0 HD.dsk.json";
-import macos904HdManifest from "./Data/Mac OS 9.0.4 HD.dsk.json";
 import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
 import type {MachineDef} from "./machines";
 import {
@@ -49,9 +12,21 @@ import {
     QUADRA_650,
 } from "./machines";
 
-// prefetchChunks are semi-automatically generated -- we will get a
-// warning via validateSpecPrefetchChunks() if these are incorrect.
-export type DiskDef = EmulatorChunkedFileSpec & {
+type GeneratedChunkedFileSpec = Omit<
+    EmulatorChunkedFileSpec,
+    "prefetchChunks" | "baseUrl"
+>;
+
+export type EmulatorDiskDef = {
+    // Dynamically imported since some manifests can be quite large, and we
+    // don't want to incur the cost of loading all of them up-front.
+    generatedSpec: () => Promise<{default: GeneratedChunkedFileSpec}>;
+    // prefetchChunks are semi-automatically generated -- we will get a
+    // warning via validateSpecPrefetchChunks() if these are incorrect.
+    prefetchChunks: number[];
+};
+
+export type SystemDiskDef = EmulatorDiskDef & {
     displayName: string;
     displaySubtitle?: string;
     releaseDate: [year: number, month: number, date: number];
@@ -74,16 +49,15 @@ export type PlaceholderDiskDef = {
 };
 
 export function isPlaceholderDiskDef(
-    disk: DiskDef | PlaceholderDiskDef
+    disk: SystemDiskDef | PlaceholderDiskDef
 ): disk is PlaceholderDiskDef {
     return "type" in disk && disk.type === "placeholder";
 }
 
-const SYSTEM_1_0: DiskDef = {
+const SYSTEM_1_0: SystemDiskDef = {
     displayName: "System 1.0",
     description: "Initial system software release, shipped with the Mac 128K.",
     releaseDate: [1984, 1, 24],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
     mfsOnly: true,
@@ -91,54 +65,50 @@ const SYSTEM_1_0: DiskDef = {
     // appear to work in System 1.0 under Mini vMac, but if we delay it until
     // after the system is booted, it appears to work.
     delayAdditionalDiskMount: true,
-    ...system10Manifest,
+    generatedSpec: () => import("./Data/System 1.0.dsk.json"),
 };
 
-const SYSTEM_1_1: DiskDef = {
+const SYSTEM_1_1: SystemDiskDef = {
     displayName: "System 1.1",
     description:
         "Maintenance release that improved disk copying speeds and added the “Set Startup” command and the Finder about box.",
     releaseDate: [1984, 5, 5],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
     mfsOnly: true,
-    ...system11Manifest,
+    generatedSpec: () => import("./Data/System 1.1.dsk.json"),
 };
 
-const SYSTEM_2_0: DiskDef = {
+const SYSTEM_2_0: SystemDiskDef = {
     displayName: "System 2.0",
     description:
         "Introduced the ”New Folder” and ”Shut Down” commands, the MiniFinder, and the Choose Printer DA. Also added icons to list view and the Command-Shift-3 screenshot FKEY.",
     releaseDate: [1985, 4, 8],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
     mfsOnly: true,
-    ...system20Manifest,
+    generatedSpec: () => import("./Data/System 2.0.dsk.json"),
 };
 
-const SYSTEM_2_1: DiskDef = {
+const SYSTEM_2_1: SystemDiskDef = {
     displayName: "System 2.1",
     description:
         "Added support for the Hard Disk 20 drive and the HFS file system.",
     releaseDate: [1985, 9, 17],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     // The Mac 128K is supported, but HFS is not loaded in that case.
     machines: [MAC_512KE, MAC_128K],
-    ...system21Manifest,
+    generatedSpec: () => import("./Data/System 2.1.dsk.json"),
 };
 
-const SYSTEM_3_0: DiskDef = {
+const SYSTEM_3_0: SystemDiskDef = {
     displayName: "System 3.0",
     description:
         "Added more complete support for HFS, a RAM disk cache, zoom boxes for windows and a redesigned control panel. Introduced with the Mac Plus.",
     releaseDate: [1986, 1, 16],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
-    ...system30Manifest,
+    generatedSpec: () => import("./Data/System 3.0.dsk.json"),
 };
 
 const SYSTEM_3_1: PlaceholderDiskDef = {
@@ -150,79 +120,72 @@ const SYSTEM_3_1: PlaceholderDiskDef = {
     machines: [MAC_PLUS, MAC_512KE],
 };
 
-const SYSTEM_3_2: DiskDef = {
+const SYSTEM_3_2: SystemDiskDef = {
     displayName: "System 3.2",
     description:
         "Includes redesigned Calculator and Chooser desktop accessories.",
     releaseDate: [1986, 6, 2],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
-    ...system32Manifest,
+    generatedSpec: () => import("./Data/System 3.2.dsk.json"),
 };
 
-const SYSTEM_3_3: DiskDef = {
+const SYSTEM_3_3: SystemDiskDef = {
     displayName: "System 3.3",
     description:
         "Enhanced AppleShare file serving support. The Trash can icon now bulges when it's not empty.",
     releaseDate: [1987, 1, 12],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
-    ...system33Manifest,
+    generatedSpec: () => import("./Data/System 3.3.dsk.json"),
 };
 
-const SYSTEM_4_0: DiskDef = {
+const SYSTEM_4_0: SystemDiskDef = {
     displayName: "System 4.0",
     description:
         "Added the Find File desktop accessory and the Restart command. Features a redesigned control panel. Released with the Mac SE.",
     releaseDate: [1987, 3, 2],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE],
-    ...system40Manifest,
+    generatedSpec: () => import("./Data/System 4.0.dsk.json"),
 };
 
-const SYSTEM_4_1: DiskDef = {
+const SYSTEM_4_1: SystemDiskDef = {
     displayName: "System 4.1",
     description:
         "Added Easy Access accessibility features. Improved compatibility with larger hard drives. Released with the Mac II.",
     releaseDate: [1987, 4, 14],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_II, MAC_SE, MAC_PLUS, MAC_512KE],
-    ...system41Manifest,
+    generatedSpec: () => import("./Data/System 4.1.dsk.json"),
 };
 
-const SYSTEM_5_0: DiskDef = {
+const SYSTEM_5_0: SystemDiskDef = {
     displayName: "System 5.0",
     description:
         "Introduced the MultiFinder, revised the Finder about box, and improved printing support.",
     releaseDate: [1987, 10, 8],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
-    ...system50Manifest,
+    generatedSpec: () => import("./Data/System 5.0 HD.dsk.json"),
 };
 
-const SYSTEM_5_1: DiskDef = {
+const SYSTEM_5_1: SystemDiskDef = {
     displayName: "System 5.1",
     description: "Updated the LaserWriter Driver and Apple HD SC Setup.",
     releaseDate: [1987, 12, 1],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
-    ...system51Manifest,
+    generatedSpec: () => import("./Data/System 5.1 HD.dsk.json"),
 };
 
-const SYSTEM_6_0: DiskDef = {
+const SYSTEM_6_0: SystemDiskDef = {
     displayName: "System 6.0",
     description: "Added MacroMaker, Map and CloseView utilities.",
     releaseDate: [1988, 4, 30],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
-    ...system60HdManifest,
+    generatedSpec: () => import("./Data/System 6.0 HD.dsk.json"),
 };
 
 const SYSTEM_6_0_1: PlaceholderDiskDef = {
@@ -233,46 +196,42 @@ const SYSTEM_6_0_1: PlaceholderDiskDef = {
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
 };
 
-const SYSTEM_6_0_2: DiskDef = {
+const SYSTEM_6_0_2: SystemDiskDef = {
     displayName: "System 6.0.2",
     description: "Updated LaserWriter and other printing-related utilites.",
     releaseDate: [1988, 9, 19],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
-    ...system602HdManifest,
+    generatedSpec: () => import("./Data/System 6.0.2 HD.dsk.json"),
 };
 
-const SYSTEM_6_0_3: DiskDef = {
+const SYSTEM_6_0_3: SystemDiskDef = {
     displayName: "System 6.0.3",
     description: "Added support for the Mac IIcx and SE/30.",
     releaseDate: [1989, 3, 7],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
-    ...system603HdManifest,
+    generatedSpec: () => import("./Data/System 6.0.3 HD.dsk.json"),
 };
 
-const SYSTEM_6_0_4: DiskDef = {
+const SYSTEM_6_0_4: SystemDiskDef = {
     displayName: "System 6.0.4",
     description:
         "Added support for the Mac IIci and Portable. Improved the installer. Holding down the option key when double-clicking in the Finder closes the parent window.",
     releaseDate: [1989, 9, 20],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
-    ...system604HdManifest,
+    generatedSpec: () => import("./Data/System 6.0.4 HD.dsk.json"),
 };
 
-const SYSTEM_6_0_5: DiskDef = {
+const SYSTEM_6_0_5: SystemDiskDef = {
     displayName: "System 6.0.5",
     description:
         "Bundled 32-bit QuickDraw (previously a separate package). Added support for the Mac IIfx.",
     releaseDate: [1990, 3, 19],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
-    ...system605HdManifest,
+    generatedSpec: () => import("./Data/System 6.0.5 HD.dsk.json"),
 };
 
 const SYSTEM_6_0_6: PlaceholderDiskDef = {
@@ -283,63 +242,58 @@ const SYSTEM_6_0_6: PlaceholderDiskDef = {
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
 };
 
-const SYSTEM_6_0_7: DiskDef = {
+const SYSTEM_6_0_7: SystemDiskDef = {
     displayName: "System 6.0.7",
     description:
         "First release to ship on 1440K disks. Added support for the Classic, LC and IIsi.",
     releaseDate: [1990, 10, 15],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
-    ...system607HdManifest,
+    generatedSpec: () => import("./Data/System 6.0.7 HD.dsk.json"),
 };
 
-const SYSTEM_6_0_8: DiskDef = {
+const SYSTEM_6_0_8: SystemDiskDef = {
     displayName: "System 6.0.8",
     description:
         "Final release of System 6, updated printing software to match the printing software of System 7.",
     releaseDate: [1991, 4, 17],
-    baseUrl: "/Disk",
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
-    ...system608HdManifest,
+    generatedSpec: () => import("./Data/System 6.0.8 HD.dsk.json"),
 };
 
-const SYSTEM_7_0: DiskDef = {
+const SYSTEM_7_0: SystemDiskDef = {
     displayName: "System 7.0",
     description:
         "Fully 32-bit clean, the MultiFinder is now mandatory, reorganized the System Folder into subfolders, made the Apple menu customizable, revamped the window appearance, and much more.",
     releaseDate: [1991, 5, 13],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     ],
     machines: [MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
-    ...system70HdManifest,
+    generatedSpec: () => import("./Data/System 7.0 HD.dsk.json"),
 };
 
-const SYSTEM_7_1: DiskDef = {
+const SYSTEM_7_1: SystemDiskDef = {
     displayName: "System 7.1",
     description:
         "Added the Fonts folder, introduced system enablers to support new Mac models and improved internationalization support.",
     releaseDate: [1992, 8, 28],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22,
         25, 26,
     ],
     machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
-    ...system71HdManifest,
+    generatedSpec: () => import("./Data/System 7.1 HD.dsk.json"),
 };
 
-const SYSTEM_7_1_1: DiskDef = {
+const SYSTEM_7_1_1: SystemDiskDef = {
     displayName: "System 7.1.1",
     displaySubtitle: "Pro",
     description: "Bundled PowerTalk and AppleScript.",
     releaseDate: [1993, 10, 21],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 21, 22, 23,
         24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
@@ -347,7 +301,7 @@ const SYSTEM_7_1_1: DiskDef = {
     ],
     machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
-    ...system711HdManifest,
+    generatedSpec: () => import("./Data/System 7.1.1 HD.dsk.json"),
 };
 
 const SYSTEM_7_1_2: PlaceholderDiskDef = {
@@ -359,12 +313,11 @@ const SYSTEM_7_1_2: PlaceholderDiskDef = {
     machines: [POWER_MACINTOSH_9500],
 };
 
-const SYSTEM_7_5: DiskDef = {
+const SYSTEM_7_5: SystemDiskDef = {
     displayName: "System 7.5",
     description:
         "Featured a new startup screen, drag-and-drop support and the Launcher. Included a hierarchical Apple menu, Extensions Manager, menu bar clock, Find File, Stickies, WindowShade, all based on licensed third-party utilities.",
     releaseDate: [1994, 9, 12],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 6, 7, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
         26, 27, 28, 33, 39, 40, 41, 43, 44, 45, 46, 47, 48, 50, 51, 54, 55, 56,
@@ -372,15 +325,14 @@ const SYSTEM_7_5: DiskDef = {
     ],
     machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
-    ...system75HdManifest,
+    generatedSpec: () => import("./Data/System 7.5 HD.dsk.json"),
 };
 
-const SYSTEM_7_5_1: DiskDef = {
+const SYSTEM_7_5_1: SystemDiskDef = {
     displayName: "System 7.5.1",
     description:
         "Bug fixes and small tweaks. Startup screen now now features the Mac OS logo.",
     releaseDate: [1995, 3, 23],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
         27, 28, 29, 31, 32, 33, 34, 35, 39, 41, 48, 50, 51, 54, 55, 57, 58, 59,
@@ -389,15 +341,14 @@ const SYSTEM_7_5_1: DiskDef = {
     ],
     machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
-    ...system751HdManifest,
+    generatedSpec: () => import("./Data/System 7.5.1 HD.dsk.json"),
 };
 
-const SYSTEM_7_5_2: DiskDef = {
+const SYSTEM_7_5_2: SystemDiskDef = {
     displayName: "System 7.5.2",
     description:
         "Introduced the Open Transport networking stack. Added support for PCI-based Power Macs.",
     releaseDate: [1995, 6, 19],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
         27, 28, 29, 31, 32, 33, 34, 35, 39, 41, 48, 50, 51, 54, 55, 57, 58, 59,
@@ -407,15 +358,14 @@ const SYSTEM_7_5_2: DiskDef = {
     machines: [POWER_MACINTOSH_9500],
     appleTalkSupported: true,
     isUnstable: true,
-    ...system752HdManifest,
+    generatedSpec: () => import("./Data/System 7.5.2 HD.dsk.json"),
 };
 
-const SYSTEM_7_5_3: DiskDef = {
+const SYSTEM_7_5_3: SystemDiskDef = {
     displayName: "System 7.5.3",
     description:
         "Brought Open Transport and other improvements released with the PCI Power Mac-only 7.5.2 release to a broader set of Macs.",
     releaseDate: [1996, 3, 11],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24,
         25, 26, 27, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58,
@@ -425,16 +375,15 @@ const SYSTEM_7_5_3: DiskDef = {
     ],
     machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
     appleTalkSupported: true,
-    ...system753HdManifest,
+    generatedSpec: () => import("./Data/System 7.5.3 HD.dsk.json"),
 };
 
-const SYSTEM_7_5_3_PPC: DiskDef = {
+const SYSTEM_7_5_3_PPC: SystemDiskDef = {
     displayName: "System 7.5.3",
     displaySubtitle: "PowerPC",
     description:
         "Installation with OpenDoc, QuickDraw GX and other PowerPC-only software.",
     releaseDate: [1996, 3, 11],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23,
         24, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
@@ -446,14 +395,13 @@ const SYSTEM_7_5_3_PPC: DiskDef = {
     ],
     machines: [POWER_MACINTOSH_9500],
     appleTalkSupported: true,
-    ...system753PpcHdManifest,
+    generatedSpec: () => import("./Data/System 7.5.3 (PPC) HD.dsk.json"),
 };
 
-const KANJITALK_7_5_3: DiskDef = {
+const KANJITALK_7_5_3: SystemDiskDef = {
     displayName: "KanjiTalk 7.5.3",
     description: "Japanese edition of System 7.5.3.",
     releaseDate: [1996, 3, 11],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 27, 28,
         29, 30, 31, 32, 33, 34, 35, 43, 44, 45, 46, 47, 49, 50, 51, 52, 54, 62,
@@ -464,7 +412,7 @@ const KANJITALK_7_5_3: DiskDef = {
     ],
     machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
     appleTalkSupported: true,
-    ...kanjiTalk753HdManifest,
+    generatedSpec: () => import("./Data/KanjiTalk 7.5.3 HD.dsk.json"),
 };
 
 const SYSTEM_7_5_4: PlaceholderDiskDef = {
@@ -476,11 +424,10 @@ const SYSTEM_7_5_4: PlaceholderDiskDef = {
     machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
 };
 
-const SYSTEM_7_5_5: DiskDef = {
+const SYSTEM_7_5_5: SystemDiskDef = {
     displayName: "System 7.5.5",
     description: "Improved memory system performance and reliability.",
     releaseDate: [1996, 9, 18],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 2, 5, 6, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
         24, 25, 27, 28, 30, 31, 32, 33, 34, 35, 38, 45, 46, 49, 50, 51, 57, 59,
@@ -498,15 +445,14 @@ const SYSTEM_7_5_5: DiskDef = {
         POWER_MACINTOSH_9500,
     ],
     appleTalkSupported: true,
-    ...system755HdManifest,
+    generatedSpec: () => import("./Data/System 7.5.5 HD.dsk.json"),
 };
 
-const MAC_OS_7_6: DiskDef = {
+const MAC_OS_7_6: SystemDiskDef = {
     displayName: "Mac OS 7.6",
     description:
         "First to be officially called “Mac OS”. Improved performance and reliability. Featured a revamped Extensions Manager and speech support.",
     releaseDate: [1997, 1, 7],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 11, 12, 13, 18, 29, 30, 32, 33, 34, 35, 36, 37, 38, 39, 40, 54,
         55, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 69, 70, 78, 79, 80, 81,
@@ -518,15 +464,14 @@ const MAC_OS_7_6: DiskDef = {
     ],
     machines: [QUADRA_650, MAC_IIFX, POWER_MACINTOSH_9500],
     appleTalkSupported: true,
-    ...macos76HdManifest,
+    generatedSpec: () => import("./Data/Mac OS 7.6 HD.dsk.json"),
 };
 
-const MAC_OS_8_0: DiskDef = {
+const MAC_OS_8_0: SystemDiskDef = {
     displayName: "Mac OS 8.0",
     description:
         "Introduced the Platinum appearance, multi-threaded Finder, context menus, popup windows, and other features.",
     releaseDate: [1997, 7, 26],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 10, 11, 12, 22, 23, 25, 28, 29, 30, 31, 33, 34, 35, 36, 37,
         39, 40, 42, 44, 56, 58, 59, 60, 62, 63, 65, 66, 67, 68, 70, 71, 72, 73,
@@ -541,14 +486,13 @@ const MAC_OS_8_0: DiskDef = {
     machines: [QUADRA_650, POWER_MACINTOSH_9500],
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
-    ...macos80HdManifest,
+    generatedSpec: () => import("./Data/Mac OS 8.0 HD.dsk.json"),
 };
 
-const MAC_OS_8_1: DiskDef = {
+const MAC_OS_8_1: SystemDiskDef = {
     displayName: "Mac OS 8.1",
     description: "Added support for the HFS+ file system.",
     releaseDate: [1998, 1, 19],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 22, 23, 24, 25, 26, 27, 28, 29,
         30, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,
@@ -562,15 +506,14 @@ const MAC_OS_8_1: DiskDef = {
     machines: [QUADRA_650, POWER_MACINTOSH_9500],
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
-    ...macos81HdManifest,
+    generatedSpec: () => import("./Data/Mac OS 8.1 HD.dsk.json"),
 };
 
-const MAC_OS_8_5: DiskDef = {
+const MAC_OS_8_5: SystemDiskDef = {
     displayName: "Mac OS 8.5",
     description:
         "Introduced Sherlock, 32-bit icons in the Finder, font smoothing, a new help system and the application palette.",
     releaseDate: [1998, 10, 17],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22, 23, 24, 25,
         26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44,
@@ -590,15 +533,14 @@ const MAC_OS_8_5: DiskDef = {
     machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3],
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
-    ...macos85HdManifest,
+    generatedSpec: () => import("./Data/Mac OS 8.5 HD.dsk.json"),
 };
 
-const MAC_OS_8_6: DiskDef = {
+const MAC_OS_8_6: SystemDiskDef = {
     displayName: "Mac OS 8.6",
     description:
         "Added a revised nanokernel for improved multi-processing and multi-threading.",
     releaseDate: [1999, 5, 10],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
         24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 38, 39, 40, 41, 42,
@@ -619,15 +561,14 @@ const MAC_OS_8_6: DiskDef = {
     machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3],
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
-    ...macos86HdManifest,
+    generatedSpec: () => import("./Data/Mac OS 8.6 HD.dsk.json"),
 };
 
-const MAC_OS_9_0: DiskDef = {
+const MAC_OS_9_0: SystemDiskDef = {
     displayName: "Mac OS 9.0",
     description:
         "Introduced the Keychain, multiple user support, iTools integration, Sherlock internet channels and online software updates.",
     releaseDate: [1999, 10, 23],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 4, 5, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 33, 38, 39, 41,
         42, 43, 44, 45, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
@@ -649,7 +590,7 @@ const MAC_OS_9_0: DiskDef = {
     ],
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
     hasPlatinumAppearance: true,
-    ...macos90HdManifest,
+    generatedSpec: () => import("./Data/Mac OS 9.0 HD.dsk.json"),
 };
 
 const MAC_OS_9_0_1: PlaceholderDiskDef = {
@@ -676,12 +617,11 @@ const MAC_OS_9_0_3: PlaceholderDiskDef = {
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
 };
 
-const MAC_OS_9_0_4: DiskDef = {
+const MAC_OS_9_0_4: SystemDiskDef = {
     displayName: "Mac OS 9.0.4",
     description:
         "Bug fixes, final release supported by the SheepShaver emulator.",
     releaseDate: [2000, 4, 4],
-    baseUrl: "/Disk",
     prefetchChunks: [
         0, 4, 5, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
         34, 35, 38, 39, 40, 44, 46, 47, 48, 49, 50, 51, 52, 54, 55, 56, 57, 58,
@@ -705,7 +645,7 @@ const MAC_OS_9_0_4: DiskDef = {
     ],
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
     hasPlatinumAppearance: true,
-    ...macos904HdManifest,
+    generatedSpec: () => import("./Data/Mac OS 9.0.4 HD.dsk.json"),
 };
 
 const ALL_DISKS = [
@@ -755,10 +695,8 @@ const ALL_DISKS = [
 ];
 
 export const DISKS_BY_YEAR: {
-    [year: number]: (DiskDef | PlaceholderDiskDef)[];
+    [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
 } = {};
-
-export const DISKS_BY_NAME: {[name: string]: DiskDef} = {};
 
 ALL_DISKS.forEach(disk => {
     const [year] = disk.releaseDate;
@@ -766,20 +704,14 @@ ALL_DISKS.forEach(disk => {
         DISKS_BY_YEAR[year] = [];
     }
     DISKS_BY_YEAR[year].push(disk);
-
-    if (!isPlaceholderDiskDef(disk)) {
-        DISKS_BY_NAME[disk.name] = disk;
-    }
 });
 
-export const INFINITE_HD = {
-    baseUrl: "/Disk",
+export const INFINITE_HD: EmulatorDiskDef = {
     prefetchChunks: [0, 3692, 3696, 3697, 3698],
-    ...infiniteHdManifest,
+    generatedSpec: () => import("./Data/Infinite HD.dsk.json"),
 };
 
-export const INFINITE_HD_MFS = {
-    baseUrl: "/Disk",
+export const INFINITE_HD_MFS: EmulatorDiskDef = {
     prefetchChunks: [0, 1, 2],
-    ...infiniteHdMfsManifest,
+    generatedSpec: () => import("./Data/Infinite HD (MFS).dsk.json"),
 };
