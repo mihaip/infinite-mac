@@ -62,7 +62,7 @@ export class EthernetZone implements DurableObject {
                 case "close":
                     this.closeClient(client);
                     break;
-                case "send":
+                case "send": {
                     const {destination, ...sendPayload} = payload;
                     for (const otherClient of this.#clients) {
                         if (otherClient === client || otherClient.closed) {
@@ -86,6 +86,7 @@ export class EthernetZone implements DurableObject {
                         }
                     }
                     break;
+                }
                 default:
                     console.warn("Unexpected message", data);
             }

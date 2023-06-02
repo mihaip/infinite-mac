@@ -1,7 +1,7 @@
 import * as varz from "./varz";
 import * as cdrom from "./cd-rom";
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
-// @ts-expect-error
+// @ts-expect-error TODO: include declaration for this generated module.
 import manifestJSON from "__STATIC_CONTENT_MANIFEST";
 const manifest = JSON.parse(manifestJSON);
 
@@ -105,9 +105,12 @@ async function handleRequest(
                 ...notFoundResponse,
                 status: 404,
             });
-        } catch (e) {}
+        } catch (e) {
+            // Ignored
+        }
 
-        return new Response(e.message || e.toString(), {status: 500});
+        const err = e as Error;
+        return new Response(err.message || err.toString(), {status: 500});
     }
 }
 
@@ -136,7 +139,7 @@ function mapRequestToAsset(request: Request): Request {
     return new Request(parsedUrl.toString(), request);
 }
 
-const LEGACY_DOMAINS = {
+const LEGACY_DOMAINS: {[domain: string]: string} = {
     "system6.app": "/1991/System%206.0.8",
     "system7.app": "/1996/System%207.5.3",
     "kanjitalk7.app": "/1996/KanjiTalk%207.5.3",

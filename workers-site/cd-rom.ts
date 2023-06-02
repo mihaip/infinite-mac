@@ -92,7 +92,7 @@ export async function handleRequest(request: Request) {
         status: 200,
         headers: {
             "Content-Type": "multipart/mixed",
-            "Content-Length": srcRes.headers.get("Content-Length"),
+            "Content-Length": srcRes.headers.get("Content-Length")!,
             // Always allow caching (mirrors logic for our own disk chunks).
             "Cache-Control": `public, max-age=${60 * 60 * 24 * 30}, immutable`,
         },
