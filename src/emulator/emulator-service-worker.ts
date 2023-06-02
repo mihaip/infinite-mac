@@ -1,8 +1,9 @@
-import type {
-    EmulatorChunkedFileSpec,
-    EmulatorFallbackCommand,
+import {
+    type EmulatorChunkedFileSpec,
+    type EmulatorFallbackCommand,
+    generateNextChunkUrl,
+    generateChunkUrl,
 } from "./emulator-common";
-import {generateNextChunkUrl, generateChunkUrl} from "./emulator-common";
 
 declare const self: ServiceWorkerGlobalScope;
 

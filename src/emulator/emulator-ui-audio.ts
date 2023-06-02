@@ -1,11 +1,11 @@
-import type {
-    EmulatorAudioProcessorOptions,
-    EmulatorWorkerAudioConfig,
-    EmulatorWorkerFallbackAudioConfig,
-    EmulatorWorkerSharedMemoryAudioConfig,
+import {
+    type EmulatorAudioProcessorOptions,
+    type EmulatorWorkerAudioConfig,
+    type EmulatorWorkerFallbackAudioConfig,
+    type EmulatorWorkerSharedMemoryAudioConfig,
 } from "./emulator-common";
 import audioWorkletPath from "./emulator-audio-worklet?worker&url";
-import type {EmulatorInput} from "./emulator-ui-input";
+import {type EmulatorInput} from "./emulator-ui-input";
 import {RingBuffer} from "ringbuf.js";
 
 export abstract class EmulatorAudio {

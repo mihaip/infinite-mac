@@ -1,7 +1,7 @@
-import type {
-    EmulatorSpeed,
-    EmulatorSubtype,
-    EmulatorType,
+import {
+    type EmulatorSpeed,
+    type EmulatorSubtype,
+    type EmulatorType,
 } from "./emulator-common-emulators";
 
 export const InputBufferAddresses = {

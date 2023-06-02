@@ -1,6 +1,6 @@
-import type {
-    EmulatorEthernetProvider,
-    EmulatorEthernetProviderDelegate,
+import {
+    type EmulatorEthernetProvider,
+    type EmulatorEthernetProviderDelegate,
 } from "./emulator/emulator-ui";
 
 /**

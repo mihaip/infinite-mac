@@ -1,41 +1,39 @@
-import type {
-    EmlatorFallbackSetClipboardDataCommand,
-    EmulatorCDROM,
-    EmulatorChunkedFileSpec,
-    EmulatorClipboardData,
-    EmulatorFallbackCommand,
-    EmulatorFallbackEthernetReceiveCommand,
-    EmulatorFallbackInputCommand,
-    EmulatorFallbackLoadCDROMCommand,
-    EmulatorFallbackUploadFileCommand,
-    EmulatorFileUpload,
-    EmulatorInputEvent,
-    EmulatorWorkerConfig,
-    EmulatorWorkerVideoBlit,
-    EmulatorWorkerVideoBlitRect,
-} from "./emulator-common";
 import {
+    type EmlatorFallbackSetClipboardDataCommand,
+    type EmulatorCDROM,
+    type EmulatorChunkedFileSpec,
+    type EmulatorClipboardData,
+    type EmulatorFallbackCommand,
+    type EmulatorFallbackEthernetReceiveCommand,
+    type EmulatorFallbackInputCommand,
+    type EmulatorFallbackLoadCDROMCommand,
+    type EmulatorFallbackUploadFileCommand,
+    type EmulatorFileUpload,
+    type EmulatorInputEvent,
+    type EmulatorWorkerConfig,
+    type EmulatorWorkerVideoBlit,
+    type EmulatorWorkerVideoBlitRect,
     isDiskImageFile,
     ethernetMacAddressFromString,
     InputBufferAddresses,
 } from "./emulator-common";
-import type {EmulatorWorkerAudio} from "./emulator-worker-audio";
 import {
+    type EmulatorWorkerAudio,
     FallbackEmulatorWorkerAudio,
     SharedMemoryEmulatorWorkerAudio,
 } from "./emulator-worker-audio";
-import type {EmulatorWorkerInput} from "./emulator-worker-input";
 import {
+    type EmulatorWorkerInput,
     FallbackEmulatorWorkerInput,
     SharedMemoryEmulatorWorkerInput,
 } from "./emulator-worker-input";
-import type {EmulatorWorkerVideo} from "./emulator-worker-video";
 import {
+    type EmulatorWorkerVideo,
     FallbackEmulatorWorkerVideo,
     SharedMemoryEmulatorWorkerVideo,
 } from "./emulator-worker-video";
-import type {EmulatorWorkerFiles} from "./emulator-worker-files";
 import {
+    type EmulatorWorkerFiles,
     FallbackEmulatorWorkerFiles,
     SharedMemoryEmulatorWorkerFiles,
 } from "./emulator-worker-files";
@@ -47,15 +45,15 @@ import {
 } from "./emulator-worker-extractor";
 import {EmulatorWorkerChunkedDisk} from "./emulator-worker-chunked-disk";
 import {restorePersistedData} from "./emulator-worker-persistence";
-import type {EmulatorWorkerEthernet} from "./emulator-worker-ethernet";
 import {
+    type EmulatorWorkerEthernet,
     FallbackEmulatorWorkerEthernet,
     SharedMemoryEmulatorWorkerEthernet,
     handlePingPacket,
     sendEthernetPacket,
 } from "./emulator-worker-ethernet";
-import type {EmulatorWorkerClipboard} from "./emulator-worker-clipboard";
 import {
+    type EmulatorWorkerClipboard,
     FallbackEmulatorWorkerClipboard,
     SharedMemoryEmulatorWorkerClipboard,
 } from "./emulator-worker-clipboard";

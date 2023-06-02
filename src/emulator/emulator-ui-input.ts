@@ -1,15 +1,13 @@
-import type {
-    EmulatorInputEvent,
-    EmulatorWorkerFallbackInputConfig,
-    EmulatorWorkerInputConfig,
-    EmulatorWorkerSharedMemoryInputConfig,
-} from "./emulator-common";
 import {
+    type EmulatorInputEvent,
+    type EmulatorWorkerFallbackInputConfig,
+    type EmulatorWorkerInputConfig,
+    type EmulatorWorkerSharedMemoryInputConfig,
     updateInputBufferWithEvents,
     InputBufferAddresses,
     LockStates,
 } from "./emulator-common";
-import type {EmulatorFallbackCommandSender} from "./emulator-ui";
+import {type EmulatorFallbackCommandSender} from "./emulator-ui";
 
 const INPUT_BUFFER_SIZE = 100;
 

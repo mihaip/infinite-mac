@@ -5,7 +5,7 @@ import MinivMacPlusWasmPath from "./minivmac-Plus.wasm?url";
 import MinivMacSEWasmPath from "./minivmac-SE.wasm?url";
 import BasiliskIIWasmPath from "./BasiliskII.wasm?url";
 import SheepShaverWasmPath from "./SheepShaver.wasm?url";
-import type {EmulatorDef} from "./emulator-common-emulators";
+import {type EmulatorDef} from "./emulator-common-emulators";
 
 export function getEmulatorWasmPath(def: EmulatorDef) {
     const {emulatorType, emulatorSubtype} = def;

@@ -1,10 +1,14 @@
-import type {SystemDiskDef, PlaceholderDiskDef} from "./disks";
-import {DISKS_BY_YEAR, isPlaceholderDiskDef} from "./disks";
-import type {MachineDef} from "./machines";
+import {
+    type SystemDiskDef,
+    type PlaceholderDiskDef,
+    DISKS_BY_YEAR,
+    isPlaceholderDiskDef,
+} from "./disks";
+import {type MachineDef} from "./machines";
 import {ScreenFrame} from "./ScreenFrame";
 import {useState} from "react";
 import {Button} from "./Button";
-import type {EmulatorEthernetProvider} from "./emulator/emulator-ui";
+import {type EmulatorEthernetProvider} from "./emulator/emulator-ui";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 import {emulatorSupportsAppleTalk} from "./emulator/emulator-common-emulators";
 import {About} from "./About";

@@ -1,9 +1,7 @@
-import type {
-    EmulatorWorkerEthernetConfig,
-    EmulatorWorkerFallbackEthernetConfig,
-    EmulatorWorkerSharedMemoryEthernetConfig,
-} from "./emulator-common";
 import {
+    type EmulatorWorkerEthernetConfig,
+    type EmulatorWorkerFallbackEthernetConfig,
+    type EmulatorWorkerSharedMemoryEthernetConfig,
     ETHERNET_PING_HEADER,
     ETHERNET_PING_PACKET_LENGTH,
     ETHERNET_PING_PAYLOAD_LENGTH,
@@ -12,9 +10,9 @@ import {
     ethernetMacAddressToString,
     ethernetMacAddressFromString,
 } from "./emulator-common";
-import type {
-    EmulatorEthernetProvider,
-    EmulatorFallbackCommandSender,
+import {
+    type EmulatorEthernetProvider,
+    type EmulatorFallbackCommandSender,
 } from "./emulator-ui";
 import {RingBuffer} from "ringbuf.js";
 

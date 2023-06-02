@@ -1,6 +1,6 @@
-import type {
-    EmulatorWorkerDirectorExtraction,
-    EmulatorWorkerDirectorExtractionEntry,
+import {
+    type EmulatorWorkerDirectorExtraction,
+    type EmulatorWorkerDirectorExtractionEntry,
 } from "./emulator-common";
 
 export function initializeExtractor() {

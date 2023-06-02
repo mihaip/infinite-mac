@@ -1,12 +1,16 @@
 import React, {Suspense, useEffect, useMemo, useState} from "react";
 import "./App.css";
 import {BroadcastChannelEthernetProvider} from "./BroadcastChannelEthernetProvider";
-import type {BrowserRunDef} from "./Browser";
-import {Browser, runDefFromUrl, runDefToUrl} from "./Browser";
+import {
+    type BrowserRunDef,
+    Browser,
+    runDefFromUrl,
+    runDefToUrl,
+} from "./Browser";
 import {Footer} from "./Footer";
-import type {MacProps} from "./Mac";
+import {type MacProps} from "./Mac";
 import cdromsManifest from "./Data/CD-ROMs.json";
-import type {EmulatorCDROMLibrary} from "./emulator/emulator-common";
+import {type EmulatorCDROMLibrary} from "./emulator/emulator-common";
 
 function App() {
     const [

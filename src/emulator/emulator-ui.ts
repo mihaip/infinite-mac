@@ -1,13 +1,13 @@
-import type {
-    EmulatorCDROM,
-    EmulatorChunkedFileSpec,
-    EmulatorFallbackCommand,
-    EmulatorWorkerConfig,
-    EmulatorWorkerDirectorExtraction,
-    EmulatorWorkerVideoBlit,
-} from "./emulator-common";
-import type {EmulatorSpeed} from "./emulator-common-emulators";
 import {
+    type EmulatorCDROM,
+    type EmulatorChunkedFileSpec,
+    type EmulatorFallbackCommand,
+    type EmulatorWorkerConfig,
+    type EmulatorWorkerDirectorExtraction,
+    type EmulatorWorkerVideoBlit,
+} from "./emulator-common";
+import {
+    type EmulatorSpeed,
     EMULATOR_CD_DRIVE_COUNT,
     emulatorCpuId,
     emulatorModelId,
@@ -16,23 +16,23 @@ import {
 import {getEmulatorWasmPath} from "./emulator-ui-emulators";
 import Worker from "./emulator-worker?worker";
 import serviceWorkerPath from "./emulator-service-worker?worker&url";
-import type {EmulatorAudio} from "./emulator-ui-audio";
 import {
+    type EmulatorAudio,
     FallbackEmulatorAudio,
     SharedMemoryEmulatorAudio,
 } from "./emulator-ui-audio";
-import type {EmulatorInput} from "./emulator-ui-input";
 import {
+    type EmulatorInput,
     FallbackEmulatorInput,
     SharedMemoryEmulatorInput,
 } from "./emulator-ui-input";
-import type {EmulatorVideo} from "./emulator-ui-video";
 import {
+    type EmulatorVideo,
     FallbackEmulatorVideo,
     SharedMemoryEmulatorVideo,
 } from "./emulator-ui-video";
-import type {EmulatorFiles} from "./emulator-ui-files";
 import {
+    type EmulatorFiles,
     FallbackEmulatorFiles,
     SharedMemoryEmulatorFiles,
 } from "./emulator-ui-files";
@@ -45,23 +45,21 @@ import {
     JS_CODE_TO_ADB_KEYCODE,
     JS_CODE_TO_MINI_VMAC_KEYCODE,
 } from "./emulator-key-codes";
-import type {
-    EmulatorEthernet,
-    EthernetPingerPeer,
-} from "./emulator-ui-ethernet";
 import {
+    type EmulatorEthernet,
+    type EthernetPingerPeer,
     handleEthernetWrite,
     FallbackEmulatorEthernet,
     SharedMemoryEmulatorEthernet,
     EthernetPinger,
 } from "./emulator-ui-ethernet";
-import type {EmulatorClipboard} from "./emulator-ui-clipboard";
 import {
+    type EmulatorClipboard,
     FallbackEmulatorClipboard,
     SharedMemoryEmulatorClipboard,
 } from "./emulator-ui-clipboard";
-import type {MachineDef} from "../machines";
-import type {EmulatorDiskDef} from "../disks";
+import {type MachineDef} from "../machines";
+import {type EmulatorDiskDef} from "../disks";
 
 export type EmulatorConfig = {
     machine: MachineDef;

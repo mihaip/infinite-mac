@@ -1,34 +1,39 @@
 import React, {useEffect, useState, useRef, useCallback} from "react";
 import "./Mac.css";
-import type {
-    EmulatorEthernetProvider,
-    EmulatorEthernetPeer,
-    EmulatorSettings,
-} from "./emulator/emulator-ui";
-import {Emulator} from "./emulator/emulator-ui";
-import type {
-    EmulatorCDROM,
-    EmulatorCDROMLibrary,
-} from "./emulator/emulator-common";
-import {isDiskImageFile} from "./emulator/emulator-common";
-import type {
-    EmulatorSpeed,
-    EmulatorType,
-} from "./emulator/emulator-common-emulators";
 import {
+    type EmulatorEthernetProvider,
+    type EmulatorEthernetPeer,
+    type EmulatorSettings,
+    Emulator,
+} from "./emulator/emulator-ui";
+import {
+    type EmulatorCDROM,
+    type EmulatorCDROMLibrary,
+    isDiskImageFile,
+} from "./emulator/emulator-common";
+import {
+    type EmulatorSpeed,
+    type EmulatorType,
     emulatorSupportsSpeedSetting,
     EMULATOR_SPEEDS,
 } from "./emulator/emulator-common-emulators";
 import {useDevicePixelRatio} from "./useDevicePixelRatio";
 import {usePersistentState} from "./usePersistentState";
 import * as varz from "./varz";
-import type {ScreenControl, ScreenFrameProps} from "./ScreenFrame";
-import {ScreenFrame} from "./ScreenFrame";
+import {
+    type ScreenControl,
+    type ScreenFrameProps,
+    ScreenFrame,
+} from "./ScreenFrame";
 import {Dialog} from "./Dialog";
-import type {EmulatorDiskDef, SystemDiskDef} from "./disks";
-import {INFINITE_HD, INFINITE_HD_MFS} from "./disks";
-import type {MachineDef} from "./machines";
-import type {ButtonProps} from "./Button";
+import {
+    type EmulatorDiskDef,
+    type SystemDiskDef,
+    INFINITE_HD,
+    INFINITE_HD_MFS,
+} from "./disks";
+import {type MachineDef} from "./machines";
+import {type ButtonProps} from "./Button";
 
 export type MacProps = {
     disk: SystemDiskDef;

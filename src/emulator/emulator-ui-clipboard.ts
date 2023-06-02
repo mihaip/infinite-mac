@@ -1,9 +1,9 @@
-import type {
-    EmulatorClipboardData,
-    EmulatorWorkerClipboardConfig,
-    EmulatorWorkerFallbackClipboardConfig,
+import {
+    type EmulatorClipboardData,
+    type EmulatorWorkerClipboardConfig,
+    type EmulatorWorkerFallbackClipboardConfig,
 } from "./emulator-common";
-import type {EmulatorFallbackCommandSender} from "./emulator-ui";
+import {type EmulatorFallbackCommandSender} from "./emulator-ui";
 
 export interface EmulatorClipboard {
     workerConfig(): EmulatorWorkerClipboardConfig;

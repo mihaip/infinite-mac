@@ -1,6 +1,6 @@
-import type {EmulatorCDROM} from "./emulator-common";
+import {type EmulatorCDROM} from "./emulator-common";
 import {EmulatorWorkerChunkedDisk} from "./emulator-worker-chunked-disk";
-import type {EmulatorWorkerDisk} from "./emulator-worker-disks";
+import {type EmulatorWorkerDisk} from "./emulator-worker-disks";
 
 const CHUNK_SIZE = 128 * 1024;
 
