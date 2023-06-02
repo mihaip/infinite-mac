@@ -44,7 +44,8 @@ export function About({onDone}: {onDone: () => void}) {
                 <a
                     href="https://www.youtube.com/embed/tljxs9zuaA8"
                     target="_blank"
-                    rel="noopener noreferrer">
+                    rel="noopener noreferrer"
+                >
                     this video
                 </a>
                 . To learn more, including how it was built, see{" "}

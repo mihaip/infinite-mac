@@ -32,7 +32,8 @@ export function Dialog(props: DialogProps) {
                     onClick={e => {
                         e.preventDefault();
                         onDone();
-                    }}>
+                    }}
+                >
                     {doneLabel}
                 </Button>
             </footer>

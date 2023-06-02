@@ -413,7 +413,8 @@ export default function Mac({
                         />
                     )}
                 </>
-            }>
+            }
+        >
             {progress}
             {dragCount > 0 && <div className="Mac-Overlay Mac-Drag-Overlay" />}
             {ethernetProviderRef.current && (
@@ -529,7 +530,8 @@ function MacEthernetStatus({
     return (
         <div
             className="Mac-Ethernet-Status"
-            onClick={() => setExpanded(!expanded)}>
+            onClick={() => setExpanded(!expanded)}
+        >
             <div className="ScreenFrame-Bezel-Text">{text}</div>
             {details}
         </div>
@@ -553,7 +555,8 @@ function MacSettings({
         <Dialog
             title="Settings"
             onDone={onDone}
-            buttonAppearance={buttonAppearance}>
+            buttonAppearance={buttonAppearance}
+        >
             <label>
                 <input
                     type="checkbox"
@@ -585,7 +588,8 @@ function MacSettings({
                                     event.target.value
                                 ) as EmulatorSpeed,
                             })
-                        }>
+                        }
+                    >
                         {Array.from(
                             EMULATOR_SPEEDS.entries(),
                             ([speed, label]) => (

@@ -16,12 +16,14 @@ export function Footer({onLogoClick}: {onLogoClick?: () => void}) {
             </span>
             <span
                 onClick={() => setAboutVisible(true)}
-                className="Footer-About">
+                className="Footer-About"
+            >
                 About
             </span>
             <span
                 onClick={() => setDonateVisible(true)}
-                className="Footer-Donate">
+                className="Footer-Donate"
+            >
                 Donate
             </span>
         </div>
