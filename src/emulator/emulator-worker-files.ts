@@ -1,11 +1,11 @@
-import type {
-    EmulatorCDROM,
-    EmulatorFileActions,
-    EmulatorFileUpload,
-    EmulatorWorkerFallbackFilesConfig,
-    EmulatorWorkerSharedMemoryFilesConfig,
+import {
+    type EmulatorCDROM,
+    type EmulatorFileActions,
+    type EmulatorFileUpload,
+    type EmulatorWorkerFallbackFilesConfig,
+    type EmulatorWorkerSharedMemoryFilesConfig,
 } from "./emulator-common";
-import type {EmulatorFallbackEndpoint} from "./emulator-worker";
+import {type EmulatorFallbackEndpoint} from "./emulator-worker";
 
 export interface EmulatorWorkerFiles {
     consumeRequests(): {uploads: EmulatorFileUpload[]; cdroms: EmulatorCDROM[]};

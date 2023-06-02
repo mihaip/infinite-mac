@@ -1,8 +1,8 @@
-import type {
-    EmulatorWorkerFallbackVideoConfig,
-    EmulatorWorkerSharedMemoryVideoConfig,
-    EmulatorWorkerVideoBlit,
-    EmulatorWorkerVideoBlitRect,
+import {
+    type EmulatorWorkerFallbackVideoConfig,
+    type EmulatorWorkerSharedMemoryVideoConfig,
+    type EmulatorWorkerVideoBlit,
+    type EmulatorWorkerVideoBlitRect,
 } from "./emulator-common";
 
 export interface EmulatorWorkerVideo {

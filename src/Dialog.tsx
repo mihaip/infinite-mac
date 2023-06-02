@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import type {ButtonProps} from "./Button";
-import {Button} from "./Button";
+import {type ButtonProps, Button} from "./Button";
 import "./Dialog.css";
 
 export type DialogProps = {

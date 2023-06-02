@@ -1,9 +1,9 @@
 import JSZip from "jszip";
 import {saveAs} from "file-saver";
-import type {
-    EmulatorFileUpload,
-    EmulatorWorkerDirectorExtraction,
-    EmulatorWorkerDirectorExtractionEntry,
+import {
+    type EmulatorFileUpload,
+    type EmulatorWorkerDirectorExtraction,
+    type EmulatorWorkerDirectorExtractionEntry,
 } from "./emulator-common";
 import * as varz from "../varz";
 

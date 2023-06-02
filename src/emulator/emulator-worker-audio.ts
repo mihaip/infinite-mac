@@ -1,7 +1,7 @@
 import {RingBuffer} from "ringbuf.js";
-import type {
-    EmulatorWorkerFallbackAudioConfig,
-    EmulatorWorkerSharedMemoryAudioConfig,
+import {
+    type EmulatorWorkerFallbackAudioConfig,
+    type EmulatorWorkerSharedMemoryAudioConfig,
 } from "./emulator-common";
 
 export interface EmulatorWorkerAudio {

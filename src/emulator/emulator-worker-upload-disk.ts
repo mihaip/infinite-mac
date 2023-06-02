@@ -1,5 +1,5 @@
-import type {EmulatorFileUpload} from "./emulator-common";
-import type {EmulatorWorkerDisk} from "./emulator-worker-disks";
+import {type EmulatorFileUpload} from "./emulator-common";
+import {type EmulatorWorkerDisk} from "./emulator-worker-disks";
 import {getUploadData} from "./emulator-worker-files";
 
 export class EmulatorWorkerUploadDisk implements EmulatorWorkerDisk {

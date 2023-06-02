@@ -1,6 +1,6 @@
-import type {EmulatorChunkedFileSpec} from "./emulator/emulator-common";
-import type {MachineDef} from "./machines";
+import {type EmulatorChunkedFileSpec} from "./emulator/emulator-common";
 import {
+    type MachineDef,
     MAC_128K,
     MAC_512KE,
     MAC_SE,

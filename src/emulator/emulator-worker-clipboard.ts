@@ -1,9 +1,9 @@
-import type {
-    EmulatorClipboardData,
-    EmulatorWorkerFallbackClipboardConfig,
-    EmulatorWorkerSharedMemoryClipboardConfig,
+import {
+    type EmulatorClipboardData,
+    type EmulatorWorkerFallbackClipboardConfig,
+    type EmulatorWorkerSharedMemoryClipboardConfig,
 } from "./emulator-common";
-import type {EmulatorFallbackEndpoint} from "./emulator-worker";
+import {type EmulatorFallbackEndpoint} from "./emulator-worker";
 
 export interface EmulatorWorkerClipboard {
     clipboardText(): string | undefined;

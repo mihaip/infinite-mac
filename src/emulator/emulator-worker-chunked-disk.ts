@@ -1,6 +1,8 @@
-import type {EmulatorChunkedFileSpec} from "./emulator-common";
-import {generateChunkUrl} from "./emulator-common";
-import type {EmulatorWorkerDisk} from "./emulator-worker-disks";
+import {
+    type EmulatorChunkedFileSpec,
+    generateChunkUrl,
+} from "./emulator-common";
+import {type EmulatorWorkerDisk} from "./emulator-worker-disks";
 
 export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
     #spec: EmulatorChunkedFileSpec;

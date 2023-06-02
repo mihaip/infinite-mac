@@ -1,4 +1,4 @@
-import type {EmulatorWorkerDirectorExtraction} from "./emulator-common";
+import {type EmulatorWorkerDirectorExtraction} from "./emulator-common";
 import * as idbKeyVal from "idb-keyval";
 
 export async function persistData(

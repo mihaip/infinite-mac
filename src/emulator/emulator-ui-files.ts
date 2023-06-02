@@ -1,12 +1,12 @@
-import type {
-    EmulatorCDROM,
-    EmulatorFileActions,
-    EmulatorFileUpload,
-    EmulatorWorkerFallbackFilesConfig,
-    EmulatorWorkerFilesConfig,
-    EmulatorWorkerSharedMemoryFilesConfig,
+import {
+    type EmulatorCDROM,
+    type EmulatorFileActions,
+    type EmulatorFileUpload,
+    type EmulatorWorkerFallbackFilesConfig,
+    type EmulatorWorkerFilesConfig,
+    type EmulatorWorkerSharedMemoryFilesConfig,
 } from "./emulator-common";
-import type {EmulatorFallbackCommandSender} from "./emulator-ui";
+import {type EmulatorFallbackCommandSender} from "./emulator-ui";
 
 const FILES_BUFFER_SIZE = 1024 * 1024;
 

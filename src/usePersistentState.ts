@@ -1,5 +1,4 @@
-import type {Dispatch, SetStateAction} from "react";
-import {useState, useEffect} from "react";
+import {type Dispatch, type SetStateAction, useState, useEffect} from "react";
 
 export function usePersistentState<T>(
     defaultValue: T,

@@ -1,12 +1,12 @@
-import type {
-    EmulatorWorkerFallbackVideoBlit,
-    EmulatorWorkerFallbackVideoConfig,
-    EmulatorWorkerSharedMemoryVideoConfig,
-    EmulatorWorkerVideoBlit,
-    EmulatorWorkerVideoBlitRect,
-    EmulatorWorkerVideoConfig,
+import {
+    type EmulatorWorkerFallbackVideoBlit,
+    type EmulatorWorkerFallbackVideoConfig,
+    type EmulatorWorkerSharedMemoryVideoConfig,
+    type EmulatorWorkerVideoBlit,
+    type EmulatorWorkerVideoBlitRect,
+    type EmulatorWorkerVideoConfig,
 } from "./emulator-common";
-import type {EmulatorConfig} from "./emulator-ui";
+import {type EmulatorConfig} from "./emulator-ui";
 
 const VIDEO_MODE_BUFFER_SIZE = 10;
 

@@ -101,11 +101,22 @@
                 }
             ],
             "prefer-const": "error",
+            "import/consistent-type-specifier-style": [
+                "error",
+                "prefer-inline"
+            ],
             "import/no-unresolved": "off",
+            "import/no-empty-named-blocks": "error",
+            "import/no-duplicates": [
+                "error",
+                {
+                    "prefer-inline": true
+                }
+            ],
             "@typescript-eslint/consistent-type-imports": [
                 "error",
                 {
-                    "disallowTypeAnnotations": false
+                    "fixStyle": "inline-type-imports"
                 }
             ],
             "@typescript-eslint/no-unused-vars": [

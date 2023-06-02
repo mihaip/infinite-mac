@@ -9,10 +9,10 @@ import powerMacintosh9500RomPath from "./Data/Power-Macintosh-9500.rom";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
 import minivMacPrefsPath from "./Data/MinivMacPrefs.txt";
-import type {
-    EmulatorCpu,
-    EmulatorSubtype,
-    EmulatorType,
+import {
+    type EmulatorCpu,
+    type EmulatorSubtype,
+    type EmulatorType,
 } from "./emulator/emulator-common-emulators";
 
 export type MachineDef = {

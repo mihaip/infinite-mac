@@ -5,7 +5,7 @@ import MinivMacPlusJsPath from "./minivmac-Plus.js?url";
 import MinivMacSEJsPath from "./minivmac-SE.js?url";
 import BasiliskIIJsPath from "./BasiliskII.js?url";
 import SheepShaverJsPath from "./SheepShaver.js?url";
-import type {EmulatorDef} from "./emulator-common-emulators";
+import {type EmulatorDef} from "./emulator-common-emulators";
 
 // Import the Emscripten-generated JS module wrapper for the emulator Wasm
 // binary. Assumes that Emscripten has been run with

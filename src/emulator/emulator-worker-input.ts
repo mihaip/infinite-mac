@@ -1,14 +1,12 @@
-import type {
-    EmulatorInputEvent,
-    EmulatorWorkerFallbackInputConfig,
-    EmulatorWorkerSharedMemoryInputConfig,
-} from "./emulator-common";
 import {
+    type EmulatorInputEvent,
+    type EmulatorWorkerFallbackInputConfig,
+    type EmulatorWorkerSharedMemoryInputConfig,
     updateInputBufferWithEvents,
     InputBufferAddresses,
     LockStates,
 } from "./emulator-common";
-import type {EmulatorFallbackEndpoint} from "./emulator-worker";
+import {type EmulatorFallbackEndpoint} from "./emulator-worker";
 
 export interface EmulatorWorkerInput {
     idleWait(timeout: number): boolean;
