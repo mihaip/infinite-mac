@@ -1,0 +1,4 @@
+src/emulator/minivmac-*.js
+src/emulator/SheepShaver.js
+src/emulator/BasiliskII.js
+src/Data/*.json

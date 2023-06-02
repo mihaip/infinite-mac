@@ -150,7 +150,8 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
                                 disk.machines[e.target.selectedIndex];
                             setMachine(machine);
                             setBezelStyle(machine.bezelStyle);
-                        }}>
+                        }}
+                    >
                         {disk.machines.map((machine, i) => (
                             <option value={machine.name} key={i}>
                                 {machine.name}
@@ -208,7 +209,8 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
                 <Button
                     appearance={buttonAppearance}
                     className="CustomizeButton"
-                    onClick={() => setCustomizing(!customizing)}>
+                    onClick={() => setCustomizing(!customizing)}
+                >
                     {customizing ? "Cancel" : "Customize…"}
                 </Button>
                 <Button appearance={buttonAppearance} onClick={run}>

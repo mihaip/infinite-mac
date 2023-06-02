@@ -43,6 +43,7 @@
         "preview": "vite preview --host",
         "worker-dev": "wrangler dev --local --port=3128",
         "worker-deploy": "wrangler publish --env production",
+        "prettier": "prettier --write src workers-site",
         "lint": "eslint src",
         "check": "tsc --noEmit",
         "format-macemu": "clang-format -i --glob=macemu/BasiliskII/src/Unix/JS/*"

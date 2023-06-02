@@ -61,7 +61,8 @@ export function ScreenFrame(props: ScreenFrameProps) {
                 height: `calc(${height}px + 2 * var(--screen-underscan))`,
                 transform: scale === undefined ? undefined : `scale(${scale})`,
             }}
-            {...divProps}>
+            {...divProps}
+        >
             <div className="ScreenFrame-Controls-Container">
                 <div className="ScreenFrame-Apple-Logo">
                     <AppleLogo className="Background" />
@@ -74,7 +75,8 @@ export function ScreenFrame(props: ScreenFrameProps) {
                             visibility: alwaysVisible ? "visible" : undefined,
                         }}
                         onClick={handler}
-                        key={label}>
+                        key={label}
+                    >
                         {label}
                     </div>
                 ))}
@@ -92,7 +94,8 @@ export function ScreenFrame(props: ScreenFrameProps) {
                 style={{
                     width,
                     height,
-                }}>
+                }}
+            >
                 {screen}
             </div>
             {children}
