@@ -18,6 +18,7 @@ import {About} from "./About";
 import {Donate} from "./Donate";
 import {useWindowWidth} from "./useWindowWidth";
 import "./Browser.css";
+import {Changelog} from "./Changelog";
 
 export type BrowserProps = {
     onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
@@ -56,6 +57,7 @@ export function Browser({onRun}: BrowserProps) {
 
 function Description() {
     const [aboutVisible, setAboutVisible] = useState(false);
+    const [changelogVisible, setChangelogVisible] = useState(false);
     const [donateVisible, setDonateVisible] = useState(false);
 
     return (
@@ -77,12 +79,18 @@ function Description() {
                 {aboutVisible && (
                     <About onDone={() => setAboutVisible(false)} />
                 )}
+                {changelogVisible && (
+                    <Changelog onDone={() => setChangelogVisible(false)} />
+                )}
                 {donateVisible && (
                     <Donate onDone={() => setDonateVisible(false)} />
                 )}
                 You can{" "}
-                <span onClick={() => setAboutVisible(true)}>learn more</span> or{" "}
-                <span onClick={() => setDonateVisible(true)}>donate</span> to
+                <span onClick={() => setAboutVisible(true)}>learn more</span>,{" "}
+                <span onClick={() => setChangelogVisible(true)}>
+                    see what's changed recently
+                </span>{" "}
+                or <span onClick={() => setDonateVisible(true)}>donate</span> to
                 support this project.
             </p>
         </div>

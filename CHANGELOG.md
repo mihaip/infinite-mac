@@ -1,5 +1,9 @@
 # CHANGELOG
 
+2023-06-03: Filtering of system software releases (all vs. just notable ones).
+
+2023-05-06: Improved the speed of dissolve animations in HyperCard stacks.
+
 2023-04-19: Disk images can now be mounted without restarting the Mac.
 
 2023-03-28: A new home at https://infinitemac.org, with a library of all classic System Software releases.
@@ -30,8 +34,8 @@
 
 2022-07-26: AppleTalk networking support! See https://blog.persistent.info/2022/07/infinite-mac-networking.html for more details.
 
-2022-04-17: Add KanjiTalk 7.5.3 boot image (hosted at kanjitalk7.app).
+2022-04-17: Added KanjiTalk 7.5.3 boot image (hosted at kanjitalk7.app).
 
-2022-04-09: Add support for dragging in and mounting CD-ROM images.
+2022-04-09: Added support for dragging in and mounting CD-ROM images.
 
 2022-03-31: Initial launch! See https://blog.persistent.info/2022/03/blog-post.html.
