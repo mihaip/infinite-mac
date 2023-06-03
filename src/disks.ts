@@ -37,6 +37,7 @@ export type SystemDiskDef = EmulatorDiskDef & {
     delayAdditionalDiskMount?: boolean;
     hasPlatinumAppearance?: boolean;
     isUnstable?: boolean;
+    notable?: boolean;
 };
 
 export type PlaceholderDiskDef = {
@@ -66,6 +67,7 @@ const SYSTEM_1_0: SystemDiskDef = {
     // after the system is booted, it appears to work.
     delayAdditionalDiskMount: true,
     generatedSpec: () => import("./Data/System 1.0.dsk.json"),
+    notable: true,
 };
 
 const SYSTEM_1_1: SystemDiskDef = {
@@ -88,6 +90,7 @@ const SYSTEM_2_0: SystemDiskDef = {
     machines: [MAC_128K],
     mfsOnly: true,
     generatedSpec: () => import("./Data/System 2.0.dsk.json"),
+    notable: true,
 };
 
 const SYSTEM_2_1: SystemDiskDef = {
@@ -99,6 +102,7 @@ const SYSTEM_2_1: SystemDiskDef = {
     // The Mac 128K is supported, but HFS is not loaded in that case.
     machines: [MAC_512KE, MAC_128K],
     generatedSpec: () => import("./Data/System 2.1.dsk.json"),
+    notable: true,
 };
 
 const SYSTEM_3_0: SystemDiskDef = {
@@ -109,6 +113,7 @@ const SYSTEM_3_0: SystemDiskDef = {
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
     generatedSpec: () => import("./Data/System 3.0.dsk.json"),
+    notable: true,
 };
 
 const SYSTEM_3_1: PlaceholderDiskDef = {
@@ -168,6 +173,7 @@ const SYSTEM_5_0: SystemDiskDef = {
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
     generatedSpec: () => import("./Data/System 5.0 HD.dsk.json"),
+    notable: true,
 };
 
 const SYSTEM_5_1: SystemDiskDef = {
@@ -186,6 +192,7 @@ const SYSTEM_6_0: SystemDiskDef = {
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
     generatedSpec: () => import("./Data/System 6.0 HD.dsk.json"),
+    notable: true,
 };
 
 const SYSTEM_6_0_1: PlaceholderDiskDef = {
@@ -232,6 +239,7 @@ const SYSTEM_6_0_5: SystemDiskDef = {
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
     generatedSpec: () => import("./Data/System 6.0.5 HD.dsk.json"),
+    notable: true,
 };
 
 const SYSTEM_6_0_6: PlaceholderDiskDef = {
@@ -273,6 +281,7 @@ const SYSTEM_7_0: SystemDiskDef = {
     machines: [MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.0 HD.dsk.json"),
+    notable: true,
 };
 
 const SYSTEM_7_1: SystemDiskDef = {
@@ -326,6 +335,7 @@ const SYSTEM_7_5: SystemDiskDef = {
     machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.5 HD.dsk.json"),
+    notable: true,
 };
 
 const SYSTEM_7_5_1: SystemDiskDef = {
@@ -376,6 +386,7 @@ const SYSTEM_7_5_3: SystemDiskDef = {
     machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.5.3 HD.dsk.json"),
+    notable: true,
 };
 
 const SYSTEM_7_5_3_PPC: SystemDiskDef = {
@@ -413,6 +424,7 @@ const KANJITALK_7_5_3: SystemDiskDef = {
     machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/KanjiTalk 7.5.3 HD.dsk.json"),
+    notable: true,
 };
 
 const SYSTEM_7_5_4: PlaceholderDiskDef = {
@@ -465,6 +477,7 @@ const MAC_OS_7_6: SystemDiskDef = {
     machines: [QUADRA_650, MAC_IIFX, POWER_MACINTOSH_9500],
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/Mac OS 7.6 HD.dsk.json"),
+    notable: true,
 };
 
 const MAC_OS_8_0: SystemDiskDef = {
@@ -487,6 +500,7 @@ const MAC_OS_8_0: SystemDiskDef = {
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
     generatedSpec: () => import("./Data/Mac OS 8.0 HD.dsk.json"),
+    notable: true,
 };
 
 const MAC_OS_8_1: SystemDiskDef = {
@@ -507,6 +521,7 @@ const MAC_OS_8_1: SystemDiskDef = {
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
     generatedSpec: () => import("./Data/Mac OS 8.1 HD.dsk.json"),
+    notable: true,
 };
 
 const MAC_OS_8_5: SystemDiskDef = {
@@ -534,6 +549,7 @@ const MAC_OS_8_5: SystemDiskDef = {
     appleTalkSupported: true,
     hasPlatinumAppearance: true,
     generatedSpec: () => import("./Data/Mac OS 8.5 HD.dsk.json"),
+    notable: true,
 };
 
 const MAC_OS_8_6: SystemDiskDef = {
@@ -591,6 +607,7 @@ const MAC_OS_9_0: SystemDiskDef = {
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
     hasPlatinumAppearance: true,
     generatedSpec: () => import("./Data/Mac OS 9.0 HD.dsk.json"),
+    notable: true,
 };
 
 const MAC_OS_9_0_1: PlaceholderDiskDef = {
@@ -648,7 +665,7 @@ const MAC_OS_9_0_4: SystemDiskDef = {
     generatedSpec: () => import("./Data/Mac OS 9.0.4 HD.dsk.json"),
 };
 
-const ALL_DISKS = [
+export const ALL_DISKS = [
     SYSTEM_1_0,
     SYSTEM_1_1,
     SYSTEM_2_0,
@@ -694,7 +711,12 @@ const ALL_DISKS = [
     MAC_OS_9_0_4,
 ];
 
+export const NOTABLE_DISKS: SystemDiskDef[] = [];
+
 export const DISKS_BY_YEAR: {
+    [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
+} = {};
+export const NOTABLE_DISKS_BY_YEAR: {
     [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
 } = {};
 
@@ -704,6 +726,13 @@ ALL_DISKS.forEach(disk => {
         DISKS_BY_YEAR[year] = [];
     }
     DISKS_BY_YEAR[year].push(disk);
+    if ("notable" in disk && disk.notable) {
+        NOTABLE_DISKS.push(disk);
+        if (!NOTABLE_DISKS_BY_YEAR[year]) {
+            NOTABLE_DISKS_BY_YEAR[year] = [];
+        }
+        NOTABLE_DISKS_BY_YEAR[year].push(disk);
+    }
 });
 
 export const INFINITE_HD: EmulatorDiskDef = {

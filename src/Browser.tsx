@@ -2,7 +2,10 @@ import {
     type SystemDiskDef,
     type PlaceholderDiskDef,
     DISKS_BY_YEAR,
+    NOTABLE_DISKS_BY_YEAR,
     isPlaceholderDiskDef,
+    NOTABLE_DISKS,
+    ALL_DISKS,
 } from "./disks";
 import {type MachineDef} from "./machines";
 import {ScreenFrame} from "./ScreenFrame";
@@ -21,6 +24,8 @@ export type BrowserProps = {
 };
 
 export function Browser({onRun}: BrowserProps) {
+    const [notableOnly, setNotableOnly] = useState(true);
+    const disksByYear = notableOnly ? NOTABLE_DISKS_BY_YEAR : DISKS_BY_YEAR;
     return (
         <div className="Browser">
             <header>
@@ -29,16 +34,22 @@ export function Browser({onRun}: BrowserProps) {
                 </div>
             </header>
             <Description />
-            {Array.from(Object.entries(DISKS_BY_YEAR), ([year, disks]) => (
-                <div className="Year" key={year}>
-                    <h2>{year}</h2>
-                    <div className="Disks">
-                        {disks.map((disk, i) => (
-                            <Disk disk={disk} onRun={onRun} key={i} />
-                        ))}
+            <div className="Disks-Container">
+                <NotableToggle
+                    notableOnly={notableOnly}
+                    setNotableOnly={setNotableOnly}
+                />
+                {Array.from(Object.entries(disksByYear), ([year, disks]) => (
+                    <div className="Year" key={year}>
+                        <h2>{year}</h2>
+                        <div className="Disks">
+                            {disks.map((disk, i) => (
+                                <Disk disk={disk} onRun={onRun} key={i} />
+                            ))}
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 }
@@ -74,6 +85,34 @@ function Description() {
                 <span onClick={() => setDonateVisible(true)}>donate</span> to
                 support this project.
             </p>
+        </div>
+    );
+}
+
+function NotableToggle({
+    notableOnly,
+    setNotableOnly,
+}: {
+    notableOnly: boolean;
+    setNotableOnly: (v: boolean) => void;
+}) {
+    return (
+        <div className="Notable-Toggle-Container">
+            <div className="Notable-Toggle">
+                <span className="Notable-Toggle-Label">Releases:</span>
+                <button
+                    onClick={() => setNotableOnly(true)}
+                    className={notableOnly ? "selected" : ""}>
+                    <span className="name">Notable</span>{" "}
+                    <span className="count">({NOTABLE_DISKS.length})</span>
+                </button>
+                <button
+                    onClick={() => setNotableOnly(false)}
+                    className={notableOnly ? "" : "selected"}>
+                    <span className="name">All</span>{" "}
+                    <span className="count">({ALL_DISKS.length})</span>
+                </button>
+            </div>
         </div>
     );
 }
@@ -154,8 +193,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
                                 disk.machines[e.target.selectedIndex];
                             setMachine(machine);
                             setBezelStyle(machine.bezelStyle);
-                        }}
-                    >
+                        }}>
                         {disk.machines.map((machine, i) => (
                             <option value={machine.name} key={i}>
                                 {machine.name}
@@ -213,8 +251,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
                 <Button
                     appearance={buttonAppearance}
                     className="CustomizeButton"
-                    onClick={() => setCustomizing(!customizing)}
-                >
+                    onClick={() => setCustomizing(!customizing)}>
                     {customizing ? "Cancel" : "Customize…"}
                 </Button>
                 <Button appearance={buttonAppearance} onClick={run}>

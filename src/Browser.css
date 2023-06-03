@@ -154,3 +154,39 @@
         visibility: visible;
     }
 }
+
+.Notable-Toggle-Container {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.Notable-Toggle {
+    font-family: "Helvetica", "Arial", sans-serif;
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 13px;
+    background: #282c3499;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.Notable-Toggle button {
+    margin-left: 0.5em;
+    appearance: none;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+}
+
+.Notable-Toggle-Label,
+.Notable-Toggle .count {
+    color: #ccc;
+}
+
+.Notable-Toggle .selected .name {
+    text-decoration: underline;
+}
