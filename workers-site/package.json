@@ -6,7 +6,7 @@
     "main": "index.ts",
     "license": "Apache",
     "dependencies": {
-        "@cloudflare/kv-asset-handler": "~0.2.0"
+        "@cloudflare/kv-asset-handler": "^0.3.0"
     },
     "devDependencies": {
         "@cloudflare/workers-types": "^3.11.0"
