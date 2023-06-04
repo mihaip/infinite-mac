@@ -55,6 +55,7 @@ async function handleRequest(
     try {
         const page = await getAssetFromKV(fetchEvent, {
             mapRequestToAsset,
+            pathIsEncoded: true,
             ASSET_NAMESPACE: env.__STATIC_CONTENT,
             ASSET_MANIFEST: manifest,
         });
@@ -118,16 +119,18 @@ async function handleRequest(
 // MIME types.
 function mapRequestToAsset(request: Request): Request {
     const parsedUrl = new URL(request.url);
-    let pathname = parsedUrl.pathname;
+    let {pathname} = parsedUrl;
 
     if (pathname.endsWith("/")) {
         pathname = pathname.concat("index.html");
     }
 
+    const {hostname} = parsedUrl;
     // Let the client-side handle runDef URLs (minimal version of runDefFromUrl).
     if (
-        parsedUrl.hostname === "infinitemac.org" ||
-        parsedUrl.hostname.endsWith(".infinitemac.org")
+        hostname === "127.0.0.1" ||
+        hostname === "infinitemac.org" ||
+        hostname.endsWith(".infinitemac.org")
     ) {
         const pieces = parsedUrl.pathname.split("/");
         if (pieces.length === 3 && parseInt(pieces[1]) >= 1984) {
