@@ -84,17 +84,19 @@ function App() {
         footer = <Footer onLogoClick={handleDone} />;
     } else {
         contents = (
-            <Browser
-                onRun={(runDef, inNewWindow) => {
-                    const runDefUrl = runDefToUrl(runDef, url);
-                    if (inNewWindow) {
-                        window.open(runDefUrl, "_blank");
-                        return;
-                    }
-                    history.pushState({}, "", runDefUrl);
-                    setRunDef(runDef);
-                }}
-            />
+            <React.StrictMode>
+                <Browser
+                    onRun={(runDef, inNewWindow) => {
+                        const runDefUrl = runDefToUrl(runDef, url);
+                        if (inNewWindow) {
+                            window.open(runDefUrl, "_blank");
+                            return;
+                        }
+                        history.pushState({}, "", runDefUrl);
+                        setRunDef(runDef);
+                    }}
+                />
+            </React.StrictMode>
         );
         footer = undefined;
     }
