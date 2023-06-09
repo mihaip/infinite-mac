@@ -177,7 +177,7 @@ export default function Mac({
             [`emulator_type:${machine.emulatorType}`]: 1,
             [`emulator_disk:${disk.displayName}${
                 disk.displaySubtitle ? "-" + disk.displaySubtitle : ""
-            }}`]: 1,
+            }`]: 1,
             "emulator_shared_memory": useSharedMemory ? 1 : 0,
         });
 
