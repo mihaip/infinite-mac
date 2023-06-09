@@ -1,9 +1,9 @@
 
-var Module = (() => {
+var emulator = (() => {
   var _scriptDir = import.meta.url;
   
   return (
-async function(Module = {})  {
+async function(emulator = {})  {
 
 // include: shell.js
 // The Module object: Our interface to the outside world. We import
@@ -19,7 +19,7 @@ async function(Module = {})  {
 // after the generated code, you will need to define   var Module = {};
 // before the code. Then that object will be used in the code, and you
 // can continue to use Module afterwards as well.
-var Module = typeof Module != 'undefined' ? Module : {};
+var Module = typeof emulator != 'undefined' ? emulator : {};
 
 // Set up the promise that indicates the Module is initialized
 var readyPromiseResolve, readyPromiseReject;
@@ -1232,29 +1232,29 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  77432: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
- 77482: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 77531: ($0) => { return workerApi.disks.size($0); },  
- 77568: ($0) => { workerApi.sleep($0); },  
- 77593: ($0) => { workerApi.disks.close($0); },  
- 77624: () => { workerApi.blit(0, 0); },  
- 77650: ($0, $1, $2, $3, $4, $5) => { workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5}); },  
- 77722: ($0, $1) => { return workerApi.enqueueAudio($0, $1); },  
- 77765: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 77816: ($0) => { workerApi.disks.close($0); },  
- 77847: () => { return workerApi.acquireInputLock(); },  
- 77888: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 77977: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 78067: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
- 78154: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
- 78241: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 78326: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 78406: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 78487: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr); },  
- 78569: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedAddr); },  
- 78647: () => { workerApi.releaseInputLock(); },  
- 78681: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
- 78721: ($0, $1) => { workerApi.didOpenVideo($0, $1); }
+  77712: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
+ 77762: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 77811: ($0) => { return workerApi.disks.size($0); },  
+ 77848: ($0) => { workerApi.sleep($0); },  
+ 77873: ($0) => { workerApi.disks.close($0); },  
+ 77904: () => { workerApi.blit(0, 0); },  
+ 77930: ($0, $1, $2, $3, $4, $5) => { workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5}); },  
+ 78002: ($0, $1) => { return workerApi.enqueueAudio($0, $1); },  
+ 78045: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 78096: ($0) => { workerApi.disks.close($0); },  
+ 78127: () => { return workerApi.acquireInputLock(); },  
+ 78168: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 78257: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 78347: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
+ 78434: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
+ 78521: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 78606: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 78686: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 78767: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr); },  
+ 78849: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedAddr); },  
+ 78927: () => { workerApi.releaseInputLock(); },  
+ 78961: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
+ 79001: ($0, $1) => { workerApi.didOpenVideo($0, $1); }
 };
 function consumeDiskName() { const diskName = workerApi.disks.consumeDiskName(); if (!diskName || !diskName.length) { return 0; } const diskNameLength = lengthBytesUTF8(diskName) + 1; const diskNameCstr = _malloc(diskNameLength); stringToUTF8(diskName, diskNameCstr, diskNameLength); return diskNameCstr; }
 
@@ -4291,8 +4291,8 @@ var _emscripten_stack_get_current = function() {
 
 /** @type {function(...*):?} */
 var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
-var ___start_em_js = Module['___start_em_js'] = 78757;
-var ___stop_em_js = Module['___stop_em_js'] = 79047;
+var ___start_em_js = Module['___start_em_js'] = 79037;
+var ___stop_em_js = Module['___stop_em_js'] = 79327;
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===
@@ -4704,9 +4704,9 @@ run();
 // end include: postamble.js
 
 
-  return Module.ready
+  return emulator.ready
 }
 
 );
 })();
-export default Module;
+export default emulator;
