@@ -124,16 +124,41 @@ view the screen will still be visible. */
 .Mac-CDROMs {
     position: fixed;
     bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+    z-index: 2;
+    filter: drop-shadow(1px 1px 5px rgba(0, 0, 0, 0.5));
 }
 
 .Mac-CDROMs-Title {
     background: white;
-    padding: 4px;
+    padding: 4px 4px 4px 28px;
     cursor: pointer;
+    background-image: url(./Images/CD-ROM.png);
+    background-position: 4px 50%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    border-radius: 4px 4px 0 0;
+    border: solid 1px black;
+    border-bottom-width: 0;
+    position: relative;
+    top: 1px; /* to cover up the border of the list */
+}
+
+.Mac-CDROMs-Title:active {
+    background-color: #eee;
 }
 
 .Mac-CDROMs-List {
     background: white;
+    border: solid 1px black;
+    border-bottom-width: 0;
+    border-radius: 4px 4px 0 0;
+    padding: 4px;
 }
 
 .Mac-CDROM {
