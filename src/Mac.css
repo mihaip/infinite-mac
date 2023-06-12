@@ -153,14 +153,48 @@ view the screen will still be visible. */
     background-color: #eee;
 }
 
-.Mac-CDROMs-List {
+.Mac-CDROMs-Contents {
     background: white;
     border: solid 1px black;
     border-bottom-width: 0;
     border-radius: 4px 4px 0 0;
     padding: 4px;
+    max-height: 80vh;
+    max-width: 80vw;
+    overflow: auto;
+}
+
+.Mac-CDROMs-Category {
+    margin-bottom: 8px;
+}
+
+.Mac-CDROMs-Category-Contents {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .Mac-CDROM {
     cursor: pointer;
+    max-width: 128px;
+    padding: 8px;
+    font-size: 11px;
+    text-align: center;
+}
+
+.Mac-CDROM:active {
+    background-color: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.Mac-CDROM-Cover {
+    height: 96px;
+    width: auto;
+    overflow: auto;
+}
+
+.Mac-CDROM-Cover-Round {
+    border-radius: 50%;
+    overflow: hidden;
 }

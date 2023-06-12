@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
+        "classnames": "^2.3.2",
         "file-saver": "^2.0.5",
         "idb-keyval": "^6.0.3",
         "jszip": "^3.7.0",

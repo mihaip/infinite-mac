@@ -65,7 +65,7 @@ def get_output_manifest(input_manifest: InputManifest) -> OutputManifest:
         "coverImageSize": cover_image_size,
     }
     if "cover_image_type" in input_manifest:
-        output_manifest["coveImageType"] = input_manifest["cover_image_type"]
+        output_manifest["coverImageType"] = input_manifest["cover_image_type"]
 
     return output_manifest
 

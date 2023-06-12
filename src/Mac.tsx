@@ -34,6 +34,7 @@ import {
 } from "./disks";
 import {type MachineDef} from "./machines";
 import {type ButtonProps} from "./Button";
+import classNames from "classnames";
 
 export type MacProps = {
     disk: SystemDiskDef;
@@ -448,7 +449,9 @@ export default function Mac({
                     onDone={() => setEmulatorErrorText("")}
                 />
             )}
-            {cdroms && <MacCDROMs cdroms={cdroms} onRun={loadCDROM} />}
+            {cdroms && !fullscreen && (
+                <MacCDROMs cdroms={cdroms} onRun={loadCDROM} />
+            )}
         </ScreenFrame>
     );
 }
@@ -636,20 +639,48 @@ function MacCDROMs({
         classNames.push("Mac-CDROMs-Expanded");
     }
 
+    const folderPaths = Array.from(Object.keys(cdroms)).sort();
+    const cdromsByCategory: {[category: string]: EmulatorCDROM[]} = {};
+    let lastCategory;
+    for (const folderPath of folderPaths) {
+        const cdrom = cdroms[folderPath];
+        const category = folderPath.substring(
+            0,
+            folderPath.length - cdrom.name.length - 1
+        );
+        if (category !== lastCategory) {
+            cdromsByCategory[category] = [];
+            lastCategory = category;
+        }
+        cdromsByCategory[category].push(cdrom);
+    }
+
     return (
         <div className={classNames.join(" ")}>
             <div className="Mac-CDROMs-Title" onClick={toggleExpanded}>
                 CD-ROMs
             </div>
             {expanded && (
-                <div className="Mac-CDROMs-List">
-                    {Object.entries(cdroms).map(([folderPath, cdrom]) => (
-                        <MacCDROM
-                            key={folderPath}
-                            cdrom={cdrom}
-                            onLoad={() => onRun(cdrom)}
-                        />
-                    ))}
+                <div className="Mac-CDROMs-Contents">
+                    {Object.entries(cdromsByCategory).map(
+                        ([category, cdroms]) => (
+                            <div key={category} className="Mac-CDROMs-Category">
+                                <h3>{category}</h3>
+                                <div className="Mac-CDROMs-Category-Contents">
+                                    {cdroms.map(cdrom => (
+                                        <MacCDROM
+                                            key={cdrom.name}
+                                            cdrom={cdrom}
+                                            onLoad={() => {
+                                                setExpanded(false);
+                                                onRun(cdrom);
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )
+                    )}
                 </div>
             )}
         </div>
@@ -657,9 +688,26 @@ function MacCDROMs({
 }
 
 function MacCDROM({cdrom, onLoad}: {cdrom: EmulatorCDROM; onLoad: () => void}) {
+    const {
+        name,
+        coverImageHash,
+        coverImageSize,
+        coverImageType = "round",
+    } = cdrom;
+    const [coverIamgeWidth, coverImageHeight] = coverImageSize;
+    const coverImageUrl = `/Covers/${coverImageHash}.jpeg`;
+    const coverClassName = classNames("Mac-CDROM-Cover", {
+        "Mac-CDROM-Cover-Round": coverImageType === "round",
+    });
     return (
         <div className="Mac-CDROM" onClick={onLoad}>
-            <div className="Mac-CDROM-Name">{cdrom.name}</div>
+            <img
+                className={coverClassName}
+                src={coverImageUrl}
+                width={coverIamgeWidth}
+                height={coverImageHeight}
+            />
+            <div className="Mac-CDROM-Name">{name}</div>
         </div>
     );
 }

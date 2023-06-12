@@ -434,7 +434,7 @@ export type EmulatorCDROM = {
     fileSize: number;
     coverImageHash: string;
     coverImageSize: [width: number, height: number];
-    coverImageType?: "square" | "round";
+    coverImageType?: "square" | "round"; // Default is round
 };
 
 export type EmulatorCDROMLibrary = {[path: string]: EmulatorCDROM};
