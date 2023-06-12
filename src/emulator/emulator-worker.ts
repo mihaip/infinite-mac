@@ -176,7 +176,7 @@ class EmulatorWorkerApi {
                   );
 
         this.disks = new EmulatorWorkerDisksApi(
-            disks.map(spec => new EmulatorWorkerChunkedDisk(spec)),
+            disks.map(spec => new EmulatorWorkerChunkedDisk(spec, this)),
             config.useCDROM,
             this.#emscriptenModule
         );
@@ -311,7 +311,9 @@ class EmulatorWorkerApi {
             if (this.#delayedDiskSpecs) {
                 for (const spec of this.#delayedDiskSpecs) {
                     console.log("Mounting delayed disk", spec.name);
-                    this.disks.addDisk(new EmulatorWorkerChunkedDisk(spec));
+                    this.disks.addDisk(
+                        new EmulatorWorkerChunkedDisk(spec, this)
+                    );
                 }
                 this.#delayedDiskSpecs = undefined;
             }
@@ -340,7 +342,7 @@ class EmulatorWorkerApi {
             }
         }
         for (const cdrom of cdroms) {
-            this.disks.addDisk(createEmulatorWorkerCDROMDisk(cdrom));
+            this.disks.addDisk(createEmulatorWorkerCDROMDisk(cdrom, this));
         }
     }
 
@@ -426,6 +428,22 @@ class EmulatorWorkerApi {
 
     getClipboardText(): string | undefined {
         return this.#clipboard.clipboardText();
+    }
+
+    // EmulatorWorkerChunkedDiskDelegate implementation
+    willLoadChunk(chunkIndex: number) {
+        postMessage({type: "emulator_will_load_chunk", chunkIndex});
+    }
+
+    didLoadChunk(chunkIndex: number) {
+        postMessage({type: "emulator_did_load_chunk", chunkIndex});
+    }
+
+    didFailToLoadChunk(chunkIndex: number, chunkUrl: string, error: string) {
+        postMessage({
+            type: "emulator_did_have_error",
+            error: `Could not load disk chunk ${chunkUrl}: ${error})`,
+        });
     }
 }
 
