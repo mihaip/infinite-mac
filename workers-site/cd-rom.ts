@@ -35,66 +35,63 @@ export async function handleRequest(request: Request) {
     const chunkStart = parseInt(chunkMatch[1]);
     const chunkEnd = parseInt(chunkMatch[2]);
 
-    let srcRes;
-    try {
-        srcRes = await fetch(srcUrl, {
-            headers: {
-                "User-Agent": "Infinite Mac (+https://infinitemac.org)",
-                "Range": `bytes=${chunkStart}-${chunkEnd}`,
-            },
-        });
-    } catch (e) {
-        console.warn("CD-ROM fetch failed", {
-            srcUrl,
-            chunkStart,
-            chunkEnd,
-            e,
-        });
-        return new Response("CD-ROM fetch failed: " + e, {
-            status: 500,
-            headers: {"Content-Type": "text/plain"},
-        });
+    let chunkFetchError;
+    for (let retry = 0; retry < 3; retry++) {
+        try {
+            const {chunk, contentLength} = await fetchChunk(
+                srcUrl,
+                chunkStart,
+                chunkEnd
+            );
+            return new Response(chunk, {
+                status: 200,
+                headers: {
+                    "Content-Type": "multipart/mixed",
+                    "Content-Length": contentLength,
+                    // Always allow caching (mirrors logic for our own disk chunks).
+                    "Cache-Control": `public, max-age=${
+                        60 * 60 * 24 * 30
+                    }, immutable`,
+                },
+            });
+        } catch (e) {
+            chunkFetchError = e;
+        }
     }
 
+    console.warn("CD-ROM fetch failed", {
+        srcUrl,
+        chunkStart,
+        chunkEnd,
+        chunkFetchError,
+    });
+    return new Response("CD-ROM fetch failed: " + chunkFetchError, {
+        status: 500,
+        headers: {"Content-Type": "text/plain"},
+    });
+}
+
+async function fetchChunk(
+    srcUrl: string,
+    chunkStart: number,
+    chunkEnd: number
+) {
+    const srcRes = await fetch(srcUrl, {
+        headers: {
+            "User-Agent": "Infinite Mac (+https://infinitemac.org)",
+            "Range": `bytes=${chunkStart}-${chunkEnd}`,
+        },
+    });
+
     if (!srcRes.ok) {
-        console.warn("CD-ROM fetch error", {
-            srcUrl,
-            chunkStart,
-            chunkEnd,
-            srcRes,
-        });
-        return new Response(
-            "CD-ROM fetch failed: " + srcRes.status + "/" + srcRes.statusText,
-            {
-                status: 500,
-                headers: {"Content-Type": "text/plain"},
-            }
+        throw new Error(
+            "Error response: " + srcRes.status + "/" + srcRes.statusText
         );
     }
 
-    let srcBody;
-    try {
-        srcBody = await srcRes.arrayBuffer();
-    } catch (e) {
-        console.warn("CD-ROM body fetch failed", {
-            srcUrl,
-            chunkStart,
-            chunkEnd,
-            e,
-        });
-        return new Response("CD-ROM body fetch failed: " + e, {
-            status: 500,
-            headers: {"Content-Type": "text/plain"},
-        });
-    }
-
-    return new Response(srcBody, {
-        status: 200,
-        headers: {
-            "Content-Type": "multipart/mixed",
-            "Content-Length": srcRes.headers.get("Content-Length")!,
-            // Always allow caching (mirrors logic for our own disk chunks).
-            "Cache-Control": `public, max-age=${60 * 60 * 24 * 30}, immutable`,
-        },
-    });
+    const srcBody = await srcRes.arrayBuffer();
+    return {
+        chunk: srcBody,
+        contentLength: srcRes.headers.get("Content-Length")!,
+    };
 }
