@@ -158,7 +158,11 @@ export default function Mac({
                     );
                 },
                 emulatorDidHaveError(emulator: Emulator, error: string) {
-                    varz.increment("emulator_error:other");
+                    if (error.includes("load") && error.includes("/CD-ROM")) {
+                        varz.increment("emulator_error:cdrom_chunk_load");
+                    } else {
+                        varz.increment("emulator_error:other");
+                    }
                     setEmulatorErrorText(
                         `The emulator encountered an error:\n\n${error}`
                     );

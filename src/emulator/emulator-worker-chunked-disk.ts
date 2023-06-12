@@ -115,12 +115,20 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
         const xhr = new XMLHttpRequest();
         xhr.responseType = "arraybuffer";
         xhr.open("GET", chunkUrl, false);
-        xhr.send();
+        try {
+            xhr.send();
+        } catch (e) {
+            this.#delegate.didFailToLoadChunk(
+                chunkIndex,
+                chunkUrl,
+                `Error: ${e}`
+            );
+        }
         if (xhr.status !== 200) {
             this.#delegate.didFailToLoadChunk(
                 chunkIndex,
                 chunkUrl,
-                `${xhr.status} (${xhr.statusText}`
+                `HTTP status ${xhr.status}: (${xhr.statusText}`
             );
         }
         this.#delegate.didLoadChunk(chunkIndex);
