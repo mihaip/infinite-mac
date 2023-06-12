@@ -388,11 +388,11 @@ export default function Mac({
         controls.push({label: "Keyboard", handler: handleKeyboardClick});
     }
 
-    const screenClasses = ["Mac-Screen"];
     const devicePixelRatio = useDevicePixelRatio();
-    if (fullscreen || devicePixelRatio !== Math.floor(devicePixelRatio)) {
-        screenClasses.push("Mac-Screen-Smooth-Scaling");
-    }
+    const screenClassName = classNames("Mac-Screen", {
+        "Mac-Screen-Smooth-Scaling":
+            fullscreen || devicePixelRatio !== Math.floor(devicePixelRatio),
+    });
 
     return (
         <ScreenFrame
@@ -413,7 +413,7 @@ export default function Mac({
             screen={
                 <>
                     <canvas
-                        className={screenClasses.join(" ")}
+                        className={screenClassName}
                         ref={screenRef}
                         width={screenWidth}
                         height={screenHeight}
@@ -638,10 +638,9 @@ function MacCDROMs({
 }) {
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(value => !value);
-    const classNames = ["Mac-CDROMs"];
-    if (expanded) {
-        classNames.push("Mac-CDROMs-Expanded");
-    }
+    const className = classNames("Mac-CDROMs", {
+        "Mac-CDROMs-Expanded": expanded,
+    });
 
     const folderPaths = Array.from(Object.keys(cdroms)).sort();
     const cdromsByCategory: {[category: string]: EmulatorCDROM[]} = {};
@@ -660,7 +659,7 @@ function MacCDROMs({
     }
 
     return (
-        <div className={classNames.join(" ")}>
+        <div className={className}>
             <div className="Mac-CDROMs-Title" onClick={toggleExpanded}>
                 CD-ROMs
             </div>
