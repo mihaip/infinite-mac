@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import "./Button.css";
 
 export type ButtonProps = {
@@ -6,12 +7,13 @@ export type ButtonProps = {
 
 export function Button(props: ButtonProps) {
     const {appearance, className, children, ...buttonProps} = props;
-    const classNames = ["Button", `Button-${appearance}`];
-    if (className) {
-        classNames.push(className);
-    }
+    const buttonClassName = classNames(
+        "Button",
+        `Button-${appearance}`,
+        className
+    );
     return (
-        <button className={classNames.join(" ")} {...buttonProps}>
+        <button className={buttonClassName} {...buttonProps}>
             {children}
         </button>
     );

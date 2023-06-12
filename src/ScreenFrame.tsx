@@ -2,6 +2,7 @@ import React from "react";
 import "./ScreenFrame.css";
 import {ReactComponent as AppleLogoColor} from "./Images/AppleLogoColor.svg";
 import {ReactComponent as AppleLogoGrey} from "./Images/AppleLogoGrey.svg";
+import classNames from "classnames";
 
 export type ScreenFrameProps = {
     className?: string;
@@ -39,30 +40,30 @@ export function ScreenFrame(props: ScreenFrameProps) {
         ...divProps
     } = props;
 
-    const classNames = [
+    const screenFrameClassName = classNames(
         "ScreenFrame",
         `ScreenFrame-Bezel-${bezelStyle}`,
         `ScreenFrame-Bezel-${bezelSize}`,
-    ];
-    if (fullscreen) {
-        classNames.push("ScreenFrame-Fullscreen");
-    }
-    if (className) {
-        classNames.push(className);
-    }
+        className,
+        {
+            "ScreenFrame-Fullscreen": fullscreen,
+        }
+    );
+    const ledClassName = classNames("ScreenFrame-Led", {
+        "ScreenFrame-Led-Loading": led === "Loading",
+    });
     const AppleLogo =
         bezelStyle === "Pinstripes" ? AppleLogoGrey : AppleLogoColor;
 
     return (
         <div
-            className={classNames.join(" ")}
+            className={screenFrameClassName}
             style={{
                 width: `calc(${width}px + 2 * var(--screen-underscan))`,
                 height: `calc(${height}px + 2 * var(--screen-underscan))`,
                 transform: scale === undefined ? undefined : `scale(${scale})`,
             }}
-            {...divProps}
-        >
+            {...divProps}>
             <div className="ScreenFrame-Controls-Container">
                 <div className="ScreenFrame-Apple-Logo">
                     <AppleLogo className="Background" />
@@ -75,27 +76,18 @@ export function ScreenFrame(props: ScreenFrameProps) {
                             visibility: alwaysVisible ? "visible" : undefined,
                         }}
                         onClick={handler}
-                        key={label}
-                    >
+                        key={label}>
                         {label}
                     </div>
                 ))}
             </div>
-            {led !== "None" && (
-                <div
-                    className={
-                        "ScreenFrame-Led" +
-                        (led === "Loading" ? " ScreenFrame-Led-Loading" : "")
-                    }
-                />
-            )}
+            {led !== "None" && <div className={ledClassName} />}
             <div
                 className="ScreenFrame-ScreenContainer"
                 style={{
                     width,
                     height,
-                }}
-            >
+                }}>
                 {screen}
             </div>
             {children}
