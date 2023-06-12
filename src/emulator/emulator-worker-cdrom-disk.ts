@@ -1,11 +1,15 @@
 import {type EmulatorCDROM} from "./emulator-common";
-import {EmulatorWorkerChunkedDisk} from "./emulator-worker-chunked-disk";
+import {
+    EmulatorWorkerChunkedDisk,
+    type EmulatorWorkerChunkedDiskDelegate,
+} from "./emulator-worker-chunked-disk";
 import {type EmulatorWorkerDisk} from "./emulator-worker-disks";
 
 const CHUNK_SIZE = 128 * 1024;
 
 export function createEmulatorWorkerCDROMDisk(
-    cdrom: EmulatorCDROM
+    cdrom: EmulatorCDROM,
+    delegate: EmulatorWorkerChunkedDiskDelegate
 ): EmulatorWorkerDisk {
     const {name} = cdrom;
     let chunkStart = 0;
@@ -24,5 +28,5 @@ export function createEmulatorWorkerCDROMDisk(
         prefetchChunks: [],
     };
 
-    return new EmulatorWorkerChunkedDisk(spec);
+    return new EmulatorWorkerChunkedDisk(spec, delegate);
 }

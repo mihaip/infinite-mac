@@ -4,12 +4,27 @@ import {
 } from "./emulator-common";
 import {type EmulatorWorkerDisk} from "./emulator-worker-disks";
 
+export type EmulatorWorkerChunkedDiskDelegate = {
+    willLoadChunk: (chunkIndex: number) => void;
+    didLoadChunk: (chunkIndex: number) => void;
+    didFailToLoadChunk: (
+        chunkIndex: number,
+        chunkUrl: string,
+        error: string
+    ) => void;
+};
+
 export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
     #spec: EmulatorChunkedFileSpec;
+    #delegate: EmulatorWorkerChunkedDiskDelegate;
     #loadedChunks = new Map<number, Uint8Array>();
 
-    constructor(spec: EmulatorChunkedFileSpec) {
+    constructor(
+        spec: EmulatorChunkedFileSpec,
+        delegate: EmulatorWorkerChunkedDiskDelegate
+    ) {
         this.#spec = spec;
+        this.#delegate = delegate;
     }
 
     get name(): string {
@@ -95,17 +110,20 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
     }
 
     #loadChunk(chunkIndex: number): Uint8Array {
+        this.#delegate.willLoadChunk(chunkIndex);
         const chunkUrl = generateChunkUrl(this.#spec, chunkIndex);
         const xhr = new XMLHttpRequest();
         xhr.responseType = "arraybuffer";
         xhr.open("GET", chunkUrl, false);
         xhr.send();
         if (xhr.status !== 200) {
-            postMessage({
-                type: "emulator_did_have_error",
-                error: `Could not load disk chunk ${chunkUrl}: ${xhr.status} (${xhr.statusText})`,
-            });
+            this.#delegate.didFailToLoadChunk(
+                chunkIndex,
+                chunkUrl,
+                `${xhr.status} (${xhr.statusText}`
+            );
         }
+        this.#delegate.didLoadChunk(chunkIndex);
         return new Uint8Array(xhr.response as ArrayBuffer);
     }
 

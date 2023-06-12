@@ -632,23 +632,12 @@ export class Emulator {
             this.#delegate?.emulatorDidRunOutOfMemory?.(this);
         } else if (e.data.type === "emulator_did_have_error") {
             this.#delegate?.emulatorDidHaveError?.(this, e.data.error);
+        } else if (e.data.type === "emulator_will_load_chunk") {
+            this.#delegate?.emulatorDidStartToLoadDiskChunk?.(this);
+        } else if (e.data.type === "emulator_did_load_chunk") {
+            this.#delegate?.emulatorDidFinishLoadingDiskChunk?.(this);
         } else {
             console.warn("Unexpected postMessage event", e);
-        }
-    };
-
-    #handleServiceWorkerMessage = (e: MessageEvent) => {
-        const {data} = e;
-        switch (data.type) {
-            case "disk_chunk_fetch_start":
-                this.#delegate?.emulatorDidStartToLoadDiskChunk?.(this);
-                break;
-            case "disk_chunk_fetch_end":
-                this.#delegate?.emulatorDidFinishLoadingDiskChunk?.(this);
-                break;
-            default:
-                console.warn("Unexpected message from service worker", data);
-                break;
         }
     };
 
@@ -738,10 +727,6 @@ export class Emulator {
                     resolve(false);
                 });
         });
-        navigator.serviceWorker?.addEventListener(
-            "message",
-            this.#handleServiceWorkerMessage
-        );
     }
 
     async #handleEmulatorStopped(extraction: EmulatorWorkerDirectorExtraction) {
