@@ -706,6 +706,7 @@ function MacCDROM({cdrom, onLoad}: {cdrom: EmulatorCDROM; onLoad: () => void}) {
                 src={coverImageUrl}
                 width={coverIamgeWidth}
                 height={coverImageHeight}
+                loading="lazy"
             />
             <div className="Mac-CDROM-Name">{name}</div>
         </div>
