@@ -159,7 +159,7 @@ view the screen will still be visible. */
     border-bottom-width: 0;
     border-radius: 4px 4px 0 0;
     padding: 4px;
-    max-height: 80vh;
+    max-height: 50vh;
     max-width: 80vw;
     overflow: auto;
 }
