@@ -1,6 +1,5 @@
-export async function handleRequest(request: Request) {
-    const url = new URL(request.url);
-    const pathPieces = url.pathname.split("/");
+export async function handleRequest(path: string) {
+    const pathPieces = path.split("/");
     let srcUrl;
     try {
         srcUrl = atob(pathPieces[2]);
