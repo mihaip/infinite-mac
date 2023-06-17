@@ -56,7 +56,7 @@ def get_output_manifest(input_manifest: InputManifest) -> OutputManifest:
                          src_url)
 
     cover_image_hash, cover_image_size = load_cover_image(
-        input_manifest["cover_image"])
+        input_manifest["cover_image"], input_manifest.get("cover_image_inset"))
     output_manifest = {
         "name": input_manifest["name"],
         "srcUrl": src_url,
@@ -71,9 +71,23 @@ def get_output_manifest(input_manifest: InputManifest) -> OutputManifest:
 
 
 def load_cover_image(
-        cover_image_url: str) -> typing.Tuple[str, typing.Tuple[int, int]]:
+    cover_image_url: str, inset: typing.Union[int, typing.Tuple[int, int, int,
+                                                                int]]
+) -> typing.Tuple[str, typing.Tuple[int, int]]:
     cover_image_path = urls.read_url_to_path(cover_image_url)
     with Image.open(cover_image_path) as cover_image:
+        if inset is not None:
+            if isinstance(inset, int):
+                inset_left = inset_top = inset_right = inset_bottom = inset
+            else:
+                inset_left, inset_top, inset_right, inset_bottom = inset
+            cover_image = cover_image.crop(box=(
+                inset_left,
+                inset_top,
+                cover_image.width - inset_right,
+                cover_image.height - inset_bottom,
+            ))
+
         cover_image.thumbnail((MAX_COVER_SIZE, MAX_COVER_SIZE), Image.LANCZOS)
 
         # Ensure that we can write the output as JPEG, even if it's a palettized
