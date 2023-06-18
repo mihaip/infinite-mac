@@ -91,7 +91,6 @@ export class EmulatorWorkerDisksApi {
     }
 
     close(diskId: DiskId) {
-        console.log("close");
         const disk = this.#openedDisks.get(diskId);
         if (!disk) {
             throw new Error(`Disk not found: ${diskId}`);
