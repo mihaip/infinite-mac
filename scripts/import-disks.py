@@ -541,18 +541,18 @@ def build_desktop_db(images: typing.List[ImageDef]) -> bytes:
 
 STICKIES = [
     stickies.Sticky(
-        top=196,
-        left=612,
-        bottom=312,
-        right=794,
+        top=242,
+        left=210,
+        bottom=436,
+        right=390,
         color=stickies.Color.GRAY,
         text="CHANGELOG",
     ),
     stickies.Sticky(
-        top=300,
-        left=444,
-        bottom=525,
-        right=638,
+        top=255,
+        left=387,
+        bottom=510,
+        right=592,
         color=stickies.Color.PURPLE,
         skip_in_ttxt=True,
         text="""Tips
@@ -564,10 +564,10 @@ STICKIES = [
 • If you're on an iOS device, you can add this site to your home screen via the share icon.""",
     ),
     stickies.Sticky(
-        top=300,
-        left=444,
-        bottom=525,
-        right=638,
+        top=255,
+        left=387,
+        bottom=510,
+        right=592,
         color=stickies.Color.PURPLE,
         skip_in_stickies=True,
         text="""Tips
@@ -577,10 +577,10 @@ STICKIES = [
 • If you're on an iOS device, you can add this site to your home screen via the share icon.""",
     ),
     stickies.Sticky(
-        top=315,
-        left=638,
-        bottom=484,
-        right=794,
+        top=425,
+        left=24,
+        bottom=532,
+        right=389,
         color=stickies.Color.PINK,
         text="""Networking is supported!
 
@@ -590,10 +590,10 @@ Files can be shared between instances, and muti-player games like Marathon, Bolo
         skip_in_ttxt=True,
     ),
     stickies.Sticky(
-        top=187,
-        left=438,
-        bottom=299,
-        right=614,
+        top=310,
+        left=35,
+        bottom=426,
+        right=212,
         color=stickies.Color.GREEN,
         text=
         """A collection of classic Macintosh system releases and software, all easily accessible from the comfort of a (modern) web browser.
@@ -601,10 +601,10 @@ Files can be shared between instances, and muti-player games like Marathon, Bolo
 Browse around the Infinite HD to see what using a Mac in the 80s and 90s was like.""",
     ),
     stickies.Sticky(
-        top=135,
-        left=468,
-        bottom=183,
-        right=655,
+        top=253,
+        left=28,
+        bottom=313,
+        right=214,
         font=stickies.Font.HELVETICA,
         size=18,
         style={stickies.Style.BOLD},
