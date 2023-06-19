@@ -20,6 +20,7 @@ function App() {
         debugAudio,
         ethernetProvider,
         showCDROMs,
+        cdromURL,
     ] = useMemo(() => {
         const searchParams = new URLSearchParams(location.search);
         const url = searchParams.get("url") ?? location.href;
@@ -32,6 +33,7 @@ function App() {
                 ? new BroadcastChannelEthernetProvider()
                 : undefined;
         const showCDROMs = searchParams.get("cdroms") === "true";
+        const cdromURL = searchParams.get("cdrom_url") ?? undefined;
         return [
             url,
             runDefFromUrl(url),
@@ -39,6 +41,7 @@ function App() {
             debugAudio,
             ethernetProvider,
             showCDROMs,
+            cdromURL,
         ];
     }, []);
     const [runDef, setRunDef] = useState<BrowserRunDef | undefined>(
@@ -79,6 +82,7 @@ function App() {
                         ? (cdromsManifest as any as EmulatorCDROMLibrary)
                         : undefined
                 }
+                cdromURL={cdromURL}
             />
         );
         footer = <Footer onLogoClick={handleDone} />;
