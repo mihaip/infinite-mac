@@ -504,7 +504,7 @@ def build_library_image(base_name: str, dest_dir: str) -> ImageDef:
         parent[folder_name] = folder
 
     image = v.write(
-        size=1000 * 1024 * 1024,
+        size=2000 * 1024 * 1024,
         align=512,
         desktopdb=False,
         bootable=False,
