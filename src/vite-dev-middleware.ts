@@ -21,7 +21,7 @@ export function viteDevMiddleware(
         handleVarz(req, res);
         return true;
     } else if (url.pathname.startsWith("/CD-ROM/")) {
-        handleCDROM(url.pathname, res);
+        handleCDROM(url.pathname, req.method ?? "GET", res);
         return true;
     }
 
@@ -42,8 +42,12 @@ function handleVarz(req: http.IncomingMessage, res: http.ServerResponse) {
     ).end();
 }
 
-async function handleCDROM(path: string, res: http.ServerResponse) {
-    const response = await cdrom.handleRequest(path);
+async function handleCDROM(
+    path: string,
+    method: string,
+    res: http.ServerResponse
+) {
+    const response = await cdrom.handleRequest(path, method);
     const {status, statusText, headers} = response;
     res.writeHead(status, statusText, Object.fromEntries(headers.entries()));
     const body = await response.arrayBuffer();

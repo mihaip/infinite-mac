@@ -44,6 +44,7 @@ export type MacProps = {
     debugAudio?: boolean;
     onDone?: () => void;
     cdroms?: EmulatorCDROMLibrary;
+    cdromURL?: string;
 };
 
 export default function Mac({
@@ -54,6 +55,7 @@ export default function Mac({
     debugAudio,
     onDone,
     cdroms,
+    cdromURL,
 }: MacProps) {
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
@@ -359,6 +361,16 @@ export default function Mac({
         });
         emulatorRef.current?.loadCDROM(cdrom);
     }
+
+    useEffect(() => {
+        if (emulatorLoaded && cdromURL) {
+            fetchCDROMInfo(cdromURL)
+                .then(loadCDROM)
+                .catch((error: unknown) => {
+                    setEmulatorErrorText(`Could not load the CD-ROM: ${error}`);
+                });
+        }
+    }, [cdromURL, emulatorLoaded]);
 
     // Can't use media queries because they would need to depend on the
     // emulator screen size, but we can't pass that in via CSS variables. We
@@ -714,4 +726,15 @@ function MacCDROM({cdrom, onLoad}: {cdrom: EmulatorCDROM; onLoad: () => void}) {
             <div className="Mac-CDROM-Name">{name}</div>
         </div>
     );
+}
+
+async function fetchCDROMInfo(cdromURL: string): Promise<EmulatorCDROM> {
+    const response = await fetch(`/CD-ROM/${btoa(cdromURL)}`, {
+        method: "PUT",
+    });
+    if (!response.ok) {
+        throw new Error(await response.text());
+    }
+    const cdrom = await response.json();
+    return cdrom;
 }

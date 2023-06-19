@@ -34,7 +34,7 @@ async function handleRequest(
         return varz.handleRequest(request, env.VARZ);
     }
     if (path[0] === "CD-ROM") {
-        return cdrom.handleRequest(url.pathname);
+        return cdrom.handleRequest(url.pathname, request.method);
     }
 
     const legacyDomainRedirect = getLegacyDomainRedirect(url);
