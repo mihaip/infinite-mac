@@ -15,7 +15,7 @@ export async function handleRequest(path: string) {
     const srcUrlParsed = new URL(srcUrl);
     if (
         srcUrlParsed.protocol !== "https:" ||
-        srcUrlParsed.host !== "archive.org"
+        !["macintoshgarden.org", "archive.org"].includes(srcUrlParsed.host)
     ) {
         return new Response("Unexpected CD-ROM src URL: " + srcUrl, {
             status: 400,
