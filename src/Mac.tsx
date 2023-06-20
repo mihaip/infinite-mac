@@ -43,7 +43,7 @@ export type MacProps = {
     useSharedMemory?: boolean;
     debugAudio?: boolean;
     onDone?: () => void;
-    cdroms?: EmulatorCDROMLibrary;
+    cdroms: EmulatorCDROMLibrary;
     cdromURL?: string;
 };
 
@@ -365,8 +365,12 @@ export default function Mac({
     useEffect(() => {
         if (emulatorLoaded && cdromURL) {
             fetchCDROMInfo(cdromURL)
-                .then(loadCDROM)
+                .then(cdrom => {
+                    varz.increment("emulator_cdrom:custom_url");
+                    loadCDROM(cdrom);
+                })
                 .catch((error: unknown) => {
+                    varz.increment("emulator_error:cdrom_url");
                     setEmulatorErrorText(`Could not load the CD-ROM: ${error}`);
                 });
         }
@@ -465,7 +469,7 @@ export default function Mac({
                     onDone={() => setEmulatorErrorText("")}
                 />
             )}
-            {cdroms && !fullscreen && (
+            {!fullscreen && !disk.mfsOnly && (
                 <MacCDROMs cdroms={cdroms} onRun={loadCDROM} />
             )}
         </ScreenFrame>
