@@ -19,7 +19,6 @@ function App() {
         useSharedMemory,
         debugAudio,
         ethernetProvider,
-        showCDROMs,
         cdromURL,
     ] = useMemo(() => {
         const searchParams = new URLSearchParams(location.search);
@@ -32,7 +31,6 @@ function App() {
             searchParams.get("broadcast_channel_ethernet") === "true"
                 ? new BroadcastChannelEthernetProvider()
                 : undefined;
-        const showCDROMs = searchParams.get("cdroms") === "true";
         const cdromURL = searchParams.get("cdrom_url") ?? undefined;
         return [
             url,
@@ -40,7 +38,6 @@ function App() {
             useSharedMemory,
             debugAudio,
             ethernetProvider,
-            showCDROMs,
             cdromURL,
         ];
     }, []);
@@ -77,11 +74,7 @@ function App() {
                 onDone={handleDone}
                 useSharedMemory={useSharedMemory}
                 debugAudio={debugAudio}
-                cdroms={
-                    showCDROMs
-                        ? (cdromsManifest as any as EmulatorCDROMLibrary)
-                        : undefined
-                }
+                cdroms={cdromsManifest as any as EmulatorCDROMLibrary}
                 cdromURL={cdromURL}
             />
         );
