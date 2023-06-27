@@ -1,4 +1,7 @@
 *.dsk filter=lfs diff=lfs merge=lfs -text
 *.zip filter=lfs diff=lfs merge=lfs -text
+
+# Ignore Emscripten-generated JavaScript files
+src/emulator/*.js linguist-generated
 *.zip !text !filter !merge !diff
 *.dsk !text !filter !merge !diff
