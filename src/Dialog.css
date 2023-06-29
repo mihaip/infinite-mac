@@ -10,7 +10,7 @@
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
     max-width: 600px;
     min-width: 320px;
-    z-index: 1;
+    z-index: 3;
 }
 
 .Dialog h1 {
@@ -43,9 +43,17 @@
     justify-content: flex-end;
 }
 
+.Dialog footer {
+    gap: 8px;
+}
+
 .Dialog a,
 .Dialog .link {
     cursor: pointer;
     text-decoration: underline;
     color: #00c;
+}
+
+.Dialog-Cancel {
+    font-weight: normal;
 }
