@@ -1,0 +1,88 @@
+.Mac-CDROMs {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+    z-index: 2;
+    filter: drop-shadow(1px 1px 5px rgba(0, 0, 0, 0.5));
+}
+
+.Mac-CDROMs-Title {
+    background: white;
+    padding: 4px 4px 4px 28px;
+    cursor: pointer;
+    background-image: url(./Images/CD-ROM.png);
+    background-position: 4px 50%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    border-radius: 4px 4px 0 0;
+    border: solid 1px black;
+    border-bottom-width: 0;
+    position: relative;
+    top: 1px; /* to cover up the border of the list */
+}
+
+.Mac-CDROMs-Title:active {
+    background-color: #eee;
+}
+
+.Mac-CDROMs-Contents {
+    background: white;
+    border: solid 1px black;
+    border-bottom-width: 0;
+    border-radius: 4px 4px 0 0;
+    padding: 4px;
+    max-height: 50vh;
+    max-width: 80vw;
+    overflow: auto;
+}
+
+.Mac-CDROMs-Contents .link {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #00c;
+}
+
+.Mac-CDROMs-Category {
+    margin-bottom: 8px;
+}
+
+.Mac-CDROMs-Category-Contents {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.Mac-Custom-CDROM-URL {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.Mac-CDROM {
+    cursor: pointer;
+    max-width: 128px;
+    padding: 8px;
+    font-size: 11px;
+    text-align: center;
+}
+
+.Mac-CDROM:active {
+    background-color: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.Mac-CDROM-Cover {
+    height: 96px;
+    width: auto;
+    overflow: auto;
+}
+
+.Mac-CDROM-Cover-Round {
+    border-radius: 50%;
+    overflow: hidden;
+}
