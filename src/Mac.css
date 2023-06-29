@@ -164,6 +164,12 @@ view the screen will still be visible. */
     overflow: auto;
 }
 
+.Mac-CDROMs-Contents .link {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #00c;
+}
+
 .Mac-CDROMs-Category {
     margin-bottom: 8px;
 }
@@ -172,6 +178,11 @@ view the screen will still be visible. */
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+}
+
+.Mac-Custom-CDROM-URL {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .Mac-CDROM {

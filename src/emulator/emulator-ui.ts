@@ -488,6 +488,9 @@ export class Emulator {
     };
 
     #handleKeyDown = (event: KeyboardEvent) => {
+        if (event.target instanceof HTMLInputElement) {
+            return;
+        }
         event.preventDefault();
         const {code} = event;
         const adbKeyCode = this.#getAdbKeyCode(code);

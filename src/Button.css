@@ -16,6 +16,10 @@
     color: #fff;
 }
 
+.Button:disabled {
+    opacity: 0.5;
+}
+
 .Button.Button-Classic {
     border-image-source: url(./Images/ClassicButton.png);
 }
