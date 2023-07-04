@@ -13,7 +13,11 @@ export async function handleRequest(path: string, method: string) {
     const srcUrlParsed = new URL(srcUrl);
     if (
         srcUrlParsed.protocol !== "https:" ||
-        !["macintoshgarden.org", "archive.org"].includes(srcUrlParsed.host)
+        ![
+            "macintoshgarden.org",
+            "archive.org",
+            "img.classicmacdemos.com",
+        ].includes(srcUrlParsed.host)
     ) {
         return errorResponse("Unexpected CD-ROM src URL: " + srcUrl);
     }
