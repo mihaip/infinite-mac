@@ -1,0 +1,33 @@
+.Input {
+    border-image-slice: 4 fill;
+    border-image-width: 4px;
+    border-width: 4px;
+    image-rendering: pixelated;
+    background: transparent;
+    padding: 1px 8px;
+    font-size: 13px;
+    color: #000;
+    font-family: "Helvetica", "Arial", sans-serif;
+}
+
+.Input:focus {
+    outline: none;
+}
+
+.Input:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: -1px;
+    border-radius: 1px;
+}
+
+.Input.Input-Classic {
+    border-image-source: url(./Images/ClassicInput.png);
+}
+
+.Input.Input-Platinum {
+    border-image-source: url(./Images/PlatinumInput.png);
+}
+
+.Input.Input-Platinum:focus-visible {
+    outline-color: #6666c5;
+}

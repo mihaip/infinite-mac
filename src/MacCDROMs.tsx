@@ -4,10 +4,11 @@ import {
     type EmulatorCDROM,
     type EmulatorCDROMLibrary,
 } from "./emulator/emulator-common";
-import {type ButtonProps} from "./Button";
+import {Button, type ButtonProps} from "./Button";
 import classNames from "classnames";
 import {Dialog} from "./Dialog";
 import {fetchCDROMInfo} from "./cdroms";
+import {Input} from "./Input";
 
 export function MacCDROMs({
     cdroms,
@@ -20,9 +21,13 @@ export function MacCDROMs({
 }) {
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(value => !value);
-    const className = classNames("Mac-CDROMs", {
-        "Mac-CDROMs-Expanded": expanded,
-    });
+    const className = classNames(
+        "Mac-CDROMs",
+        `Mac-CDROMs-${buttonAppearance}`,
+        {
+            "Mac-CDROMs-Expanded": expanded,
+        }
+    );
 
     return (
         <div className={className}>
@@ -52,10 +57,14 @@ function MacCDROMsContents({
     onRun: (cdrom: EmulatorCDROM) => void;
     buttonAppearance: ButtonProps["appearance"];
 }) {
+    const [search, setSearch] = useState("");
     const folderPaths = Array.from(Object.keys(cdroms)).sort();
     const cdromsByCategory: {[category: string]: EmulatorCDROM[]} = {};
     let lastCategory;
     for (const folderPath of folderPaths) {
+        if (search && !folderPath.toLowerCase().includes(search)) {
+            continue;
+        }
         const cdrom = cdroms[folderPath];
         const category = folderPath.substring(
             0,
@@ -79,16 +88,22 @@ function MacCDROMsContents({
                     buttonAppearance={buttonAppearance}
                 />
             )}
-            <p>
+            <div className="Mac-CDROMs-Header">
                 Load CD-ROM images into the emulated Mac to access software that
-                is too large to pre-install on Infinite HD. You can also{" "}
-                <span
-                    className="link"
+                is too large to pre-install on Infinite HD.
+                <Button
+                    appearance={buttonAppearance}
                     onClick={() => setCustomCDROMVisible(true)}>
-                    load a CD-ROM from a URL
-                </span>
-                .
-            </p>
+                    Load from URL
+                </Button>
+                <Input
+                    appearance={buttonAppearance}
+                    type="search"
+                    placeholder="Filter…"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                />
+            </div>
             {Object.entries(cdromsByCategory).map(([category, cdroms]) => (
                 <div key={category} className="Mac-CDROMs-Category">
                     <h3>{category}</h3>
@@ -164,7 +179,8 @@ function MacCustomCDROM({
                 </li>
             </ul>
             <p>
-                <input
+                <Input
+                    appearance={buttonAppearance}
                     className="Mac-Custom-CDROM-URL"
                     type="url"
                     value={url}
