@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {type ButtonProps, Button} from "./Button";
 import "./Dialog.css";
+import classNames from "classnames";
 
 export type DialogProps = {
     title: string;
@@ -24,7 +25,7 @@ export function Dialog(props: DialogProps) {
         buttonAppearance = "Classic",
     } = props;
     const dialog = (
-        <div className="Dialog">
+        <div className={classNames("Dialog", `Dialog-${buttonAppearance}`)}>
             <h1>{title}</h1>
 
             {children}
