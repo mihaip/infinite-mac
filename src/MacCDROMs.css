@@ -9,6 +9,7 @@
     align-content: center;
     z-index: 2;
     filter: drop-shadow(1px 1px 5px rgba(0, 0, 0, 0.5));
+    pointer-events: none;
 }
 
 .Mac-CDROMs-Title {
@@ -23,6 +24,7 @@
     border-bottom-width: 0;
     position: relative;
     top: 1px; /* to cover up the border of the list */
+    pointer-events: auto;
 }
 
 .Mac-CDROMs-Classic .Mac-CDROMs-Title {
@@ -49,6 +51,7 @@
     height: 50vh;
     width: 80vw;
     overflow: auto;
+    pointer-events: auto;
 }
 
 .Mac-CDROMs-Header {
