@@ -69,6 +69,7 @@ export type EmulatorConfig = {
     screenCanvas: HTMLCanvasElement;
     disks: EmulatorDiskDef[];
     delayedDisks?: EmulatorDiskDef[];
+    cdroms: EmulatorCDROM[];
     ethernetProvider?: EmulatorEthernetProvider;
     debugAudio?: boolean;
 };
@@ -314,6 +315,9 @@ export class Emulator {
         for (const spec of Array.from(disks).reverse()) {
             prefsStr = `disk ${spec.name}\n` + prefsStr;
         }
+        for (const cdrom of this.#config.cdroms) {
+            prefsStr += `disk ${cdrom.name}\n`;
+        }
         const useCDROM = emulatorUsesCDROMDrive(
             this.#config.machine.emulatorType
         );
@@ -329,6 +333,12 @@ export class Emulator {
         // the input (we end up making so many service worker network requests
         // that overall emulation latency suffers).
         prefsStr += `jsfrequentreadinput ${this.#config.useSharedMemory}\n`;
+        console.groupCollapsed(
+            "%cGenerated emulator prefs",
+            "font-weight: normal"
+        );
+        console.log(prefsStr);
+        console.groupEnd();
         const prefs = new TextEncoder().encode(prefsStr).buffer;
 
         const config: EmulatorWorkerConfig = {
@@ -337,6 +347,7 @@ export class Emulator {
             wasmUrl: wasmBlobUrl,
             disks,
             delayedDisks,
+            cdroms: this.#config.cdroms,
             useCDROM,
             autoloadFiles: {
                 [romFileName]: rom,
