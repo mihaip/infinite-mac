@@ -36,28 +36,31 @@ import {type MachineDef} from "./machines";
 import {type ButtonProps} from "./Button";
 import classNames from "classnames";
 import {MacCDROMs} from "./MacCDROMs";
-import {fetchCDROMInfo} from "./cdroms";
 
 export type MacProps = {
-    disk: SystemDiskDef;
+    disks: SystemDiskDef[];
+    includeInfiniteHD: boolean;
+    cdroms: EmulatorCDROM[];
+    initialErrorText?: string;
     machine: MachineDef;
     ethernetProvider?: EmulatorEthernetProvider;
-    useSharedMemory?: boolean;
+    debugFallback?: boolean;
     debugAudio?: boolean;
     onDone?: () => void;
-    cdroms: EmulatorCDROMLibrary;
-    cdromURL?: string;
+    cdromLibrary: EmulatorCDROMLibrary;
 };
 
 export default function Mac({
-    disk,
+    disks,
+    includeInfiniteHD,
+    cdroms,
+    initialErrorText,
     machine,
     ethernetProvider,
-    useSharedMemory = true,
+    debugFallback,
     debugAudio,
     onDone,
-    cdroms,
-    cdromURL,
+    cdromLibrary,
 }: MacProps) {
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
@@ -68,7 +71,8 @@ export default function Mac({
     ]);
     const [emulatorLoadingDiskChunk, setEmulatorLoadingDiskChunk] =
         useState(false);
-    const [emulatorErrorText, setEmulatorErrorText] = useState("");
+    const [emulatorErrorText, setEmulatorErrorText] =
+        useState(initialErrorText);
     const [ethernetPeers, setEthernetPeers] = useState<
         readonly EmulatorEthernetPeer[]
     >([]);
@@ -102,14 +106,21 @@ export default function Mac({
             handleFullScreenChange
         );
 
-        const disks: EmulatorDiskDef[] = [disk];
+        const emulatorDisks: EmulatorDiskDef[] = [...disks];
         const delayedDisks: EmulatorDiskDef[] = [];
-        const infiniteHd = disk.mfsOnly ? INFINITE_HD_MFS : INFINITE_HD;
-        if (disk.delayAdditionalDiskMount) {
-            delayedDisks.push(infiniteHd);
-        } else {
-            disks.push(infiniteHd);
+        if (includeInfiniteHD) {
+            const infiniteHd =
+                disks[0]?.mfsOnly || machine.mfsOnly
+                    ? INFINITE_HD_MFS
+                    : INFINITE_HD;
+            if (disks[0]?.delayAdditionalDiskMount) {
+                delayedDisks.push(infiniteHd);
+            } else {
+                emulatorDisks.push(infiniteHd);
+            }
         }
+        const useSharedMemory =
+            typeof SharedArrayBuffer !== "undefined" && !debugFallback;
         const emulator = new Emulator(
             {
                 machine,
@@ -117,8 +128,9 @@ export default function Mac({
                 screenWidth: initialScreenWidth,
                 screenHeight: initialScreenHeight,
                 screenCanvas: screenRef.current!,
-                disks,
+                disks: emulatorDisks,
                 delayedDisks,
+                cdroms,
                 ethernetProvider,
                 debugAudio,
             },
@@ -180,15 +192,22 @@ export default function Mac({
         ethernetProviderRef.current = ethernetProvider;
         emulator.start();
 
-        varz.incrementMulti({
+        const startVarz = {
             "emulator_starts": 1,
             "emulator_ethernet": ethernetProvider ? 1 : 0,
             [`emulator_type:${machine.emulatorType}`]: 1,
-            [`emulator_disk:${disk.displayName}${
-                disk.displaySubtitle ? "-" + disk.displaySubtitle : ""
-            }`]: 1,
+
             "emulator_shared_memory": useSharedMemory ? 1 : 0,
-        });
+        };
+        if (disks.length === 1) {
+            const disk = disks[0];
+            startVarz[
+                `emulator_disk:${disk.displayName}${
+                    disk.displaySubtitle ? "-" + disk.displaySubtitle : ""
+                }`
+            ] = 1;
+        }
+        varz.incrementMulti(startVarz);
 
         return () => {
             document.removeEventListener(
@@ -204,14 +223,19 @@ export default function Mac({
             ethernetProvider?.close?.();
         };
     }, [
-        disk,
+        disks,
+        includeInfiniteHD,
+        cdroms,
         machine,
         ethernetProvider,
-        useSharedMemory,
         initialScreenWidth,
         initialScreenHeight,
+        debugFallback,
         debugAudio,
     ]);
+    const buttonAppearance = disks[0]?.hasPlatinumAppearance
+        ? "Platinum"
+        : "Classic";
 
     const handleFullScreenClick = () => {
         // Make the entire page go fullscreen (instead of just the screen
@@ -364,20 +388,6 @@ export default function Mac({
         emulatorRef.current?.loadCDROM(cdrom);
     }
 
-    useEffect(() => {
-        if (emulatorLoaded && cdromURL) {
-            fetchCDROMInfo(cdromURL)
-                .then(cdrom => {
-                    varz.increment("emulator_cdrom:custom_url");
-                    loadCDROM(cdrom);
-                })
-                .catch((error: unknown) => {
-                    varz.increment("emulator_error:cdrom_url");
-                    setEmulatorErrorText(`Could not load the CD-ROM: ${error}`);
-                });
-        }
-    }, [cdromURL, emulatorLoaded]);
-
     // Can't use media queries because they would need to depend on the
     // emulator screen size, but we can't pass that in via CSS variables. We
     // could in theory dynamically generate the media query via JS, but it's not
@@ -458,9 +468,7 @@ export default function Mac({
                 <MacSettings
                     emulatorType={machine.emulatorType}
                     emulatorSettings={emulatorSettings}
-                    buttonAppearance={
-                        disk.hasPlatinumAppearance ? "Platinum" : "Classic"
-                    }
+                    buttonAppearance={buttonAppearance}
                     setEmulatorSettings={setEmulatorSettings}
                     onDone={() => setSettingsVisible(false)}
                 />
@@ -471,13 +479,11 @@ export default function Mac({
                     onDone={() => setEmulatorErrorText("")}
                 />
             )}
-            {!fullscreen && !disk.mfsOnly && (
+            {!fullscreen && !disks[0]?.mfsOnly && (
                 <MacCDROMs
-                    cdroms={cdroms}
+                    cdroms={cdromLibrary}
                     onRun={loadCDROM}
-                    buttonAppearance={
-                        disk.hasPlatinumAppearance ? "Platinum" : "Classic"
-                    }
+                    buttonAppearance={buttonAppearance}
                 />
             )}
         </ScreenFrame>

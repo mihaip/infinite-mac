@@ -25,7 +25,7 @@ export function createEmulatorWorkerCDROMDisk(
         totalSize: cdrom.fileSize,
         chunks,
         chunkSize: CHUNK_SIZE,
-        prefetchChunks: [],
+        prefetchChunks: [0, 1, 2],
     };
 
     return new EmulatorWorkerChunkedDisk(spec, delegate);

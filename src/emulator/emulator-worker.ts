@@ -122,6 +122,7 @@ class EmulatorWorkerApi {
             clipboard: clipboardConfig,
             disks,
             delayedDisks,
+            cdroms,
         } = config;
         const blitSender = (
             data: EmulatorWorkerVideoBlit,
@@ -176,7 +177,12 @@ class EmulatorWorkerApi {
                   );
 
         this.disks = new EmulatorWorkerDisksApi(
-            disks.map(spec => new EmulatorWorkerChunkedDisk(spec, this)),
+            [
+                ...disks.map(spec => new EmulatorWorkerChunkedDisk(spec, this)),
+                ...cdroms.map(spec =>
+                    createEmulatorWorkerCDROMDisk(spec, this)
+                ),
+            ],
             config.useCDROM,
             this.#emscriptenModule
         );

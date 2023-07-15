@@ -11,7 +11,6 @@ import {type MachineDef} from "./machines";
 import {ScreenFrame} from "./ScreenFrame";
 import {useState} from "react";
 import {Button} from "./Button";
-import {type EmulatorEthernetProvider} from "./emulator/emulator-ui";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 import {emulatorSupportsAppleTalk} from "./emulator/emulator-common-emulators";
 import {About} from "./About";
@@ -19,9 +18,10 @@ import {Donate} from "./Donate";
 import {useWindowWidth} from "./useWindowWidth";
 import "./Browser.css";
 import {Changelog} from "./Changelog";
+import {type RunDef} from "./run-def";
 
 export type BrowserProps = {
-    onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
+    onRun: (def: RunDef, inNewWindow?: boolean) => void;
 };
 
 export function Browser({onRun}: BrowserProps) {
@@ -127,7 +127,7 @@ function NotableToggle({
 
 type DiskProps = {
     disk: SystemDiskDef | PlaceholderDiskDef;
-    onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
+    onRun: (def: RunDef, inNewWindow?: boolean) => void;
 };
 
 function Disk({disk, onRun}: DiskProps) {
@@ -163,7 +163,7 @@ function Disk({disk, onRun}: DiskProps) {
 
 type DiskContentsProps = {
     disk: SystemDiskDef;
-    onRun: (def: BrowserRunDef, inNewWindow?: boolean) => void;
+    onRun: (def: RunDef, inNewWindow?: boolean) => void;
     setBezelStyle: (bezelStyle: MachineDef["bezelStyle"]) => void;
 };
 
@@ -179,7 +179,15 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
                 appleTalkZoneName
             );
         }
-        const runDef = {disk, machine, ethernetProvider};
+        const runDef = {
+            disks: [disk],
+            includeInfiniteHD: true,
+            machine,
+            cdromURLs: [],
+            ethernetProvider,
+            debugAudio: false,
+            debugFallback: false,
+        } satisfies RunDef;
         const inNewWindow =
             event.button === 2 || event.metaKey || event.ctrlKey;
         onRun(runDef, inNewWindow);
@@ -304,72 +312,4 @@ function DiskHeader({disk}: {disk: SystemDiskDef | PlaceholderDiskDef}) {
             </h3>
         </>
     );
-}
-
-export type BrowserRunDef = {
-    disk: SystemDiskDef;
-    machine: MachineDef;
-    ethernetProvider?: EmulatorEthernetProvider;
-};
-
-export function runDefFromUrl(urlString: string): BrowserRunDef | undefined {
-    let url;
-    try {
-        url = new URL(urlString);
-    } catch (e) {
-        return undefined;
-    }
-
-    const pieces = url.pathname.split("/");
-    if (pieces.length !== 3) {
-        return undefined;
-    }
-    const year = parseInt(pieces[1]);
-    if (isNaN(year)) {
-        return undefined;
-    }
-    const disks = DISKS_BY_YEAR[year];
-    if (!disks) {
-        return undefined;
-    }
-    const diskName = decodeURIComponent(pieces[2]);
-    const disk = disks.find(disk => disk.displayName === diskName);
-    if (!disk || isPlaceholderDiskDef(disk)) {
-        return undefined;
-    }
-    const searchParams = url.searchParams;
-    let machine = disk.machines[0];
-    const machineName = searchParams.get("machine");
-    if (machineName) {
-        machine =
-            disk.machines.find(machine => machine.name === machineName) ??
-            machine;
-    }
-    let ethernetProvider;
-    const appleTalkZoneName = searchParams.get("appleTalk");
-    if (appleTalkZoneName) {
-        ethernetProvider = new CloudflareWorkerEthernetProvider(
-            appleTalkZoneName
-        );
-    }
-    return {
-        disk,
-        machine,
-        ethernetProvider,
-    };
-}
-
-export function runDefToUrl(runDef: BrowserRunDef, baseUrl: string): string {
-    const {disk, machine, ethernetProvider} = runDef;
-    const year = Object.entries(DISKS_BY_YEAR).find(([year, disks]) =>
-        disks.includes(disk)
-    )?.[0];
-    const url = new URL(`/${year}/${disk.displayName}`, baseUrl);
-    if (machine !== disk.machines[0]) {
-        url.searchParams.set("machine", machine.name);
-    }
-    if (ethernetProvider instanceof CloudflareWorkerEthernetProvider) {
-        url.searchParams.set("appleTalk", ethernetProvider.zoneName());
-    }
-    return url.toString();
 }

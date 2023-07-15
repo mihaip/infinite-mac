@@ -24,6 +24,7 @@ export type MachineDef = {
     emulatorSubtype?: EmulatorSubtype;
     prefsPath: string;
     fixedScreenSize?: {width: number; height: number};
+    mfsOnly?: boolean;
     bezelStyle: "Beige" | "Platinum" | "Pinstripes";
 };
 
@@ -37,6 +38,7 @@ export const MAC_128K: MachineDef = {
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Beige",
+    mfsOnly: true,
 };
 
 export const MAC_512KE: MachineDef = {
