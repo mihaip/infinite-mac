@@ -133,7 +133,12 @@ function mapRequestToAsset(request: Request): Request {
         hostname.endsWith(".infinitemac.org")
     ) {
         const pieces = parsedUrl.pathname.split("/");
+        // Year paths
         if (pieces.length === 3 && parseInt(pieces[1]) >= 1984) {
+            pathname = "/index.html";
+        }
+        // Custom run paths
+        if (pieces.length === 2 && pieces[1] === "run") {
             pathname = "/index.html";
         }
     }
