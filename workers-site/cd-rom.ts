@@ -9,16 +9,7 @@ export async function handleRequest(path: string, method: string) {
         return errorResponse("Malformed CD-ROM src URL: " + pathPieces[2]);
     }
 
-    // Don't want to become a proxy for arbitrary URLs
-    const srcUrlParsed = new URL(srcUrl);
-    if (
-        srcUrlParsed.protocol !== "https:" ||
-        ![
-            "macintoshgarden.org",
-            "archive.org",
-            "img.classicmacdemos.com",
-        ].includes(srcUrlParsed.host)
-    ) {
+    if (!isValidSrcUrl(srcUrl)) {
         return errorResponse("Unexpected CD-ROM src URL: " + srcUrl);
     }
 
@@ -30,6 +21,35 @@ export async function handleRequest(path: string, method: string) {
     }
 
     return errorResponse("Method not allowed", 405);
+}
+
+// Don't want to become a proxy for arbitrary URLs
+function isValidSrcUrl(srcUrl: string) {
+    let srcUrlParsed;
+    try {
+        srcUrlParsed = new URL(srcUrl);
+    } catch (e) {
+        return false;
+    }
+    const {protocol: srcProtocol, host: srcHost} = srcUrlParsed;
+    if (srcProtocol !== "https:") {
+        return false;
+    }
+    const allowedDomains = [
+        "macintoshgarden.org",
+        "archive.org",
+        "img.classicmacdemos.com",
+        "macintoshrepository.org",
+    ];
+    for (const allowedDomain of allowedDomains) {
+        if (
+            srcHost === allowedDomain ||
+            srcHost.endsWith("." + allowedDomain)
+        ) {
+            return true;
+        }
+    }
+    return false;
 }
 
 async function handleGET(pathPieces: string[], srcUrl: string) {
