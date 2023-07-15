@@ -1,4 +1,3 @@
-import React from "react";
 import {BroadcastChannelEthernetProvider} from "./BroadcastChannelEthernetProvider";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 import {
