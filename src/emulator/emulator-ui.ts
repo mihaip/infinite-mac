@@ -313,7 +313,7 @@ export class Emulator {
             this.#config.screenHeight
         }\n`;
         for (const spec of Array.from(disks).reverse()) {
-            prefsStr = `disk ${spec.name}\n` + prefsStr;
+            prefsStr += `disk ${spec.name}\n`;
         }
         for (const cdrom of this.#config.cdroms) {
             prefsStr += `disk ${cdrom.name}\n`;
