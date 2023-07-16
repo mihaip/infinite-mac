@@ -84,7 +84,6 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
             chunkEnd: number
         ) => void
     ) {
-        length = Math.min(this.size - offset, length);
         const {chunkSize} = this.#spec;
         const startChunk = Math.floor(offset / chunkSize);
         const endChunk = Math.floor((offset + length - 1) / chunkSize);
@@ -110,6 +109,14 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
     }
 
     #loadChunk(chunkIndex: number): Uint8Array {
+        // Allow additional chunks to be created past the end (the disk image
+        // may be truncated, and empty space at the end is omitted).
+        const {chunkSize} = this.#spec;
+        const chunkStart = chunkIndex * chunkSize;
+        // Entirely out of bounds chunk, just synthesize an empty one.
+        if (chunkStart >= this.size) {
+            return new Uint8Array(chunkSize);
+        }
         this.#delegate.willLoadChunk(chunkIndex);
         const chunkUrl = generateChunkUrl(this.#spec, chunkIndex);
         const xhr = new XMLHttpRequest();
@@ -132,7 +139,15 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
             );
         }
         this.#delegate.didLoadChunk(chunkIndex);
-        return new Uint8Array(xhr.response as ArrayBuffer);
+        let chunk = new Uint8Array(xhr.response as ArrayBuffer);
+        // Chunk was on the boundary of a truncated image, pad it out to the
+        // full chunk size.
+        if (chunk.length < chunkSize) {
+            const newChunk = new Uint8Array(chunkSize);
+            newChunk.set(chunk);
+            chunk = newChunk;
+        }
+        return chunk;
     }
 
     validate(): void {
