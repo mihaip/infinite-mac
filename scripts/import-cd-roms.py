@@ -38,6 +38,14 @@ def load_manifests() -> typing.Dict[str, InputManifest]:
                                     recursive=True):
         folder_path, _ = os.path.splitext(
             os.path.relpath(manifest_path, paths.CD_ROMS_DIR))
+        # Windows does not allow colons in filenames. To allow the repo to
+        # be checked out in Windows, we use a "small colon" Unicode variant
+        # in the filesystem, but replace it with a normal colon now.
+        if ":" in folder_path:
+            sys.stderr.write(
+                "  WARNING: %s contains a colon in its path, it may not be accessible in Windows checkouts"
+                % folder_path)
+        folder_path = folder_path.replace("﹕", ":")
         _, name = os.path.split(folder_path)
         sys.stderr.write("Importing %s\n" % folder_path)
         with open(manifest_path, "r") as manifest:
