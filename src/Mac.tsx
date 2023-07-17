@@ -407,7 +407,7 @@ export default function Mac({
     ];
     if (onDone) {
         controls.unshift({
-            label: "‹ Done",
+            label: "‹ Home",
             handler: onDone,
             alwaysVisible: true,
         });
