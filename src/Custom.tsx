@@ -10,6 +10,7 @@ import {
     systemDiskName,
 } from "./disks";
 import {Button, type ButtonProps} from "./Button";
+import {Input} from "./Input";
 
 export function Custom({
     onRun,
@@ -288,11 +289,12 @@ function CDROMOption({
     return (
         <label className="Custom-Dialog-Repeated">
             <span className="Custom-Dialog-Label">Disk URL:</span>
-            <input
+            <Input
                 type="url"
                 size={50}
                 value={cdromURL}
                 onChange={e => onChange(e.target.value)}
+                appearance={buttonAppearance}
             />
             <Button
                 appearance={buttonAppearance}
