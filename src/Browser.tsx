@@ -19,9 +19,12 @@ import {useWindowWidth} from "./useWindowWidth";
 import "./Browser.css";
 import {Changelog} from "./Changelog";
 import {type RunDef} from "./run-def";
+import {Custom} from "./Custom";
+
+type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
 export type BrowserProps = {
-    onRun: (def: RunDef, inNewWindow?: boolean) => void;
+    onRun: BrowserRunFn;
 };
 
 export function Browser({onRun}: BrowserProps) {
@@ -34,7 +37,7 @@ export function Browser({onRun}: BrowserProps) {
                     <h1>Infinite Mac</h1>
                 </div>
             </header>
-            <Description />
+            <Description onRun={onRun} />
             <div className="Disks-Container">
                 <NotableToggle
                     notableOnly={notableOnly}
@@ -50,15 +53,22 @@ export function Browser({onRun}: BrowserProps) {
                         </div>
                     </div>
                 ))}
+                <div className="Year">
+                    <h2>{new Date().getFullYear()}</h2>
+                    <div className="Disks">
+                        <CustomDisk onRun={onRun} />
+                    </div>
+                </div>
             </div>
         </div>
     );
 }
 
-function Description() {
+function Description({onRun}: {onRun: BrowserRunFn}) {
     const [aboutVisible, setAboutVisible] = useState(false);
     const [changelogVisible, setChangelogVisible] = useState(false);
     const [donateVisible, setDonateVisible] = useState(false);
+    const [customVisible, setCustomVisible] = useState(false);
 
     return (
         <div className="Description">
@@ -70,10 +80,20 @@ function Description() {
             <p>
                 Pick any version of System Software/Mac OS from the 1980s or
                 1990s and run it (and major software of that era) within a
-                virtual machine. Files can be imported and exported using drag
-                and drop, and System 7 and onward have more advanced
-                integrations as well – refer to the welcome screen in each
-                machine for more details.
+                virtual machine. You can also{" "}
+                <span onClick={() => setCustomVisible(true)}>
+                    run a custom version
+                </span>{" "}
+                with your choice of machine and virtual disks. Files can be
+                imported and exported using drag and drop, and System 7 and
+                onward have more advanced integrations as well – refer to the
+                welcome screen in each machine for more details.
+                {customVisible && (
+                    <Custom
+                        onRun={onRun}
+                        onDone={() => setCustomVisible(false)}
+                    />
+                )}
             </p>
             <p>
                 {aboutVisible && (
@@ -127,25 +147,14 @@ function NotableToggle({
 
 type DiskProps = {
     disk: SystemDiskDef | PlaceholderDiskDef;
-    onRun: (def: RunDef, inNewWindow?: boolean) => void;
+    onRun: BrowserRunFn;
 };
 
 function Disk({disk, onRun}: DiskProps) {
-    const windowWidth = useWindowWidth();
     const [bezelStyle, setBezelStyle] = useState(disk.machines[0].bezelStyle);
-    // Match 10 vs. 40px padding chosen via the media query.
-    const isSmallScreen = windowWidth <= 400;
-    let screenWidth = windowWidth - (isSmallScreen ? 110 : 180);
-    const bezelSize = isSmallScreen ? "Small-ish" : "Medium";
-    screenWidth = Math.max(Math.min(screenWidth, 320), 200);
-    const screenHeight = Math.round(screenWidth * 0.75);
     return (
-        <ScreenFrame
-            className="Disk"
+        <DiskFrame
             bezelStyle={bezelStyle}
-            width={screenWidth}
-            height={screenHeight}
-            bezelSize={bezelSize}
             screen={
                 isPlaceholderDiskDef(disk) ? (
                     <PlaceholderDiskContents disk={disk} />
@@ -161,9 +170,37 @@ function Disk({disk, onRun}: DiskProps) {
     );
 }
 
+function DiskFrame({
+    bezelStyle,
+    screen,
+}: {
+    bezelStyle: MachineDef["bezelStyle"];
+    screen: React.ReactElement;
+}) {
+    const windowWidth = useWindowWidth();
+
+    // Match 10 vs. 40px padding chosen via the media query.
+    const isSmallScreen = windowWidth <= 400;
+    let screenWidth = windowWidth - (isSmallScreen ? 110 : 180);
+    const bezelSize = isSmallScreen ? "Small-ish" : "Medium";
+    screenWidth = Math.max(Math.min(screenWidth, 320), 200);
+    const screenHeight = Math.round(screenWidth * 0.75);
+
+    return (
+        <ScreenFrame
+            className="Disk"
+            bezelStyle={bezelStyle}
+            width={screenWidth}
+            height={screenHeight}
+            bezelSize={bezelSize}
+            screen={screen}
+        />
+    );
+}
+
 type DiskContentsProps = {
     disk: SystemDiskDef;
-    onRun: (def: RunDef, inNewWindow?: boolean) => void;
+    onRun: BrowserRunFn;
     setBezelStyle: (bezelStyle: MachineDef["bezelStyle"]) => void;
 };
 
@@ -291,7 +328,55 @@ function PlaceholderDiskContents({disk}: PlaceholderDiskContentsProps) {
     );
 }
 
-function DiskHeader({disk}: {disk: SystemDiskDef | PlaceholderDiskDef}) {
+function CustomDisk({onRun}: {onRun: BrowserRunFn}) {
+    const [customVisible, setCustomVisible] = useState(false);
+    const today = new Date();
+    return (
+        <DiskFrame
+            bezelStyle="Pinstripes"
+            screen={
+                <div className="DiskContents">
+                    {customVisible && (
+                        <Custom
+                            onRun={onRun}
+                            onDone={() => setCustomVisible(false)}
+                        />
+                    )}
+                    <DiskHeader
+                        disk={{
+                            releaseDate: [
+                                today.getFullYear(),
+                                today.getMonth() + 1,
+                                today.getDate(),
+                            ],
+                            displayName: "Custom",
+                        }}
+                    />
+                    <div className="Row DiskDescription">
+                        Build a custom instance, using your choice of emulated
+                        machine and disk images.
+                    </div>
+                    <div className="Row Buttons">
+                        <Button
+                            appearance="Platinum"
+                            onClick={() => setCustomVisible(true)}>
+                            Run
+                        </Button>
+                    </div>
+                </div>
+            }
+        />
+    );
+}
+
+function DiskHeader({
+    disk,
+}: {
+    disk: Pick<
+        SystemDiskDef,
+        "releaseDate" | "displayName" | "displaySubtitle"
+    >;
+}) {
     const [year, month, day] = disk.releaseDate;
     const releaseDateString = new Date(year, month - 1, day).toLocaleDateString(
         undefined,
