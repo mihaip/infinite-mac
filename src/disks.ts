@@ -54,6 +54,11 @@ export function isPlaceholderDiskDef(
 ): disk is PlaceholderDiskDef {
     return "type" in disk && disk.type === "placeholder";
 }
+function isSystemDiskDef(
+    disk: SystemDiskDef | PlaceholderDiskDef
+): disk is SystemDiskDef {
+    return !isPlaceholderDiskDef(disk);
+}
 
 const SYSTEM_1_0: SystemDiskDef = {
     displayName: "System 1.0",
@@ -710,6 +715,21 @@ export const ALL_DISKS = [
     MAC_OS_9_0_3,
     MAC_OS_9_0_4,
 ];
+
+export const SYSTEM_DISKS_BY_NAME: {[name: string]: SystemDiskDef} =
+    Object.fromEntries(
+        ALL_DISKS.filter(isSystemDiskDef).map(disk => [
+            systemDiskName(disk),
+            disk,
+        ])
+    );
+
+export function systemDiskName(disk: SystemDiskDef) {
+    return (
+        disk.displayName +
+        (disk.displaySubtitle ? " - " + disk.displaySubtitle : "")
+    );
+}
 
 export const NOTABLE_DISKS: SystemDiskDef[] = [];
 

@@ -1,0 +1,43 @@
+.Custom-Dialog-Row {
+    margin-bottom: 16px !important;
+}
+
+.Custom-Dialog-Row label:last-of-type {
+    margin-bottom: 4px;
+}
+
+.Custom-Dialog-Label {
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    margin-right: 4px;
+}
+
+.Custom-Dialog-Description {
+    margin-left: 104px;
+}
+
+.Custom-Dialog-Description a {
+    color: inherit;
+}
+
+.Custom-Dialog-Repeated {
+    display: flex !important;
+    align-items: center;
+}
+
+.Custom-Dialog-Repeated select,
+.Custom-Dialog-Repeated input {
+    height: 22px;
+    box-sizing: border-box;
+}
+
+.Custom-Dialog-Repeated .Button {
+    margin-left: 4px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

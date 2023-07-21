@@ -7,11 +7,12 @@ import classNames from "classnames";
 export type DialogProps = {
     title: string;
     children: React.ReactNode;
-    onDone: () => void;
+    onDone: (e: React.MouseEvent) => void;
     doneLabel?: string;
     doneEnabled?: boolean;
     onCancel?: () => void;
     buttonAppearance?: ButtonProps["appearance"];
+    className?: string;
 };
 
 export function Dialog(props: DialogProps) {
@@ -23,35 +24,43 @@ export function Dialog(props: DialogProps) {
         doneEnabled = true,
         onCancel,
         buttonAppearance = "Classic",
+        className,
     } = props;
     const dialog = (
-        <div className={classNames("Dialog", `Dialog-${buttonAppearance}`)}>
-            <h1>{title}</h1>
+        <div className="Dialog-Backdrop">
+            <div
+                className={classNames(
+                    "Dialog",
+                    `Dialog-${buttonAppearance}`,
+                    className
+                )}>
+                <h1>{title}</h1>
 
-            {children}
+                {children}
 
-            <footer>
-                {onCancel && (
+                <footer>
+                    {onCancel && (
+                        <Button
+                            className="Dialog-Cancel"
+                            appearance={buttonAppearance}
+                            onClick={e => {
+                                e.preventDefault();
+                                onCancel();
+                            }}>
+                            Cancel
+                        </Button>
+                    )}
                     <Button
-                        className="Dialog-Cancel"
+                        disabled={!doneEnabled}
                         appearance={buttonAppearance}
                         onClick={e => {
                             e.preventDefault();
-                            onCancel();
+                            onDone(e);
                         }}>
-                        Cancel
+                        {doneLabel}
                     </Button>
-                )}
-                <Button
-                    disabled={!doneEnabled}
-                    appearance={buttonAppearance}
-                    onClick={e => {
-                        e.preventDefault();
-                        onDone();
-                    }}>
-                    {doneLabel}
-                </Button>
-            </footer>
+                </footer>
+            </div>
         </div>
     );
     return ReactDOM.createPortal(dialog, dialogRootNode);

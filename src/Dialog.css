@@ -1,8 +1,35 @@
-.Dialog {
+.Dialog-Backdrop {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    /* Simulate a 2x2 black and white checkerboard */
+    background-position: 0px 0px, 1px 1px;
+    background-size: 2px 2px;
+    background-image: linear-gradient(
+            45deg,
+            #000 25%,
+            transparent 25%,
+            transparent 75%,
+            #000 75%,
+            #000 100%
+        ),
+        linear-gradient(
+            45deg,
+            #000 25%,
+            transparent 25%,
+            transparent 75%,
+            #000 75%,
+            #000 100%
+        );
+}
+
+.Dialog {
     font-size: 14px;
     padding: 8px;
     border-radius: 8px;

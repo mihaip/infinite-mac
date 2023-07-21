@@ -30,12 +30,14 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
 
     const {searchParams} = url;
 
-    let includeInfiniteHD = searchParams.get("infinite_hd") === "true";
+    let includeInfiniteHD;
     const disks: SystemDiskDef[] = [];
     const yearDiskDef = diskFromYearPath(url.pathname);
     if (yearDiskDef) {
         disks.push(yearDiskDef);
-        includeInfiniteHD = true;
+        includeInfiniteHD = searchParams.get("infinite_hd") !== "false";
+    } else {
+        includeInfiniteHD = searchParams.get("infinite_hd") === "true";
     }
 
     for (const diskName of searchParams.getAll("disk")) {
@@ -88,6 +90,9 @@ export function runDefToUrl(runDef: RunDef): string {
     let url: URL;
     if (disks.length === 1) {
         url = new URL(diskToYearPath(disks[0]), location.href);
+        if (!runDef.includeInfiniteHD) {
+            url.searchParams.set("infinite_hd", "false");
+        }
     } else {
         url = new URL("/run", location.href);
         for (const disk of disks) {
