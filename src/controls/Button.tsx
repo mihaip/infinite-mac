@@ -1,12 +1,15 @@
 import classNames from "classnames";
 import "./Button.css";
+import {type Appearance} from "./Appearance";
 
-export type ButtonProps = {
-    appearance: "Classic" | "Platinum";
-} & React.ButtonHTMLAttributes<HTMLButtonElement>;
-
-export function Button(props: ButtonProps) {
-    const {appearance, className, children, ...buttonProps} = props;
+export function Button({
+    appearance,
+    className,
+    children,
+    ...buttonProps
+}: {
+    appearance: Appearance;
+} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
     const buttonClassName = classNames(
         "Button",
         `Button-${appearance}`,

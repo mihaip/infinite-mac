@@ -1,16 +1,14 @@
 import classNames from "classnames";
 import "./Input.css";
 import {forwardRef} from "react";
+import {type Appearance} from "./Appearance";
 
-export type InputProps = {
-    appearance: "Classic" | "Platinum";
-} & React.InputHTMLAttributes<HTMLInputElement>;
-
-export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-    props,
-    ref
-) {
-    const {appearance, className, ...inputProps} = props;
+export const Input = forwardRef<
+    HTMLInputElement,
+    {
+        appearance: Appearance;
+    } & React.InputHTMLAttributes<HTMLInputElement>
+>(function Input({appearance, className, ...inputProps}, ref) {
     const inputClassName = classNames(
         "Input",
         `Input-${appearance}`,

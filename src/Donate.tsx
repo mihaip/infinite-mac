@@ -1,5 +1,5 @@
 import {useEffect} from "react";
-import {Dialog} from "./Dialog";
+import {Dialog} from "./controls/Dialog";
 import * as varz from "./varz";
 
 export function Donate({onDone}: {onDone: () => void}) {

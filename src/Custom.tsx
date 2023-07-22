@@ -1,6 +1,6 @@
 import "./Custom.css";
 import {useCallback, useEffect, useState} from "react";
-import {Dialog} from "./Dialog";
+import {Dialog} from "./controls/Dialog";
 import * as varz from "./varz";
 import {type RunDef} from "./run-def";
 import {ALL_MACHINES, MACHINES_BY_NAME, QUADRA_650} from "./machines";
@@ -9,8 +9,9 @@ import {
     type SystemDiskDef,
     systemDiskName,
 } from "./disks";
-import {Button, type ButtonProps} from "./Button";
-import {Input} from "./Input";
+import {Button} from "./controls//Button";
+import {Input} from "./controls/Input";
+import {type Appearance} from "./controls/Appearance";
 
 export function Custom({
     onRun,
@@ -46,7 +47,7 @@ export function Custom({
         [onDone, onRun, runDef]
     );
 
-    const buttonAppearance = runDef.disks[0]?.hasPlatinumAppearance
+    const appearance = runDef.disks[0]?.hasPlatinumAppearance
         ? "Platinum"
         : "Classic";
 
@@ -56,7 +57,7 @@ export function Custom({
             onDone={handleRun}
             doneLabel="Run"
             onCancel={onDone}
-            buttonAppearance={buttonAppearance}
+            appearance={appearance}
             className="Custom-Dialog">
             <p>
                 Build your own configuration by selecting a machine and disks.
@@ -116,14 +117,14 @@ export function Custom({
                                 ],
                             })
                         }
-                        buttonAppearance={buttonAppearance}
+                        appearance={appearance}
                     />
                 ))}
                 {runDef.disks.length === 0 && (
                     <>
                         <span className="Custom-Dialog-Label">Disk:</span>
                         <Button
-                            appearance={buttonAppearance}
+                            appearance={appearance}
                             onClick={e => {
                                 e.preventDefault();
                                 setRunDef({
@@ -174,14 +175,14 @@ export function Custom({
                                 ],
                             })
                         }
-                        buttonAppearance={buttonAppearance}
+                        appearance={appearance}
                     />
                 ))}
                 {runDef.cdromURLs.length === 0 && (
                     <>
                         <span className="Custom-Dialog-Label">Disk URL:</span>
                         <Button
-                            appearance={buttonAppearance}
+                            appearance={appearance}
                             onClick={e => {
                                 e.preventDefault();
                                 setRunDef({
@@ -230,13 +231,13 @@ function DiskOption({
     onChange,
     onAdd,
     onRemove,
-    buttonAppearance,
+    appearance,
 }: {
     disk: SystemDiskDef;
     onChange: (disk: SystemDiskDef) => void;
     onAdd: () => void;
     onRemove: () => void;
-    buttonAppearance: ButtonProps["appearance"];
+    appearance: Appearance;
 }) {
     return (
         <label className="Custom-Dialog-Repeated">
@@ -254,7 +255,7 @@ function DiskOption({
                 })}
             </select>
             <Button
-                appearance={buttonAppearance}
+                appearance={appearance}
                 onClick={e => {
                     e.preventDefault();
                     onRemove();
@@ -262,7 +263,7 @@ function DiskOption({
                 –
             </Button>
             <Button
-                appearance={buttonAppearance}
+                appearance={appearance}
                 onClick={e => {
                     e.preventDefault();
                     onAdd();
@@ -278,13 +279,13 @@ function CDROMOption({
     onChange,
     onAdd,
     onRemove,
-    buttonAppearance,
+    appearance,
 }: {
     cdromURL: string;
     onChange: (cdromURL: string) => void;
     onAdd: () => void;
     onRemove: () => void;
-    buttonAppearance: ButtonProps["appearance"];
+    appearance: Appearance;
 }) {
     return (
         <label className="Custom-Dialog-Repeated">
@@ -294,10 +295,10 @@ function CDROMOption({
                 size={50}
                 value={cdromURL}
                 onChange={e => onChange(e.target.value)}
-                appearance={buttonAppearance}
+                appearance={appearance}
             />
             <Button
-                appearance={buttonAppearance}
+                appearance={appearance}
                 onClick={e => {
                     e.preventDefault();
                     onRemove();
@@ -305,7 +306,7 @@ function CDROMOption({
                 –
             </Button>
             <Button
-                appearance={buttonAppearance}
+                appearance={appearance}
                 onClick={e => {
                     e.preventDefault();
                     onAdd();

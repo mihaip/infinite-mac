@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {Dialog} from "./Dialog";
+import {Dialog} from "./controls/Dialog";
 import {Donate} from "./Donate";
 import * as varz from "./varz";
 
