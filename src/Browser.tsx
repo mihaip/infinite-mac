@@ -10,7 +10,7 @@ import {
 import {type MachineDef} from "./machines";
 import {ScreenFrame} from "./ScreenFrame";
 import {useState} from "react";
-import {Button} from "./Button";
+import {Button} from "./controls/Button";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 import {emulatorSupportsAppleTalk} from "./emulator/emulator-common-emulators";
 import {About} from "./About";
@@ -293,21 +293,19 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
             </>
         );
     }
-    const buttonAppearance = disk.hasPlatinumAppearance
-        ? "Platinum"
-        : "Classic";
+    const appearance = disk.hasPlatinumAppearance ? "Platinum" : "Classic";
     return (
         <div className="DiskContents">
             <DiskHeader disk={disk} />
             {contents}
             <div className="Row Buttons">
                 <Button
-                    appearance={buttonAppearance}
+                    appearance={appearance}
                     className="CustomizeButton"
                     onClick={() => setCustomizing(!customizing)}>
                     {customizing ? "Cancel" : "Customize…"}
                 </Button>
-                <Button appearance={buttonAppearance} onClick={run}>
+                <Button appearance={appearance} onClick={run}>
                     Run
                 </Button>
             </div>

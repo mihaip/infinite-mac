@@ -25,7 +25,7 @@ import {
     type ScreenFrameProps,
     ScreenFrame,
 } from "./ScreenFrame";
-import {Dialog} from "./Dialog";
+import {Dialog} from "./controls/Dialog";
 import {
     type EmulatorDiskDef,
     type SystemDiskDef,
@@ -33,9 +33,9 @@ import {
     INFINITE_HD_MFS,
 } from "./disks";
 import {type MachineDef} from "./machines";
-import {type ButtonProps} from "./Button";
 import classNames from "classnames";
 import {MacCDROMs} from "./MacCDROMs";
+import {type Appearance} from "./controls/Appearance";
 
 export type MacProps = {
     disks: SystemDiskDef[];
@@ -233,9 +233,7 @@ export default function Mac({
         debugFallback,
         debugAudio,
     ]);
-    const buttonAppearance = disks[0]?.hasPlatinumAppearance
-        ? "Platinum"
-        : "Classic";
+    const appearance = disks[0]?.hasPlatinumAppearance ? "Platinum" : "Classic";
 
     const handleFullScreenClick = () => {
         // Make the entire page go fullscreen (instead of just the screen
@@ -468,7 +466,7 @@ export default function Mac({
                 <MacSettings
                     emulatorType={machine.emulatorType}
                     emulatorSettings={emulatorSettings}
-                    buttonAppearance={buttonAppearance}
+                    appearance={appearance}
                     setEmulatorSettings={setEmulatorSettings}
                     onDone={() => setSettingsVisible(false)}
                 />
@@ -483,7 +481,7 @@ export default function Mac({
                 <MacCDROMs
                     cdroms={cdromLibrary}
                     onRun={loadCDROM}
-                    buttonAppearance={buttonAppearance}
+                    appearance={appearance}
                 />
             )}
         </ScreenFrame>
@@ -585,21 +583,18 @@ function MacEthernetStatus({
 function MacSettings({
     emulatorType,
     emulatorSettings,
-    buttonAppearance,
+    appearance,
     setEmulatorSettings,
     onDone,
 }: {
     emulatorType: EmulatorType;
     emulatorSettings: EmulatorSettings;
-    buttonAppearance: ButtonProps["appearance"];
+    appearance: Appearance;
     setEmulatorSettings: (settings: EmulatorSettings) => void;
     onDone: () => void;
 }) {
     return (
-        <Dialog
-            title="Settings"
-            onDone={onDone}
-            buttonAppearance={buttonAppearance}>
+        <Dialog title="Settings" onDone={onDone} appearance={appearance}>
             <label>
                 <input
                     type="checkbox"

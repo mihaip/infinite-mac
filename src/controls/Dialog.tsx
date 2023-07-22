@@ -1,37 +1,35 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import {type ButtonProps, Button} from "./Button";
+import {Button} from "./Button";
 import "./Dialog.css";
 import classNames from "classnames";
+import {type Appearance} from "./Appearance";
 
-export type DialogProps = {
+export function Dialog({
+    title,
+    children,
+    onDone,
+    doneLabel = "Done",
+    doneEnabled = true,
+    onCancel,
+    appearance = "Classic",
+    className,
+}: {
     title: string;
     children: React.ReactNode;
     onDone: (e: React.MouseEvent) => void;
     doneLabel?: string;
     doneEnabled?: boolean;
     onCancel?: () => void;
-    buttonAppearance?: ButtonProps["appearance"];
+    appearance?: Appearance;
     className?: string;
-};
-
-export function Dialog(props: DialogProps) {
-    const {
-        title,
-        children,
-        onDone,
-        doneLabel = "Done",
-        doneEnabled = true,
-        onCancel,
-        buttonAppearance = "Classic",
-        className,
-    } = props;
+}) {
     const dialog = (
         <div className="Dialog-Backdrop">
             <div
                 className={classNames(
                     "Dialog",
-                    `Dialog-${buttonAppearance}`,
+                    `Dialog-${appearance}`,
                     className
                 )}>
                 <h1>{title}</h1>
@@ -42,7 +40,7 @@ export function Dialog(props: DialogProps) {
                     {onCancel && (
                         <Button
                             className="Dialog-Cancel"
-                            appearance={buttonAppearance}
+                            appearance={appearance}
                             onClick={e => {
                                 e.preventDefault();
                                 onCancel();
@@ -52,7 +50,7 @@ export function Dialog(props: DialogProps) {
                     )}
                     <Button
                         disabled={!doneEnabled}
-                        appearance={buttonAppearance}
+                        appearance={appearance}
                         onClick={e => {
                             e.preventDefault();
                             onDone(e);

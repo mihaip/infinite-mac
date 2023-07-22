@@ -21,11 +21,11 @@
 }
 
 .Input.Input-Classic {
-    border-image-source: url(./Images/ClassicInput.png);
+    border-image-source: url(../Images/ClassicInput.png);
 }
 
 .Input.Input-Platinum {
-    border-image-source: url(./Images/PlatinumInput.png);
+    border-image-source: url(../Images/PlatinumInput.png);
 }
 
 .Input.Input-Platinum:focus-visible {

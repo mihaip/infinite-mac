@@ -4,30 +4,27 @@ import {
     type EmulatorCDROM,
     type EmulatorCDROMLibrary,
 } from "./emulator/emulator-common";
-import {Button, type ButtonProps} from "./Button";
+import {Button} from "./controls/Button";
 import classNames from "classnames";
-import {Dialog} from "./Dialog";
+import {Dialog} from "./controls/Dialog";
 import {fetchCDROMInfo} from "./cdroms";
-import {Input} from "./Input";
+import {Input} from "./controls/Input";
+import {type Appearance} from "./controls/Appearance";
 
 export function MacCDROMs({
     cdroms,
     onRun,
-    buttonAppearance,
+    appearance,
 }: {
     cdroms: EmulatorCDROMLibrary;
     onRun: (cdrom: EmulatorCDROM) => void;
-    buttonAppearance: ButtonProps["appearance"];
+    appearance: Appearance;
 }) {
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(value => !value);
-    const className = classNames(
-        "Mac-CDROMs",
-        `Mac-CDROMs-${buttonAppearance}`,
-        {
-            "Mac-CDROMs-Expanded": expanded,
-        }
-    );
+    const className = classNames("Mac-CDROMs", `Mac-CDROMs-${appearance}`, {
+        "Mac-CDROMs-Expanded": expanded,
+    });
 
     return (
         <div className={className}>
@@ -41,7 +38,7 @@ export function MacCDROMs({
                         setExpanded(false);
                         onRun(cdrom);
                     }}
-                    buttonAppearance={buttonAppearance}
+                    appearance={appearance}
                 />
             )}
         </div>
@@ -51,11 +48,11 @@ export function MacCDROMs({
 function MacCDROMsContents({
     cdroms,
     onRun,
-    buttonAppearance,
+    appearance,
 }: {
     cdroms: EmulatorCDROMLibrary;
     onRun: (cdrom: EmulatorCDROM) => void;
-    buttonAppearance: ButtonProps["appearance"];
+    appearance: Appearance;
 }) {
     const [search, setSearch] = useState("");
     const folderPaths = Array.from(Object.keys(cdroms)).sort();
@@ -85,19 +82,19 @@ function MacCDROMsContents({
                 <MacCustomCDROM
                     onRun={onRun}
                     onDone={() => setCustomCDROMVisible(false)}
-                    buttonAppearance={buttonAppearance}
+                    appearance={appearance}
                 />
             )}
             <div className="Mac-CDROMs-Header">
                 Load CD-ROM images into the emulated Mac to access software that
                 is too large to pre-install on Infinite HD.
                 <Button
-                    appearance={buttonAppearance}
+                    appearance={appearance}
                     onClick={() => setCustomCDROMVisible(true)}>
                     Load from URL
                 </Button>
                 <Input
-                    appearance={buttonAppearance}
+                    appearance={appearance}
                     type="search"
                     placeholder="Filter…"
                     value={search}
@@ -127,11 +124,11 @@ function MacCDROMsContents({
 function MacCustomCDROM({
     onRun,
     onDone,
-    buttonAppearance,
+    appearance,
 }: {
     onRun: (cdrom: EmulatorCDROM) => void;
     onDone: () => void;
-    buttonAppearance: ButtonProps["appearance"];
+    appearance: Appearance;
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
     const [url, setUrl] = useState("");
@@ -156,7 +153,7 @@ function MacCustomCDROM({
             doneLabel="Run"
             doneEnabled={url !== "" && inputRef.current?.validity.valid}
             onCancel={onDone}
-            buttonAppearance={buttonAppearance}>
+            appearance={appearance}>
             <p>
                 Infinite Mac supports loading of CD-ROM images from URLs. Be
                 aware of the following caveats:
@@ -180,7 +177,7 @@ function MacCustomCDROM({
             </ul>
             <p>
                 <Input
-                    appearance={buttonAppearance}
+                    appearance={appearance}
                     className="Mac-Custom-CDROM-URL"
                     type="url"
                     value={url}

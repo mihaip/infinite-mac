@@ -21,17 +21,17 @@
 }
 
 .Button.Button-Classic {
-    border-image-source: url(./Images/ClassicButton.png);
+    border-image-source: url(../Images/ClassicButton.png);
 }
 
 .Button.Button-Classic:active {
-    border-image-source: url(./Images/ClassicButton-Active.png);
+    border-image-source: url(../Images/ClassicButton-Active.png);
 }
 
 .Button.Button-Platinum {
-    border-image-source: url(./Images/PlatinumButton.png);
+    border-image-source: url(../Images/PlatinumButton.png);
 }
 
 .Button.Button-Platinum:active {
-    border-image-source: url(./Images/PlatinumButton-Active.png);
+    border-image-source: url(../Images/PlatinumButton-Active.png);
 }
