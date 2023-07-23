@@ -1,0 +1,54 @@
+.Select {
+    border-image-slice: 3 22 3 3 fill;
+    border-image-width: 3px 22px 3px 3px;
+    border-image-repeat: stretch stretch;
+    border-width: 3px 22px 3px 3px;
+    box-sizing: border-box;
+    height: 20px;
+    image-rendering: pixelated;
+    background: transparent;
+    padding: 0;
+    font-size: 12px;
+    line-height: 12px;
+    color: #000;
+    font-family: "Helvetica", "Arial", sans-serif;
+    user-select: none;
+}
+
+.Select:active {
+    color: #fff;
+}
+
+.Select:focus {
+    outline: none;
+}
+
+.Select:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: -1px;
+    border-radius: 2px;
+}
+
+.Select:disabled {
+    opacity: 0.5;
+}
+
+.Select.Select-Classic {
+    border-image-source: url(../Images/ClassicSelect.png);
+}
+
+.Select.Select-Classic:active {
+    border-image-source: url(../Images/ClassicSelect-Active.png);
+}
+
+.Select.Select-Platinum {
+    border-image-source: url(../Images/PlatinumSelect.png);
+}
+
+.Select.Select-Platinum:active {
+    border-image-source: url(../Images/PlatinumSelect-Active.png);
+}
+
+.Select.Select-Platinum:focus-visible {
+    outline-color: #6666c5;
+}

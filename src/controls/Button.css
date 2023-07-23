@@ -16,6 +16,16 @@
     color: #fff;
 }
 
+.Button:focus {
+    outline: none;
+}
+
+.Button:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: -1px;
+    border-radius: 2px;
+}
+
 .Button:disabled {
     opacity: 0.5;
 }
@@ -34,4 +44,8 @@
 
 .Button.Button-Platinum:active {
     border-image-source: url(../Images/PlatinumButton-Active.png);
+}
+
+.Button.Button-Platinum:focus-visible {
+    outline-color: #6666c5;
 }

@@ -2,6 +2,15 @@
     margin-bottom: 16px !important;
 }
 
+.Custom-Dialog-Row .Button {
+    height: 20px;
+    font-weight: normal;
+    font-size: 12px;
+    padding-top: 0;
+    padding-bottom: 0;
+    box-sizing: border-box;
+}
+
 .Custom-Dialog-Row label:last-of-type {
     margin-bottom: 4px;
 }
@@ -26,7 +35,6 @@
     align-items: center;
 }
 
-.Custom-Dialog-Repeated select,
 .Custom-Dialog-Repeated input {
     height: 22px;
     box-sizing: border-box;
@@ -34,8 +42,7 @@
 
 .Custom-Dialog-Repeated .Button {
     margin-left: 4px;
-    width: 22px;
-    height: 22px;
+    width: 20px;
     padding: 0;
     display: flex;
     align-items: center;

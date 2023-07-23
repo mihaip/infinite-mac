@@ -31,7 +31,7 @@
 
 .Dialog {
     font-size: 14px;
-    padding: 8px;
+    padding: 12px;
     border-radius: 8px;
     background: #fff;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
@@ -59,7 +59,7 @@
 
 .Dialog-Description {
     font-size: 12px;
-    color: #999;
+    color: #666;
     margin: 2px 0 0 22px;
 }
 

@@ -12,6 +12,7 @@ import {
 import {Button} from "./controls//Button";
 import {Input} from "./controls/Input";
 import {type Appearance} from "./controls/Appearance";
+import {Select} from "./controls/Select";
 
 export function Custom({
     onRun,
@@ -64,7 +65,8 @@ export function Custom({
             </p>
             <label className="Custom-Dialog-Row">
                 <span className="Custom-Dialog-Label">Machine:</span>
-                <select
+                <Select
+                    appearance={appearance}
                     value={runDef.machine.name}
                     onChange={e =>
                         setRunDef({
@@ -77,7 +79,7 @@ export function Custom({
                             {machine.name}
                         </option>
                     ))}
-                </select>
+                </Select>
                 <div className="Custom-Dialog-Description Dialog-Description">
                     Note that machines cannot run all system software versions.
                 </div>
@@ -242,7 +244,8 @@ function DiskOption({
     return (
         <label className="Custom-Dialog-Repeated">
             <span className="Custom-Dialog-Label">Disk:</span>
-            <select
+            <Select
+                appearance={appearance}
                 value={systemDiskName(disk)}
                 onChange={e => onChange(SYSTEM_DISKS_BY_NAME[e.target.value])}>
                 {Object.values(SYSTEM_DISKS_BY_NAME).map(disk => {
@@ -253,7 +256,7 @@ function DiskOption({
                         </option>
                     );
                 })}
-            </select>
+            </Select>
             <Button
                 appearance={appearance}
                 onClick={e => {
