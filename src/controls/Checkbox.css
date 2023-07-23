@@ -1,0 +1,56 @@
+.Checkbox {
+    padding: 0;
+    width: 14px;
+    height: 12px;
+    vertical-align: middle;
+    appearance: none;
+    background-color: transparent;
+    position: relative;
+    margin: 0 2px 3px 0;
+}
+
+.Checkbox::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 14px;
+    height: 12px;
+    background-size: 14px 12px;
+    background-repeat: no-repeat;
+    background-position: center;
+    image-rendering: pixelated;
+}
+
+.Checkbox-Classic::before {
+    background-image: url(../Images/ClassicCheckbox.png);
+}
+
+.Checkbox-Classic:active::before {
+    background-image: url(../Images/ClassicCheckbox-Active.png);
+}
+
+.Checkbox-Classic:checked::before {
+    background-image: url(../Images/ClassicCheckbox-Checked.png);
+}
+
+.Checkbox-Classic:checked:active::before {
+    background-image: url(../Images/ClassicCheckbox-CheckedActive.png);
+}
+
+.Checkbox-Platinum::before {
+    background-image: url(../Images/PlatinumCheckbox.png);
+}
+
+.Checkbox-Platinum:active::before {
+    background-image: url(../Images/PlatinumCheckbox-Active.png);
+}
+
+.Checkbox-Platinum:checked::before {
+    background-image: url(../Images/PlatinumCheckbox-Checked.png);
+}
+
+.Checkbox-Platinum:checked:active::before {
+    background-image: url(../Images/PlatinumCheckbox-CheckedActive.png);
+}

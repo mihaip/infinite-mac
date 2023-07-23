@@ -21,6 +21,7 @@ import {Changelog} from "./Changelog";
 import {type RunDef} from "./run-def";
 import {Custom} from "./Custom";
 import {Select} from "./controls/Select";
+import {Checkbox} from "./controls/Checkbox";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -260,8 +261,8 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
                 {appleTalkSupported && (
                     <div className="Row">
                         <label>
-                            <input
-                                type="checkbox"
+                            <Checkbox
+                                appearance={appearance}
                                 checked={appleTalkEnabled}
                                 onChange={() =>
                                     setAppleTalkEnabled(!appleTalkEnabled)
