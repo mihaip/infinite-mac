@@ -50,8 +50,14 @@
     border-radius: 4px 4px 0 0;
     height: 50vh;
     width: 80vw;
-    overflow: auto;
     pointer-events: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.Mac-CDROMs-List {
+    overflow: auto;
 }
 
 .Mac-CDROMs-Header {
@@ -62,6 +68,11 @@
     width: 100%;
     justify-content: space-between;
     box-sizing: border-box;
+    font-size: 12px;
+}
+
+.Mac-CDROMs-Header input[type="search"]:placeholder-shown {
+    width: 60px;
 }
 
 .Mac-CDROMs-Classic .Mac-CDROMs-Header {
