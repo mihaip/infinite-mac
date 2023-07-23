@@ -10,6 +10,7 @@
     font-family: "Helvetica", "Arial", sans-serif;
     font-weight: bold;
     user-select: none;
+    white-space: nowrap;
 }
 
 .Button:active {
