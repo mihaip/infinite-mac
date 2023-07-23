@@ -91,7 +91,7 @@ function MacCDROMsContents({
                 <Button
                     appearance={appearance}
                     onClick={() => setCustomCDROMVisible(true)}>
-                    Load from URL
+                    Load from URL…
                 </Button>
                 <Input
                     appearance={appearance}
