@@ -70,7 +70,9 @@ function Description({onRun}: {onRun: BrowserRunFn}) {
     const [aboutVisible, setAboutVisible] = useState(false);
     const [changelogVisible, setChangelogVisible] = useState(false);
     const [donateVisible, setDonateVisible] = useState(false);
-    const [customVisible, setCustomVisible] = useState(false);
+    const [customVisible, setCustomVisible] = useState(
+        location.pathname === "/run"
+    );
 
     return (
         <div className="Description">
@@ -93,7 +95,10 @@ function Description({onRun}: {onRun: BrowserRunFn}) {
                 {customVisible && (
                     <Custom
                         onRun={onRun}
-                        onDone={() => setCustomVisible(false)}
+                        onDone={() => {
+                            history.replaceState({}, "", "/");
+                            setCustomVisible(false);
+                        }}
                     />
                 )}
             </p>

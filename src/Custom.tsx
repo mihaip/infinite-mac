@@ -39,12 +39,12 @@ export function Custom({
 
     const handleRun = useCallback(
         (event: React.MouseEvent) => {
-            varz.increment("custom_run");
             event.preventDefault();
+            onDone();
+            varz.increment("custom_run");
             const inNewWindow =
                 event.button === 2 || event.metaKey || event.ctrlKey;
             onRun(runDef, inNewWindow);
-            onDone();
         },
         [onDone, onRun, runDef]
     );
