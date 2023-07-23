@@ -172,7 +172,12 @@
     border-radius: 10px;
 }
 
-.Notable-Toggle button {
+.Notable-Toggle-Label,
+.Notable-Toggle .count {
+    color: #ccc;
+}
+
+.Notable-Toggle-Button {
     margin-left: 0.5em;
     appearance: none;
     border: 0;
@@ -182,11 +187,28 @@
     cursor: pointer;
 }
 
-.Notable-Toggle-Label,
-.Notable-Toggle .count {
-    color: #ccc;
+.Notable-Toggle-Button .name-container {
+    display: inline-flex;
+    flex-direction: column;
+    text-align: right;
 }
 
-.Notable-Toggle .selected .name {
-    text-decoration: underline;
+/* Allow the name to be bold when selected without offseting the rest of the
+content by leaving enough room for the bold version at all times. */
+.Notable-Toggle-Button .name-sizer {
+    font-weight: bold;
+    height: 0;
+    visibility: hidden;
+    overflow: hidden;
+    user-select: none;
+    pointer-events: none;
+}
+
+.Notable-Toggle-Button.selected {
+    cursor: default;
+}
+
+.Notable-Toggle-Button.selected .name {
+    font-weight: bold;
+    text-shadow: 0 0 1px #fff;
 }

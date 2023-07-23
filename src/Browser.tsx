@@ -22,6 +22,7 @@ import {type RunDef} from "./run-def";
 import {Custom} from "./Custom";
 import {Select} from "./controls/Select";
 import {Checkbox} from "./controls/Checkbox";
+import classNames from "classnames";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -135,20 +136,46 @@ function NotableToggle({
         <div className="Notable-Toggle-Container">
             <div className="Notable-Toggle">
                 <span className="Notable-Toggle-Label">Releases:</span>
-                <button
+                <NotableToggleButton
                     onClick={() => setNotableOnly(true)}
-                    className={notableOnly ? "selected" : ""}>
-                    <span className="name">Notable</span>{" "}
-                    <span className="count">({NOTABLE_DISKS.length})</span>
-                </button>
-                <button
+                    selected={notableOnly}
+                    label="Notable"
+                    count={NOTABLE_DISKS.length}
+                />
+                <NotableToggleButton
                     onClick={() => setNotableOnly(false)}
-                    className={notableOnly ? "" : "selected"}>
-                    <span className="name">All</span>{" "}
-                    <span className="count">({ALL_DISKS.length})</span>
-                </button>
+                    selected={!notableOnly}
+                    label="All"
+                    count={ALL_DISKS.length}
+                />
             </div>
         </div>
+    );
+}
+
+function NotableToggleButton({
+    onClick,
+    selected,
+    label,
+    count,
+}: {
+    onClick: () => void;
+    selected: boolean;
+    label: string;
+    count: number;
+}) {
+    return (
+        <button
+            onClick={onClick}
+            className={classNames("Notable-Toggle-Button", {
+                "selected": selected,
+            })}>
+            <span className="name-container">
+                <span className="name">{label}</span>
+                <span className="name-sizer">{label}</span>
+            </span>{" "}
+            <span className="count">({count})</span>
+        </button>
     );
 }
 
