@@ -101,22 +101,24 @@ function MacCDROMsContents({
                     onChange={e => setSearch(e.target.value)}
                 />
             </div>
-            {Object.entries(cdromsByCategory).map(([category, cdroms]) => (
-                <div key={category} className="Mac-CDROMs-Category">
-                    <h3>{category}</h3>
-                    <div className="Mac-CDROMs-Category-Contents">
-                        {cdroms.map(cdrom => (
-                            <MacCDROM
-                                key={cdrom.name}
-                                cdrom={cdrom}
-                                onRun={() => {
-                                    onRun(cdrom);
-                                }}
-                            />
-                        ))}
+            <div className="Mac-CDROMs-List">
+                {Object.entries(cdromsByCategory).map(([category, cdroms]) => (
+                    <div key={category} className="Mac-CDROMs-Category">
+                        <h3>{category}</h3>
+                        <div className="Mac-CDROMs-Category-Contents">
+                            {cdroms.map(cdrom => (
+                                <MacCDROM
+                                    key={cdrom.name}
+                                    cdrom={cdrom}
+                                    onRun={() => {
+                                        onRun(cdrom);
+                                    }}
+                                />
+                            ))}
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 }
