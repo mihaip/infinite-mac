@@ -13,6 +13,7 @@ import {Button} from "./controls//Button";
 import {Input} from "./controls/Input";
 import {type Appearance} from "./controls/Appearance";
 import {Select} from "./controls/Select";
+import {Checkbox} from "./controls/Checkbox";
 
 export function Custom({
     onRun,
@@ -208,8 +209,8 @@ export function Custom({
 
             <label className="Custom-Dialog-Row">
                 <span className="Custom-Dialog-Label">Extras:</span>
-                <input
-                    type="checkbox"
+                <Checkbox
+                    appearance={appearance}
                     checked={runDef.includeInfiniteHD}
                     onChange={e =>
                         setRunDef({

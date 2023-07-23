@@ -37,6 +37,7 @@ import classNames from "classnames";
 import {MacCDROMs} from "./MacCDROMs";
 import {type Appearance} from "./controls/Appearance";
 import {Select} from "./controls/Select";
+import {Checkbox} from "./controls/Checkbox";
 
 export type MacProps = {
     disks: SystemDiskDef[];
@@ -597,8 +598,8 @@ function MacSettings({
     return (
         <Dialog title="Settings" onDone={onDone} appearance={appearance}>
             <label>
-                <input
-                    type="checkbox"
+                <Checkbox
+                    appearance={appearance}
                     checked={emulatorSettings.swapControlAndCommand}
                     onChange={() =>
                         setEmulatorSettings({
