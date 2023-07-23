@@ -2,6 +2,7 @@ import {useEffect} from "react";
 import {Dialog} from "./controls/Dialog";
 import * as varz from "./varz";
 import changelogText from "../CHANGELOG.md?raw";
+import Linkify from "linkify-react";
 import "./Changelog.css";
 
 const changelogLines = changelogText
@@ -18,7 +19,9 @@ export function Changelog({onDone}: {onDone: () => void}) {
         <Dialog title="Changelog" onDone={onDone}>
             <div className="Changelog-Text">
                 {changelogLines.map(l => (
-                    <p key={l}>{l}</p>
+                    <p key={l}>
+                        <Linkify>{l}</Linkify>
+                    </p>
                 ))}
             </div>
         </Dialog>
