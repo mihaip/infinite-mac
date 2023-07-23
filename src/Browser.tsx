@@ -20,6 +20,7 @@ import "./Browser.css";
 import {Changelog} from "./Changelog";
 import {type RunDef} from "./run-def";
 import {Custom} from "./Custom";
+import {Select} from "./controls/Select";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -230,6 +231,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
         onRun(runDef, inNewWindow);
     };
 
+    const appearance = disk.hasPlatinumAppearance ? "Platinum" : "Classic";
     let contents;
     if (customizing) {
         const appleTalkSupported =
@@ -239,7 +241,8 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
             <>
                 <div className="Row">
                     Machine:{" "}
-                    <select
+                    <Select
+                        appearance={appearance}
                         value={machine.name}
                         onChange={e => {
                             const machine =
@@ -252,7 +255,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
                                 {machine.name}
                             </option>
                         ))}
-                    </select>
+                    </Select>
                 </div>
                 {appleTalkSupported && (
                     <div className="Row">
@@ -293,7 +296,6 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
             </>
         );
     }
-    const appearance = disk.hasPlatinumAppearance ? "Platinum" : "Classic";
     return (
         <div className="DiskContents">
             <DiskHeader disk={disk} />

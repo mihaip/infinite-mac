@@ -36,6 +36,7 @@ import {type MachineDef} from "./machines";
 import classNames from "classnames";
 import {MacCDROMs} from "./MacCDROMs";
 import {type Appearance} from "./controls/Appearance";
+import {Select} from "./controls/Select";
 
 export type MacProps = {
     disks: SystemDiskDef[];
@@ -617,7 +618,8 @@ function MacSettings({
             {emulatorSupportsSpeedSetting(emulatorType) && (
                 <label>
                     Speed:
-                    <select
+                    <Select
+                        appearance={appearance}
                         value={emulatorSettings.speed}
                         onChange={event =>
                             setEmulatorSettings({
@@ -635,7 +637,7 @@ function MacSettings({
                                 </option>
                             )
                         )}
-                    </select>
+                    </Select>
                     <div className="Dialog-Description">
                         Very old software may be timing dependent and thus only
                         work at 1x speeds.
