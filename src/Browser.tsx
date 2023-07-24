@@ -23,6 +23,7 @@ import {Custom} from "./Custom";
 import {Select} from "./controls/Select";
 import {Checkbox} from "./controls/Checkbox";
 import classNames from "classnames";
+import {Input} from "./controls/Input";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -271,7 +272,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
             disk.appleTalkSupported &&
             emulatorSupportsAppleTalk(machine.emulatorType);
         contents = (
-            <>
+            <div className="Customize">
                 <div className="Row">
                     Machine:{" "}
                     <Select
@@ -302,20 +303,22 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
                             />
                             Enable AppleTalk
                         </label>{" "}
-                        {appleTalkEnabled && (
-                            <input
-                                type="text"
-                                value={appleTalkZoneName}
-                                placeholder="Zone Name"
-                                size={12}
-                                onChange={e =>
-                                    setAppleTalkZoneName(e.target.value)
-                                }
-                            />
-                        )}
+                        <Input
+                            style={{
+                                visibility: appleTalkEnabled
+                                    ? "visible"
+                                    : "hidden",
+                            }}
+                            appearance={appearance}
+                            type="text"
+                            value={appleTalkZoneName}
+                            placeholder="Zone Name"
+                            size={12}
+                            onChange={e => setAppleTalkZoneName(e.target.value)}
+                        />
                     </div>
                 )}
-            </>
+            </div>
         );
     } else {
         contents = (
