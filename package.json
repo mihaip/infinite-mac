@@ -32,7 +32,7 @@
         "prettier": "^2.3.1",
         "vite": "^4.3.5",
         "vite-plugin-svgr": "^3.2.0",
-        "wrangler": "^2.14.0"
+        "wrangler": "^3.3.0"
     },
     "scripts": {
         "import-emulator": "scripts/import-emulator.sh",
@@ -43,8 +43,8 @@
         "start": "vite",
         "build": "vite build",
         "preview": "vite preview --host",
-        "worker-dev": "wrangler dev --local --port=3128",
-        "worker-deploy": "wrangler publish --env production",
+        "worker-dev": "wrangler dev --port=3128",
+        "worker-deploy": "wrangler deploy --env production",
         "prettier": "prettier --write src workers-site",
         "lint": "eslint --fix src workers-site",
         "check": "tsc --noEmit && tsc --noEmit --project workers-site/tsconfig.json",
