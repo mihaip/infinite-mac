@@ -38,6 +38,7 @@ import {MacCDROMs} from "./MacCDROMs";
 import {type Appearance} from "./controls/Appearance";
 import {Select} from "./controls/Select";
 import {Checkbox} from "./controls/Checkbox";
+import {fetchCDROMInfo} from "./cdroms";
 
 export type MacProps = {
     disks: SystemDiskDef[];
@@ -325,6 +326,22 @@ export default function Mac({
             for (const item of event.dataTransfer.items) {
                 if (item.kind === "file") {
                     files.push(item.getAsFile()!);
+                } else if (
+                    item.kind === "string" &&
+                    item.type === "text/uri-list"
+                ) {
+                    item.getAsString(async url => {
+                        try {
+                            const cdrom = await fetchCDROMInfo(url);
+                            varz.increment("emulator_cdrom:drag");
+                            emulatorRef.current?.loadCDROM(cdrom);
+                        } catch (e) {
+                            // TODO: try to use CORS to fetch the file directly
+                            // and upload it?
+                            console.log("error fetching cdrom", e);
+                            return;
+                        }
+                    });
                 }
             }
         } else if (event.dataTransfer.files) {
