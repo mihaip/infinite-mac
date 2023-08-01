@@ -1,3 +1,4 @@
+import {type Appearance} from "./controls/Appearance";
 import {type EmulatorChunkedFileSpec} from "./emulator/emulator-common";
 import {
     type MachineDef,
@@ -35,7 +36,7 @@ export type SystemDiskDef = EmulatorDiskDef & {
     appleTalkSupported?: boolean;
     mfsOnly?: boolean;
     delayAdditionalDiskMount?: boolean;
-    hasPlatinumAppearance?: boolean;
+    appearance?: Appearance;
     isUnstable?: boolean;
     notable?: boolean;
 };
@@ -503,7 +504,7 @@ const MAC_OS_8_0: SystemDiskDef = {
     ],
     machines: [QUADRA_650, POWER_MACINTOSH_9500],
     appleTalkSupported: true,
-    hasPlatinumAppearance: true,
+    appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 8.0 HD.dsk.json"),
     notable: true,
 };
@@ -524,7 +525,7 @@ const MAC_OS_8_1: SystemDiskDef = {
     ],
     machines: [QUADRA_650, POWER_MACINTOSH_9500],
     appleTalkSupported: true,
-    hasPlatinumAppearance: true,
+    appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 8.1 HD.dsk.json"),
     notable: true,
 };
@@ -552,7 +553,7 @@ const MAC_OS_8_5: SystemDiskDef = {
     ],
     machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3],
     appleTalkSupported: true,
-    hasPlatinumAppearance: true,
+    appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 8.5 HD.dsk.json"),
     notable: true,
 };
@@ -581,7 +582,7 @@ const MAC_OS_8_6: SystemDiskDef = {
     ],
     machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3],
     appleTalkSupported: true,
-    hasPlatinumAppearance: true,
+    appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 8.6 HD.dsk.json"),
 };
 
@@ -610,7 +611,7 @@ const MAC_OS_9_0: SystemDiskDef = {
         512, 515, 554, 559, 560, 562, 563, 564, 565, 566, 567, 568,
     ],
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
-    hasPlatinumAppearance: true,
+    appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.0 HD.dsk.json"),
     notable: true,
 };
@@ -666,7 +667,7 @@ const MAC_OS_9_0_4: SystemDiskDef = {
         598,
     ],
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
-    hasPlatinumAppearance: true,
+    appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.0.4 HD.dsk.json"),
 };
 

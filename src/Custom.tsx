@@ -49,9 +49,7 @@ export function Custom({
         [onDone, onRun, runDef]
     );
 
-    const appearance = runDef.disks[0]?.hasPlatinumAppearance
-        ? "Platinum"
-        : "Classic";
+    const {appearance = "Classic"} = runDef.disks[0] ?? {};
 
     return (
         <Dialog

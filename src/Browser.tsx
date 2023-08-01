@@ -265,7 +265,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
         onRun(runDef, inNewWindow);
     };
 
-    const appearance = disk.hasPlatinumAppearance ? "Platinum" : "Classic";
+    const {appearance = "Classic"} = disk;
     let contents;
     if (customizing) {
         const appleTalkSupported =

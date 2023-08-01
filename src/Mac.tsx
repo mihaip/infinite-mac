@@ -235,7 +235,7 @@ export default function Mac({
         debugFallback,
         debugAudio,
     ]);
-    const appearance = disks[0]?.hasPlatinumAppearance ? "Platinum" : "Classic";
+    const {appearance = "Classic"} = disks[0] ?? {};
 
     const handleFullScreenClick = () => {
         // Make the entire page go fullscreen (instead of just the screen
