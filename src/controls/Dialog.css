@@ -31,17 +31,22 @@
 
 .Dialog {
     font-size: 14px;
-    padding: 12px;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    padding: 18px;
+    border-image-slice: 5 fill;
+    border-image-width: 5px;
+    border-width: 5px;
+    image-rendering: pixelated;
     max-width: 600px;
     min-width: 320px;
     z-index: 3;
 }
 
-.Dialog-Platinum {
-    background: #e7e7e7;
+.Dialog.Dialog-Classic {
+    border-image-source: url(../Images/System7DialogFrame.png);
+}
+
+.Dialog.Dialog-Platinum {
+    border-image-source: url(../Images/PlatinumDialogFrame.png);
 }
 
 .Dialog h1 {
