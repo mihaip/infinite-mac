@@ -24,7 +24,7 @@ export function Custom({
 }) {
     useEffect(() => {
         varz.increment("custom_shown");
-    });
+    }, []);
 
     const defaultDisk = SYSTEM_DISKS_BY_NAME["System 7.1"];
 

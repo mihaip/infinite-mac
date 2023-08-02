@@ -13,7 +13,7 @@ export function About({onDone}: {onDone: () => void}) {
     const [donateVisible, setDonateVisible] = useState(false);
     useEffect(() => {
         varz.increment("about_shown");
-    });
+    }, []);
 
     const aboutContainerRef = useRef<HTMLDivElement>(null);
 

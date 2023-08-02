@@ -13,7 +13,7 @@ const changelogLines = changelogText
 export function Changelog({onDone}: {onDone: () => void}) {
     useEffect(() => {
         varz.increment("changelog_shown");
-    });
+    }, []);
 
     return (
         <Dialog title="Changelog" onDone={onDone}>

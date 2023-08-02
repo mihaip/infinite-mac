@@ -5,7 +5,7 @@ import * as varz from "./varz";
 export function Donate({onDone}: {onDone: () => void}) {
     useEffect(() => {
         varz.increment("donate_shown");
-    });
+    }, []);
 
     return (
         <Dialog title="Donate" onDone={onDone}>
