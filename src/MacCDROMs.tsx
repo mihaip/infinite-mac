@@ -86,8 +86,10 @@ function MacCDROMsContents({
                 />
             )}
             <div className="Mac-CDROMs-Header">
-                Load CD-ROM images into the emulated Mac to access software that
-                is too large to pre-install on Infinite HD.
+                <div className="Mac-CDROMs-Instructions">
+                    Load CD-ROM images into the emulated Mac to access software
+                    that is too large to pre-install on Infinite HD.
+                </div>
                 <Button
                     appearance={appearance}
                     onClick={() => setCustomCDROMVisible(true)}>

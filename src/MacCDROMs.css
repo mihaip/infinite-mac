@@ -6,7 +6,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    align-content: center;
     z-index: 2;
     filter: drop-shadow(1px 1px 5px rgba(0, 0, 0, 0.5));
     pointer-events: none;
@@ -36,7 +35,7 @@
 }
 
 .Mac-CDROMs-Platinum .Mac-CDROMs-Title {
-    background-color: #e7e7e7;
+    background-color: #dddddd;
 }
 
 .Mac-CDROMs-Platinum .Mac-CDROMs-Title:active {
@@ -71,6 +70,10 @@
     font-size: 12px;
 }
 
+.Mac-CDROMs-Instructions {
+    flex-grow: 1;
+}
+
 .Mac-CDROMs-Header input[type="search"]:placeholder-shown {
     width: 60px;
 }
@@ -80,7 +83,7 @@
 }
 
 .Mac-CDROMs-Platinum .Mac-CDROMs-Header {
-    background: #e7e7e7;
+    background: #dddddd;
     border-bottom: solid 1px #a5a5a5;
 }
 
@@ -134,4 +137,20 @@
 .Mac-CDROM-Cover-Round {
     border-radius: 50%;
     overflow: hidden;
+}
+
+@media (max-width: 440px) {
+    .Mac-CDROMs {
+        align-items: start;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    .Mac-CDROMs-Title {
+        margin-left: 20px;
+    }
+
+    .Mac-CDROMs-Contents {
+        width: 100%;
+    }
 }
