@@ -101,6 +101,9 @@ async function handleGET(pathPieces: string[], srcUrl: string) {
 async function handlePUT(srcUrl: string) {
     const response = await fetch(srcUrl, {
         method: "HEAD",
+        headers: {
+            "User-Agent": "Infinite Mac (+https://infinitemac.org)",
+        },
     });
     if (!response.ok) {
         return errorResponse(
