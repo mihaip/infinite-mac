@@ -197,7 +197,7 @@ export function Custom({
                 )}
                 <div className="Custom-Dialog-Description Dialog-Description">
                     Disk or CD-ROM image from a URL. The image must be a raw
-                    .iso/.img file (i.e. not compressed) and from{" "}
+                    .iso/.img/.toast/.bin file (i.e. not compressed) and from{" "}
                     <a href="https://github.com/search?q=repo%3Amihaip%2Finfinite-mac+%22const+allowedDomains%22&type=code">
                         a supported site
                     </a>
