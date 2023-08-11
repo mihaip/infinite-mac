@@ -23,7 +23,7 @@ export default function RunDefMac({
     );
     useEffect(() => {
         if (runDef.cdromURLs.length) {
-            Promise.all(runDef.cdromURLs.map(fetchCDROMInfo))
+            Promise.all(runDef.cdromURLs.map(getCDROMInfo))
                 .then(setCDROMs)
                 .catch(error => {
                     setCDROMErrorText(`Could not load the CD-ROM: ${error}`);
@@ -42,10 +42,22 @@ export default function RunDefMac({
             ethernetProvider={runDef.ethernetProvider}
             debugFallback={runDef.debugFallback}
             debugAudio={runDef.debugAudio}
-            cdromLibrary={cdromsManifest as any as EmulatorCDROMLibrary}
+            cdromLibrary={cdromLibrary}
             onDone={onDone}
         />
     ) : (
         <div style={{color: "#aaa"}}>Loading CD-ROM Metadata…</div>
     );
+}
+
+const cdromLibrary: EmulatorCDROMLibrary = cdromsManifest as any;
+
+async function getCDROMInfo(url: string): Promise<EmulatorCDROM> {
+    const libraryCDROM = Object.values(cdromLibrary).find(
+        cdrom => cdrom.srcUrl === url
+    );
+    if (libraryCDROM) {
+        return libraryCDROM;
+    }
+    return fetchCDROMInfo(url);
 }

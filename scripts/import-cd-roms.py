@@ -21,6 +21,7 @@ class InputManifest(typing.TypedDict):
     src_url: str
     cover_image: str
     cover_image_type: typing.NotRequired[str]
+    mode: typing.NotRequired[str]
 
 
 class OutputManifest(typing.TypedDict):
@@ -30,6 +31,7 @@ class OutputManifest(typing.TypedDict):
     coverImageSize: typing.Tuple[int, int]
     coverImageHash: str
     fileSize: int
+    mode: typing.NotRequired[str]
 
 
 def load_manifests() -> typing.Dict[str, InputManifest]:
@@ -74,6 +76,8 @@ def get_output_manifest(input_manifest: InputManifest) -> OutputManifest:
     }
     if "cover_image_type" in input_manifest:
         output_manifest["coverImageType"] = input_manifest["cover_image_type"]
+    if "mode" in input_manifest:
+        output_manifest["mode"] = input_manifest["mode"]
 
     return output_manifest
 

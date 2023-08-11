@@ -14,18 +14,26 @@ export function createEmulatorWorkerCDROMDisk(
     const {name} = cdrom;
     let chunkStart = 0;
     const chunks: string[] = [];
-    while (chunkStart < cdrom.fileSize) {
-        const chunkEnd = Math.min(chunkStart + CHUNK_SIZE, cdrom.fileSize);
+    let totalSize = cdrom.fileSize;
+    if (cdrom.mode === "MODE1/2352") {
+        totalSize = (totalSize / 2352) * 2048;
+    }
+    while (chunkStart < totalSize) {
+        const chunkEnd = Math.min(chunkStart + CHUNK_SIZE, totalSize);
         chunks.push(`${chunkStart}-${chunkEnd}`);
         chunkStart = chunkEnd;
     }
+    let encodedUrl = cdrom.srcUrl;
+    if (cdrom.mode) {
+        encodedUrl += `#${cdrom.mode}`;
+    }
     const spec = {
         name,
-        baseUrl: `/CD-ROM/${btoa(cdrom.srcUrl)}`,
-        totalSize: cdrom.fileSize,
+        baseUrl: `/CD-ROM/${btoa(encodedUrl)}`,
+        totalSize,
         chunks,
         chunkSize: CHUNK_SIZE,
-        prefetchChunks: [0, 1, 2],
+        prefetchChunks: [0],
     };
 
     return new EmulatorWorkerChunkedDisk(spec, delegate);
