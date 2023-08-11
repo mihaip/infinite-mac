@@ -59,7 +59,10 @@ function MacCDROMsContents({
     const cdromsByCategory: {[category: string]: EmulatorCDROM[]} = {};
     let lastCategory;
     for (const folderPath of folderPaths) {
-        if (search && !folderPath.toLowerCase().includes(search)) {
+        if (
+            search &&
+            !folderPath.toLowerCase().includes(search.toLowerCase())
+        ) {
             continue;
         }
         const cdrom = cdroms[folderPath];
