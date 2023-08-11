@@ -164,8 +164,8 @@ function MacCustomCDROM({
             </p>
             <ul>
                 <li>
-                    The CD-ROM image must be a raw .iso file (i.e. not
-                    compressed, not a .dmg or a .cue)
+                    The CD-ROM image must be a raw .iso, .img, .toast or .bin
+                    file (i.e. not compressed, or a .dmg)
                 </li>
                 <li>
                     Only a subset of sites are supported (currently archive.org,
