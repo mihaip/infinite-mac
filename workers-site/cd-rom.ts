@@ -73,7 +73,7 @@ async function handleGET(pathPieces: string[], srcUrl: string) {
                 status: 200,
                 headers: {
                     "Content-Type": "multipart/mixed",
-                    "Content-Length": contentLength,
+                    "Content-Length": String(contentLength),
                     // Always allow caching (mirrors logic for our own disk chunks).
                     "Cache-Control": `public, max-age=${
                         60 * 60 * 24 * 30
@@ -137,6 +137,9 @@ async function handlePUT(srcUrl: string) {
         coverImageHash: "",
         coverImageSize: [0, 0],
     };
+    if (srcUrl.endsWith(".bin")) {
+        cdrom.mode = "MODE1/2352";
+    }
     return new Response(JSON.stringify(cdrom), {
         status: 200,
         headers: {
@@ -150,11 +153,27 @@ async function fetchChunk(
     chunkStart: number,
     chunkEnd: number
 ) {
+    const parsedSrcUrl = new URL(srcUrl);
+    let mode: EmulatorCDROM["mode"];
+    if (parsedSrcUrl.hash) {
+        mode = parsedSrcUrl.hash.slice(1) as EmulatorCDROM["mode"];
+        parsedSrcUrl.hash = "";
+        srcUrl = parsedSrcUrl.toString();
+        switch (mode) {
+            case "MODE1/2352":
+                chunkStart = (chunkStart / 2048) * 2352;
+                chunkEnd = (chunkEnd / 2048) * 2352;
+                break;
+            default:
+                throw new Error("Invalid CD-ROM mode: " + mode);
+        }
+    }
     const srcRes = await fetch(srcUrl, {
         headers: {
             "User-Agent": "Infinite Mac (+https://infinitemac.org)",
             "Range": `bytes=${chunkStart}-${chunkEnd}`,
         },
+        signal: AbortSignal.timeout(2000),
     });
 
     if (!srcRes.ok) {
@@ -163,10 +182,35 @@ async function fetchChunk(
         );
     }
 
-    const srcBody = await srcRes.arrayBuffer();
+    let srcBody = await srcRes.arrayBuffer();
+    switch (mode) {
+        case "MODE1/2352": {
+            // Get just the data portion of each segment.
+            const srcBodyUint8 = new Uint8Array(srcBody);
+            const dataBody = new ArrayBuffer(
+                (srcBody.byteLength / 2352) * 2048
+            );
+            const dataBodyUint8 = new Uint8Array(dataBody);
+            for (
+                let srcOffset = 0, dstOffset = 0;
+                srcOffset < srcBody.byteLength;
+                srcOffset += 2352, dstOffset += 2048
+            ) {
+                dataBodyUint8.set(
+                    srcBodyUint8.subarray(
+                        srcOffset + 12 + 3 + 1,
+                        srcOffset + 12 + 3 + 1 + 2048
+                    ),
+                    dstOffset
+                );
+            }
+            srcBody = dataBody;
+            break;
+        }
+    }
     return {
         chunk: srcBody,
-        contentLength: srcRes.headers.get("Content-Length")!,
+        contentLength: srcBody.byteLength,
     };
 }
 
