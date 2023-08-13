@@ -84,7 +84,7 @@ async function handleRequest(
         // Static content uses a content hash in the URL, so it can be cached
         // for a while (30 days).
         if (
-            pathname.startsWith("/static") ||
+            pathname.startsWith("/assets") ||
             (pathname.startsWith("/Disk") && pathname.endsWith(".chunk"))
         ) {
             response.headers.set(
