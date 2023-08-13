@@ -30,3 +30,6 @@ public/Disk
 # generated CD-ROM catalog
 src/Data/CD-ROMs.json
 public/Covers
+
+# Cloudflare Worker wrangler CLI state
+.wrangler
