@@ -4,7 +4,6 @@ serialb
 ether js
 bootdrive 0
 bootdriver 0
-ramsize 134217728
 frameskip 0
 fpu true
 nocdrom false

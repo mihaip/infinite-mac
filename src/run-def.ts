@@ -7,10 +7,15 @@ import {
     type SystemDiskDef,
 } from "./disks";
 import {type EmulatorEthernetProvider} from "./emulator/emulator-ui";
-import {MACHINES_BY_NAME, type MachineDef} from "./machines";
+import {
+    MACHINES_BY_NAME,
+    type MachineDefRAMSize,
+    type MachineDef,
+} from "./machines";
 
 export type RunDef = {
     machine: MachineDef;
+    ramSize?: MachineDefRAMSize;
     disks: SystemDiskDef[];
     cdromURLs: string[];
     includeInfiniteHD: boolean;
@@ -56,6 +61,11 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     } else {
         return undefined;
     }
+    let ramSize: MachineDefRAMSize | undefined = undefined;
+    const ramSizeParam = searchParams.get("ram") as MachineDefRAMSize | null;
+    if (ramSizeParam && machine.ramSizes.includes(ramSizeParam)) {
+        ramSize = ramSizeParam;
+    }
 
     const cdromURLs = [
         ...searchParams.getAll("cdrom"),
@@ -78,6 +88,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         disks,
         includeInfiniteHD,
         machine,
+        ramSize,
         ethernetProvider,
         cdromURLs,
         debugFallback,
@@ -108,6 +119,9 @@ export function runDefToUrl(runDef: RunDef): string {
 
     if (disks.length !== 1 || machine !== disks[0].machines[0]) {
         url.searchParams.set("machine", machine.name);
+    }
+    if (runDef.ramSize && runDef.ramSize !== machine.ramSizes[0]) {
+        url.searchParams.set("ram", runDef.ramSize);
     }
     if (ethernetProvider instanceof CloudflareWorkerEthernetProvider) {
         url.searchParams.set("appleTalk", ethernetProvider.zoneName());

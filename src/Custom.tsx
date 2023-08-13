@@ -3,7 +3,12 @@ import {useCallback, useEffect, useState} from "react";
 import {Dialog} from "./controls/Dialog";
 import * as varz from "./varz";
 import {type RunDef} from "./run-def";
-import {ALL_MACHINES, MACHINES_BY_NAME, QUADRA_650} from "./machines";
+import {
+    ALL_MACHINES,
+    MACHINES_BY_NAME,
+    QUADRA_650,
+    type MachineDefRAMSize,
+} from "./machines";
 import {
     SYSTEM_DISKS_BY_NAME,
     type SystemDiskDef,
@@ -30,6 +35,7 @@ export function Custom({
 
     const [runDef, setRunDef] = useState<RunDef>({
         machine: QUADRA_650,
+        ramSize: undefined,
         disks: [defaultDisk],
         cdromURLs: [],
         includeInfiniteHD: true,
@@ -67,12 +73,17 @@ export function Custom({
                 <Select
                     appearance={appearance}
                     value={runDef.machine.name}
-                    onChange={e =>
-                        setRunDef({
-                            ...runDef,
-                            machine: MACHINES_BY_NAME[e.target.value],
-                        })
-                    }>
+                    onChange={e => {
+                        const machine = MACHINES_BY_NAME[e.target.value];
+                        const update: Partial<RunDef> = {machine};
+                        if (
+                            runDef.ramSize &&
+                            !machine.ramSizes.includes(runDef.ramSize)
+                        ) {
+                            update.ramSize = machine.ramSizes[0];
+                        }
+                        setRunDef({...runDef, ...update});
+                    }}>
                     {ALL_MACHINES.map(machine => (
                         <option key={machine.name} value={machine.name}>
                             {machine.name}
@@ -81,6 +92,28 @@ export function Custom({
                 </Select>
                 <div className="Custom-Dialog-Description Dialog-Description">
                     Note that machines cannot run all system software versions.
+                </div>
+            </label>
+            <label className="Custom-Dialog-Row">
+                <span className="Custom-Dialog-Label">RAM:</span>
+                <Select
+                    appearance={appearance}
+                    value={runDef.ramSize ?? runDef.machine.ramSizes[0]}
+                    onChange={e =>
+                        setRunDef({
+                            ...runDef,
+                            ramSize: e.target.value as MachineDefRAMSize,
+                        })
+                    }>
+                    {runDef.machine.ramSizes.map(ramSize => (
+                        <option key={ramSize} value={ramSize}>
+                            {ramSize}B
+                        </option>
+                    ))}
+                </Select>
+                <div className="Custom-Dialog-Description Dialog-Description">
+                    Not all operating systems versions can run with a reduced
+                    amount of RAM.
                 </div>
             </label>
 
