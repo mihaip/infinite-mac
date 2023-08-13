@@ -11,8 +11,6 @@ import {type MachineDef} from "./machines";
 import {ScreenFrame} from "./ScreenFrame";
 import {useState} from "react";
 import {Button} from "./controls/Button";
-import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
-import {emulatorSupportsAppleTalk} from "./emulator/emulator-common-emulators";
 import {About} from "./About";
 import {Donate} from "./Donate";
 import {useWindowWidth} from "./useWindowWidth";
@@ -20,10 +18,7 @@ import "./Browser.css";
 import {Changelog} from "./Changelog";
 import {type RunDef} from "./run-def";
 import {Custom} from "./Custom";
-import {Select} from "./controls/Select";
-import {Checkbox} from "./controls/Checkbox";
 import classNames from "classnames";
-import {Input} from "./controls/Input";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -240,23 +235,13 @@ type DiskContentsProps = {
 };
 
 function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
-    const [customizing, setCustomizing] = useState(false);
-    const [machine, setMachine] = useState(disk.machines[0]);
-    const [appleTalkEnabled, setAppleTalkEnabled] = useState(false);
-    const [appleTalkZoneName, setAppleTalkZoneName] = useState("");
+    const [customVisible, setCustomVisible] = useState(false);
     const run = (event: React.MouseEvent) => {
-        let ethernetProvider;
-        if (appleTalkEnabled && appleTalkZoneName) {
-            ethernetProvider = new CloudflareWorkerEthernetProvider(
-                appleTalkZoneName
-            );
-        }
         const runDef = {
             disks: [disk],
             includeInfiniteHD: true,
-            machine,
+            machine: disk.machines[0],
             cdromURLs: [],
-            ethernetProvider,
             debugAudio: false,
             debugFallback: false,
         } satisfies RunDef;
@@ -266,87 +251,35 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
     };
 
     const {appearance = "Classic"} = disk;
-    let contents;
-    if (customizing) {
-        const appleTalkSupported =
-            disk.appleTalkSupported &&
-            emulatorSupportsAppleTalk(machine.emulatorType);
-        contents = (
-            <div className="Customize">
-                <div className="Row">
-                    Machine:{" "}
-                    <Select
-                        appearance={appearance}
-                        value={machine.name}
-                        onChange={e => {
-                            const machine =
-                                disk.machines[e.target.selectedIndex];
-                            setMachine(machine);
-                            setBezelStyle(machine.bezelStyle);
-                        }}>
-                        {disk.machines.map((machine, i) => (
-                            <option value={machine.name} key={i}>
-                                {machine.name}
-                            </option>
-                        ))}
-                    </Select>
-                </div>
-                {appleTalkSupported && (
-                    <div className="Row">
-                        <label>
-                            <Checkbox
-                                appearance={appearance}
-                                checked={appleTalkEnabled}
-                                onChange={() =>
-                                    setAppleTalkEnabled(!appleTalkEnabled)
-                                }
-                            />
-                            Enable AppleTalk
-                        </label>{" "}
-                        <Input
-                            style={{
-                                visibility: appleTalkEnabled
-                                    ? "visible"
-                                    : "hidden",
-                            }}
-                            appearance={appearance}
-                            type="text"
-                            value={appleTalkZoneName}
-                            placeholder="Zone Name"
-                            size={12}
-                            onChange={e => setAppleTalkZoneName(e.target.value)}
-                        />
-                    </div>
-                )}
-            </div>
-        );
-    } else {
-        contents = (
-            <>
-                <div className="Row DiskDescription">{disk.description}</div>
-                {disk.isUnstable && (
-                    <div className="Row Unstable-Warning">
-                        Unstable under emulation.
-                    </div>
-                )}
-            </>
-        );
-    }
+
     return (
         <div className="DiskContents">
             <DiskHeader disk={disk} />
-            {contents}
+            <div className="Row DiskDescription">{disk.description}</div>
+            {disk.isUnstable && (
+                <div className="Row Unstable-Warning">
+                    Unstable under emulation.
+                </div>
+            )}
             <div className="Row Buttons">
                 <Button
                     appearance={appearance}
                     className="CustomizeButton"
-                    onClick={() => setCustomizing(!customizing)}>
-                    {customizing ? "Cancel" : "Customize…"}
+                    onClick={() => setCustomVisible(true)}>
+                    Customize…
                 </Button>
                 <Button appearance={appearance} onClick={run}>
                     Run
                 </Button>
             </div>
+
+            {customVisible && (
+                <Custom
+                    defaultDisk={disk}
+                    onRun={onRun}
+                    onDone={() => setCustomVisible(false)}
+                />
+            )}
         </div>
     );
 }

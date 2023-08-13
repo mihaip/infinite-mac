@@ -11,6 +11,10 @@
     box-sizing: border-box;
 }
 
+.Custom-Dialog-Row label {
+    display: inline;
+}
+
 .Custom-Dialog-Row label:last-of-type {
     margin-bottom: 4px;
 }

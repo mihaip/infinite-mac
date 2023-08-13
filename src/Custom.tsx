@@ -19,11 +19,15 @@ import {Input} from "./controls/Input";
 import {type Appearance} from "./controls/Appearance";
 import {Select} from "./controls/Select";
 import {Checkbox} from "./controls/Checkbox";
+import {emulatorSupportsAppleTalk} from "./emulator/emulator-common-emulators";
+import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 
 export function Custom({
+    defaultDisk = SYSTEM_DISKS_BY_NAME["System 7.1"],
     onRun,
     onDone,
 }: {
+    defaultDisk?: SystemDiskDef;
     onRun: (def: RunDef, inNewWindow?: boolean) => void;
     onDone: () => void;
 }) {
@@ -31,10 +35,8 @@ export function Custom({
         varz.increment("custom_shown");
     }, []);
 
-    const defaultDisk = SYSTEM_DISKS_BY_NAME["System 7.1"];
-
     const [runDef, setRunDef] = useState<RunDef>({
-        machine: QUADRA_650,
+        machine: defaultDisk.machines[0] ?? QUADRA_650,
         ramSize: undefined,
         disks: [defaultDisk],
         cdromURLs: [],
@@ -42,6 +44,12 @@ export function Custom({
         debugFallback: false,
         debugAudio: false,
     });
+    const appleTalkSupported =
+        runDef.disks.length > 0 &&
+        runDef.disks[0].appleTalkSupported === true &&
+        emulatorSupportsAppleTalk(runDef.machine.emulatorType);
+    const [appleTalkEnabled, setAppleTalkEnabled] = useState(false);
+    const [appleTalkZoneName, setAppleTalkZoneName] = useState("");
 
     const handleRun = useCallback(
         (event: React.MouseEvent) => {
@@ -50,10 +58,27 @@ export function Custom({
             varz.increment("custom_run");
             const inNewWindow =
                 event.button === 2 || event.metaKey || event.ctrlKey;
+            if (appleTalkSupported && appleTalkEnabled && appleTalkZoneName) {
+                runDef.ethernetProvider = new CloudflareWorkerEthernetProvider(
+                    appleTalkZoneName
+                );
+            }
             onRun(runDef, inNewWindow);
         },
-        [onDone, onRun, runDef]
+        [
+            appleTalkEnabled,
+            appleTalkSupported,
+            appleTalkZoneName,
+            onDone,
+            onRun,
+            runDef,
+        ]
     );
+    const canRun =
+        // Need a disk
+        (runDef.disks.length > 0 || runDef.cdromURLs.length > 0) &&
+        // Need AppleTalk to be configured if enabled.
+        (!appleTalkSupported || !appleTalkEnabled || appleTalkZoneName !== "");
 
     const {appearance = "Classic"} = runDef.disks[0] ?? {};
 
@@ -62,6 +87,7 @@ export function Custom({
             title="Run A Custom Configuration"
             onDone={handleRun}
             doneLabel="Run"
+            doneEnabled={canRun}
             onCancel={onDone}
             appearance={appearance}
             className="Custom-Dialog">
@@ -238,24 +264,57 @@ export function Custom({
                 </div>
             </div>
 
-            <label className="Custom-Dialog-Row">
+            <div className="Custom-Dialog-Row">
                 <span className="Custom-Dialog-Label">Extras:</span>
-                <Checkbox
-                    appearance={appearance}
-                    checked={runDef.includeInfiniteHD}
-                    onChange={e =>
-                        setRunDef({
-                            ...runDef,
-                            includeInfiniteHD: e.target.checked,
-                        })
-                    }
-                />
-                Infinite HD
+                <label>
+                    <Checkbox
+                        appearance={appearance}
+                        checked={runDef.includeInfiniteHD}
+                        onChange={e =>
+                            setRunDef({
+                                ...runDef,
+                                includeInfiniteHD: e.target.checked,
+                            })
+                        }
+                    />
+                    Infinite HD
+                </label>
                 <div className="Custom-Dialog-Description Dialog-Description">
                     Include the Infinite HD disk, which has a large collection
                     of useful software.
                 </div>
-            </label>
+            </div>
+
+            {appleTalkSupported && (
+                <div className="Custom-Dialog-Row">
+                    <span className="Custom-Dialog-Label" />
+                    <label>
+                        <Checkbox
+                            appearance={appearance}
+                            checked={appleTalkEnabled}
+                            onChange={() =>
+                                setAppleTalkEnabled(!appleTalkEnabled)
+                            }
+                        />
+                        Enable AppleTalk
+                    </label>{" "}
+                    <Input
+                        style={{
+                            visibility: appleTalkEnabled ? "visible" : "hidden",
+                        }}
+                        appearance={appearance}
+                        type="text"
+                        value={appleTalkZoneName}
+                        placeholder="Zone Name"
+                        size={12}
+                        onChange={e => setAppleTalkZoneName(e.target.value)}
+                    />
+                    <div className="Custom-Dialog-Description Dialog-Description">
+                        Allow local networking between emulated machines in the
+                        same zone.
+                    </div>
+                </div>
+            )}
         </Dialog>
     );
 }
