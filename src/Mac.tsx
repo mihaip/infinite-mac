@@ -32,7 +32,7 @@ import {
     INFINITE_HD,
     INFINITE_HD_MFS,
 } from "./disks";
-import {type MachineDef} from "./machines";
+import {type MachineDefRAMSize, type MachineDef} from "./machines";
 import classNames from "classnames";
 import {MacCDROMs} from "./MacCDROMs";
 import {type Appearance} from "./controls/Appearance";
@@ -46,6 +46,7 @@ export type MacProps = {
     cdroms: EmulatorCDROM[];
     initialErrorText?: string;
     machine: MachineDef;
+    ramSize?: MachineDefRAMSize;
     ethernetProvider?: EmulatorEthernetProvider;
     debugFallback?: boolean;
     debugAudio?: boolean;
@@ -59,6 +60,7 @@ export default function Mac({
     cdroms,
     initialErrorText,
     machine,
+    ramSize,
     ethernetProvider,
     debugFallback,
     debugAudio,
@@ -127,6 +129,7 @@ export default function Mac({
         const emulator = new Emulator(
             {
                 machine,
+                ramSize,
                 useSharedMemory,
                 screenWidth: initialScreenWidth,
                 screenHeight: initialScreenHeight,

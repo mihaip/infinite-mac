@@ -5,7 +5,6 @@ seriala
 serialb
 bootdrive 0
 bootdriver 0
-ramsize 134217728
 frameskip 0
 gfxaccel false
 nocdrom false

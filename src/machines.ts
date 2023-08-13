@@ -26,7 +26,10 @@ export type MachineDef = {
     fixedScreenSize?: {width: number; height: number};
     mfsOnly?: boolean;
     bezelStyle: "Beige" | "Platinum" | "Pinstripes";
+    ramSizes: MachineDefRAMSize[]; // First value is the default
 };
+
+export type MachineDefRAMSize = `${number}M` | `${number}K`;
 
 export const MAC_128K: MachineDef = {
     name: "Mac 128K",
@@ -39,6 +42,7 @@ export const MAC_128K: MachineDef = {
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Beige",
     mfsOnly: true,
+    ramSizes: ["128K"],
 };
 
 export const MAC_512KE: MachineDef = {
@@ -51,6 +55,7 @@ export const MAC_512KE: MachineDef = {
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Beige",
+    ramSizes: ["512K"],
 };
 
 export const MAC_PLUS: MachineDef = {
@@ -63,6 +68,7 @@ export const MAC_PLUS: MachineDef = {
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Beige",
+    ramSizes: ["4M"],
 };
 
 export const MAC_SE: MachineDef = {
@@ -75,6 +81,7 @@ export const MAC_SE: MachineDef = {
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Platinum",
+    ramSizes: ["4M"],
 };
 
 export const MAC_II: MachineDef = {
@@ -87,6 +94,7 @@ export const MAC_II: MachineDef = {
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 640, height: 480},
     bezelStyle: "Platinum",
+    ramSizes: ["4M"],
 };
 
 export const MAC_IIFX: MachineDef = {
@@ -97,6 +105,7 @@ export const MAC_IIFX: MachineDef = {
     emulatorType: "BasiliskII",
     prefsPath: basiliskPrefsPath,
     bezelStyle: "Platinum",
+    ramSizes: ["128M", "64M", "32M", "16M", "8M", "4M"],
 };
 
 export const QUADRA_650: MachineDef = {
@@ -107,6 +116,7 @@ export const QUADRA_650: MachineDef = {
     emulatorType: "BasiliskII",
     prefsPath: basiliskPrefsPath,
     bezelStyle: "Platinum",
+    ramSizes: ["128M", "64M", "32M", "16M", "8M", "4M"],
 };
 
 export const POWER_MACINTOSH_9500: MachineDef = {
@@ -117,6 +127,7 @@ export const POWER_MACINTOSH_9500: MachineDef = {
     emulatorType: "SheepShaver",
     prefsPath: sheepShaverPrefsPath,
     bezelStyle: "Platinum",
+    ramSizes: ["256M", "128M", "64M", "32M", "16M"],
 };
 
 export const POWER_MACINTOSH_G3: MachineDef = {
@@ -127,6 +138,7 @@ export const POWER_MACINTOSH_G3: MachineDef = {
     emulatorType: "SheepShaver",
     prefsPath: sheepShaverPrefsPath,
     bezelStyle: "Pinstripes",
+    ramSizes: ["256M", "128M", "64M"],
 };
 
 export const ALL_MACHINES = [

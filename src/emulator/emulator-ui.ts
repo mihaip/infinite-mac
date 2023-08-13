@@ -58,11 +58,12 @@ import {
     FallbackEmulatorClipboard,
     SharedMemoryEmulatorClipboard,
 } from "./emulator-ui-clipboard";
-import {type MachineDef} from "../machines";
+import {type MachineDefRAMSize, type MachineDef} from "../machines";
 import {type EmulatorDiskDef} from "../disks";
 
 export type EmulatorConfig = {
     machine: MachineDef;
+    ramSize?: MachineDefRAMSize;
     useSharedMemory: boolean;
     screenWidth: number;
     screenHeight: number;
@@ -309,6 +310,15 @@ export class Emulator {
         if (modelId !== undefined) {
             prefsStr += `modelid ${modelId}\n`;
         }
+        const ramSizeString =
+            this.#config.ramSize ?? this.#config.machine.ramSizes[0];
+        let ramSize = parseInt(ramSizeString);
+        if (ramSizeString.endsWith("M")) {
+            ramSize *= 1024 * 1024;
+        } else if (ramSizeString.endsWith("K")) {
+            ramSize *= 1024;
+        }
+        prefsStr += `ramsize ${ramSize}\n`;
         prefsStr += `screen win/${this.#config.screenWidth}/${
             this.#config.screenHeight
         }\n`;

@@ -39,6 +39,7 @@ export default function RunDefMac({
             cdroms={cdroms}
             initialErrorText={cdromErrorText}
             machine={runDef.machine}
+            ramSize={runDef.ramSize}
             ethernetProvider={runDef.ethernetProvider}
             debugFallback={runDef.debugFallback}
             debugAudio={runDef.debugAudio}
