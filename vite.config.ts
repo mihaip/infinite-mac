@@ -22,7 +22,7 @@ export default defineConfig(() => {
         worker: {
             format: "es",
         },
-        assetsInclude: ["**/*.jsz", "**/*.wasmz", "**/*.rom"],
+        assetsInclude: ["**/*.rom"],
         server: {
             port: 3127,
             headers,
@@ -59,7 +59,9 @@ export default defineConfig(() => {
 // wrap it and undo the dev/serve https config after it's done.
 function basicSslWrapped() {
     const originalBasicSsl = basicSsl();
-    let configResolved: ((config: ResolvedConfig) => void | Promise<void>) | undefined;
+    let configResolved:
+        | ((config: ResolvedConfig) => void | Promise<void>)
+        | undefined;
     const {configResolved: originalConfigResolved} = originalBasicSsl;
     if (typeof originalConfigResolved === "function") {
         configResolved = function (config) {
