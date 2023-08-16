@@ -94,7 +94,7 @@ export const MAC_II: MachineDef = {
     prefsPath: minivMacPrefsPath,
     fixedScreenSize: {width: 640, height: 480},
     bezelStyle: "Platinum",
-    ramSizes: ["4M"],
+    ramSizes: ["8M"],
 };
 
 export const MAC_IIFX: MachineDef = {
