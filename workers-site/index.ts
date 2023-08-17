@@ -129,6 +129,7 @@ function mapRequestToAsset(request: Request): Request {
     // Let the client-side handle runDef URLs (minimal version of runDefFromUrl).
     if (
         hostname === "127.0.0.1" ||
+        hostname === "localhost" ||
         hostname === "infinitemac.org" ||
         hostname.endsWith(".infinitemac.org")
     ) {
