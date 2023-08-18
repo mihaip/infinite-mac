@@ -5,6 +5,19 @@ import {
 import {type EmulatorWorkerDisk} from "./emulator-worker-disks";
 
 export type EmulatorWorkerChunkedDiskDelegate = {
+    willReadChunk?: (
+        chunk: Uint8Array,
+        chunkIndex: number,
+        offset: number,
+        length: number
+    ) => void;
+    didWriteChunk?: (
+        chunk: Uint8Array,
+        chunkIndex: number,
+        offset: number,
+        length: number
+    ) => void;
+
     willLoadChunk: (chunkIndex: number) => void;
     didLoadChunk: (chunkIndex: number) => void;
     didFailToLoadChunk: (
@@ -40,9 +53,15 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
         this.#forEachChunkInRange(
             offset,
             length,
-            (chunk, chunkStart, chunkEnd) => {
+            (chunk, chunkStart, chunkEnd, chunkIndex) => {
                 const chunkOffset = offset - chunkStart;
                 const chunkLength = Math.min(chunkEnd - offset, length);
+                this.#delegate.willReadChunk?.(
+                    chunk,
+                    chunkIndex,
+                    chunkOffset,
+                    chunkLength
+                );
                 buffer.set(
                     chunk.subarray(chunkOffset, chunkOffset + chunkLength),
                     readSize
@@ -60,12 +79,18 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
         this.#forEachChunkInRange(
             offset,
             length,
-            (chunk, chunkStart, chunkEnd) => {
+            (chunk, chunkStart, chunkEnd, chunkIndex) => {
                 const chunkOffset = offset - chunkStart;
                 const chunkLength = Math.min(chunkEnd - offset, length);
                 chunk.set(
                     buffer.subarray(writeSize, writeSize + chunkLength),
                     chunkOffset
+                );
+                this.#delegate.didWriteChunk?.(
+                    chunk,
+                    chunkIndex,
+                    chunkOffset,
+                    chunkLength
                 );
                 offset += chunkLength;
                 length -= chunkLength;
@@ -81,7 +106,8 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
         callback: (
             chunk: Uint8Array,
             chunkStart: number,
-            chunkEnd: number
+            chunkEnd: number,
+            chunkIndex: number
         ) => void
     ) {
         const {chunkSize} = this.#spec;
@@ -103,7 +129,8 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
             callback(
                 chunk,
                 chunkIndex * chunkSize,
-                (chunkIndex + 1) * chunkSize
+                (chunkIndex + 1) * chunkSize,
+                chunkIndex
             );
         }
     }
@@ -115,6 +142,11 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
         const chunkStart = chunkIndex * chunkSize;
         // Entirely out of bounds chunk, just synthesize an empty one.
         if (chunkStart >= this.size) {
+            return new Uint8Array(chunkSize);
+        }
+        const chunkSignature = this.#spec.chunks[chunkIndex];
+        if (!chunkSignature) {
+            // Zero-ed out chunk, synthesize an empty one.
             return new Uint8Array(chunkSize);
         }
         this.#delegate.willLoadChunk(chunkIndex);

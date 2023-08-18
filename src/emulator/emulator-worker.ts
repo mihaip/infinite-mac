@@ -64,6 +64,10 @@ import {
     importEmulator,
     importEmulatorFallback,
 } from "./emulator-worker-emulators";
+import {
+    EmulatorWorkerDiskSaver,
+    initDiskSavers,
+} from "./emulator-worker-disk-saver";
 
 const PERSISTED_DIRECTORY_PATH = "/Shared/Saved";
 
@@ -106,6 +110,7 @@ class EmulatorWorkerApi {
 
     disks: EmulatorWorkerDisksApi;
     #delayedDiskSpecs: EmulatorChunkedFileSpec[] | undefined;
+    #diskSavers: EmulatorWorkerDiskSaver[] = [];
     #ethernetMacAddress?: Uint8Array;
 
     constructor(
@@ -178,7 +183,14 @@ class EmulatorWorkerApi {
 
         this.disks = new EmulatorWorkerDisksApi(
             [
-                ...disks.map(spec => new EmulatorWorkerChunkedDisk(spec, this)),
+                ...disks.map(spec => {
+                    if (spec.persistent) {
+                        const saver = new EmulatorWorkerDiskSaver(spec, this);
+                        this.#diskSavers.push(saver);
+                        return new EmulatorWorkerChunkedDisk(spec, saver);
+                    }
+                    return new EmulatorWorkerChunkedDisk(spec, this);
+                }),
                 ...cdroms.map(spec =>
                     createEmulatorWorkerCDROMDisk(spec, this)
                 ),
@@ -373,6 +385,7 @@ class EmulatorWorkerApi {
         if (this.#handledStop) {
             return;
         }
+        this.#closeDiskSavers();
         this.#handledStop = true;
         const [extraction, arrayBuffers] = prepareDirectoryExtraction(
             PERSISTED_DIRECTORY_PATH
@@ -450,6 +463,19 @@ class EmulatorWorkerApi {
             type: "emulator_did_have_error",
             error: `Could not load disk chunk ${chunkUrl}: ${error})`,
         });
+    }
+
+    async initDiskSavers() {
+        const error = await initDiskSavers(this.#diskSavers);
+        if (error) {
+            postMessage({type: "emulator_did_have_error", error});
+        }
+    }
+
+    #closeDiskSavers() {
+        for (const saver of this.#diskSavers) {
+            saver.close();
+        }
     }
 }
 
@@ -626,7 +652,7 @@ async function startEmulator(config: EmulatorWorkerConfig) {
         },
     };
 
-    function runEmulatorModule(emulatorModule: {
+    async function runEmulatorModule(emulatorModule: {
         default: (module: EmscriptenModule) => void;
     }) {
         // The module overrides get populated with the complete Emscripten
@@ -634,6 +660,7 @@ async function startEmulator(config: EmulatorWorkerConfig) {
         const emscriptenModule: EmscriptenModule =
             moduleOverrides as EmscriptenModule;
         const workerApi = new EmulatorWorkerApi(config, emscriptenModule);
+        await workerApi.initDiskSavers();
         // Inject into global scope as `workerApi` so that the Emscripten
         // code can call into it.
         const globalScope = globalThis as any;

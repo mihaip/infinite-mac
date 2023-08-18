@@ -33,3 +33,7 @@ public/Covers
 
 # Cloudflare Worker wrangler CLI state
 .wrangler
+
+# We only commit the compressed version, but having the uncompressed version
+# around is useful for local development.
+Images/Saved HD.dsk

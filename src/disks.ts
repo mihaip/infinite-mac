@@ -25,6 +25,9 @@ export type EmulatorDiskDef = {
     // prefetchChunks are semi-automatically generated -- we will get a
     // warning via validateSpecPrefetchChunks() if these are incorrect.
     prefetchChunks: number[];
+    // Changes to this file will be persisted in the origin private file
+    // system.
+    persistent?: boolean;
 };
 
 export type SystemDiskDef = EmulatorDiskDef & {
@@ -764,4 +767,10 @@ export const INFINITE_HD: EmulatorDiskDef = {
 export const INFINITE_HD_MFS: EmulatorDiskDef = {
     prefetchChunks: [0, 1, 2],
     generatedSpec: () => import("./Data/Infinite HD (MFS).dsk.json"),
+};
+
+export const SAVED_HD: EmulatorDiskDef = {
+    prefetchChunks: [0],
+    generatedSpec: () => import("./Data/Saved HD.dsk.json"),
+    persistent: true,
 };

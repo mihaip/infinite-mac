@@ -15,6 +15,11 @@
     display: inline;
 }
 
+.Custom-Dialog-Row label.disabled {
+    color: #999;
+    pointer-events: none;
+}
+
 .Custom-Dialog-Row label:last-of-type {
     margin-bottom: 4px;
 }
