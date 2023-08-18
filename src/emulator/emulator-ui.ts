@@ -287,6 +287,7 @@ export class Emulator {
                 ...diskSpecs[i],
                 baseUrl: "/Disk",
                 prefetchChunks: d.prefetchChunks,
+                persistent: d.persistent,
             }));
         }
         const disks = await loadDisks(this.#config.disks);

@@ -19,6 +19,7 @@ export type RunDef = {
     disks: SystemDiskDef[];
     cdromURLs: string[];
     includeInfiniteHD: boolean;
+    includeSavedHD: boolean;
     ethernetProvider?: EmulatorEthernetProvider;
     // Force non-SharedArrayBuffer mode for debugging
     debugFallback: boolean;
@@ -36,13 +37,16 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     const {searchParams} = url;
 
     let includeInfiniteHD;
+    let includeSavedHD;
     const disks: SystemDiskDef[] = [];
     const yearDiskDef = diskFromYearPath(url.pathname);
     if (yearDiskDef) {
         disks.push(yearDiskDef);
         includeInfiniteHD = searchParams.get("infinite_hd") !== "false";
+        includeSavedHD = searchParams.get("saved_hd") === "true"; // TODO: enable by default
     } else {
         includeInfiniteHD = searchParams.get("infinite_hd") === "true";
+        includeSavedHD = searchParams.get("saved_hd") === "true";
     }
 
     for (const diskName of searchParams.getAll("disk")) {
@@ -87,6 +91,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     return {
         disks,
         includeInfiniteHD,
+        includeSavedHD,
         machine,
         ramSize,
         ethernetProvider,
@@ -104,6 +109,9 @@ export function runDefToUrl(runDef: RunDef): string {
         if (!runDef.includeInfiniteHD) {
             url.searchParams.set("infinite_hd", "false");
         }
+        if (runDef.includeInfiniteHD) {
+            url.searchParams.set("saved_hd", "true"); // TODO: enable by default
+        }
     } else {
         url = new URL("/run", location.href);
         for (const disk of disks) {
@@ -111,6 +119,9 @@ export function runDefToUrl(runDef: RunDef): string {
         }
         if (runDef.includeInfiniteHD) {
             url.searchParams.set("infinite_hd", "true");
+        }
+        if (runDef.includeSavedHD) {
+            url.searchParams.set("saved_hd", "true");
         }
     }
     for (const cdromURL of runDef.cdromURLs) {

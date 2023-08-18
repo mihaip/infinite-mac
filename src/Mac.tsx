@@ -31,6 +31,7 @@ import {
     type SystemDiskDef,
     INFINITE_HD,
     INFINITE_HD_MFS,
+    SAVED_HD,
 } from "./disks";
 import {type MachineDefRAMSize, type MachineDef} from "./machines";
 import classNames from "classnames";
@@ -39,10 +40,12 @@ import {type Appearance} from "./controls/Appearance";
 import {Select} from "./controls/Select";
 import {Checkbox} from "./controls/Checkbox";
 import {fetchCDROMInfo} from "./cdroms";
+import {canSaveDisks} from "./canSaveDisks";
 
 export type MacProps = {
     disks: SystemDiskDef[];
     includeInfiniteHD: boolean;
+    includeSavedHD: boolean;
     cdroms: EmulatorCDROM[];
     initialErrorText?: string;
     machine: MachineDef;
@@ -57,6 +60,7 @@ export type MacProps = {
 export default function Mac({
     disks,
     includeInfiniteHD,
+    includeSavedHD,
     cdroms,
     initialErrorText,
     machine,
@@ -124,6 +128,9 @@ export default function Mac({
                 emulatorDisks.push(infiniteHd);
             }
         }
+        if (includeSavedHD && canSaveDisks()) {
+            emulatorDisks.push(SAVED_HD);
+        }
         const useSharedMemory =
             typeof SharedArrayBuffer !== "undefined" && !debugFallback;
         const emulator = new Emulator(
@@ -182,6 +189,8 @@ export default function Mac({
                 emulatorDidHaveError(emulator: Emulator, error: string) {
                     if (error.includes("load") && error.includes("/CD-ROM")) {
                         varz.increment("emulator_error:cdrom_chunk_load");
+                    } else if (error.includes("saved disk")) {
+                        varz.increment("emulator_error:saved_disk");
                     } else {
                         varz.increment("emulator_error:other");
                     }

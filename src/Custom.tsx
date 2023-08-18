@@ -21,6 +21,8 @@ import {Select} from "./controls/Select";
 import {Checkbox} from "./controls/Checkbox";
 import {emulatorSupportsAppleTalk} from "./emulator/emulator-common-emulators";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
+import classNames from "classnames";
+import {canSaveDisks} from "./canSaveDisks";
 
 export function Custom({
     defaultDisk = SYSTEM_DISKS_BY_NAME["System 7.1"],
@@ -41,6 +43,7 @@ export function Custom({
         disks: [defaultDisk],
         cdromURLs: [],
         includeInfiniteHD: true,
+        includeSavedHD: canSaveDisks() && false, // TODO: enable by default
         debugFallback: false,
         debugAudio: false,
     });
@@ -282,6 +285,31 @@ export function Custom({
                 <div className="Custom-Dialog-Description Dialog-Description">
                     Include the Infinite HD disk, which has a large collection
                     of useful software.
+                </div>
+            </div>
+
+            <div className="Custom-Dialog-Row">
+                <span className="Custom-Dialog-Label" />
+                <label className={classNames({"disabled": !canSaveDisks()})}>
+                    <Checkbox
+                        appearance={appearance}
+                        disabled={!canSaveDisks()}
+                        checked={runDef.includeSavedHD}
+                        onChange={e =>
+                            setRunDef({
+                                ...runDef,
+                                includeSavedHD: e.target.checked,
+                            })
+                        }
+                    />
+                    Saved HD
+                </label>
+                <div className="Custom-Dialog-Description Dialog-Description">
+                    Include the Saved HD disk, an empty 1 GB disk whose contents
+                    are preserved across visits to this site (best effort).
+                    {!canSaveDisks() && (
+                        <div>Not supported by this browser</div>
+                    )}
                 </div>
             </div>
 

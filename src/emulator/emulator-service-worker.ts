@@ -33,8 +33,13 @@ self.addEventListener("message", event => {
             (async function () {
                 const cache = await caches.open(DISK_CACHE_NAME);
                 const prefetchChunkUrls = [];
-                for (const chunk of diskFileSpec.prefetchChunks) {
-                    const chunkUrl = generateChunkUrl(diskFileSpec, chunk);
+                for (const chunkIndex of diskFileSpec.prefetchChunks) {
+                    const chunkSignature = diskFileSpec.chunks[chunkIndex];
+                    if (!chunkSignature) {
+                        // Zero-ed out chunk, skip it.
+                        continue;
+                    }
+                    const chunkUrl = generateChunkUrl(diskFileSpec, chunkIndex);
                     const cachedResponse = await cache.match(
                         new Request(chunkUrl)
                     );

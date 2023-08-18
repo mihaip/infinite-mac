@@ -74,6 +74,7 @@ export type EmulatorChunkedFileSpec = {
     chunks: string[];
     chunkSize: number;
     prefetchChunks: number[];
+    persistent?: boolean;
 };
 
 export function generateChunkUrl(
@@ -97,16 +98,21 @@ export function generateNextChunkUrl(
         return undefined;
     }
     const [chunkSignature, chunkStr] = match.slice(1);
-    const chunk = parseInt(chunkStr, 10);
-    const spec = specs.find(spec => spec.chunks[chunk] === chunkSignature);
+    const chunkIndex = parseInt(chunkStr, 10);
+    const spec = specs.find(spec => spec.chunks[chunkIndex] === chunkSignature);
     if (!spec) {
         console.warn(`Could not find spec that served ${url}`);
         return undefined;
     }
-    if (chunk + 1 >= spec.chunks.length) {
+    if (chunkIndex + 1 >= spec.chunks.length) {
         return undefined;
     }
-    return generateChunkUrl(spec, chunk + 1);
+    const nextChunkSignature = spec.chunks[chunkIndex + 1];
+    if (!nextChunkSignature) {
+        // Zero-ed out chunk, we don't need to load it.
+        return undefined;
+    }
+    return generateChunkUrl(spec, chunkIndex + 1);
 }
 
 export type EmulatorWorkerConfig = {

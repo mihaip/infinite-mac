@@ -384,6 +384,9 @@ def write_image_def(image: bytes, name: str, dest_dir: str) -> ImageDef:
     return ImageDef(name, image_path)
 
 
+ZERO_CHUNK = b"\0" * CHUNK_SIZE
+
+
 def write_chunked_image(image: ImageDef) -> None:
     total_size = 0
     chunks = []
@@ -397,6 +400,11 @@ def write_chunked_image(image: ImageDef) -> None:
                          (image.name, ((i + CHUNK_SIZE) / disk_size) * 100))
         chunk = image_bytes[i:i + CHUNK_SIZE]
         total_size += len(chunk)
+        # Don't bother storing zero-ed out chunks (common for the saved HD),
+        # the signature takes up space, and we don't need to load them
+        if chunk == ZERO_CHUNK:
+            chunks.append("")
+            continue
         chunk_signature = hashlib.blake2b(chunk, digest_size=16,
                                           salt=salt).hexdigest()
         chunks.append(chunk_signature)
@@ -519,6 +527,39 @@ def build_passthrough_image(base_name: str, dest_dir: str) -> ImageDef:
     return write_image_def(image_data, base_name, dest_dir)
 
 
+def build_saved_hd_image(base_name: str, dest_dir: str) -> ImageDef:
+    # The disk image is compressed since it's mostly empty space and we don't
+    # want to pay for a lot of Git LFS storage.
+    with zipfile.ZipFile(os.path.join(paths.IMAGES_DIR, base_name + ".zip"),
+                         "r") as zip:
+        image_data = zip.read(base_name)
+
+    # Also use the Stickies placeholder file to inject the Saved HD Read Me
+    readme_placeholder = stickies.generate_ttxt_placeholder()
+    readme_index = image_data.find(readme_placeholder)
+
+    if readme_index != -1:
+        readme_data = "TODO: explain what this is for".encode("macroman")
+
+        if len(readme_data) > len(readme_placeholder):
+            logging.warning(
+                "Read Me file is too large (%d, placeholder is only %d), "
+                "skipping customization for %s", len(readme_data),
+                len(readme_placeholder), base_name)
+        else:
+            # Replace the leftover placeholder data, so that TextText does not
+            # render.
+            image_data = image_data[:readme_index] + readme_data + \
+                b"\x00" * (len(readme_placeholder) - len(readme_data)) + \
+                image_data[readme_index + len(readme_placeholder):]
+    else:
+        logging.warning(
+            "Placeholder file not found in disk image %s, skipping Read Me",
+            base_name)
+
+    return write_image_def(image_data, base_name, dest_dir)
+
+
 def build_desktop_db(images: typing.List[ImageDef]) -> bytes:
     sys.stderr.write("Rebuilding Desktop DB for %s...\n" %
                      ",".join([i.name for i in images]))
@@ -635,6 +676,7 @@ if __name__ == "__main__":
             images.append(
                 build_passthrough_image("Infinite HD (MFS).dsk",
                                         dest_dir=temp_dir))
+        images.append(build_saved_hd_image("Saved HD.dsk", dest_dir=temp_dir))
 
         for image in images:
             write_chunked_image(image)
