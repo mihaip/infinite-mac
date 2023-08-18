@@ -23,6 +23,12 @@
     image-rendering: pixelated;
 }
 
+.Checkbox:disabled {
+    cursor: default;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
 .Checkbox-Classic::before {
     background-image: url(../Images/ClassicCheckbox.png);
 }
