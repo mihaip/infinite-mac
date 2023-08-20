@@ -1,4 +1,5 @@
 import {type EmulatorChunkedFileSpec} from "./emulator-common";
+import {dataFileName, dirtyChunksFileName} from "./emulator-common-disk-saver";
 import {type EmulatorWorkerChunkedDiskDelegate} from "./emulator-worker-chunked-disk";
 
 /**
@@ -35,12 +36,12 @@ export class EmulatorWorkerDiskSaver
 
     async init(opfsRoot: FileSystemDirectoryHandle) {
         const dataHandle = await opfsRoot.getFileHandle(
-            this.#spec.name + ".data",
+            dataFileName(this.#spec),
             {create: true}
         );
         this.#dataHandle = await dataHandle.createSyncAccessHandle();
         const dirtyChunksHandle = await opfsRoot.getFileHandle(
-            this.#spec.name + ".dirtychunks",
+            dirtyChunksFileName(this.#spec),
             {create: true}
         );
         this.#dirtyChunksHandle =

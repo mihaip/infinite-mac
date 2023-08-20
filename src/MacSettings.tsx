@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {type EmulatorSettings} from "./emulator/emulator-ui";
 import {
     type EmulatorSpeed,
@@ -11,12 +11,14 @@ import {type Appearance} from "./controls/Appearance";
 import {Select} from "./controls/Select";
 import {Checkbox} from "./controls/Checkbox";
 import {Button} from "./controls/Button";
+import "./MacSettings.css";
 
 export function MacSettings({
     emulatorType,
     emulatorSettings,
     appearance,
     setEmulatorSettings,
+    onStorageReset,
     hasSavedHD,
     onDone,
 }: {
@@ -25,12 +27,12 @@ export function MacSettings({
     appearance: Appearance;
     setEmulatorSettings: (settings: EmulatorSettings) => void;
     hasSavedHD: boolean;
+    onStorageReset: () => void;
     onDone: () => void;
 }) {
-    const [storagePersistenceStatus, setStoragePersistenceStatus] =
-        React.useState<"unknown" | "persistent" | "transient" | "error">(
-            "unknown"
-        );
+    const [storagePersistenceStatus, setStoragePersistenceStatus] = useState<
+        "unknown" | "persistent" | "transient" | "error"
+    >("unknown");
     const storagePersistenceStatusLabel = {
         "unknown": "Unknown",
         "persistent": "Persistent",
@@ -51,6 +53,8 @@ export function MacSettings({
     const handleRequestPersistence = useCallback(() => {
         handlePersistencePromise(navigator.storage.persist());
     }, [handlePersistencePromise]);
+
+    const [storageResetVisible, setStorageResetVisible] = useState(false);
 
     return (
         <Dialog title="Settings" onDone={onDone} appearance={appearance}>
@@ -105,29 +109,86 @@ export function MacSettings({
             {hasSavedHD && (
                 <>
                     <h2>Saved HD</h2>
-                    Storage status: {storagePersistenceStatusLabel}
-                    {storagePersistenceStatus !== "persistent" && (
-                        <>
-                            {" "}
-                            <Button
-                                appearance={appearance}
-                                onClick={handleRequestPersistence}>
-                                Request Persistence
-                            </Button>
-                        </>
-                    )}
-                    <div className="Dialog-Description" style={{marginLeft: 0}}>
-                        Ensures that the browser will try to keep the Saved HD
-                        data even when running low on disk space (
-                        <a
-                            href="https://web.dev/persistent-storage/"
-                            target="_blank">
-                            more info
-                        </a>
-                        ).
+                    <div className="MacSettings-Row">
+                        <div className="MacSettings-Row-Label">Disk File:</div>
+                        <Button
+                            appearance={appearance}
+                            onClick={() => setStorageResetVisible(true)}>
+                            Reset
+                        </Button>
+                        <StorageConfirmDialog
+                            appearance={appearance}
+                            visible={storageResetVisible}
+                            setVisible={setStorageResetVisible}
+                            title="Reset Storage"
+                            body="Are you sure you want to reset the contents of Saved HD? The contents be removed and the Mac will be restarted."
+                            onAccept={() => {
+                                onStorageReset();
+                                onDone();
+                            }}
+                        />
+                    </div>
+                    <div className="MacSettings-Row">
+                        <div className="MacSettings-Row-Label">
+                            Persistence:
+                        </div>
+                        {storagePersistenceStatusLabel}
+                        {storagePersistenceStatus !== "persistent" && (
+                            <>
+                                {" "}
+                                <Button
+                                    appearance={appearance}
+                                    onClick={handleRequestPersistence}>
+                                    Request Persistence
+                                </Button>
+                            </>
+                        )}
+                        <div className="Dialog-Description">
+                            Ensures that the browser will try to keep the Saved
+                            HD data even when running low on disk space (
+                            <a
+                                href="https://web.dev/persistent-storage/"
+                                target="_blank">
+                                more info
+                            </a>
+                            ).
+                        </div>
                     </div>
                 </>
             )}
+        </Dialog>
+    );
+}
+
+function StorageConfirmDialog({
+    visible,
+    setVisible,
+    title,
+    body,
+    onAccept,
+    appearance,
+}: {
+    visible: boolean;
+    setVisible: (visible: boolean) => void;
+    title: string;
+    body: string;
+    onAccept: () => void;
+    appearance: Appearance;
+}) {
+    if (!visible) {
+        return null;
+    }
+    return (
+        <Dialog
+            title={title}
+            onDone={() => {
+                setVisible(false);
+                onAccept();
+            }}
+            doneLabel={title}
+            onCancel={() => setVisible(false)}
+            appearance={appearance}>
+            <div style={{maxWidth: 400}}>{body}</div>
         </Dialog>
     );
 }

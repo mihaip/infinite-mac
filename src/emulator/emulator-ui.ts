@@ -420,7 +420,7 @@ export class Emulator {
         this.#audio.stop();
     }
 
-    restart(): Promise<void> {
+    restart(whileStopped?: () => Promise<void>): Promise<void> {
         this.#audio.stop();
         this.#input.handleInput({type: "stop"});
         // Wait for handleEmulatorStopped to be invoked, so that data is
@@ -430,10 +430,17 @@ export class Emulator {
                 if (this.#workerTerminated) {
                     this.#clearScreen();
                     clearInterval(interval);
-                    this.#startWorker();
-                    // Make sure we clear the "stopped" bit set above
-                    this.#input.handleInput({type: "start"});
-                    resolve();
+                    const start = () => {
+                        this.#startWorker();
+                        // Make sure we clear the "stopped" bit set above
+                        this.#input.handleInput({type: "start"});
+                        resolve();
+                    };
+                    if (whileStopped) {
+                        whileStopped().then(start);
+                    } else {
+                        start();
+                    }
                 }
             }, 100);
         });
