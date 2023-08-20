@@ -1,5 +1,7 @@
+import JSZip from "jszip";
+import {saveAs} from "file-saver";
 import {type EmulatorDiskDef} from "../disks";
-import {dirtyChunksFileName} from "./emulator-common-disk-saver";
+import {dirtyChunksFileName, dataFileName} from "./emulator-common-disk-saver";
 
 export async function resetDiskSaver(disk: EmulatorDiskDef) {
     const spec = (await disk.generatedSpec()).default;
@@ -16,4 +18,74 @@ export async function resetDiskSaver(disk: EmulatorDiskDef) {
         }
         console.warn("Could not remove dirty chunks file", err);
     }
+}
+
+export async function exportDiskSaver(disk: EmulatorDiskDef) {
+    const spec = (await disk.generatedSpec()).default;
+    const opfsRoot = await navigator.storage.getDirectory();
+
+    const dirtyChunksName = dirtyChunksFileName(spec);
+    const dirtyChunksHandle = await opfsRoot.getFileHandle(dirtyChunksName, {
+        create: true,
+    });
+    const dataName = dataFileName(spec);
+    const dataHandle = await opfsRoot.getFileHandle(dataName, {create: true});
+
+    const zip = new JSZip();
+    await zip.file(dirtyChunksName, dirtyChunksHandle.getFile());
+    await zip.file(dataName, dataHandle.getFile());
+
+    const zipBlob = await zip.generateAsync({
+        compression: "DEFLATE",
+        compressionOptions: {level: 9},
+        type: "blob",
+    });
+    saveAs(zipBlob, spec.name + ".infinitemacdisk");
+}
+
+export async function importDiskSaver(disk: EmulatorDiskDef) {
+    const importFile = await pickDiskSaverFile();
+
+    const spec = (await disk.generatedSpec()).default;
+    const dirtyChunksName = dirtyChunksFileName(spec);
+    const dataName = dataFileName(spec);
+
+    const zip = await JSZip.loadAsync(importFile);
+    const dirtyChunksZipFile = zip.file(dirtyChunksName);
+    if (!dirtyChunksZipFile) {
+        throw new Error("Could not find dirty chunks file in import");
+    }
+    const dataZipFile = zip.file(dataName);
+    if (!dataZipFile) {
+        throw new Error("Could not find data file in import");
+    }
+
+    const opfsRoot = await navigator.storage.getDirectory();
+    const dirtyChunksHandle = await opfsRoot.getFileHandle(dirtyChunksName, {
+        create: true,
+    });
+    const dirtyChunksWritable = await dirtyChunksHandle.createWritable();
+    await dirtyChunksWritable.write(await dirtyChunksZipFile.async("blob"));
+    await dirtyChunksWritable.close();
+
+    const dataHandle = await opfsRoot.getFileHandle(dataName, {create: true});
+    const dataWritable = await dataHandle.createWritable();
+    await dataWritable.write(await dataZipFile.async("blob"));
+    await dataWritable.close();
+}
+
+function pickDiskSaverFile() {
+    return new Promise<File>(resolve => {
+        // It would be nice to use showOpenFilePicker, but it's not available in Safari.
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".infinitemacdisk";
+        input.onchange = () => {
+            if (input.files) {
+                resolve(input.files[0]);
+            }
+            input.remove();
+        };
+        input.click();
+    });
 }
