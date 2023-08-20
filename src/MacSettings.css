@@ -1,0 +1,14 @@
+.MacSettings-Row {
+    margin-bottom: 4px;
+}
+
+.MacSettings-Row-Label {
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    margin-right: 4px;
+}
+
+.MacSettings-Row .Dialog-Description {
+    margin-left: 104px;
+}
