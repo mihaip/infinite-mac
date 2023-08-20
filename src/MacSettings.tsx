@@ -19,6 +19,8 @@ export function MacSettings({
     appearance,
     setEmulatorSettings,
     onStorageReset,
+    onStorageExport,
+    onStorageImport,
     hasSavedHD,
     onDone,
 }: {
@@ -28,6 +30,8 @@ export function MacSettings({
     setEmulatorSettings: (settings: EmulatorSettings) => void;
     hasSavedHD: boolean;
     onStorageReset: () => void;
+    onStorageExport: () => void;
+    onStorageImport: () => void;
     onDone: () => void;
 }) {
     const [storagePersistenceStatus, setStoragePersistenceStatus] = useState<
@@ -55,6 +59,8 @@ export function MacSettings({
     }, [handlePersistencePromise]);
 
     const [storageResetVisible, setStorageResetVisible] = useState(false);
+    const [storageExportVisible, setStorageExportVisible] = useState(false);
+    const [storageImportVisible, setStorageImportVisible] = useState(false);
 
     return (
         <Dialog title="Settings" onDone={onDone} appearance={appearance}>
@@ -120,10 +126,42 @@ export function MacSettings({
                             appearance={appearance}
                             visible={storageResetVisible}
                             setVisible={setStorageResetVisible}
-                            title="Reset Storage"
+                            title="Reset Disk"
                             body="Are you sure you want to reset the contents of Saved HD? The contents be removed and the Mac will be restarted."
                             onAccept={() => {
                                 onStorageReset();
+                                onDone();
+                            }}
+                        />{" "}
+                        <Button
+                            appearance={appearance}
+                            onClick={() => setStorageExportVisible(true)}>
+                            Export…
+                        </Button>
+                        <StorageConfirmDialog
+                            appearance={appearance}
+                            visible={storageExportVisible}
+                            setVisible={setStorageExportVisible}
+                            title="Export Disk"
+                            body="Exporting the contents of Saved HD requires that the Mac be shut down. The export will take a little while to generate, and will be downloaded as a .infinitemacdisk file. Are you sure you want to export?"
+                            onAccept={() => {
+                                onStorageExport();
+                                onDone();
+                            }}
+                        />{" "}
+                        <Button
+                            appearance={appearance}
+                            onClick={() => setStorageImportVisible(true)}>
+                            Import…
+                        </Button>
+                        <StorageConfirmDialog
+                            appearance={appearance}
+                            visible={storageImportVisible}
+                            setVisible={setStorageImportVisible}
+                            title="Import Disk"
+                            body="Importing a previously exported .infinitemacdisk file HD will overwrite the existing Saved HD contents and requires that the Mac be shut down. Are you sure you want to import?"
+                            onAccept={() => {
+                                onStorageImport();
                                 onDone();
                             }}
                         />

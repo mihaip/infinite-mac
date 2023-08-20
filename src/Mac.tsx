@@ -33,7 +33,11 @@ import {MacCDROMs} from "./MacCDROMs";
 import {fetchCDROMInfo} from "./cdroms";
 import {canSaveDisks} from "./canSaveDisks";
 import {MacSettings} from "./MacSettings";
-import {resetDiskSaver} from "./emulator/emulator-ui-disk-saver";
+import {
+    exportDiskSaver,
+    importDiskSaver,
+    resetDiskSaver,
+} from "./emulator/emulator-ui-disk-saver";
 
 export type MacProps = {
     disks: SystemDiskDef[];
@@ -498,9 +502,22 @@ export default function Mac({
                     setEmulatorSettings={setEmulatorSettings}
                     hasSavedHD={hasSavedHD}
                     onStorageReset={() => {
+                        varz.increment("emulator_disk_saver_reset");
                         emulatorRef.current?.restart(() =>
                             resetDiskSaver(SAVED_HD)
                         );
+                    }}
+                    onStorageExport={() => {
+                        emulatorRef.current?.restart(() =>
+                            exportDiskSaver(SAVED_HD)
+                        );
+                        varz.increment("emulator_disk_saver_export");
+                    }}
+                    onStorageImport={() => {
+                        emulatorRef.current?.restart(() =>
+                            importDiskSaver(SAVED_HD)
+                        );
+                        varz.increment("emulator_disk_saver_import");
                     }}
                     onDone={() => setSettingsVisible(false)}
                 />
