@@ -100,6 +100,8 @@ export default function Mac({
     const [screenSize, setScreenSize] = useState(initialScreenSize);
     const {width: screenWidth, height: screenHeight} = screenSize;
 
+    const hasSavedHD = includeSavedHD && canSaveDisks();
+
     useEffect(() => {
         document.addEventListener("fullscreenchange", handleFullScreenChange);
         document.addEventListener(
@@ -120,7 +122,7 @@ export default function Mac({
                 emulatorDisks.push(infiniteHd);
             }
         }
-        if (includeSavedHD && canSaveDisks()) {
+        if (hasSavedHD) {
             emulatorDisks.push(SAVED_HD);
         }
         const useSharedMemory =
@@ -239,6 +241,8 @@ export default function Mac({
         initialScreenHeight,
         debugFallback,
         debugAudio,
+        hasSavedHD,
+        ramSize,
     ]);
     const {appearance = "Classic"} = disks[0] ?? {};
 
@@ -491,6 +495,7 @@ export default function Mac({
                     emulatorSettings={emulatorSettings}
                     appearance={appearance}
                     setEmulatorSettings={setEmulatorSettings}
+                    hasSavedHD={hasSavedHD}
                     onDone={() => setSettingsVisible(false)}
                 />
             )}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback, useEffect} from "react";
 import {type EmulatorSettings} from "./emulator/emulator-ui";
 import {
     type EmulatorSpeed,
@@ -10,20 +10,48 @@ import {Dialog} from "./controls/Dialog";
 import {type Appearance} from "./controls/Appearance";
 import {Select} from "./controls/Select";
 import {Checkbox} from "./controls/Checkbox";
+import {Button} from "./controls/Button";
 
 export function MacSettings({
     emulatorType,
     emulatorSettings,
     appearance,
     setEmulatorSettings,
+    hasSavedHD,
     onDone,
 }: {
     emulatorType: EmulatorType;
     emulatorSettings: EmulatorSettings;
     appearance: Appearance;
     setEmulatorSettings: (settings: EmulatorSettings) => void;
+    hasSavedHD: boolean;
     onDone: () => void;
 }) {
+    const [storagePersistenceStatus, setStoragePersistenceStatus] =
+        React.useState<"unknown" | "persistent" | "transient" | "error">(
+            "unknown"
+        );
+    const storagePersistenceStatusLabel = {
+        "unknown": "Unknown",
+        "persistent": "Persistent",
+        "transient": "Transient",
+        "error": <div style={{color: "#ff9999"}}>error</div>,
+    }[storagePersistenceStatus];
+    const handlePersistencePromise = useCallback((p: Promise<boolean>) => {
+        p.then(persistent =>
+            setStoragePersistenceStatus(persistent ? "persistent" : "transient")
+        ).catch(e => {
+            console.error("Could not use storage persistence API", e);
+            setStoragePersistenceStatus("error");
+        });
+    }, []);
+    useEffect(() => {
+        handlePersistencePromise(navigator.storage.persisted());
+    }, [handlePersistencePromise]);
+    const handleRequestPersistence = useCallback(() => {
+        handlePersistencePromise(navigator.storage.persist());
+    }, [handlePersistencePromise]);
+
     return (
         <Dialog title="Settings" onDone={onDone} appearance={appearance}>
             <label>
@@ -73,6 +101,32 @@ export function MacSettings({
                         work at 1x speeds.
                     </div>
                 </label>
+            )}
+            {hasSavedHD && (
+                <>
+                    <h2>Saved HD</h2>
+                    Storage status: {storagePersistenceStatusLabel}
+                    {storagePersistenceStatus !== "persistent" && (
+                        <>
+                            {" "}
+                            <Button
+                                appearance={appearance}
+                                onClick={handleRequestPersistence}>
+                                Request Persistence
+                            </Button>
+                        </>
+                    )}
+                    <div className="Dialog-Description" style={{marginLeft: 0}}>
+                        Ensures that the browser will try to keep the Saved HD
+                        data even when running low on disk space (
+                        <a
+                            href="https://web.dev/persistent-storage/"
+                            target="_blank">
+                            more info
+                        </a>
+                        ).
+                    </div>
+                </>
             )}
         </Dialog>
     );
