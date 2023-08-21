@@ -2,6 +2,7 @@ import JSZip from "jszip";
 import {saveAs} from "file-saver";
 import {type EmulatorDiskDef} from "../disks";
 import {dirtyChunksFileName, dataFileName} from "./emulator-common-disk-saver";
+import {generateChunkUrl} from "./emulator-common";
 
 export async function resetDiskSaver(disk: EmulatorDiskDef) {
     const spec = (await disk.generatedSpec()).default;
@@ -88,4 +89,52 @@ function pickDiskSaverFile() {
         };
         input.click();
     });
+}
+
+export async function saveDiskSaverImage(disk: EmulatorDiskDef) {
+    const spec = (await disk.generatedSpec()).default;
+    const opfsRoot = await navigator.storage.getDirectory();
+
+    const dirtyChunksName = dirtyChunksFileName(spec);
+    const dirtyChunksHandle = await opfsRoot.getFileHandle(dirtyChunksName, {
+        create: true,
+    });
+    const dirtyChunksFile = await dirtyChunksHandle.getFile();
+    const dirtyChunksArray = new Uint8Array(
+        await dirtyChunksFile.arrayBuffer()
+    );
+
+    const dataName = dataFileName(spec);
+    const dataHandle = await opfsRoot.getFileHandle(dataName, {create: true});
+    const dataFile = await dataHandle.getFile();
+    const dataArray = new Uint8Array(await dataFile.arrayBuffer());
+
+    const image = new Uint8Array(spec.totalSize);
+    image.set(dataArray);
+
+    const chunkedSpec = {
+        ...spec,
+        baseUrl: "/Disk",
+    };
+
+    for (let chunkIndex = 0; chunkIndex < spec.chunks.length; chunkIndex++) {
+        const chunkHash = spec.chunks[chunkIndex];
+        if (!chunkHash) {
+            // Source image chunk was zero-ed out, we don't need to do anything.
+            continue;
+        }
+        const chunkByte = chunkIndex >> 3;
+        const chunkBit = 1 << (chunkIndex & 7);
+        if (dirtyChunksArray[chunkByte] & chunkBit) {
+            // Chunk was dirty, we had already copied it.
+            continue;
+        }
+
+        console.log("Fetching chunk", chunkIndex);
+        const chunkUrl = generateChunkUrl(chunkedSpec, chunkIndex);
+        const chunk = await (await fetch(chunkUrl)).arrayBuffer();
+        image.set(new Uint8Array(chunk), chunkIndex * spec.chunkSize);
+    }
+
+    saveAs(new Blob([image]), spec.name + ".dsk");
 }
