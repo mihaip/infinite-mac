@@ -37,6 +37,7 @@ import {
     exportDiskSaver,
     importDiskSaver,
     resetDiskSaver,
+    saveDiskSaverImage,
 } from "./emulator/emulator-ui-disk-saver";
 
 export type MacProps = {
@@ -518,6 +519,12 @@ export default function Mac({
                             importDiskSaver(SAVED_HD)
                         );
                         varz.increment("emulator_disk_saver_import");
+                    }}
+                    onSaveImage={() => {
+                        emulatorRef.current?.restart(() =>
+                            saveDiskSaverImage(SAVED_HD)
+                        );
+                        varz.increment("emulator_disk_saver_save_image");
                     }}
                     onDone={() => setSettingsVisible(false)}
                 />

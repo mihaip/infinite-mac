@@ -78,7 +78,7 @@ export type EmulatorChunkedFileSpec = {
 };
 
 export function generateChunkUrl(
-    spec: EmulatorChunkedFileSpec,
+    spec: Pick<EmulatorChunkedFileSpec, "baseUrl" | "chunks">,
     chunk: number
 ): string {
     // Include the chunk number in the URL so that we can easily generate the

@@ -21,6 +21,7 @@ export function MacSettings({
     onStorageReset,
     onStorageExport,
     onStorageImport,
+    onSaveImage,
     hasSavedHD,
     onDone,
 }: {
@@ -32,6 +33,7 @@ export function MacSettings({
     onStorageReset: () => void;
     onStorageExport: () => void;
     onStorageImport: () => void;
+    onSaveImage: () => void;
     onDone: () => void;
 }) {
     const [storagePersistenceStatus, setStoragePersistenceStatus] = useState<
@@ -61,6 +63,7 @@ export function MacSettings({
     const [storageResetVisible, setStorageResetVisible] = useState(false);
     const [storageExportVisible, setStorageExportVisible] = useState(false);
     const [storageImportVisible, setStorageImportVisible] = useState(false);
+    const [saveImageVisible, setSaveImageVisible] = useState(false);
 
     return (
         <Dialog title="Settings" onDone={onDone} appearance={appearance}>
@@ -116,23 +119,7 @@ export function MacSettings({
                 <>
                     <h2>Saved HD</h2>
                     <div className="MacSettings-Row">
-                        <div className="MacSettings-Row-Label">Disk File:</div>
-                        <Button
-                            appearance={appearance}
-                            onClick={() => setStorageResetVisible(true)}>
-                            Reset
-                        </Button>
-                        <StorageConfirmDialog
-                            appearance={appearance}
-                            visible={storageResetVisible}
-                            setVisible={setStorageResetVisible}
-                            title="Reset Disk"
-                            body="Are you sure you want to reset the contents of Saved HD? The contents be removed and the Mac will be restarted."
-                            onAccept={() => {
-                                onStorageReset();
-                                onDone();
-                            }}
-                        />{" "}
+                        <div className="MacSettings-Row-Label">Contents:</div>
                         <Button
                             appearance={appearance}
                             onClick={() => setStorageExportVisible(true)}>
@@ -164,7 +151,53 @@ export function MacSettings({
                                 onStorageImport();
                                 onDone();
                             }}
+                        />{" "}
+                        <Button
+                            appearance={appearance}
+                            onClick={() => setStorageResetVisible(true)}>
+                            Reset
+                        </Button>
+                        <StorageConfirmDialog
+                            appearance={appearance}
+                            visible={storageResetVisible}
+                            setVisible={setStorageResetVisible}
+                            title="Reset Disk"
+                            body="Are you sure you want to reset the contents of Saved HD? The contents be removed and the Mac will be restarted."
+                            onAccept={() => {
+                                onStorageReset();
+                                onDone();
+                            }}
                         />
+                        <div className="Dialog-Description">
+                            The contents of Saved HD as persisted across page
+                            loads and between emulator instances in this
+                            browser. You can import/export it to have backups
+                            and to move it from one browser to another.
+                        </div>
+                    </div>
+                    <div className="MacSettings-Row">
+                        <div className="MacSettings-Row-Label" />
+                        <Button
+                            appearance={appearance}
+                            onClick={() => setSaveImageVisible(true)}>
+                            Save Disk Image…
+                        </Button>
+                        <StorageConfirmDialog
+                            appearance={appearance}
+                            visible={saveImageVisible}
+                            setVisible={setSaveImageVisible}
+                            title="Save Disk Image"
+                            body="Saving a disk image requires that the Mac be shut down. It will take a little while to generate, and will be downloaded as a .dsk file. Generate the disk image now?"
+                            onAccept={() => {
+                                onSaveImage();
+                                onDone();
+                            }}
+                        />
+                        <div className="Dialog-Description">
+                            You can also save the contents of Saved HD as a
+                            <code>.dsk</code> file that can be loaded into other
+                            emulators.
+                        </div>
                     </div>
                     <div className="MacSettings-Row">
                         <div className="MacSettings-Row-Label">
