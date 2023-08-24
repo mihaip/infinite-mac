@@ -201,6 +201,15 @@ class EmulatorWorkerApi {
         this.#delayedDiskSpecs = delayedDisks;
     }
 
+    exit() {
+        this.#handleStop();
+        postMessage({type: "emulator_exit"});
+        for (;;) {
+            // Don't let the process keep executing (it will exit with a non-0
+            // status code), instead wait for the worker to be terminated.
+        }
+    }
+
     didOpenVideo(width: number, height: number) {
         postMessage({type: "emulator_video_open", width, height});
         this.#videoOpenTime = performance.now();
@@ -573,7 +582,9 @@ export class EmulatorFallbackEndpoint {
 }
 
 async function startEmulator(config: EmulatorWorkerConfig) {
-    const moduleOverrides: Partial<EmscriptenModule> = {
+    const moduleOverrides: Partial<EmscriptenModule> & {
+        workerApi?: EmulatorWorkerApi;
+    } = {
         arguments: config.arguments,
         locateFile(path: string, scriptDirectory: string) {
             if (path.endsWith(".wasm")) {
@@ -640,7 +651,9 @@ async function startEmulator(config: EmulatorWorkerConfig) {
 
         quit(status: number, toThrow?: Error) {
             console.log("Emulator quit with status", status);
-            if (status !== 0) {
+            if (status === 0) {
+                moduleOverrides.workerApi?.exit();
+            } else {
                 console.error(toThrow);
                 postMessage({
                     type: "emulator_did_have_error",
@@ -660,6 +673,7 @@ async function startEmulator(config: EmulatorWorkerConfig) {
         const emscriptenModule: EmscriptenModule =
             moduleOverrides as EmscriptenModule;
         const workerApi = new EmulatorWorkerApi(config, emscriptenModule);
+        moduleOverrides.workerApi = workerApi;
         await workerApi.initDiskSavers();
         // Inject into global scope as `workerApi` so that the Emscripten
         // code can call into it.
