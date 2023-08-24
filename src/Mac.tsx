@@ -51,7 +51,7 @@ export type MacProps = {
     ethernetProvider?: EmulatorEthernetProvider;
     debugFallback?: boolean;
     debugAudio?: boolean;
-    onDone?: () => void;
+    onDone: () => void;
     cdromLibrary: EmulatorCDROMLibrary;
 };
 
@@ -148,6 +148,9 @@ export default function Mac({
                 debugAudio,
             },
             {
+                emulatorDidExit(emulator: Emulator) {
+                    onDone();
+                },
                 emulatorDidChangeScreenSize(width, height) {
                     setScreenSize({width, height});
                 },
@@ -432,17 +435,15 @@ export default function Mac({
     }
 
     const controls: ScreenControl[] = [
+        {
+            label: "‹ Home",
+            handler: onDone,
+            alwaysVisible: true,
+        },
         {label: "Load File", handler: handleLoadFileClick},
         {label: "Full Screen", handler: handleFullScreenClick},
         {label: "Settings", handler: handleSettingsClick},
     ];
-    if (onDone) {
-        controls.unshift({
-            label: "‹ Home",
-            handler: onDone,
-            alwaysVisible: true,
-        });
-    }
     if (NEEDS_KEYBOARD_BUTTON) {
         controls.push({label: "Keyboard", handler: handleKeyboardClick});
     }
