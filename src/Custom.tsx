@@ -79,7 +79,9 @@ export function Custom({
     );
     const canRun =
         // Need a disk
-        (runDef.disks.length > 0 || runDef.cdromURLs.length > 0) &&
+        (runDef.disks.length > 0 ||
+            runDef.cdromURLs.length > 0 ||
+            runDef.includeSavedHD) &&
         // Need AppleTalk to be configured if enabled.
         (!appleTalkSupported || !appleTalkEnabled || appleTalkZoneName !== "");
 
