@@ -1,0 +1,5 @@
+Tips
+• To load additional software, drag disk images (.dsk, .iso, etc.) onto the screen. They will be mounted on the desktop.
+• To go full screen, you can use the command that appears next to the monitor's Apple logo.
+• Additional settings can be toggled by using the “Settings” command, also next to the monitor's Apple logo.
+• If you're on an iOS device, you can add this site to your home screen via the share icon.

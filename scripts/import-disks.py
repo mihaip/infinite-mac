@@ -539,7 +539,8 @@ def build_saved_hd_image(base_name: str, dest_dir: str) -> ImageDef:
     readme_index = image_data.find(readme_placeholder)
 
     if readme_index != -1:
-        readme_data = "TODO: explain what this is for".encode("macroman")
+        readme_data = read_strings("saved-hd.txt").replace(
+            "\n", "\r").encode("macroman")
 
         if len(readme_data) > len(readme_placeholder):
             logging.warning(
@@ -580,6 +581,11 @@ def build_desktop_db(images: typing.List[ImageDef]) -> bytes:
         ["*" + disks.MAC_OS_81.path()] + [i.path for i in images])
 
 
+def read_strings(name: str) -> str:
+    with open(os.path.join(paths.STRINGS_DIR, name), "r") as f:
+        return f.read()
+
+
 STICKIES = [
     stickies.Sticky(
         top=242,
@@ -596,13 +602,7 @@ STICKIES = [
         right=592,
         color=stickies.Color.PURPLE,
         skip_in_ttxt=True,
-        text="""Tips
-• To add additional files (e.g. downloads from archives like Macintosh Repository and Macintosh Garden), simply drag them onto the screen. They will appear in the “Downloads” folder in The Outside World.
-• Conversely, to get folders or files out the Mac, you put them in the “Uploads” folder. A .zip archive with them will be generated and downloaded by your browser.
-• Files in the “Saved” folder will be saved across emulator runs (best-effort)
-• To go full screen, you can use the command that appears next to the monitor's Apple logo.
-• Additional settings can be toggled by using the “Settings” command, also next to the monitor's Apple logo.
-• If you're on an iOS device, you can add this site to your home screen via the share icon.""",
+        text=read_strings("tips.txt"),
     ),
     stickies.Sticky(
         top=255,
@@ -611,11 +611,7 @@ STICKIES = [
         right=592,
         color=stickies.Color.PURPLE,
         skip_in_stickies=True,
-        text="""Tips
-• To load additional software, drag disk images (.dsk, .iso, etc.) onto the screen. They will be mounted on the desktop.
-• To go full screen, you can use the command that appears next to the monitor's Apple logo.
-• Additional settings can be toggled by using the “Settings” command, also next to the monitor's Apple logo.
-• If you're on an iOS device, you can add this site to your home screen via the share icon.""",
+        text=read_strings("tips-no-outside-world.txt"),
     ),
     stickies.Sticky(
         top=425,
@@ -623,11 +619,7 @@ STICKIES = [
         bottom=532,
         right=389,
         color=stickies.Color.PINK,
-        text="""Networking is supported!
-
-You can use the “Customize…” option before starting to join a virtual AppleTalk zone. All emulated Macs using the same zone name should be able to see each other.
-
-Files can be shared between instances, and muti-player games like Marathon, Bolo and Strategic Conquest should also work.""",
+        text=read_strings("networking.txt"),
         skip_in_ttxt=True,
     ),
     stickies.Sticky(
@@ -636,10 +628,7 @@ Files can be shared between instances, and muti-player games like Marathon, Bolo
         bottom=426,
         right=212,
         color=stickies.Color.GREEN,
-        text=
-        """A collection of classic Macintosh system releases and software, all easily accessible from the comfort of a (modern) web browser.
-
-Browse around the Infinite HD to see what using a Mac in the 80s and 90s was like.""",
+        text=read_strings("intro.txt"),
     ),
     stickies.Sticky(
         top=253,
