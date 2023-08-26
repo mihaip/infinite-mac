@@ -109,7 +109,7 @@ export function runDefToUrl(runDef: RunDef): string {
         if (!runDef.includeInfiniteHD) {
             url.searchParams.set("infinite_hd", "false");
         }
-        if (runDef.includeInfiniteHD) {
+        if (runDef.includeSavedHD) {
             url.searchParams.set("saved_hd", "true"); // TODO: enable by default
         }
     } else {
