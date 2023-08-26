@@ -1,0 +1,5 @@
+Networking is supported!
+
+You can use the “Customize…” option before starting to join a virtual AppleTalk zone. All emulated Macs using the same zone name should be able to see each other.
+
+Files can be shared between instances, and muti-player games like Marathon, Bolo and Strategic Conquest should also work.
