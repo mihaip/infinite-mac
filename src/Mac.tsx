@@ -193,7 +193,13 @@ export default function Mac({
                     if (error.includes("load") && error.includes("/CD-ROM")) {
                         varz.increment("emulator_error:cdrom_chunk_load");
                     } else if (error.includes("saved disk")) {
-                        varz.increment("emulator_error:saved_disk");
+                        if (error.includes("missing the necessary APIs")) {
+                            varz.increment(
+                                "emulator_error:saved_disk_unsupported"
+                            );
+                        } else {
+                            varz.increment("emulator_error:saved_disk");
+                        }
                     } else {
                         varz.increment("emulator_error:other");
                     }
