@@ -240,7 +240,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
         const runDef = {
             disks: [disk],
             includeInfiniteHD: true,
-            includeSavedHD: true,
+            includeSavedHD: false, // TODO: enable by default
             machine: disk.machines[0],
             cdromURLs: [],
             debugAudio: false,
