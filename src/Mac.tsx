@@ -252,6 +252,7 @@ export default function Mac({
         debugAudio,
         hasSavedHD,
         ramSize,
+        onDone,
     ]);
     const {appearance = "Classic"} = disks[0] ?? {};
 

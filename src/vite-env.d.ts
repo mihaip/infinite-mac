@@ -65,5 +65,4 @@ interface EmscriptenModule {
     // We assume that Emscripten is cofigured with
     // `-s EXPORTED_RUNTIME_METHODS=FS`.
     FS: typeof FS;
-    preRun: (module: EmscriptenModule) => void;
 }
