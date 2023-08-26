@@ -11,28 +11,28 @@
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "ringbuf.js": "^0.3.3",
-        "typescript": "^5.0.4"
+        "typescript": "^5.2.2"
     },
     "devDependencies": {
         "@types/audioworklet": "^0.0.46",
-        "@types/emscripten": "^1.39.6",
+        "@types/emscripten": "^1.39.7",
         "@types/file-saver": "^2.0.5",
         "@types/react": "^18.2.6",
         "@types/react-dom": "^18.2.4",
-        "@typescript-eslint/eslint-plugin": "^5.59.5",
-        "@typescript-eslint/parser": "^5.59.5",
+        "@typescript-eslint/eslint-plugin": "^5.62.0",
+        "@typescript-eslint/parser": "^5.62.0",
         "@vitejs/plugin-basic-ssl": "^1.0.1",
-        "@vitejs/plugin-react": "^4.0.0",
+        "@vitejs/plugin-react": "^4.0.4",
         "clang-format": "^1.8.0",
-        "eslint": "^8.40.0",
-        "eslint-plugin-import": "^2.27.5",
+        "eslint": "^8.48.0",
+        "eslint-plugin-import": "^2.28.1",
         "eslint-plugin-react-hooks": "^4.6.0",
         "husky": "^6.0.0",
         "lint-staged": "^11.0.0",
-        "prettier": "^2.3.1",
-        "vite": "^4.3.5",
+        "prettier": "^2.8.8",
+        "vite": "^4.4.9",
         "vite-plugin-svgr": "^3.2.0",
-        "wrangler": "^3.3.0"
+        "wrangler": "^3.6.0"
     },
     "scripts": {
         "import-emulator": "scripts/import-emulator.sh",

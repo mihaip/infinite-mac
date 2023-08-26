@@ -1,5 +1,4 @@
 import {EMULATOR_CD_DRIVE_COUNT} from "./emulator-common-emulators";
-import {type EmulatorWorkerDiskSaver} from "./emulator-worker-disk-saver";
 
 type DiskId = number;
 
