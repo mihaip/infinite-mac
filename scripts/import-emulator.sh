@@ -4,6 +4,7 @@
 # built.
 
 ROOT_DIR="`dirname "${BASH_SOURCE[0]}"`/.."
+JS_EXTENSION=""
 
 if [ "$1" = "basiliskii" ]; then
     EMULATOR="BasiliskII"
@@ -14,6 +15,10 @@ elif [ "$1" = "sheepshaver" ]; then
 elif [[ "$1" =~ ^minivmac- ]]; then
     EMULATOR=$1
     EMULATOR_DIR="${ROOT_DIR}/minivmac"
+elif [ "$1" = "dingusppc" ]; then
+    EMULATOR=$1
+    JS_EXTENSION=".js"
+    EMULATOR_DIR="${ROOT_DIR}/dingusppc/build/bin"
 else
     echo "Unknown emulator $1"
     exit 1
@@ -29,7 +34,7 @@ if [ ! -f "${EMULATOR_DIR}/${EMULATOR}.wasm" ]; then
 fi
 
 # Build output
-cp "${EMULATOR_DIR}/${EMULATOR}" "${EMULATOR_DESTINATION_DIR}/${EMULATOR}.js"
+cp "${EMULATOR_DIR}/${EMULATOR}${JS_EXTENSION}" "${EMULATOR_DESTINATION_DIR}/${EMULATOR}.js"
 cp "${EMULATOR_DIR}/${EMULATOR}.wasm" "${EMULATOR_DESTINATION_DIR}/${EMULATOR}.wasm"
 # Source map needs massaging and needs to be put into the public directory (we
 # don't control the URL that it's referenced under).

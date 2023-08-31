@@ -1,4 +1,8 @@
-export type EmulatorType = "BasiliskII" | "SheepShaver" | "Mini vMac";
+export type EmulatorType =
+    | "BasiliskII"
+    | "SheepShaver"
+    | "Mini vMac"
+    | "DingusPPC";
 
 export type EmulatorSubtype = "128K" | "512Ke" | "Plus" | "SE" | "II";
 
@@ -13,6 +17,14 @@ export type EmulatorCpu =
     | "G3";
 
 export const EMULATOR_CD_DRIVE_COUNT = 7;
+
+export function emulatorUsesPrefs(type: EmulatorType): boolean {
+    return type !== "DingusPPC";
+}
+
+export function emulatorUsesArgs(type: EmulatorType): boolean {
+    return type === "DingusPPC";
+}
 
 export function emulatorUsesCDROMDrive(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";

@@ -5,10 +5,11 @@ import macIIRomPath from "./Data/Mac-II.rom";
 import macIIfxRomPath from "./Data/Mac-IIfx.rom";
 import quadra650RomPath from "./Data/Quadra-650.rom";
 import newWorldRomPath from "./Data/New-World.rom";
+import powerMacintosh6100RomPath from "./Data/Power-Macintosh-6100.rom";
 import powerMacintosh9500RomPath from "./Data/Power-Macintosh-9500.rom";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
-import minivMacPrefsPath from "./Data/MinivMacPrefs.txt";
+import emptyPrefsPath from "./Data/EmptyPrefs.txt";
 import {
     type EmulatorCpu,
     type EmulatorSubtype,
@@ -38,7 +39,7 @@ export const MAC_128K: MachineDef = {
     gestaltID: 1,
     emulatorType: "Mini vMac",
     emulatorSubtype: "128K",
-    prefsPath: minivMacPrefsPath,
+    prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Beige",
     mfsOnly: true,
@@ -52,7 +53,7 @@ export const MAC_512KE: MachineDef = {
     gestaltID: 3,
     emulatorType: "Mini vMac",
     emulatorSubtype: "512Ke",
-    prefsPath: minivMacPrefsPath,
+    prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Beige",
     ramSizes: ["512K"],
@@ -65,7 +66,7 @@ export const MAC_PLUS: MachineDef = {
     gestaltID: 4,
     emulatorType: "Mini vMac",
     emulatorSubtype: "Plus",
-    prefsPath: minivMacPrefsPath,
+    prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Beige",
     ramSizes: ["4M"],
@@ -78,7 +79,7 @@ export const MAC_SE: MachineDef = {
     gestaltID: 5,
     emulatorType: "Mini vMac",
     emulatorSubtype: "SE",
-    prefsPath: minivMacPrefsPath,
+    prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Platinum",
     ramSizes: ["4M"],
@@ -91,7 +92,7 @@ export const MAC_II: MachineDef = {
     gestaltID: 6,
     emulatorType: "Mini vMac",
     emulatorSubtype: "II",
-    prefsPath: minivMacPrefsPath,
+    prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 640, height: 480},
     bezelStyle: "Platinum",
     ramSizes: ["8M"],
@@ -117,6 +118,17 @@ export const QUADRA_650: MachineDef = {
     prefsPath: basiliskPrefsPath,
     bezelStyle: "Platinum",
     ramSizes: ["128M", "64M", "32M", "16M", "8M", "4M"],
+};
+
+export const POWER_MACINTOSH_6100: MachineDef = {
+    name: "Power Macintosh 6100",
+    cpu: "601",
+    romPath: powerMacintosh6100RomPath,
+    gestaltID: 67,
+    emulatorType: "DingusPPC",
+    prefsPath: emptyPrefsPath,
+    bezelStyle: "Platinum",
+    ramSizes: ["128M", "256M", "64M", "32M", "16M"],
 };
 
 export const POWER_MACINTOSH_9500: MachineDef = {

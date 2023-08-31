@@ -658,7 +658,7 @@ async function startEmulator(config: EmulatorWorkerConfig) {
                 postMessage({
                     type: "emulator_did_have_error",
                     error: toThrow
-                        ? toThrow.toString()
+                        ? toThrow.message || toThrow.toString()
                         : `Exit status ${status}`,
                 });
             }

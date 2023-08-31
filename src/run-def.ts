@@ -3,6 +3,7 @@ import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvid
 import {
     ALL_DISKS,
     DISKS_BY_YEAR,
+    HIDDEN_DISKS,
     isPlaceholderDiskDef,
     type SystemDiskDef,
 } from "./disks";
@@ -50,7 +51,9 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     }
 
     for (const diskName of searchParams.getAll("disk")) {
-        const disk = ALL_DISKS.find(disk => disk.displayName === diskName);
+        const disk =
+            ALL_DISKS.find(disk => disk.displayName === diskName) ??
+            HIDDEN_DISKS.find(disk => disk.displayName === diskName);
         if (disk && !isPlaceholderDiskDef(disk)) {
             disks.push(disk);
         }
@@ -60,9 +63,11 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     const machineName = searchParams.get("machine");
     if (machineName) {
         machine = MACHINES_BY_NAME[machineName];
-    } else if (disks.length > 0) {
+    }
+    if (!machine && disks.length > 0) {
         machine = disks[0].machines[0];
-    } else {
+    }
+    if (!machine) {
         return undefined;
     }
     let ramSize: MachineDefRAMSize | undefined = undefined;
