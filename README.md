@@ -47,7 +47,7 @@ docker build -t macemu_emsdk .
 Open a shell into the Docker container:
 
 ```sh
-docker run --rm -it -v `realpath macemu`:/macemu -v `realpath minivmac`:/minivmac --entrypoint bash macemu_emsdk
+docker run --rm -it -v `realpath macemu`:/macemu -v `realpath minivmac`:/minivmac -v `realpath dingusppc`:/dingusppc --entrypoint bash macemu_emsdk
 ```
 
 Once in that container, you can use a couple of helper scripts to build them:
@@ -97,3 +97,15 @@ make -j8
 ```
 
 Once it has built, use `npm run import-emulator minivmac-<model>` from the host to update the files in `src/emulator`.
+
+### DingusPPC
+
+```sh
+cd /dingusppc
+mkdir -p build
+cd build
+emcmake cmake -DCMAKE_BUILD_TYPE=Release ..
+make dingusppc -j8
+```
+
+Once it has built, use `npm run import-emulator dingusppc` from the host to update the files in `src/emulator`.

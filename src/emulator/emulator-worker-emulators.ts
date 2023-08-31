@@ -5,6 +5,7 @@ import MinivMacPlusJsPath from "./minivmac-Plus.js?url";
 import MinivMacSEJsPath from "./minivmac-SE.js?url";
 import BasiliskIIJsPath from "./BasiliskII.js?url";
 import SheepShaverJsPath from "./SheepShaver.js?url";
+import DingusPPCJsPath from "./dingusppc.js?url";
 import {type EmulatorDef} from "./emulator-common-emulators";
 
 // Import the Emscripten-generated JS module wrapper for the emulator Wasm
@@ -34,6 +35,8 @@ export function importEmulator(def: EmulatorDef) {
                         `Unknown Mini vMac subtype: ${emulatorSubtype}`
                     );
             }
+        case "DingusPPC":
+            return import("./dingusppc");
     }
 }
 
@@ -82,5 +85,7 @@ export function getEmulatorJsPath(def: EmulatorDef) {
                 "SE": MinivMacSEJsPath,
                 "II": MinivMacIIJsPath,
             }[emulatorSubtype!];
+        case "DingusPPC":
+            return DingusPPCJsPath;
     }
 }

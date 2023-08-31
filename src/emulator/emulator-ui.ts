@@ -12,6 +12,8 @@ import {
     emulatorCpuId,
     emulatorModelId,
     emulatorUsesCDROMDrive,
+    emulatorUsesPrefs,
+    emulatorUsesArgs,
 } from "./emulator-common-emulators";
 import {getEmulatorWasmPath} from "./emulator-ui-emulators";
 import Worker from "./emulator-worker?worker";
@@ -278,96 +280,54 @@ export class Emulator {
 
         const extraction = await getPersistedData();
 
-        async function loadDisks(
-            disks: EmulatorDiskDef[]
-        ): Promise<EmulatorChunkedFileSpec[]> {
-            const diskSpecs = await Promise.all(
-                disks.map(d => d.generatedSpec().then(i => i.default))
-            );
-            return disks.map((d, i) => ({
-                ...diskSpecs[i],
-                baseUrl: "/Disk",
-                prefetchChunks: d.prefetchChunks,
-                persistent: d.persistent,
-            }));
-        }
         const disks = await loadDisks(this.#config.disks);
         const delayedDisks = this.#config.delayedDisks
             ? await loadDisks(this.#config.delayedDisks)
             : undefined;
 
-        let prefsStr = new TextDecoder().decode(basePrefs);
-        prefsStr += `rom ${romFileName}\n`;
-        const cpuId = emulatorCpuId(
-            this.#config.machine.emulatorType,
-            this.#config.machine.cpu
-        );
-        if (cpuId !== undefined) {
-            prefsStr += `cpu ${cpuId}\n`;
+        let prefs = "";
+        let prefsBuffer;
+        let args: string[] = [];
+        const {emulatorType, emulatorSubtype} = this.#config.machine;
+        if (emulatorUsesPrefs(emulatorType)) {
+            prefs = configToEmulatorPrefs(this.#config, {
+                basePrefs,
+                disks,
+                romFileName,
+            });
+            prefsBuffer = new TextEncoder().encode(prefs).buffer;
+            console.groupCollapsed(
+                "%cGenerated emulator prefs",
+                "font-weight: normal"
+            );
+            console.log(prefs);
+            console.groupEnd();
+        } else if (emulatorUsesArgs(emulatorType)) {
+            args = configToEmulatorArgs(this.#config, {disks, romFileName});
+            console.groupCollapsed(
+                "%cGenerated emulator args",
+                "font-weight: normal"
+            );
+            console.log(JSON.stringify(args, undefined, 2));
+            console.groupEnd();
+        } else {
+            throw new Error(`Unknown emulator type: ${emulatorType}`);
         }
-        const modelId = emulatorModelId(
-            this.#config.machine.emulatorType,
-            this.#config.machine.gestaltID
-        );
-        if (modelId !== undefined) {
-            prefsStr += `modelid ${modelId}\n`;
-        }
-        const ramSizeString =
-            this.#config.ramSize ?? this.#config.machine.ramSizes[0];
-        let ramSize = parseInt(ramSizeString);
-        if (ramSizeString.endsWith("M")) {
-            ramSize *= 1024 * 1024;
-        } else if (ramSizeString.endsWith("K")) {
-            ramSize *= 1024;
-        }
-        prefsStr += `ramsize ${ramSize}\n`;
-        prefsStr += `screen win/${this.#config.screenWidth}/${
-            this.#config.screenHeight
-        }\n`;
-        for (const spec of disks) {
-            prefsStr += `disk ${spec.name}\n`;
-        }
-        for (const cdrom of this.#config.cdroms) {
-            prefsStr += `disk ${cdrom.name}\n`;
-        }
-        const useCDROM = emulatorUsesCDROMDrive(
-            this.#config.machine.emulatorType
-        );
-        if (useCDROM) {
-            for (let i = 0; i < EMULATOR_CD_DRIVE_COUNT; i++) {
-                prefsStr += `cdrom /cdrom/${i}\n`;
-            }
-        }
-        if (this.#config.ethernetProvider) {
-            prefsStr += "appletalk true\n";
-        }
-        // The fallback path does not support high-frequency calls to reading
-        // the input (we end up making so many service worker network requests
-        // that overall emulation latency suffers).
-        prefsStr += `jsfrequentreadinput ${this.#config.useSharedMemory}\n`;
-        console.groupCollapsed(
-            "%cGenerated emulator prefs",
-            "font-weight: normal"
-        );
-        console.log(prefsStr);
-        console.groupEnd();
-        const prefs = new TextEncoder().encode(prefsStr).buffer;
 
         const config: EmulatorWorkerConfig = {
-            emulatorType: this.#config.machine.emulatorType,
-            emulatorSubtype: this.#config.machine.emulatorSubtype,
+            emulatorType,
+            emulatorSubtype,
             wasmUrl: wasmBlobUrl,
             disks,
             delayedDisks,
             cdroms: this.#config.cdroms,
-            useCDROM,
+            useCDROM: emulatorUsesCDROMDrive(emulatorType),
             autoloadFiles: {
                 [romFileName]: rom,
-                "prefs": prefs,
+                ...(prefsBuffer ? {"prefs": prefsBuffer} : {}),
             },
             persistedData: extraction,
-            arguments: ["--config", "prefs"],
-
+            arguments: prefs ? ["--config", "prefs"] : args,
             video: this.#video.workerConfig(),
             input: this.#input.workerConfig(),
             audio: this.#audio.workerConfig(),
@@ -389,7 +349,10 @@ export class Emulator {
                 "Could not initialize service worker, things will be slower"
             );
         }
-        this.#worker.postMessage({type: "start", config}, [rom, prefs]);
+        this.#worker.postMessage({type: "start", config}, [
+            rom,
+            ...(prefsBuffer ? [prefsBuffer] : []),
+        ]);
     }
 
     refreshSettings() {
@@ -800,4 +763,89 @@ async function load(
     );
 
     return [blobUrls, arrayBuffers];
+}
+
+async function loadDisks(
+    disks: EmulatorDiskDef[]
+): Promise<EmulatorChunkedFileSpec[]> {
+    const diskSpecs = await Promise.all(
+        disks.map(d => d.generatedSpec().then(i => i.default))
+    );
+    return disks.map((d, i) => ({
+        ...diskSpecs[i],
+        baseUrl: "/Disk",
+        prefetchChunks: d.prefetchChunks,
+        persistent: d.persistent,
+    }));
+}
+
+function configToEmulatorPrefs(
+    config: EmulatorConfig,
+    {
+        basePrefs,
+        romFileName,
+        disks,
+    }: {
+        basePrefs: ArrayBuffer;
+        romFileName: string;
+        disks: EmulatorChunkedFileSpec[];
+    }
+): string {
+    const {machine} = config;
+    let prefsStr = new TextDecoder().decode(basePrefs);
+    prefsStr += `rom ${romFileName}\n`;
+    const cpuId = emulatorCpuId(machine.emulatorType, machine.cpu);
+    if (cpuId !== undefined) {
+        prefsStr += `cpu ${cpuId}\n`;
+    }
+    const modelId = emulatorModelId(machine.emulatorType, machine.gestaltID);
+    if (modelId !== undefined) {
+        prefsStr += `modelid ${modelId}\n`;
+    }
+    const ramSizeString = config.ramSize ?? machine.ramSizes[0];
+    let ramSize = parseInt(ramSizeString);
+    if (ramSizeString.endsWith("M")) {
+        ramSize *= 1024 * 1024;
+    } else if (ramSizeString.endsWith("K")) {
+        ramSize *= 1024;
+    }
+    prefsStr += `ramsize ${ramSize}\n`;
+    prefsStr += `screen win/${config.screenWidth}/${config.screenHeight}\n`;
+    for (const spec of disks) {
+        prefsStr += `disk ${spec.name}\n`;
+    }
+    for (const cdrom of config.cdroms) {
+        prefsStr += `disk ${cdrom.name}\n`;
+    }
+    const useCDROM = emulatorUsesCDROMDrive(machine.emulatorType);
+    if (useCDROM) {
+        for (let i = 0; i < EMULATOR_CD_DRIVE_COUNT; i++) {
+            prefsStr += `cdrom /cdrom/${i}\n`;
+        }
+    }
+    if (config.ethernetProvider) {
+        prefsStr += "appletalk true\n";
+    }
+    // The fallback path does not support high-frequency calls to reading
+    // the input (we end up making so many service worker network requests
+    // that overall emulation latency suffers).
+    prefsStr += `jsfrequentreadinput ${config.useSharedMemory}\n`;
+    return prefsStr;
+}
+
+function configToEmulatorArgs(
+    config: EmulatorConfig,
+    {
+        romFileName,
+        disks,
+    }: {
+        romFileName: string;
+        disks: EmulatorChunkedFileSpec[];
+    }
+): string[] {
+    const args = ["--bootrom", romFileName];
+    for (const spec of disks) {
+        args.push("--fdd_img", spec.name);
+    }
+    return args;
 }

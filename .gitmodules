@@ -11,3 +11,6 @@
 [submodule "minivmac"]
 	path = minivmac
 	url = https://github.com/mihaip/minivmac
+[submodule "dingusppc"]
+	path = dingusppc
+	url = https://github.com/mihaip/dingusppc
