@@ -843,7 +843,7 @@ function configToEmulatorArgs(
         disks: EmulatorChunkedFileSpec[];
     }
 ): string[] {
-    const args = ["--bootrom", romFileName];
+    const args = ["--realtime", "--log-to-stderr", "--bootrom", romFileName];
     for (const spec of disks) {
         args.push("--fdd_img", spec.name);
     }
