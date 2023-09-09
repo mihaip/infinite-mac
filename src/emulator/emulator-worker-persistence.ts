@@ -6,7 +6,9 @@ import {
 export function restorePersistedData(
     dirPath: string,
     extraction: EmulatorWorkerDirectorExtraction
-) {
+): number {
+    let restoredFileCount = 0;
+
     function restore(
         parentDirPath: string,
         entries: EmulatorWorkerDirectorExtractionEntry[]
@@ -29,6 +31,11 @@ export function restorePersistedData(
                     if (!FS.analyzePath(entryParentDirPath).exists) {
                         FS.mkdir(entryParentDirPath);
                     }
+                } else if (
+                    !entryParentDirPath.endsWith("/.finf") &&
+                    !entryParentDirPath.endsWith("/.rsrc")
+                ) {
+                    restoredFileCount++;
                 }
                 FS.createDataFile(
                     entryParentDirPath,
@@ -43,4 +50,6 @@ export function restorePersistedData(
     }
 
     restore(dirPath, extraction.contents);
+
+    return restoredFileCount;
 }

@@ -3,7 +3,7 @@ import {type Dispatch, type SetStateAction, useState, useEffect} from "react";
 export function usePersistentState<T>(
     defaultValue: T,
     key: string,
-    onValueChange: () => void
+    onValueChange?: () => void
 ): [T, Dispatch<SetStateAction<T>>] {
     const [value, setValue] = useState(() => {
         const persistedValue = window.localStorage.getItem(key);
@@ -19,11 +19,11 @@ export function usePersistentState<T>(
     useEffect(() => {
         const persistedValue = JSON.stringify(value);
         if (persistedValue !== undefined) {
-            window.sessionStorage.setItem(key, persistedValue);
+            window.localStorage.setItem(key, persistedValue);
         } else {
             console.warn("Could not serialize persistent state", value);
         }
-        onValueChange();
+        onValueChange?.();
     }, [key, value, onValueChange]);
     return [value, setValue];
 }

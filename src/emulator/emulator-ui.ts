@@ -115,6 +115,7 @@ export interface EmulatorDelegate {
     emulatorDidRunOutOfMemory?(emulator: Emulator): void;
     emulatorDidHaveError?(emulator: Emulator, error: string): void;
     emulatorSettings?(emulator: Emulator): EmulatorSettings;
+    emulatorDidRestoreFiles?(emulator: Emulator, count: number): void;
 }
 
 export type EmulatorFallbackCommandSender = (
@@ -634,6 +635,8 @@ export class Emulator {
             this.#delegate?.emulatorDidStartToLoadDiskChunk?.(this);
         } else if (e.data.type === "emulator_did_load_chunk") {
             this.#delegate?.emulatorDidFinishLoadingDiskChunk?.(this);
+        } else if (e.data.type === "emulator_did_restore_files") {
+            this.#delegate?.emulatorDidRestoreFiles?.(this, e.data.count);
         } else {
             console.warn("Unexpected postMessage event", e);
         }

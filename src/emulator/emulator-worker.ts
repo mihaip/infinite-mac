@@ -603,10 +603,16 @@ async function startEmulator(config: EmulatorWorkerConfig) {
                 FS.mkdir("/Shared/Downloads");
                 FS.mkdir(PERSISTED_DIRECTORY_PATH);
                 if (config.persistedData) {
-                    restorePersistedData(
+                    const restoredFileCount = restorePersistedData(
                         PERSISTED_DIRECTORY_PATH,
                         config.persistedData
                     );
+                    if (restoredFileCount) {
+                        postMessage({
+                            type: "emulator_did_restore_files",
+                            count: restoredFileCount,
+                        });
+                    }
                 }
                 initializeExtractor();
 
