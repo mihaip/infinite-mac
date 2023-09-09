@@ -44,6 +44,7 @@ export default function RunDefMac({
             ethernetProvider={runDef.ethernetProvider}
             debugFallback={runDef.debugFallback}
             debugAudio={runDef.debugAudio}
+            debugPaused={runDef.debugPaused}
             cdromLibrary={cdromLibrary}
             onDone={onDone}
         />
