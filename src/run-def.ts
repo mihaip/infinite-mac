@@ -45,7 +45,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     if (yearDiskDef) {
         disks.push(yearDiskDef);
         includeInfiniteHD = searchParams.get("infinite_hd") !== "false";
-        includeSavedHD = searchParams.get("saved_hd") === "true"; // TODO: enable by default
+        includeSavedHD = searchParams.get("saved_hd") !== "false";
     } else {
         includeInfiniteHD = searchParams.get("infinite_hd") === "true";
         includeSavedHD = searchParams.get("saved_hd") === "true";
@@ -117,8 +117,8 @@ export function runDefToUrl(runDef: RunDef): string {
         if (!runDef.includeInfiniteHD) {
             url.searchParams.set("infinite_hd", "false");
         }
-        if (runDef.includeSavedHD) {
-            url.searchParams.set("saved_hd", "true"); // TODO: enable by default
+        if (!runDef.includeSavedHD) {
+            url.searchParams.set("saved_hd", "false");
         }
     } else {
         url = new URL("/run", location.href);

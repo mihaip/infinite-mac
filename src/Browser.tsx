@@ -19,6 +19,7 @@ import {Changelog} from "./Changelog";
 import {type RunDef} from "./run-def";
 import {Custom} from "./Custom";
 import classNames from "classnames";
+import {canSaveDisks} from "./canSaveDisks";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -240,7 +241,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
         const runDef = {
             disks: [disk],
             includeInfiniteHD: true,
-            includeSavedHD: false, // TODO: enable by default
+            includeSavedHD: canSaveDisks(),
             machine: disk.machines[0],
             cdromURLs: [],
             debugAudio: false,
