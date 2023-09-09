@@ -38,7 +38,7 @@ def get_import_folders() -> typing.Dict[str, machfs.Folder]:
 def import_manifests() -> typing.Dict[str, machfs.Folder]:
     sys.stderr.write("Importing other images\n")
     import_folders = {}
-    debug_filter = os.getenv("DEBUG_LIRARY_FILTER")
+    debug_filter = os.getenv("DEBUG_LIBRARY_FILTER")
 
     for manifest_path in glob.iglob(os.path.join(paths.LIBRARY_DIR, "**",
                                                  "*.json"),
@@ -285,7 +285,7 @@ def update_file_or_folder_from_lsar_entry(
 def import_zips() -> typing.Dict[str, machfs.Folder]:
     sys.stderr.write("Importing .zips\n")
     import_folders = {}
-    debug_filter = os.getenv("DEBUG_LIRARY_FILTER")
+    debug_filter = os.getenv("DEBUG_LIBRARY_FILTER")
 
     for zip_path in glob.iglob(os.path.join(paths.LIBRARY_DIR, "**", "*.zip"),
                                recursive=True):
@@ -644,7 +644,7 @@ STICKIES = [
 
 if __name__ == "__main__":
     system_filter = os.getenv("DEBUG_SYSTEM_FILTER")
-    library_filter = os.getenv("DEBUG_LIRARY_FILTER")
+    library_filter = os.getenv("DEBUG_LIBRARY_FILTER")
     if not library_filter and not system_filter:
         shutil.rmtree(paths.DISK_DIR, ignore_errors=True)
         os.mkdir(paths.DISK_DIR)
