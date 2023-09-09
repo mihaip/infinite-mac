@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2023-09-09: Added the Saved HD as a way to persist data. Its contents can also be imported and exported.
+
 2023-08-13: Custom instances now support overriding the RAM size of the emulated machine.
 
 2023-07-20: Added the option to create custom instances with arbitrary system disks and URL-based disk images: https://infinitemac.org/run.

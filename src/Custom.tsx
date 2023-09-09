@@ -43,9 +43,10 @@ export function Custom({
         disks: [defaultDisk],
         cdromURLs: [],
         includeInfiniteHD: true,
-        includeSavedHD: canSaveDisks() && false, // TODO: enable by default
+        includeSavedHD: canSaveDisks(),
         debugFallback: false,
         debugAudio: false,
+        debugPaused: false,
     });
     const appleTalkSupported =
         runDef.disks.length > 0 &&

@@ -1,4 +1,5 @@
 Tips
+• Files in the “Saved HD” disk will be saved across emulator runs. Its contents can also be exported and imported.
 • To load additional software, drag disk images (.dsk, .iso, etc.) onto the screen. They will be mounted on the desktop.
 • To go full screen, you can use the command that appears next to the monitor's Apple logo.
 • Additional settings can be toggled by using the “Settings” command, also next to the monitor's Apple logo.
