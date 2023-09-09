@@ -39,6 +39,7 @@ import {
     resetDiskSaver,
     saveDiskSaverImage,
 } from "./emulator/emulator-ui-disk-saver";
+import {type Appearance} from "./controls/Appearance";
 
 export type MacProps = {
     disks: SystemDiskDef[];
@@ -109,6 +110,17 @@ export default function Mac({
     const {width: screenWidth, height: screenHeight} = screenSize;
 
     const hasSavedHD = includeSavedHD && canSaveDisks();
+    const [
+        showedPersistedFilesDeprecationWarning,
+        setShowedPersistedFilesDeprecationWarning,
+    ] = usePersistentState(
+        false,
+        "emulator-persisted-files-deprecation-warning"
+    );
+    const [
+        persistedFilesDeprecationWarningCount,
+        setPersistedFilesDeprecationWarningCount,
+    ] = useState(0);
 
     useEffect(() => {
         document.addEventListener("fullscreenchange", handleFullScreenChange);
@@ -211,6 +223,9 @@ export default function Mac({
                 },
                 emulatorSettings(emulator) {
                     return emulatorSettingsRef.current;
+                },
+                emulatorDidRestoreFiles(emulator, count) {
+                    setPersistedFilesDeprecationWarningCount(count);
                 },
             }
         );
@@ -556,10 +571,23 @@ export default function Mac({
             )}
             {emulatorErrorText && (
                 <MacError
+                    appearance={appearance}
                     text={emulatorErrorText}
                     onDone={() => setEmulatorErrorText("")}
                 />
             )}
+            {persistedFilesDeprecationWarningCount &&
+                !showedPersistedFilesDeprecationWarning && (
+                    <MacPersistedFilesDeprecationWarning
+                        appearance={appearance}
+                        count={persistedFilesDeprecationWarningCount}
+                        onDone={() => {
+                            console.log("done");
+                            setShowedPersistedFilesDeprecationWarning(true);
+                            setPersistedFilesDeprecationWarningCount(0);
+                        }}
+                    />
+                )}
             {!fullscreen && !disks[0]?.mfsOnly && (
                 <MacCDROMs
                     cdroms={cdromLibrary}
@@ -663,10 +691,51 @@ function MacEthernetStatus({
     );
 }
 
-function MacError({text, onDone}: {text: string; onDone: () => void}) {
+function MacError({
+    appearance,
+    text,
+    onDone,
+}: {
+    appearance: Appearance;
+    text: string;
+    onDone: () => void;
+}) {
     return (
-        <Dialog title="Emulator Error" onDone={onDone} doneLabel="Bummer">
+        <Dialog
+            appearance={appearance}
+            title="Emulator Error"
+            onDone={onDone}
+            doneLabel="Bummer">
             <p style={{whiteSpace: "pre-line"}}>{text}</p>
+        </Dialog>
+    );
+}
+
+function MacPersistedFilesDeprecationWarning({
+    appearance,
+    count,
+    onDone,
+}: {
+    appearance: Appearance;
+    count: number;
+    onDone: () => void;
+}) {
+    return (
+        <Dialog
+            appearance={appearance}
+            title="“Saved” Folder Deprecation"
+            onDone={onDone}
+            doneLabel="OK">
+            <p>
+                The “Saved” folder in The Outside World is deprecated &mdash; it
+                has been superseded by the ”Saved HD” drive which allows a lot
+                more flexibility (see the ”Read Me” file inside of it).
+            </p>
+            <p>
+                Support for the ”Saved” folder will be removed in mid-October.
+                You have {count} file {count === 1 ? "" : "s"} in it that you
+                may want to move to ”Saved HD”.
+            </p>
         </Dialog>
     );
 }
