@@ -51,6 +51,7 @@ export type MacProps = {
     ethernetProvider?: EmulatorEthernetProvider;
     debugFallback?: boolean;
     debugAudio?: boolean;
+    debugPaused?: boolean;
     onDone: () => void;
     cdromLibrary: EmulatorCDROMLibrary;
 };
@@ -66,6 +67,7 @@ export default function Mac({
     ethernetProvider,
     debugFallback,
     debugAudio,
+    debugPaused,
     onDone,
     cdromLibrary,
 }: MacProps) {
@@ -214,7 +216,9 @@ export default function Mac({
         );
         emulatorRef.current = emulator;
         ethernetProviderRef.current = ethernetProvider;
-        emulator.start();
+        if (!debugPaused) {
+            emulator.start();
+        }
 
         const startVarz = {
             "emulator_starts": 1,
@@ -256,6 +260,7 @@ export default function Mac({
         initialScreenHeight,
         debugFallback,
         debugAudio,
+        debugPaused,
         hasSavedHD,
         ramSize,
         onDone,
@@ -309,18 +314,27 @@ export default function Mac({
         input.focus();
         input.style.removeProperty("visibility");
     };
+    const handleStartClick = () => {
+        emulatorRef.current?.start();
+    };
 
     let progress;
     if (!emulatorLoaded) {
         const [total, left] = emulatorLoadingProgress;
-        progress = (
-            <div className="Mac-Loading">
-                Loading data files…
-                <span className="Mac-Loading-Fraction">
-                    ({total - left}/{total})
-                </span>
-            </div>
-        );
+        if (total === 0 && left === 0 && debugPaused) {
+            progress = (
+                <div className="Mac-Loading">Waiting for manual start…</div>
+            );
+        } else {
+            progress = (
+                <div className="Mac-Loading">
+                    Loading data files…
+                    <span className="Mac-Loading-Fraction">
+                        ({total - left}/{total})
+                    </span>
+                </div>
+            );
+        }
     }
 
     function handleDragStart(event: React.DragEvent) {
@@ -453,6 +467,9 @@ export default function Mac({
     ];
     if (NEEDS_KEYBOARD_BUTTON) {
         controls.push({label: "Keyboard", handler: handleKeyboardClick});
+    }
+    if (debugPaused && !emulatorLoaded) {
+        controls.push({label: "Start", handler: handleStartClick});
     }
 
     const devicePixelRatio = useDevicePixelRatio();
