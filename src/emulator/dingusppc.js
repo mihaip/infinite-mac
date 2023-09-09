@@ -884,6 +884,18 @@ var tempI64;
 // end include: runtime_debug.js
 // === Body ===
 
+var ASM_CONSTS = {
+  126240: () => { return workerApi.acquireInputLock(); },  
+ 126281: () => { workerApi.releaseInputLock(); },  
+ 126315: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
+ 126359: () => { return workerApi.audioBufferSize(); },  
+ 126399: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 126435: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 126471: ($0, $1) => { workerApi.blit($0, $1); },  
+ 126499: ($0, $1) => { workerApi.blit($0, $1); }
+};
+
+
 
 // end include: preamble.js
 
@@ -4674,6 +4686,33 @@ var tempI64;
       abort('');
     }
 
+  var readEmAsmArgsArray = [];
+  function readEmAsmArgs(sigPtr, buf) {
+      readEmAsmArgsArray.length = 0;
+      var ch;
+      // Most arguments are i32s, so shift the buffer pointer so it is a plain
+      // index into HEAP32.
+      buf >>= 2;
+      while (ch = HEAPU8[sigPtr++]) {
+        // Floats are always passed as doubles, and doubles and int64s take up 8
+        // bytes (two 32-bit slots) in memory, align reads to these:
+        buf += (ch != 105/*i*/) & buf;
+        readEmAsmArgsArray.push(
+          ch == 105/*i*/ ? HEAP32[buf] :
+         HEAPF64[buf++ >> 1]
+        );
+        ++buf;
+      }
+      return readEmAsmArgsArray;
+    }
+  function runEmAsmFunction(code, sigPtr, argbuf) {
+      var args = readEmAsmArgs(sigPtr, argbuf);
+      return ASM_CONSTS[code].apply(null, args);
+    }
+  function _emscripten_asm_const_int(code, sigPtr, argbuf) {
+      return runEmAsmFunction(code, sigPtr, argbuf);
+    }
+
   function _emscripten_date_now() {
       return Date.now();
     }
@@ -5332,6 +5371,7 @@ var wasmImports = {
   "_localtime_js": __localtime_js,
   "_tzset_js": __tzset_js,
   "abort": _abort,
+  "emscripten_asm_const_int": _emscripten_asm_const_int,
   "emscripten_date_now": _emscripten_date_now,
   "emscripten_get_now": _emscripten_get_now,
   "emscripten_memcpy_big": _emscripten_memcpy_big,

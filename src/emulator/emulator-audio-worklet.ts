@@ -82,22 +82,24 @@ export class EmulatorPlaybackProcessor extends AudioWorkletProcessor {
         parameters: Record<string, Float32Array>
     ): boolean {
         const output = outputs[0];
-        const channel = output[0];
-        for (let i = 0; i < channel.length; i++) {
-            try {
-                channel[i] = this.#generateSample();
-            } catch (e) {
-                // Avoid spamming the console too often
-                if (currentTime - this.#errorLogTime > 1) {
-                    console.error(
-                        `Could not generate sample (size=${
-                            this.#currentAudioData?.byteLength
-                        } offset=${this.#currentAudioDataOffset})`,
-                        e
-                    );
-                    this.#errorLogTime = currentTime;
+        const sampleCount = output[0].length;
+        for (let i = 0; i < sampleCount; i++) {
+            for (const channel of output) {
+                try {
+                    channel[i] = this.#generateSample();
+                } catch (e) {
+                    // Avoid spamming the console too often
+                    if (currentTime - this.#errorLogTime > 1) {
+                        console.error(
+                            `Could not generate sample (size=${
+                                this.#currentAudioData?.byteLength
+                            } offset=${this.#currentAudioDataOffset})`,
+                            e
+                        );
+                        this.#errorLogTime = currentTime;
+                    }
+                    channel[i] = 0;
                 }
-                channel[i] = 0;
             }
         }
         return true;
