@@ -484,7 +484,11 @@ export default function Mac({
         controls.push({label: "Keyboard", handler: handleKeyboardClick});
     }
     if (debugPaused && !emulatorLoaded) {
-        controls.push({label: "Start", handler: handleStartClick});
+        controls.splice(1, 0, {
+            label: "Start",
+            handler: handleStartClick,
+            alwaysVisible: true,
+        });
     }
 
     const devicePixelRatio = useDevicePixelRatio();
