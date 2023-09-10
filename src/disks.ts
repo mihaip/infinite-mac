@@ -332,6 +332,16 @@ const SYSTEM_7_1_2: PlaceholderDiskDef = {
     machines: [POWER_MACINTOSH_9500],
 };
 
+const SYSTEM_7_1_2_DISK_TOOLS: SystemDiskDef = {
+    displayName: "System 7.1.2 Disk Tools",
+    description:
+        "Disk Tools startup disk that from the floppy disk version of System 7.1.2.",
+    releaseDate: [1994, 3, 14],
+    prefetchChunks: [0],
+    machines: [POWER_MACINTOSH_6100],
+    generatedSpec: () => import("./Data/System 7.1.2 Disk Tools FD.dsk.json"),
+};
+
 const SYSTEM_7_5: SystemDiskDef = {
     displayName: "System 7.5",
     description:
@@ -731,7 +741,7 @@ export const ALL_DISKS = [
     MAC_OS_9_0_4,
 ];
 
-export const HIDDEN_DISKS = [SYSTEM_7_5_DISK_TOOLS];
+export const HIDDEN_DISKS = [SYSTEM_7_1_2_DISK_TOOLS, SYSTEM_7_5_DISK_TOOLS];
 
 export const SYSTEM_DISKS_BY_NAME: {[name: string]: SystemDiskDef} =
     Object.fromEntries(
