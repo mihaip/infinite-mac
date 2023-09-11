@@ -203,19 +203,30 @@ export default function Mac({
                         "The emulator ran out of memory.\n\nIf you are running it in a mobile app's in-app browser, try switching to the native browser (Safari or Chrome) on your device."
                     );
                 },
-                emulatorDidHaveError(emulator: Emulator, error: string) {
+                emulatorDidHaveError(
+                    emulator: Emulator,
+                    error: string,
+                    errorRaw: string
+                ) {
                     if (error.includes("load") && error.includes("/CD-ROM")) {
-                        varz.increment("emulator_error:cdrom_chunk_load");
+                        varz.incrementError(
+                            "emulator_error:cdrom_chunk_load",
+                            errorRaw
+                        );
                     } else if (error.includes("saved disk")) {
                         if (error.includes("missing the necessary APIs")) {
-                            varz.increment(
-                                "emulator_error:saved_disk_unsupported"
+                            varz.incrementError(
+                                "emulator_error:saved_disk_unsupported",
+                                errorRaw
                             );
                         } else {
-                            varz.increment("emulator_error:saved_disk");
+                            varz.incrementError(
+                                "emulator_error:saved_disk",
+                                errorRaw
+                            );
                         }
                     } else {
-                        varz.increment("emulator_error:other");
+                        varz.incrementError("emulator_error:other", errorRaw);
                     }
                     setEmulatorErrorText(
                         `The emulator encountered an error:\n\n${error}`

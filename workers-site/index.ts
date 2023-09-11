@@ -33,6 +33,9 @@ async function handleRequest(
     if (path[0] === "varz") {
         return varz.handleRequest(request, env.VARZ);
     }
+    if (path[0] === "errorz") {
+        return varz.handleErrorzRequest(request, env.VARZ);
+    }
     if (path[0] === "CD-ROM") {
         return cdrom.handleRequest(url.pathname, request.method);
     }

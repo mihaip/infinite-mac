@@ -11,3 +11,13 @@ export async function incrementMulti(changes: {[name: string]: number}) {
         body: JSON.stringify(changes),
     });
 }
+
+export async function incrementError(name: string, message: string) {
+    return fetch("/errorz", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({name, message}),
+    });
+}

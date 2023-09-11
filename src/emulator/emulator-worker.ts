@@ -475,9 +475,10 @@ class EmulatorWorkerApi {
     }
 
     async initDiskSavers() {
-        const error = await initDiskSavers(this.#diskSavers);
-        if (error) {
-            postMessage({type: "emulator_did_have_error", error});
+        const errorTuple = await initDiskSavers(this.#diskSavers);
+        if (errorTuple) {
+            const [error, errorRaw] = errorTuple;
+            postMessage({type: "emulator_did_have_error", error, errorRaw});
         }
     }
 

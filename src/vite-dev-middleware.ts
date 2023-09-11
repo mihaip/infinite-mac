@@ -17,7 +17,7 @@ export function viteDevMiddleware(
     }
 
     const url = new URL(req.url, "http://localhost:3127");
-    if (url.pathname === "/varz") {
+    if (url.pathname === "/varz" || url.pathname === "/errorz") {
         handleVarz(req, res);
         return true;
     } else if (url.pathname.startsWith("/CD-ROM/")) {
