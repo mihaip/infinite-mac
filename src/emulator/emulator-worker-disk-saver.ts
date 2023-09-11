@@ -127,7 +127,9 @@ export class EmulatorWorkerDiskSaver
     }
 }
 
-export async function initDiskSavers(savers: EmulatorWorkerDiskSaver[]) {
+export async function initDiskSavers(
+    savers: EmulatorWorkerDiskSaver[]
+): Promise<[errorDisplay: string, errorRaw: string] | undefined> {
     if (!savers.length) {
         return;
     }
@@ -136,10 +138,11 @@ export async function initDiskSavers(savers: EmulatorWorkerDiskSaver[]) {
         opfsRoot = await navigator.storage.getDirectory();
     } catch (err) {
         console.warn("Could not get origin storage", err);
-        return (
+        return [
             `Could not open open the directory for saved disks (this browser may be missing the necessary APIs). Saved disks will ` +
-            `be mounted, but they will be empty and changes to them will not be saved.`
-        );
+                `be mounted, but they will be empty and changes to them will not be saved.`,
+            String(err),
+        ];
     }
     for (const saver of savers) {
         try {
@@ -150,10 +153,11 @@ export async function initDiskSavers(savers: EmulatorWorkerDiskSaver[]) {
             const reason = String(err).includes("TypeError")
                 ? "this browser may be missing the necessary APIs"
                 : "it may be open in another tab";
-            return (
+            return [
                 `Could not open saved disk “${saver.name}” (${reason}). ` +
-                `It will be mounted, but it will be empty and changes to it will not be saved.`
-            );
+                    `It will be mounted, but it will be empty and changes to it will not be saved.`,
+                String(err),
+            ];
         }
     }
 }

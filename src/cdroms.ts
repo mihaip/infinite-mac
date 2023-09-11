@@ -6,10 +6,11 @@ export async function fetchCDROMInfo(cdromURL: string): Promise<EmulatorCDROM> {
         method: "PUT",
     });
     if (!response.ok) {
-        varz.increment("emulator_cdrom:custom_url");
-        throw new Error(await response.text());
+        const error = await response.text();
+        varz.incrementError("emulator_error:cdrom_url", error);
+        throw new Error(error);
     }
     const cdrom = await response.json();
-    varz.increment("emulator_error:cdrom_url");
+    varz.increment("emulator_cdrom:custom_url");
     return cdrom;
 }
