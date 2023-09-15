@@ -127,6 +127,7 @@ export const POWER_MACINTOSH_6100: MachineDef = {
     gestaltID: 67,
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 640, height: 480},
     bezelStyle: "Platinum",
     ramSizes: ["128M", "256M", "64M", "32M", "16M"],
 };
