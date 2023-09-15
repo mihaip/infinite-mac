@@ -437,6 +437,8 @@ export class Emulator {
             type: "mousemove",
             x: event.offsetX,
             y: event.offsetY,
+            deltaX: event.movementX,
+            deltaY: event.movementY,
         });
     };
 
@@ -467,7 +469,12 @@ export class Emulator {
         });
     };
 
-    #getTouchLocation(event: TouchEvent): {x: number; y: number} {
+    #getTouchLocation(event: TouchEvent): {
+        x: number;
+        y: number;
+        deltaX: number;
+        deltaY: number;
+    } {
         const touch = event.touches[0];
         const target = touch.target as HTMLElement;
         const targetBounds = target.getBoundingClientRect();
@@ -478,6 +485,10 @@ export class Emulator {
         return {
             x: (touch.clientX - targetBounds.left) / scaleFactor,
             y: (touch.clientY - targetBounds.top) / scaleFactor,
+            // Touch events do not support movementX/Y, do not generate deltas
+            // for them for now.
+            deltaX: 0,
+            deltaY: 0,
         };
     }
 

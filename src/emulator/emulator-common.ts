@@ -18,10 +18,12 @@ export const InputBufferAddresses = {
     audioContextRunningFlagAddr: 10,
     speedFlagAddr: 11,
     speedAddr: 12,
+    mouseDeltaXAddr: 13,
+    mouseDeltaYAddr: 14,
 };
 
 export type EmulatorMouseEvent =
-    | {type: "mousemove"; x: number; y: number}
+    | {type: "mousemove"; x: number; y: number; deltaX: number; deltaY: number}
     | {type: "mousedown"}
     | {type: "mouseup"};
 export type EmulatorTouchEvent = {type: "touchstart"; x: number; y: number};
@@ -296,6 +298,8 @@ export function updateInputBufferWithEvents(
     let hasMousePosition = false;
     let mousePositionX = 0;
     let mousePositionY = 0;
+    let mouseDeltaX = 0;
+    let mouseDeltaY = 0;
     let mouseButtonState = -1;
     let hasKeyEvent = false;
     let keyCode = -1;
@@ -328,6 +332,8 @@ export function updateInputBufferWithEvents(
                 hasMousePosition = true;
                 mousePositionX = inputEvent.x;
                 mousePositionY = inputEvent.y;
+                mouseDeltaX = inputEvent.deltaX;
+                mouseDeltaY = inputEvent.deltaY;
                 break;
             case "mousedown":
             case "mouseup":
@@ -366,6 +372,8 @@ export function updateInputBufferWithEvents(
             mousePositionX;
         inputBufferView[InputBufferAddresses.mousePositionYAddr] =
             mousePositionY;
+        inputBufferView[InputBufferAddresses.mouseDeltaXAddr] = mouseDeltaX;
+        inputBufferView[InputBufferAddresses.mouseDeltaYAddr] = mouseDeltaY;
     }
     inputBufferView[InputBufferAddresses.mouseButtonStateAddr] =
         mouseButtonState;
