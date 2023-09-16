@@ -885,18 +885,23 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  132576: () => { return workerApi.acquireInputLock(); },  
- 132617: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 132706: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 132796: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 132880: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 132964: () => { workerApi.releaseInputLock(); },  
- 132998: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
- 133042: () => { return workerApi.audioBufferSize(); },  
- 133082: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
- 133118: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 133154: ($0, $1) => { workerApi.blit($0, $1); },  
- 133182: ($0, $1) => { workerApi.blit($0, $1); }
+  132592: () => { return workerApi.acquireInputLock(); },  
+ 132633: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 132722: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 132812: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 132896: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 132980: () => { workerApi.releaseInputLock(); },  
+ 133014: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
+ 133058: () => { return workerApi.audioBufferSize(); },  
+ 133098: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 133134: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 133170: ($0, $1) => { workerApi.blit($0, $1); },  
+ 133198: ($0, $1) => { workerApi.blit($0, $1); },  
+ 133226: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 133277: ($0) => { workerApi.disks.close($0); },  
+ 133308: ($0) => { return workerApi.disks.size($0); },  
+ 133345: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 133394: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
 };
 
 
