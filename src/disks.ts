@@ -693,6 +693,8 @@ const MAC_OS_9_0_4: SystemDiskDef = {
     machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.0.4 HD.dsk.json"),
+    notable: true,
+
 };
 
 export const ALL_DISKS = [
