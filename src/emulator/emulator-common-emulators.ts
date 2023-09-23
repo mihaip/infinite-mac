@@ -38,6 +38,10 @@ export function emulatorSupportsAppleTalk(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";
 }
 
+export function emulatorNeedsPointerLock(type: EmulatorType): boolean {
+    return type === "DingusPPC";
+}
+
 export function emulatorCpuId(
     type: EmulatorType,
     cpu: EmulatorCpu
