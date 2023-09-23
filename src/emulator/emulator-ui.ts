@@ -76,6 +76,7 @@ export type EmulatorConfig = {
     cdroms: EmulatorCDROM[];
     ethernetProvider?: EmulatorEthernetProvider;
     debugAudio?: boolean;
+    debugLog?: boolean;
 };
 
 export type EmulatorSettings = {
@@ -892,7 +893,10 @@ function configToEmulatorArgs(
         disks: EmulatorChunkedFileSpec[];
     }
 ): string[] {
-    const args = ["--realtime", "--log-to-stderr", "--bootrom", romFileName];
+    const args = ["--realtime", "--bootrom", romFileName];
+    if (config.debugLog) {
+        args.push("--log-to-stderr", "--log-to-stderr-verbose");
+    }
     for (const spec of disks) {
         args.push(spec.isFloppy ? "--fdd_img" : "--hdd_img", spec.name);
     }

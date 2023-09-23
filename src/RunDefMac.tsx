@@ -45,6 +45,7 @@ export default function RunDefMac({
             debugFallback={runDef.debugFallback}
             debugAudio={runDef.debugAudio}
             debugPaused={runDef.debugPaused}
+            debugLog={runDef.debugLog}
             cdromLibrary={cdromLibrary}
             onDone={onDone}
         />

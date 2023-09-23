@@ -23,9 +23,10 @@ export type RunDef = {
     includeSavedHD: boolean;
     ethernetProvider?: EmulatorEthernetProvider;
     // Force non-SharedArrayBuffer mode for debugging
-    debugFallback: boolean;
-    debugAudio: boolean;
-    debugPaused: boolean;
+    debugFallback?: boolean;
+    debugAudio?: boolean;
+    debugPaused?: boolean;
+    debugLog?: boolean;
 };
 
 export function runDefFromUrl(urlString: string): RunDef | undefined {
@@ -94,6 +95,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     const debugFallback = searchParams.get("debug_fallback") === "true";
     const debugAudio = searchParams.get("debug_audio") === "true";
     const debugPaused = searchParams.get("debug_paused") === "true";
+    const debugLog = searchParams.get("debug_log") === "true";
 
     return {
         disks,
@@ -106,6 +108,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         debugFallback,
         debugAudio,
         debugPaused,
+        debugLog,
     };
 }
 
@@ -149,6 +152,9 @@ export function runDefToUrl(runDef: RunDef): string {
     }
     if (runDef.debugAudio) {
         url.searchParams.set("debug_audio", "true");
+    }
+    if (runDef.debugLog) {
+        url.searchParams.set("debug_log", "true");
     }
     if (runDef.debugFallback) {
         url.searchParams.set("debug_fallback", "true");

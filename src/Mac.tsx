@@ -53,6 +53,7 @@ export type MacProps = {
     debugFallback?: boolean;
     debugAudio?: boolean;
     debugPaused?: boolean;
+    debugLog?: boolean;
     onDone: () => void;
     cdromLibrary: EmulatorCDROMLibrary;
 };
@@ -69,6 +70,7 @@ export default function Mac({
     debugFallback,
     debugAudio,
     debugPaused,
+    debugLog,
     onDone,
     cdromLibrary,
 }: MacProps) {
@@ -160,6 +162,7 @@ export default function Mac({
                 cdroms,
                 ethernetProvider,
                 debugAudio,
+                debugLog,
             },
             {
                 emulatorDidExit(emulator: Emulator) {
