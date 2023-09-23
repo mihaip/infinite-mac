@@ -244,9 +244,6 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
             includeSavedHD: canSaveDisks(),
             machine: disk.machines[0],
             cdromURLs: [],
-            debugAudio: false,
-            debugFallback: false,
-            debugPaused: false,
         } satisfies RunDef;
         const inNewWindow =
             event.button === 2 || event.metaKey || event.ctrlKey;
