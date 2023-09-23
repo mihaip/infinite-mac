@@ -29,6 +29,9 @@ export type EmulatorDiskDef = {
     // Changes to this file will be persisted in the origin private file
     // system.
     persistent?: boolean;
+    // Will be mounted as a floppy disk in emulators that make the distinction
+    // between disk types.
+    isFloppy?: boolean;
 };
 
 export type SystemDiskDef = EmulatorDiskDef & {
@@ -340,6 +343,7 @@ const SYSTEM_7_1_2_DISK_TOOLS: SystemDiskDef = {
     prefetchChunks: [0],
     machines: [POWER_MACINTOSH_6100],
     generatedSpec: () => import("./Data/System 7.1.2 Disk Tools FD.dsk.json"),
+    isFloppy: true,
 };
 
 const SYSTEM_7_5: SystemDiskDef = {
@@ -366,6 +370,7 @@ const SYSTEM_7_5_DISK_TOOLS: SystemDiskDef = {
     prefetchChunks: [0],
     machines: [POWER_MACINTOSH_6100],
     generatedSpec: () => import("./Data/System 7.5 Disk Tools FD.dsk.json"),
+    isFloppy: true,
 };
 
 const SYSTEM_7_5_1: SystemDiskDef = {
