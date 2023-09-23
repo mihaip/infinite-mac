@@ -77,6 +77,7 @@ export type EmulatorChunkedFileSpec = {
     chunkSize: number;
     prefetchChunks: number[];
     persistent?: boolean;
+    isFloppy?: boolean;
 };
 
 export function generateChunkUrl(

@@ -798,6 +798,7 @@ async function loadDisks(
         baseUrl: "/Disk",
         prefetchChunks: d.prefetchChunks,
         persistent: d.persistent,
+        isFloppy: d.isFloppy,
     }));
 }
 
@@ -867,7 +868,10 @@ function configToEmulatorArgs(
 ): string[] {
     const args = ["--realtime", "--log-to-stderr", "--bootrom", romFileName];
     for (const spec of disks) {
-        args.push("--fdd_img", spec.name);
+        args.push(spec.isFloppy ? "--fdd_img" : "--hdd_img", spec.name);
+    }
+    for (const spec of config.cdroms) {
+        args.push("--cdr_img", spec.name);
     }
     return args;
 }
