@@ -14,6 +14,7 @@ import {
     emulatorUsesCDROMDrive,
     emulatorUsesPrefs,
     emulatorUsesArgs,
+    emulatorNeedsPointerLock,
 } from "./emulator-common-emulators";
 import {getEmulatorWasmPath} from "./emulator-ui-emulators";
 import Worker from "./emulator-worker?worker";
@@ -153,6 +154,8 @@ export class Emulator {
     // some edge cases.
     #downKeyCodes = new Set<string>();
 
+    #requestedPointerLock = false;
+
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
         console.time("Emulator first blit");
         console.time("Emulator quiescent");
@@ -252,6 +255,10 @@ export class Emulator {
         document.addEventListener(
             "visibilitychange",
             this.#handleVisibilityChange
+        );
+        document.addEventListener(
+            "pointerlockchange",
+            this.#handlePointerLockChange
         );
 
         await this.#startWorker();
@@ -383,6 +390,10 @@ export class Emulator {
             "visibilitychange",
             this.#handleVisibilityChange
         );
+        document.addEventListener(
+            "pointerlockchange",
+            this.#handlePointerLockChange
+        );
 
         this.#input.handleInput({type: "stop"});
         this.#ethernetPinger.stop();
@@ -444,6 +455,21 @@ export class Emulator {
 
     #handleMouseDown = (event: MouseEvent) => {
         this.#input.handleInput({type: "mousedown"});
+        if (
+            emulatorNeedsPointerLock(this.#config.machine.emulatorType) &&
+            !this.#requestedPointerLock
+        ) {
+            this.#config.screenCanvas.requestPointerLock({
+                unadjustedMovement: true,
+            });
+            this.#requestedPointerLock = true;
+        }
+    };
+
+    #handlePointerLockChange = (event: Event): void => {
+        if (!document.pointerLockElement) {
+            this.#requestedPointerLock = false;
+        }
     };
 
     #handleMouseUp = (event: MouseEvent) => {

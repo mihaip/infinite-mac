@@ -35,6 +35,10 @@ interface Document {
     webkitFullscreenElement?: HTMLElement;
 }
 
+interface Element {
+    requestPointerLock(options?: {unadjustedMovement?: boolean}): void;
+}
+
 interface HTMLElement {
     webkitRequestFullscreen?: () => Promise<void>;
 }
