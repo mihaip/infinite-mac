@@ -416,6 +416,7 @@ export function isDiskImageFile(name: string): boolean {
     name = name.toLowerCase();
     return (
         name.endsWith(".iso") ||
+        name.endsWith(".hda") ||
         name.endsWith(".dsk") ||
         name.endsWith(".img") ||
         name.endsWith(".image") ||
