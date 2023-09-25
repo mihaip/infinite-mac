@@ -40,6 +40,7 @@ import {
     saveDiskSaverImage,
 } from "./emulator/emulator-ui-disk-saver";
 import {type Appearance} from "./controls/Appearance";
+import {emulatorSupportsDownloadsFolder} from "./emulator/emulator-common-emulators";
 
 export type MacProps = {
     disks: SystemDiskDef[];
@@ -290,6 +291,7 @@ export default function Mac({
         debugFallback,
         debugAudio,
         debugPaused,
+        debugLog,
         hasSavedHD,
         ramSize,
         onDone,
@@ -546,7 +548,16 @@ export default function Mac({
                 </>
             }>
             {progress}
-            {dragCount > 0 && <div className="Mac-Overlay Mac-Drag-Overlay" />}
+            {dragCount > 0 && (
+                <div
+                    className={classNames("Mac-Overlay", "Mac-Drag-Overlay", {
+                        "Mac-Drag-Overlay-Downloads":
+                            emulatorSupportsDownloadsFolder(
+                                machine.emulatorType
+                            ),
+                    })}
+                />
+            )}
             {ethernetProviderRef.current && (
                 <MacEthernetStatus
                     provider={ethernetProviderRef.current}

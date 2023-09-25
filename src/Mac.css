@@ -85,7 +85,11 @@ view the screen will still be visible. */
 }
 
 .Mac-Drag-Overlay:after {
-    content: "Files will be placed in the “Downloads” folder.";
+    content: "Disk images will be mounted";
+}
+
+.Mac-Drag-Overlay.Mac-Drag-Overlay-Downloads:after {
+    content: "Disk images will be mounted, files will be placed in the “Downloads” folder in “The Outside World”.";
 }
 
 .Mac-Ethernet-Status {
