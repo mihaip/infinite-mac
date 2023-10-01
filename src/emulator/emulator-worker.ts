@@ -192,7 +192,10 @@ class EmulatorWorkerApi {
                         return new EmulatorWorkerChunkedDisk(spec, saver);
                     }
                     const disk = new EmulatorWorkerChunkedDisk(spec, this);
-                    if (emulatorNeedsDeviceImage(config.emulatorType)) {
+                    if (
+                        emulatorNeedsDeviceImage(config.emulatorType) &&
+                        !spec.isFloppy
+                    ) {
                         return new EmulatorWorkerDeviceImageDisk(
                             disk,
                             config.deviceImageHeader
