@@ -41,11 +41,17 @@ if __name__ == "__main__":
         # as a contiguous chunk.
         speed_disk_path = os.path.join(paths.IMAGES_DIR,
                                        "Speed Disk 3.1.3.dsk")
+
+        system_disks = disks.ALL_DISKS
+        filter = os.getenv("DEBUG_SYSTEM_FILTER")
+        if filter:
+            system_disks = [d for d in system_disks if filter in d.name]
+
         print(
-            "Starting Basilisk II with all disk images, copy 'Stickies file' to "
-            "the Preferences folder")
+            "Starting Basilisk II with %d disk images, copy 'Stickies file' to "
+            "the Preferences folder" % len(system_disks))
         # Speed Disk disk image is bootable, but Basilisk II needs to be told to
         # emulate a IIci.
         basilisk.run(["*" + speed_disk_path] +
-                     [d.path() for d in disks.ALL_DISKS] + [output_path],
+                     [d.path() for d in system_disks] + [output_path],
                      modelid=5)
