@@ -33,7 +33,7 @@ export function MacSettings({
     onStorageReset: () => void;
     onStorageExport: () => void;
     onStorageImport: () => void;
-    onSaveImage: () => void;
+    onSaveImage: (deviceImage?: boolean) => void;
     onDone: () => void;
 }) {
     const [storagePersistenceStatus, setStoragePersistenceStatus] = useState<
@@ -186,17 +186,22 @@ export function MacSettings({
                             appearance={appearance}
                             visible={saveImageVisible}
                             setVisible={setSaveImageVisible}
-                            title="Save Disk Image"
-                            body="Saving a disk image requires that the Mac be shut down. It will take a little while to generate, and will be downloaded as a .dsk file. Generate the disk image now?"
+                            title="Save Image"
+                            body="Saving a disk image requires that the Mac be shut down. It will take a little while to generate, and will be downloaded as a .dsk or .hda file. Generate the disk image now?"
                             onAccept={() => {
                                 onSaveImage();
+                                onDone();
+                            }}
+                            otherLabel="Save Device Image (.hda)"
+                            onOther={() => {
+                                onSaveImage(true);
                                 onDone();
                             }}
                         />
                         <div className="Dialog-Description">
                             You can also save the contents of Saved HD as a
-                            <code>.dsk</code> file that can be loaded into other
-                            emulators.
+                            <code>.dsk</code> or <code>.hda</code> file that can
+                            be loaded into other emulators.
                         </div>
                     </div>
                     <div className="MacSettings-Row">
@@ -237,6 +242,8 @@ function StorageConfirmDialog({
     title,
     body,
     onAccept,
+    onOther,
+    otherLabel,
     appearance,
 }: {
     visible: boolean;
@@ -244,6 +251,8 @@ function StorageConfirmDialog({
     title: string;
     body: string;
     onAccept: () => void;
+    onOther?: () => void;
+    otherLabel?: string;
     appearance: Appearance;
 }) {
     if (!visible) {
@@ -257,6 +266,8 @@ function StorageConfirmDialog({
                 onAccept();
             }}
             doneLabel={title}
+            onOther={onOther}
+            otherLabel={otherLabel}
             onCancel={() => setVisible(false)}
             appearance={appearance}>
             <div style={{maxWidth: 400}}>{body}</div>

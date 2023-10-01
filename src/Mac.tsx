@@ -589,9 +589,9 @@ export default function Mac({
                         );
                         varz.increment("emulator_disk_saver_import");
                     }}
-                    onSaveImage={() => {
+                    onSaveImage={deviceImage => {
                         emulatorRef.current?.restart(() =>
-                            saveDiskSaverImage(SAVED_HD)
+                            saveDiskSaverImage(SAVED_HD, deviceImage)
                         );
                         varz.increment("emulator_disk_saver_save_image");
                     }}

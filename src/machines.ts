@@ -162,12 +162,11 @@ export const ALL_MACHINES = [
     MAC_II,
     MAC_IIFX,
     QUADRA_650,
+    POWER_MACINTOSH_6100,
     POWER_MACINTOSH_9500,
     POWER_MACINTOSH_G3,
 ];
 
-export const HIDDEN_MACHINES = [POWER_MACINTOSH_6100];
-
 export const MACHINES_BY_NAME = Object.fromEntries(
-    ALL_MACHINES.concat(HIDDEN_MACHINES).map(machine => [machine.name, machine])
+    ALL_MACHINES.map(machine => [machine.name, machine])
 );

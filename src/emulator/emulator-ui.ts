@@ -63,6 +63,7 @@ import {
 } from "./emulator-ui-clipboard";
 import {type MachineDefRAMSize, type MachineDef} from "../machines";
 import {type EmulatorDiskDef} from "../disks";
+import deviceImageHeaderPath from "../Data/Device Image Header.hda";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -276,9 +277,13 @@ export class Emulator {
         // Fetch all of the dependent files ourselves, to avoid a waterfall
         // if we let Emscripten handle it (it would first load the JS, and
         // then that would load the WASM and data files).
-        const [[wasmBlobUrl], [rom, basePrefs]] = await load(
+        const [[wasmBlobUrl], [rom, basePrefs, deviceImageHeader]] = await load(
             [emulatorWasmPath],
-            [this.#config.machine.romPath, this.#config.machine.prefsPath],
+            [
+                this.#config.machine.romPath,
+                this.#config.machine.prefsPath,
+                deviceImageHeaderPath,
+            ],
             (total, left) => {
                 this.#delegate?.emulatorDidMakeLoadingProgress?.(
                     this,
@@ -333,6 +338,7 @@ export class Emulator {
             wasmUrl: wasmBlobUrl,
             disks,
             delayedDisks,
+            deviceImageHeader,
             cdroms: this.#config.cdroms,
             useCDROM: emulatorUsesCDROMDrive(emulatorType),
             autoloadFiles: {
@@ -364,6 +370,7 @@ export class Emulator {
         }
         this.#worker.postMessage({type: "start", config}, [
             rom,
+            deviceImageHeader,
             ...(prefsBuffer ? [prefsBuffer] : []),
         ]);
     }
@@ -897,7 +904,21 @@ function configToEmulatorArgs(
     if (config.debugLog) {
         args.push("--log-to-stderr", "--log-to-stderr-verbose");
     }
+    let addedHardDisk = false;
+    let addedFloppy = false;
     for (const spec of disks) {
+        // TODO: support more than one disk in DingusPPC
+        if (spec.isFloppy) {
+            if (addedFloppy) {
+                continue;
+            }
+            addedFloppy = true;
+        } else {
+            if (addedHardDisk) {
+                continue;
+            }
+            addedHardDisk = true;
+        }
         args.push(spec.isFloppy ? "--fdd_img" : "--hdd_img", spec.name);
     }
     for (const spec of config.cdroms) {

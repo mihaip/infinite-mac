@@ -3,6 +3,8 @@ import {saveAs} from "file-saver";
 import {type EmulatorDiskDef} from "../disks";
 import {dirtyChunksFileName, dataFileName} from "./emulator-common-disk-saver";
 import {generateChunkUrl} from "./emulator-common";
+import deviceImageHeaderPath from "../Data/Device Image Header.hda";
+import {generateDeviceImageHeader} from "./emulator-common-device-image";
 
 export async function resetDiskSaver(disk: EmulatorDiskDef) {
     const spec = (await disk.generatedSpec()).default;
@@ -91,7 +93,10 @@ function pickDiskSaverFile() {
     });
 }
 
-export async function saveDiskSaverImage(disk: EmulatorDiskDef) {
+export async function saveDiskSaverImage(
+    disk: EmulatorDiskDef,
+    deviceImage?: boolean
+) {
     const spec = (await disk.generatedSpec()).default;
     const opfsRoot = await navigator.storage.getDirectory();
 
@@ -134,6 +139,18 @@ export async function saveDiskSaverImage(disk: EmulatorDiskDef) {
         const chunkUrl = generateChunkUrl(chunkedSpec, chunkIndex);
         const chunk = await (await fetch(chunkUrl)).arrayBuffer();
         image.set(new Uint8Array(chunk), chunkIndex * spec.chunkSize);
+    }
+
+    if (deviceImage) {
+        const baseDeviceImageHeader = await (
+            await fetch(deviceImageHeaderPath)
+        ).arrayBuffer();
+        const deviceImageHeader = generateDeviceImageHeader(
+            baseDeviceImageHeader,
+            spec.totalSize
+        );
+        saveAs(new Blob([deviceImageHeader, image]), spec.name + ".hda");
+        return;
     }
 
     saveAs(new Blob([image]), spec.name + ".dsk");

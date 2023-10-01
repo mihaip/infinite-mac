@@ -11,6 +11,8 @@ export function Dialog({
     onDone,
     doneLabel = "Done",
     doneEnabled = true,
+    onOther,
+    otherLabel,
     onCancel,
     appearance = "Classic",
     className,
@@ -20,6 +22,8 @@ export function Dialog({
     onDone: (e: React.MouseEvent) => void;
     doneLabel?: string;
     doneEnabled?: boolean;
+    onOther?: (e: React.MouseEvent) => void;
+    otherLabel?: string;
     onCancel?: () => void;
     appearance?: Appearance;
     className?: string;
@@ -39,13 +43,24 @@ export function Dialog({
                 <footer>
                     {onCancel && (
                         <Button
-                            className="Dialog-Cancel"
+                            className="Dialog-Normal-Button"
                             appearance={appearance}
                             onClick={e => {
                                 e.preventDefault();
                                 onCancel();
                             }}>
                             Cancel
+                        </Button>
+                    )}
+                    {onOther && (
+                        <Button
+                            className="Dialog-Normal-Button"
+                            appearance={appearance}
+                            onClick={e => {
+                                e.preventDefault();
+                                onOther(e);
+                            }}>
+                            {otherLabel}
                         </Button>
                     )}
                     <Button
