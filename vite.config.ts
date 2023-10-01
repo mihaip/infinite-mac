@@ -22,7 +22,7 @@ export default defineConfig(() => {
         worker: {
             format: "es",
         },
-        assetsInclude: ["**/*.rom"],
+        assetsInclude: ["**/*.rom", "**/*.hda"],
         server: {
             port: 3127,
             headers,

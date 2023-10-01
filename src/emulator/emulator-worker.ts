@@ -68,6 +68,8 @@ import {
     EmulatorWorkerDiskSaver,
     initDiskSavers,
 } from "./emulator-worker-disk-saver";
+import {emulatorNeedsDeviceImage} from "./emulator-common-emulators";
+import {EmulatorWorkerDeviceImageDisk} from "./emulator-worker-device-image-disk";
 
 const PERSISTED_DIRECTORY_PATH = "/Shared/Saved";
 
@@ -189,7 +191,14 @@ class EmulatorWorkerApi {
                         this.#diskSavers.push(saver);
                         return new EmulatorWorkerChunkedDisk(spec, saver);
                     }
-                    return new EmulatorWorkerChunkedDisk(spec, this);
+                    const disk = new EmulatorWorkerChunkedDisk(spec, this);
+                    if (emulatorNeedsDeviceImage(config.emulatorType)) {
+                        return new EmulatorWorkerDeviceImageDisk(
+                            disk,
+                            config.deviceImageHeader
+                        );
+                    }
+                    return disk;
                 }),
                 ...cdroms.map(spec =>
                     createEmulatorWorkerCDROMDisk(spec, this)

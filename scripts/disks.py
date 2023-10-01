@@ -96,6 +96,8 @@ SYSTEM_71 = Disk(name="System 7.1 HD.dsk")
 
 SYSTEM_711 = Disk(name="System 7.1.1 HD.dsk")
 
+SYSTEM_712 = Disk(name="System 7.1.2 HD.dsk")
+
 SYSTEM_712_DISK_TOOLS = Disk(name="System 7.1.2 Disk Tools FD.dsk")
 
 SYSTEM_75 = Disk(name="System 7.5 HD.dsk")
@@ -173,6 +175,7 @@ ALL_DISKS = [
     SYSTEM_70,
     SYSTEM_71,
     SYSTEM_711,
+    SYSTEM_712,
     SYSTEM_712_DISK_TOOLS,
     SYSTEM_75,
     SYSTEM_75_DISK_TOOLS,

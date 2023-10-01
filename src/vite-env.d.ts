@@ -7,6 +7,11 @@ declare module "*.rom" {
     export default path;
 }
 
+declare module "*.hda" {
+    const path: string;
+    export default path;
+}
+
 declare namespace FS {
     function analyzePath(path: string): {
         exists: boolean;

@@ -124,6 +124,7 @@ export type EmulatorWorkerConfig = {
     wasmUrl: string;
     disks: EmulatorChunkedFileSpec[];
     delayedDisks?: EmulatorChunkedFileSpec[];
+    deviceImageHeader: ArrayBuffer;
     cdroms: EmulatorCDROM[];
     useCDROM: boolean;
     autoloadFiles: {[name: string]: ArrayBuffer};

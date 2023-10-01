@@ -326,13 +326,15 @@ const SYSTEM_7_1_1: SystemDiskDef = {
     generatedSpec: () => import("./Data/System 7.1.1 HD.dsk.json"),
 };
 
-const SYSTEM_7_1_2: PlaceholderDiskDef = {
-    type: "placeholder",
+const SYSTEM_7_1_2: SystemDiskDef = {
     displayName: "System 7.1.2",
     description:
-        "Initial system software for the Power Macintosh computers. Does not run under emulation.",
+        "Initial system software for the first Power Macintosh computers.",
     releaseDate: [1994, 3, 14],
-    machines: [POWER_MACINTOSH_9500],
+    prefetchChunks: [0, 1, 2],
+    machines: [POWER_MACINTOSH_6100],
+    isUnstable: true,
+    generatedSpec: () => import("./Data/System 7.1.2 HD.dsk.json"),
 };
 
 const SYSTEM_7_1_2_DISK_TOOLS: SystemDiskDef = {
