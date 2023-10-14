@@ -7,6 +7,7 @@ import quadra650RomPath from "./Data/Quadra-650.rom";
 import newWorldRomPath from "./Data/New-World.rom";
 import powerMacintosh6100RomPath from "./Data/Power-Macintosh-6100.rom";
 import powerMacintosh9500RomPath from "./Data/Power-Macintosh-9500.rom";
+import powerMacintoshG3RomPath from "./Data/Power-Macintosh-G3.rom";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
 import emptyPrefsPath from "./Data/EmptyPrefs.txt";
@@ -143,8 +144,19 @@ export const POWER_MACINTOSH_9500: MachineDef = {
     ramSizes: ["128M", "256M", "64M", "32M", "16M"],
 };
 
-export const POWER_MACINTOSH_G3: MachineDef = {
-    name: "Power Macintosh G3",
+export const POWER_MACINTOSH_G3_BEIGE: MachineDef = {
+    name: "Power Macintosh G3 (Beige)",
+    cpu: "G3",
+    romPath: powerMacintoshG3RomPath,
+    gestaltID: 510,
+    emulatorType: "DingusPPC",
+    prefsPath: emptyPrefsPath,
+    bezelStyle: "Platinum",
+    ramSizes: ["128M", "256M", "64M"],
+};
+
+export const POWER_MACINTOSH_G3_BW: MachineDef = {
+    name: "Power Macintosh G3 (Blue & White)",
     cpu: "G3",
     romPath: newWorldRomPath,
     gestaltID: 406,
@@ -164,7 +176,8 @@ export const ALL_MACHINES = [
     QUADRA_650,
     POWER_MACINTOSH_6100,
     POWER_MACINTOSH_9500,
-    POWER_MACINTOSH_G3,
+    POWER_MACINTOSH_G3_BEIGE,
+    POWER_MACINTOSH_G3_BW,
 ];
 
 export const MACHINES_BY_NAME = Object.fromEntries(
