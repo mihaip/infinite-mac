@@ -8,7 +8,7 @@ import {
     MAC_II,
     MAC_IIFX,
     MAC_PLUS,
-    POWER_MACINTOSH_G3,
+    POWER_MACINTOSH_G3_BW,
     POWER_MACINTOSH_9500,
     QUADRA_650,
     POWER_MACINTOSH_6100,
@@ -582,7 +582,7 @@ const MAC_OS_8_5: SystemDiskDef = {
         351, 352, 353, 354, 363, 364, 414, 415, 416, 421, 422, 423, 425, 426,
         427, 428, 432, 453, 454, 458,
     ],
-    machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3],
+    machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3_BW],
     appleTalkSupported: true,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 8.5 HD.dsk.json"),
@@ -611,7 +611,7 @@ const MAC_OS_8_6: SystemDiskDef = {
         379, 380, 381, 382, 383, 384, 391, 392, 393, 399, 400, 401, 447, 448,
         449, 456, 457, 458, 483, 488,
     ],
-    machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3],
+    machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3_BW],
     appleTalkSupported: true,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 8.6 HD.dsk.json"),
@@ -641,7 +641,7 @@ const MAC_OS_9_0: SystemDiskDef = {
         433, 441, 446, 492, 494, 499, 500, 501, 502, 503, 506, 507, 508, 511,
         512, 515, 554, 559, 560, 562, 563, 564, 565, 566, 567, 568,
     ],
-    machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+    machines: [POWER_MACINTOSH_G3_BW, POWER_MACINTOSH_9500],
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.0 HD.dsk.json"),
     notable: true,
@@ -652,7 +652,7 @@ const MAC_OS_9_0_1: PlaceholderDiskDef = {
     displayName: "Mac OS 9.0.1",
     description: "Under development but never released.",
     releaseDate: [2000, 1, 1], // Planned release date unknown
-    machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+    machines: [POWER_MACINTOSH_G3_BW, POWER_MACINTOSH_9500],
 };
 
 const MAC_OS_9_0_2: PlaceholderDiskDef = {
@@ -660,7 +660,7 @@ const MAC_OS_9_0_2: PlaceholderDiskDef = {
     displayName: "Mac OS 9.0.2",
     description: "Released with the PowerBook G3 (FireWire) only.",
     releaseDate: [2000, 2, 16],
-    machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+    machines: [POWER_MACINTOSH_G3_BW, POWER_MACINTOSH_9500],
 };
 
 const MAC_OS_9_0_3: PlaceholderDiskDef = {
@@ -668,7 +668,7 @@ const MAC_OS_9_0_3: PlaceholderDiskDef = {
     displayName: "Mac OS 9.0.3",
     description: "Released with iMacs only.",
     releaseDate: [2000, 3, 1], // Exact date unknown
-    machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+    machines: [POWER_MACINTOSH_G3_BW, POWER_MACINTOSH_9500],
 };
 
 const MAC_OS_9_0_4: SystemDiskDef = {
@@ -697,7 +697,7 @@ const MAC_OS_9_0_4: SystemDiskDef = {
         575, 577, 579, 580, 583, 586, 587, 588, 589, 591, 593, 595, 596, 597,
         598,
     ],
-    machines: [POWER_MACINTOSH_G3, POWER_MACINTOSH_9500],
+    machines: [POWER_MACINTOSH_G3_BW, POWER_MACINTOSH_9500],
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.0.4 HD.dsk.json"),
 };
