@@ -116,6 +116,8 @@ export function Custom({
                     {ALL_MACHINES.map(machine => (
                         <option key={machine.name} value={machine.name}>
                             {machine.name}
+                            {machine.emulatorType === "DingusPPC" &&
+                                " - Experimental"}
                         </option>
                     ))}
                 </Select>
