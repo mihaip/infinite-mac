@@ -114,11 +114,19 @@ export function Custom({
                         }
                         setRunDef({...runDef, ...update});
                     }}>
-                    {ALL_MACHINES.map(machine => (
-                        <option key={machine.name} value={machine.name}>
-                            {machine.name}
-                            {machine.emulatorType === "DingusPPC" &&
-                                " - Experimental"}
+                    {ALL_MACHINES.filter(
+                        m => m.emulatorType !== "DingusPPC"
+                    ).map(m => (
+                        <option key={m.name} value={m.name}>
+                            {m.name}
+                        </option>
+                    ))}
+                    <option disabled>Experimental</option>
+                    {ALL_MACHINES.filter(
+                        m => m.emulatorType === "DingusPPC"
+                    ).map(m => (
+                        <option key={m.name} value={m.name}>
+                            {m.name}
                         </option>
                     ))}
                 </Select>
