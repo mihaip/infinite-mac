@@ -1,12 +1,8 @@
 import {useEffect, useState} from "react";
-import {
-    type EmulatorCDROMLibrary,
-    type EmulatorCDROM,
-} from "./emulator/emulator-common";
-import {fetchCDROMInfo} from "./cdroms";
-import cdromsManifest from "./Data/CD-ROMs.json";
+import {type EmulatorCDROM} from "./emulator/emulator-common";
 import {type RunDef} from "./run-def";
 import Mac from "./Mac";
+import {getCDROMInfo} from "./cdroms";
 
 export default function RunDefMac({
     runDef,
@@ -46,22 +42,9 @@ export default function RunDefMac({
             debugAudio={runDef.debugAudio}
             debugPaused={runDef.debugPaused}
             debugLog={runDef.debugLog}
-            cdromLibrary={cdromLibrary}
             onDone={onDone}
         />
     ) : (
         <div style={{color: "#aaa"}}>Loading CD-ROM Metadata…</div>
     );
-}
-
-const cdromLibrary: EmulatorCDROMLibrary = cdromsManifest as any;
-
-async function getCDROMInfo(url: string): Promise<EmulatorCDROM> {
-    const libraryCDROM = Object.values(cdromLibrary).find(
-        cdrom => cdrom.srcUrl === url
-    );
-    if (libraryCDROM) {
-        return libraryCDROM;
-    }
-    return fetchCDROMInfo(url);
 }

@@ -23,6 +23,7 @@ import {emulatorSupportsAppleTalk} from "./emulator/emulator-common-emulators";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 import classNames from "classnames";
 import {canSaveDisks} from "./canSaveDisks";
+import {systemCDROMs} from "./cdroms";
 
 export function Custom({
     defaultDisk = SYSTEM_DISKS_BY_NAME["System 7.1"],
@@ -421,6 +422,20 @@ function CDROMOption({
                 onChange={e => onChange(e.target.value)}
                 appearance={appearance}
             />
+            <Select
+                appearance={appearance}
+                className="Custom-Dialog-CDROMs"
+                value=""
+                onChange={e => onChange(e.target.value)}>
+                <option value="" disabled>
+                    System CD-ROMs
+                </option>
+                {systemCDROMs.map(cdrom => (
+                    <option key={cdrom.srcUrl} value={cdrom.srcUrl}>
+                        {cdrom.name}
+                    </option>
+                ))}
+            </Select>
             <Button
                 appearance={appearance}
                 onClick={e => {
