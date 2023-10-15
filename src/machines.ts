@@ -130,7 +130,11 @@ export const POWER_MACINTOSH_6100: MachineDef = {
     prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 640, height: 480},
     bezelStyle: "Platinum",
-    ramSizes: ["128M", "256M", "64M", "32M", "16M"],
+    // The 6100 has 8M of RAM soldered to the motherboard, so these are
+    // technically additional RAM on top of that. In practice DingusPPC does
+    // not seem to do anything with the RAM config for this machine, so it
+    // doesn't matter.
+    ramSizes: ["8M", "16M", "32M", "64M", "128M"],
 };
 
 export const POWER_MACINTOSH_9500: MachineDef = {
@@ -152,7 +156,7 @@ export const POWER_MACINTOSH_G3_BEIGE: MachineDef = {
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
     bezelStyle: "Platinum",
-    ramSizes: ["128M", "256M", "64M"],
+    ramSizes: ["256M", "128M", "64M", "32M"],
 };
 
 export const POWER_MACINTOSH_G3_BW: MachineDef = {
