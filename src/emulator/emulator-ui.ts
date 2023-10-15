@@ -924,5 +924,8 @@ function configToEmulatorArgs(
     for (const spec of config.cdroms) {
         args.push("--cdr_img", spec.name);
     }
+    if (config.ramSize?.endsWith("M")) {
+        args.push("--rambank1_size", config.ramSize.slice(0, -1));
+    }
     return args;
 }
