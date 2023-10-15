@@ -1,22 +1,17 @@
 import {useRef, useState} from "react";
 import "./MacCDROMs.css";
-import {
-    type EmulatorCDROM,
-    type EmulatorCDROMLibrary,
-} from "./emulator/emulator-common";
+import {type EmulatorCDROM} from "./emulator/emulator-common";
 import {Button} from "./controls/Button";
 import classNames from "classnames";
 import {Dialog} from "./controls/Dialog";
-import {fetchCDROMInfo} from "./cdroms";
+import {cdromLibrary, getCDROMInfo} from "./cdroms";
 import {Input} from "./controls/Input";
 import {type Appearance} from "./controls/Appearance";
 
 export function MacCDROMs({
-    cdroms,
     onRun,
     appearance,
 }: {
-    cdroms: EmulatorCDROMLibrary;
     onRun: (cdrom: EmulatorCDROM) => void;
     appearance: Appearance;
 }) {
@@ -33,7 +28,6 @@ export function MacCDROMs({
             </div>
             {expanded && (
                 <MacCDROMsContents
-                    cdroms={cdroms}
                     onRun={cdrom => {
                         setExpanded(false);
                         onRun(cdrom);
@@ -46,15 +40,14 @@ export function MacCDROMs({
 }
 
 function MacCDROMsContents({
-    cdroms,
     onRun,
     appearance,
 }: {
-    cdroms: EmulatorCDROMLibrary;
     onRun: (cdrom: EmulatorCDROM) => void;
     appearance: Appearance;
 }) {
     const [search, setSearch] = useState("");
+    const cdroms = cdromLibrary;
     const folderPaths = Array.from(Object.keys(cdroms)).sort();
     const cdromsByCategory: {[category: string]: EmulatorCDROM[]} = {};
     let lastCategory;
@@ -141,7 +134,7 @@ function MacCustomCDROM({
     const [url, setUrl] = useState("");
     const handleLoad = async () => {
         try {
-            const cdrom = await fetchCDROMInfo(url);
+            const cdrom = await getCDROMInfo(url);
             history.replaceState(
                 {},
                 "",

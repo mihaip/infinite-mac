@@ -57,3 +57,8 @@
     align-items: center;
     justify-content: center;
 }
+
+.Custom-Dialog-CDROMs {
+    width: 20px;
+    margin-left: 4px;
+}

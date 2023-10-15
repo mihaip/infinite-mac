@@ -6,11 +6,7 @@ import {
     type EmulatorSettings,
     Emulator,
 } from "./emulator/emulator-ui";
-import {
-    type EmulatorCDROM,
-    type EmulatorCDROMLibrary,
-    isDiskImageFile,
-} from "./emulator/emulator-common";
+import {type EmulatorCDROM, isDiskImageFile} from "./emulator/emulator-common";
 import {useDevicePixelRatio} from "./useDevicePixelRatio";
 import {usePersistentState} from "./usePersistentState";
 import * as varz from "./varz";
@@ -30,7 +26,7 @@ import {
 import {type MachineDefRAMSize, type MachineDef} from "./machines";
 import classNames from "classnames";
 import {MacCDROMs} from "./MacCDROMs";
-import {fetchCDROMInfo} from "./cdroms";
+import {getCDROMInfo} from "./cdroms";
 import {canSaveDisks} from "./canSaveDisks";
 import {MacSettings} from "./MacSettings";
 import {
@@ -56,7 +52,6 @@ export type MacProps = {
     debugPaused?: boolean;
     debugLog?: boolean;
     onDone: () => void;
-    cdromLibrary: EmulatorCDROMLibrary;
 };
 
 export default function Mac({
@@ -73,7 +68,6 @@ export default function Mac({
     debugPaused,
     debugLog,
     onDone,
-    cdromLibrary,
 }: MacProps) {
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
@@ -401,7 +395,7 @@ export default function Mac({
                 ) {
                     item.getAsString(async url => {
                         try {
-                            const cdrom = await fetchCDROMInfo(url);
+                            const cdrom = await getCDROMInfo(url);
                             varz.increment("emulator_cdrom:drag");
                             emulatorRef.current?.loadCDROM(cdrom);
                         } catch (e) {
@@ -618,11 +612,7 @@ export default function Mac({
                     />
                 )}
             {!fullscreen && !disks[0]?.mfsOnly && (
-                <MacCDROMs
-                    cdroms={cdromLibrary}
-                    onRun={loadCDROM}
-                    appearance={appearance}
-                />
+                <MacCDROMs onRun={loadCDROM} appearance={appearance} />
             )}
         </ScreenFrame>
     );
