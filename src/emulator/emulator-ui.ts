@@ -902,7 +902,11 @@ function configToEmulatorArgs(
 ): string[] {
     const args = ["--realtime", "--bootrom", romFileName];
     if (config.debugLog) {
-        args.push("--log-to-stderr", "--log-to-stderr-verbose");
+        args.push(
+            "--log-to-stderr",
+            "--log-no-uptime",
+            "--log-to-stderr-verbose"
+        );
     }
     let addedHardDisk = false;
     let addedFloppy = false;
