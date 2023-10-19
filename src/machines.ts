@@ -156,6 +156,7 @@ export const POWER_MACINTOSH_G3_BEIGE: MachineDef = {
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
     bezelStyle: "Platinum",
+    fixedScreenSize: {width: 1024, height: 768},
     ramSizes: ["256M", "128M", "64M", "32M"],
 };
 
