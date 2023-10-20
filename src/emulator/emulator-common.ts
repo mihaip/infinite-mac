@@ -128,7 +128,6 @@ export type EmulatorWorkerConfig = {
     cdroms: EmulatorCDROM[];
     useCDROM: boolean;
     autoloadFiles: {[name: string]: ArrayBuffer};
-    persistedData?: EmulatorWorkerDirectorExtraction;
     arguments: string[];
     video: EmulatorWorkerVideoConfig;
     input: EmulatorWorkerInputConfig;

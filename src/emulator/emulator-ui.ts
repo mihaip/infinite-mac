@@ -3,7 +3,6 @@ import {
     type EmulatorChunkedFileSpec,
     type EmulatorFallbackCommand,
     type EmulatorWorkerConfig,
-    type EmulatorWorkerDirectorExtraction,
     type EmulatorWorkerVideoBlit,
 } from "./emulator-common";
 import {
@@ -43,7 +42,6 @@ import {
     handleDirectoryExtraction,
     uploadsFromDirectoryExtractionFile,
 } from "./emulator-ui-extractor";
-import {getPersistedData, persistData} from "./emulator-ui-persistence";
 import {
     JS_CODE_TO_ADB_KEYCODE,
     JS_CODE_TO_MINI_VMAC_KEYCODE,
@@ -122,7 +120,6 @@ export interface EmulatorDelegate {
         errorRaw: string
     ): void;
     emulatorSettings?(emulator: Emulator): EmulatorSettings;
-    emulatorDidRestoreFiles?(emulator: Emulator, count: number): void;
 }
 
 export type EmulatorFallbackCommandSender = (
@@ -296,8 +293,6 @@ export class Emulator {
         const romPathPieces = this.#config.machine.romPath.split("/");
         const romFileName = romPathPieces[romPathPieces.length - 1];
 
-        const extraction = await getPersistedData();
-
         const disks = await loadDisks(this.#config.disks);
         const delayedDisks = this.#config.delayedDisks
             ? await loadDisks(this.#config.delayedDisks)
@@ -345,7 +340,6 @@ export class Emulator {
                 [romFileName]: rom,
                 ...(prefsBuffer ? {"prefs": prefsBuffer} : {}),
             },
-            persistedData: extraction,
             arguments: prefs ? ["--config", "prefs"] : args,
             video: this.#video.workerConfig(),
             input: this.#input.workerConfig(),
@@ -411,8 +405,8 @@ export class Emulator {
     restart(whileStopped?: () => Promise<void>): Promise<void> {
         this.#audio.stop();
         this.#input.handleInput({type: "stop"});
-        // Wait for handleEmulatorStopped to be invoked, so that data is
-        // persisted.
+        // Wait for handleEmulatorStopped to be invoked, so that disk savers
+        // are cleanly closed.
         return new Promise(resolve => {
             const interval = setInterval(() => {
                 if (this.#workerTerminated) {
@@ -651,7 +645,7 @@ export class Emulator {
         } else if (e.data.type === "emulator_quiescent") {
             console.timeEnd("Emulator quiescent");
         } else if (e.data.type === "emulator_stopped") {
-            this.#handleEmulatorStopped(e.data.extraction);
+            this.#handleEmulatorStopped();
         } else if (e.data.type === "emulator_ethernet_init") {
             const {ethernetProvider} = this.#config;
             if (ethernetProvider) {
@@ -688,8 +682,6 @@ export class Emulator {
             this.#delegate?.emulatorDidStartToLoadDiskChunk?.(this);
         } else if (e.data.type === "emulator_did_load_chunk") {
             this.#delegate?.emulatorDidFinishLoadingDiskChunk?.(this);
-        } else if (e.data.type === "emulator_did_restore_files") {
-            this.#delegate?.emulatorDidRestoreFiles?.(this, e.data.count);
         } else {
             console.warn("Unexpected postMessage event", e);
         }
@@ -783,8 +775,7 @@ export class Emulator {
         });
     }
 
-    async #handleEmulatorStopped(extraction: EmulatorWorkerDirectorExtraction) {
-        await persistData(extraction);
+    async #handleEmulatorStopped() {
         this.#worker.removeEventListener("message", this.#handleWorkerMessage);
         this.#worker.terminate();
         this.#workerTerminated = true;
