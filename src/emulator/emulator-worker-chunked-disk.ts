@@ -135,6 +135,29 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
         }
     }
 
+    protected doChunkRequest(
+        spec: EmulatorChunkedFileSpec,
+        chunkIndex: number
+    ): {chunk: Uint8Array} | {error: string; chunkUrl: string} {
+        const chunkUrl = generateChunkUrl(spec, chunkIndex);
+        const xhr = new XMLHttpRequest();
+        xhr.responseType = "arraybuffer";
+        xhr.open("GET", chunkUrl, false);
+        try {
+            xhr.send();
+        } catch (e) {
+            return {error: `Error: ${e}`, chunkUrl};
+        }
+        if (xhr.status !== 200) {
+            return {
+                error: `HTTP status ${xhr.status}: (${xhr.statusText}`,
+                chunkUrl,
+            };
+        }
+        const chunk = new Uint8Array(xhr.response as ArrayBuffer);
+        return {chunk};
+    }
+
     #loadChunk(chunkIndex: number): Uint8Array {
         // Allow additional chunks to be created past the end (the disk image
         // may be truncated, and empty space at the end is omitted).
@@ -150,28 +173,17 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
             return new Uint8Array(chunkSize);
         }
         this.#delegate.willLoadChunk(chunkIndex);
-        const chunkUrl = generateChunkUrl(this.#spec, chunkIndex);
-        const xhr = new XMLHttpRequest();
-        xhr.responseType = "arraybuffer";
-        xhr.open("GET", chunkUrl, false);
-        try {
-            xhr.send();
-        } catch (e) {
-            this.#delegate.didFailToLoadChunk(
-                chunkIndex,
-                chunkUrl,
-                `Error: ${e}`
-            );
-        }
-        if (xhr.status !== 200) {
-            this.#delegate.didFailToLoadChunk(
-                chunkIndex,
-                chunkUrl,
-                `HTTP status ${xhr.status}: (${xhr.statusText}`
-            );
-        }
+        const result = this.doChunkRequest(this.#spec, chunkIndex);
         this.#delegate.didLoadChunk(chunkIndex);
-        let chunk = new Uint8Array(xhr.response as ArrayBuffer);
+        if ("error" in result) {
+            this.#delegate.didFailToLoadChunk(
+                chunkIndex,
+                result.chunkUrl,
+                result.error
+            );
+            return new Uint8Array(chunkSize);
+        }
+        let {chunk} = result;
         // Chunk was on the boundary of a truncated image, pad it out to the
         // full chunk size.
         if (chunk.length < chunkSize) {

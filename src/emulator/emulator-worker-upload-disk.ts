@@ -1,38 +1,71 @@
-import {type EmulatorFileUpload} from "./emulator-common";
-import {type EmulatorWorkerDisk} from "./emulator-worker-disks";
+import {
+    type EmulatorChunkedFileSpec,
+    type EmulatorFileUpload,
+} from "./emulator-common";
+import {
+    EmulatorWorkerChunkedDisk,
+    type EmulatorWorkerChunkedDiskDelegate,
+} from "./emulator-worker-chunked-disk";
 import {getUploadData} from "./emulator-worker-files";
 
-export class EmulatorWorkerUploadDisk implements EmulatorWorkerDisk {
+export class EmulatorWorkerUploadDisk extends EmulatorWorkerChunkedDisk {
     #upload: EmulatorFileUpload;
-    #data?: Uint8Array;
 
-    constructor(upload: EmulatorFileUpload) {
+    constructor(
+        upload: EmulatorFileUpload,
+        delegate: EmulatorWorkerChunkedDiskDelegate
+    ) {
+        super(generateUploadChunkedSpec(upload), delegate);
         this.#upload = upload;
     }
-    get name(): string {
-        return this.#upload.name;
-    }
 
-    get size(): number {
-        return this.#upload.size;
-    }
-
-    read(buffer: Uint8Array, offset: number, length: number): number {
-        if (!this.#data) {
-            this.#data = getUploadData(this.#upload);
+    protected override doChunkRequest(
+        spec: EmulatorChunkedFileSpec,
+        chunkIndex: number
+    ): {chunk: Uint8Array} | {error: string; chunkUrl: string} {
+        const range = getUploadChunkRange(spec, chunkIndex);
+        try {
+            const chunk = getUploadData(this.#upload, range);
+            return {chunk};
+        } catch (e) {
+            return {
+                error: `Error: ${e}`,
+                chunkUrl: `upload-${spec.name}-chunk-${range.join("-")}`,
+            };
         }
-        const readSize = Math.min(this.#data.length - offset, length);
-        buffer.set(this.#data.subarray(offset, offset + readSize));
-        return readSize;
     }
+}
 
-    write(buffer: Uint8Array, offset: number, length: number): number {
-        if (!this.#data) {
-            this.#data = getUploadData(this.#upload);
-        }
+function generateUploadChunkedSpec(
+    upload: EmulatorFileUpload
+): EmulatorChunkedFileSpec {
+    const totalSize = upload.size;
+    // Firefox does not support XHR range requests on File/Blob URLs, so we can't chunk things there.
+    const chunkSize = navigator.userAgent.includes("Firefox")
+        ? totalSize
+        : 128 * 1024;
+    let chunkStart = 0;
+    const chunks: string[] = [];
 
-        const writeSize = Math.min(this.#data.length - offset, length);
-        this.#data.set(buffer.subarray(0, writeSize), offset);
-        return writeSize;
+    while (chunkStart < upload.size) {
+        const chunkEnd = Math.min(chunkStart + chunkSize, upload.size);
+        chunks.push(`${chunkStart}-${chunkEnd}`);
+        chunkStart = chunkEnd;
     }
+    return {
+        name: upload.name,
+        baseUrl: `/Upload-Disk/${upload.name}`,
+        totalSize,
+        chunks,
+        chunkSize,
+        prefetchChunks: [0],
+    };
+}
+
+function getUploadChunkRange(
+    spec: EmulatorChunkedFileSpec,
+    chunkIndex: number
+): [start: number, end: number] {
+    const [startStr, endStr] = spec.chunks[chunkIndex].split("-");
+    return [parseInt(startStr, 10), parseInt(endStr, 10)];
 }

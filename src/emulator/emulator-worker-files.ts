@@ -77,16 +77,27 @@ export class FallbackEmulatorWorkerFiles implements EmulatorWorkerFiles {
     }
 }
 
-export function getUploadData(upload: EmulatorFileUpload): Uint8Array {
+export function getUploadData(
+    upload: EmulatorFileUpload,
+    range?: [start: number, end: number]
+): Uint8Array {
     const xhr = new XMLHttpRequest();
     xhr.responseType = "arraybuffer";
     xhr.open("GET", upload.url, false);
+    let expectedSize = upload.size;
+    if (range) {
+        const [start, end] = range;
+        expectedSize = end - start;
+        // The input is assumed to be exclusive, but the HTTP Range header is
+        // inclusive.
+        xhr.setRequestHeader("Range", `bytes=${start}-${end - 1}`);
+    }
     xhr.send();
     const data = new Uint8Array(xhr.response as ArrayBuffer);
-    if (data.byteLength !== upload.size) {
+    if (data.byteLength !== expectedSize) {
         console.warn(
             `Lazy file from URL ${upload.url} was expected to have size ` +
-                `${upload.size} but instead had ${data.byteLength}`
+                `${expectedSize} but instead had ${data.byteLength}`
         );
     }
     return data;
