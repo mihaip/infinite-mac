@@ -41,10 +41,8 @@ import {createLazyFile} from "./emulator-worker-lazy-file";
 import {
     handleExtractionRequests,
     initializeExtractor,
-    prepareDirectoryExtraction,
 } from "./emulator-worker-extractor";
 import {EmulatorWorkerChunkedDisk} from "./emulator-worker-chunked-disk";
-import {restorePersistedData} from "./emulator-worker-persistence";
 import {
     type EmulatorWorkerEthernet,
     FallbackEmulatorWorkerEthernet,
@@ -70,8 +68,6 @@ import {
 } from "./emulator-worker-disk-saver";
 import {emulatorNeedsDeviceImage} from "./emulator-common-emulators";
 import {EmulatorWorkerDeviceImageDisk} from "./emulator-worker-device-image-disk";
-
-const PERSISTED_DIRECTORY_PATH = "/Shared/Saved";
 
 addEventListener("message", async event => {
     const {data} = event;
@@ -408,10 +404,7 @@ class EmulatorWorkerApi {
         }
         this.#closeDiskSavers();
         this.#handledStop = true;
-        const [extraction, arrayBuffers] = prepareDirectoryExtraction(
-            PERSISTED_DIRECTORY_PATH
-        );
-        postMessage({type: "emulator_stopped", extraction}, arrayBuffers);
+        postMessage({type: "emulator_stopped"});
     }
 
     acquireInputLock(): number {
@@ -614,19 +607,6 @@ async function startEmulator(config: EmulatorWorkerConfig) {
                 globalThis["FS"] = moduleOverrides.FS!;
                 FS.mkdir("/Shared");
                 FS.mkdir("/Shared/Downloads");
-                FS.mkdir(PERSISTED_DIRECTORY_PATH);
-                if (config.persistedData) {
-                    const restoredFileCount = restorePersistedData(
-                        PERSISTED_DIRECTORY_PATH,
-                        config.persistedData
-                    );
-                    if (restoredFileCount) {
-                        postMessage({
-                            type: "emulator_did_restore_files",
-                            count: restoredFileCount,
-                        });
-                    }
-                }
                 initializeExtractor();
 
                 for (const [name, buffer] of Object.entries(
