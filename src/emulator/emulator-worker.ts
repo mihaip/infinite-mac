@@ -371,7 +371,7 @@ class EmulatorWorkerApi {
         for (const upload of uploads) {
             const isDiskImage = isDiskImageFile(upload.name);
             if (isDiskImage) {
-                this.disks.addDisk(new EmulatorWorkerUploadDisk(upload));
+                this.disks.addDisk(new EmulatorWorkerUploadDisk(upload, this));
             } else {
                 this.#handleFileUpload(upload);
             }
