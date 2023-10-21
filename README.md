@@ -87,7 +87,7 @@ cd /minivmac
 # Configure for building for WASM
 ./emscripten_setup.sh
 # This configures the Mac Plus model by default, alternative outputs can be
-# configured with additionl arguments:
+# configured with additional arguments:
 # - `-m 128K -speed z`: Mac 128K (uses 1x speed by default to be more realistic)
 # - `-m 512Ke`: Mac 512ke
 # - `-m SE`: Mac SE
