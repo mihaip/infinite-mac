@@ -11,6 +11,7 @@ import {
 } from "./machines";
 import {
     SYSTEM_DISKS_BY_NAME,
+    FLOPPY_DISKS_BY_NAME,
     type SystemDiskDef,
     systemDiskName,
 } from "./disks";
@@ -25,8 +26,13 @@ import classNames from "classnames";
 import {canSaveDisks} from "./canSaveDisks";
 import {systemCDROMs} from "./cdroms";
 
+const ALL_DISKS_BY_NAME = {
+    ...SYSTEM_DISKS_BY_NAME,
+    ...FLOPPY_DISKS_BY_NAME,
+};
+
 export function Custom({
-    defaultDisk = SYSTEM_DISKS_BY_NAME["System 7.1"],
+    defaultDisk = ALL_DISKS_BY_NAME["System 7.1"],
     onRun,
     onDone,
 }: {
@@ -371,21 +377,24 @@ function DiskOption({
     onRemove: () => void;
     appearance: Appearance;
 }) {
+    const diskOption = (disk: SystemDiskDef) => {
+        const name = systemDiskName(disk);
+        return (
+            <option key={name} value={name}>
+                {name}
+            </option>
+        );
+    };
     return (
         <label className="Custom-Dialog-Repeated">
             <span className="Custom-Dialog-Label">Disk:</span>
             <Select
                 appearance={appearance}
                 value={systemDiskName(disk)}
-                onChange={e => onChange(SYSTEM_DISKS_BY_NAME[e.target.value])}>
-                {Object.values(SYSTEM_DISKS_BY_NAME).map(disk => {
-                    const name = systemDiskName(disk);
-                    return (
-                        <option key={name} value={name}>
-                            {name}
-                        </option>
-                    );
-                })}
+                onChange={e => onChange(ALL_DISKS_BY_NAME[e.target.value])}>
+                {Object.values(SYSTEM_DISKS_BY_NAME).map(diskOption)}
+                <option disabled>Floppy Disks</option>
+                {Object.values(FLOPPY_DISKS_BY_NAME).map(diskOption)}
             </Select>
             <Button
                 appearance={appearance}
