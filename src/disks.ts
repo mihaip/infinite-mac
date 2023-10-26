@@ -748,7 +748,7 @@ export const ALL_DISKS = [
     MAC_OS_9_0_4,
 ];
 
-export const HIDDEN_DISKS = [SYSTEM_7_1_2_DISK_TOOLS, SYSTEM_7_5_DISK_TOOLS];
+export const FLOPPY_DISKS = [SYSTEM_7_1_2_DISK_TOOLS, SYSTEM_7_5_DISK_TOOLS];
 
 export const SYSTEM_DISKS_BY_NAME: {[name: string]: SystemDiskDef} =
     Object.fromEntries(
@@ -757,6 +757,9 @@ export const SYSTEM_DISKS_BY_NAME: {[name: string]: SystemDiskDef} =
             disk,
         ])
     );
+
+export const FLOPPY_DISKS_BY_NAME: {[name: string]: SystemDiskDef} =
+    Object.fromEntries(FLOPPY_DISKS.map(disk => [systemDiskName(disk), disk]));
 
 export function systemDiskName(disk: SystemDiskDef) {
     return (

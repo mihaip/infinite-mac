@@ -3,7 +3,7 @@ import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvid
 import {
     ALL_DISKS,
     DISKS_BY_YEAR,
-    HIDDEN_DISKS,
+    FLOPPY_DISKS,
     isPlaceholderDiskDef,
     type SystemDiskDef,
 } from "./disks";
@@ -55,7 +55,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     for (const diskName of searchParams.getAll("disk")) {
         const disk =
             ALL_DISKS.find(disk => disk.displayName === diskName) ??
-            HIDDEN_DISKS.find(disk => disk.displayName === diskName);
+            FLOPPY_DISKS.find(disk => disk.displayName === diskName);
         if (disk && !isPlaceholderDiskDef(disk)) {
             disks.push(disk);
         }
@@ -115,7 +115,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
 export function runDefToUrl(runDef: RunDef): string {
     const {disks, machine, ethernetProvider} = runDef;
     let url: URL;
-    if (disks.length === 1) {
+    if (disks.length === 1 && ALL_DISKS.includes(disks[0])) {
         url = new URL(diskToYearPath(disks[0]), location.href);
         if (!runDef.includeInfiniteHD) {
             url.searchParams.set("infinite_hd", "false");
