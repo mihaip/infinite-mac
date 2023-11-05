@@ -120,9 +120,17 @@ MAC_OS_8 = Disk(name="Mac OS 8.0 HD.dsk")
 
 MAC_OS_81 = Disk(name="Mac OS 8.1 HD.dsk")
 
+MAC_OS_81_DISK_TOOLS_68K = Disk(name="Mac OS 8.1 Disk Tools 68K FD.dsk")
+
+MAC_OS_81_DISK_TOOLS_PPC = Disk(name="Mac OS 8.1 Disk Tools PPC FD.dsk")
+
 MAC_OS_85 = Disk(name="Mac OS 8.5 HD.dsk")
 
 MAC_OS_86 = Disk(name="Mac OS 8.6 HD.dsk")
+
+MAC_OS_9 = Disk(name="Mac OS 9.0 HD.dsk")
+
+MAC_OS_904 = Disk(name="Mac OS 9.0.4 HD.dsk")
 
 JAPANESE_WELCOME_STICKY = stickies.Sticky(
     top=244,
@@ -148,10 +156,6 @@ KANJITALK_753 = Disk(
     ],
     stickies_encoding="shift_jis",
     welcome_sticky_override=JAPANESE_WELCOME_STICKY)
-
-MAC_OS_9 = Disk(name="Mac OS 9.0 HD.dsk")
-
-MAC_OS_904 = Disk(name="Mac OS 9.0.4 HD.dsk")
 
 ALL_DISKS = [
     SYSTEM_10,
@@ -188,6 +192,8 @@ ALL_DISKS = [
     MAC_OS_76,
     MAC_OS_8,
     MAC_OS_81,
+    MAC_OS_81_DISK_TOOLS_68K,
+    MAC_OS_81_DISK_TOOLS_PPC,
     MAC_OS_85,
     MAC_OS_86,
     MAC_OS_9,
