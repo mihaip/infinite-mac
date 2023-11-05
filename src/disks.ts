@@ -340,7 +340,7 @@ const SYSTEM_7_1_2: SystemDiskDef = {
 const SYSTEM_7_1_2_DISK_TOOLS: SystemDiskDef = {
     displayName: "System 7.1.2 Disk Tools",
     description:
-        "Disk Tools startup disk that from the floppy disk version of System 7.1.2.",
+        "Disk Tools startup disk from the floppy disk version of System 7.1.2.",
     releaseDate: [1994, 3, 14],
     prefetchChunks: [0],
     machines: [POWER_MACINTOSH_6100],
@@ -367,7 +367,7 @@ const SYSTEM_7_5: SystemDiskDef = {
 const SYSTEM_7_5_DISK_TOOLS: SystemDiskDef = {
     displayName: "System 7.5 Disk Tools",
     description:
-        "Disk Tools startup disk that from the floppy disk version of System 7.5.",
+        "Disk Tools startup disk from the floppy disk version of System 7.5.",
     releaseDate: [1994, 9, 12],
     prefetchChunks: [0],
     machines: [POWER_MACINTOSH_6100],
@@ -561,6 +561,28 @@ const MAC_OS_8_1: SystemDiskDef = {
     notable: true,
 };
 
+const MAC_OS_8_1_DISK_TOOLS_68K: SystemDiskDef = {
+    displayName: "Mac OS 8.1 Disk Tools (68K)",
+    description:
+        "Disk Tools startup disk from the floppy disk version of Mac OS 8.1.",
+    releaseDate: [1998, 1, 19],
+    prefetchChunks: [0],
+    machines: [QUADRA_650],
+    generatedSpec: () => import("./Data/Mac OS 8.1 Disk Tools 68K FD.dsk.json"),
+    isFloppy: true,
+};
+
+const MAC_OS_8_1_DISK_TOOLS_PPC: SystemDiskDef = {
+    displayName: "Mac OS 8.1 Disk Tools (PPC)",
+    description:
+        "Disk Tools startup disk from the floppy disk version of Mac OS 8.1.",
+    releaseDate: [1998, 1, 19],
+    prefetchChunks: [0],
+    machines: [POWER_MACINTOSH_9500],
+    generatedSpec: () => import("./Data/Mac OS 8.1 Disk Tools PPC FD.dsk.json"),
+    isFloppy: true,
+};
+
 const MAC_OS_8_5: SystemDiskDef = {
     displayName: "Mac OS 8.5",
     description:
@@ -748,7 +770,12 @@ export const ALL_DISKS = [
     MAC_OS_9_0_4,
 ];
 
-export const FLOPPY_DISKS = [SYSTEM_7_1_2_DISK_TOOLS, SYSTEM_7_5_DISK_TOOLS];
+export const FLOPPY_DISKS = [
+    SYSTEM_7_1_2_DISK_TOOLS,
+    SYSTEM_7_5_DISK_TOOLS,
+    MAC_OS_8_1_DISK_TOOLS_68K,
+    MAC_OS_8_1_DISK_TOOLS_PPC,
+];
 
 export const SYSTEM_DISKS_BY_NAME: {[name: string]: SystemDiskDef} =
     Object.fromEntries(
