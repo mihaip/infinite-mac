@@ -28,8 +28,14 @@ export abstract class EmulatorAudio {
             console.warn("AudioContext not supported");
             return;
         }
+        let verb = "Initializing";
+        if (this.#audioContext) {
+            verb = "Re-initializing";
+            this.stop();
+            this.resetAudioBuffer();
+        }
         console.log(
-            `Initializing audio (sampleRate=${sampleRate}, sampleSize=${sampleSize}, channels=${channels})`
+            `${verb} audio (sampleRate=${sampleRate}, sampleSize=${sampleSize}, channels=${channels})`
         );
         this.#audioContext = new AudioContext({
             latencyHint: "interactive",
