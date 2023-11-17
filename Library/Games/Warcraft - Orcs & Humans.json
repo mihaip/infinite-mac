@@ -1,4 +1,5 @@
 {
     "src_url": "https://macintoshgarden.org/sites/macintoshgarden.org/files/games/Warcraft1.0.8.sit_.bin",
-    "src_image": "Warcraft(1.0.8).img"
+    "src_image": "Warcraft(1.0.8).img",
+    "needs_system_7": true
 }

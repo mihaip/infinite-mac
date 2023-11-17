@@ -22,6 +22,7 @@ import {
     INFINITE_HD,
     INFINITE_HD_MFS,
     SAVED_HD,
+    INFINITE_HD6,
 } from "./disks";
 import {type MachineDefRAMSize, type MachineDef} from "./machines";
 import classNames from "classnames";
@@ -119,8 +120,10 @@ export default function Mac({
         const delayedDisks: EmulatorDiskDef[] = [];
         if (includeInfiniteHD) {
             const infiniteHd =
-                disks[0]?.mfsOnly || machine.mfsOnly
+                disks[0]?.infiniteHdSubset === "mfs" || machine.mfsOnly
                     ? INFINITE_HD_MFS
+                    : disks[0]?.infiniteHdSubset === "system6"
+                    ? INFINITE_HD6
                     : INFINITE_HD;
             if (disks[0]?.delayAdditionalDiskMount) {
                 delayedDisks.push(infiniteHd);
@@ -585,7 +588,7 @@ export default function Mac({
                     onDone={() => setEmulatorErrorText("")}
                 />
             )}
-            {!fullscreen && !disks[0]?.mfsOnly && (
+            {!fullscreen && disks[0]?.infiniteHdSubset !== "mfs" && (
                 <MacCDROMs onRun={loadCDROM} appearance={appearance} />
             )}
         </ScreenFrame>

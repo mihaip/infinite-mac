@@ -41,7 +41,7 @@ export type SystemDiskDef = EmulatorDiskDef & {
     description: string;
     machines: MachineDef[];
     appleTalkSupported?: boolean;
-    mfsOnly?: boolean;
+    infiniteHdSubset?: "mfs" | "system6";
     delayAdditionalDiskMount?: boolean;
     appearance?: Appearance;
     isUnstable?: boolean;
@@ -74,7 +74,7 @@ const SYSTEM_1_0: SystemDiskDef = {
     releaseDate: [1984, 1, 24],
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
-    mfsOnly: true,
+    infiniteHdSubset: "mfs",
     // Loading the Infinite HD disk as part of the initial set of images does
     // appear to work in System 1.0 under Mini vMac, but if we delay it until
     // after the system is booted, it appears to work.
@@ -90,7 +90,7 @@ const SYSTEM_1_1: SystemDiskDef = {
     releaseDate: [1984, 5, 5],
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
-    mfsOnly: true,
+    infiniteHdSubset: "mfs",
     generatedSpec: () => import("./Data/System 1.1.dsk.json"),
 };
 
@@ -101,7 +101,7 @@ const SYSTEM_2_0: SystemDiskDef = {
     releaseDate: [1985, 4, 8],
     prefetchChunks: [0, 1],
     machines: [MAC_128K],
-    mfsOnly: true,
+    infiniteHdSubset: "mfs",
     generatedSpec: () => import("./Data/System 2.0.dsk.json"),
     notable: true,
 };
@@ -114,6 +114,7 @@ const SYSTEM_2_1: SystemDiskDef = {
     prefetchChunks: [0, 1, 2],
     // The Mac 128K is supported, but HFS is not loaded in that case.
     machines: [MAC_512KE, MAC_128K],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 2.1.dsk.json"),
     notable: true,
 };
@@ -125,6 +126,7 @@ const SYSTEM_3_0: SystemDiskDef = {
     releaseDate: [1986, 1, 16],
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 3.0.dsk.json"),
     notable: true,
 };
@@ -145,6 +147,7 @@ const SYSTEM_3_2: SystemDiskDef = {
     releaseDate: [1986, 6, 2],
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 3.2.dsk.json"),
 };
 
@@ -155,6 +158,7 @@ const SYSTEM_3_3: SystemDiskDef = {
     releaseDate: [1987, 1, 12],
     prefetchChunks: [0, 1, 2],
     machines: [MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 3.3.dsk.json"),
 };
 
@@ -165,6 +169,7 @@ const SYSTEM_4_0: SystemDiskDef = {
     releaseDate: [1987, 3, 2],
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 4.0.dsk.json"),
 };
 
@@ -175,6 +180,7 @@ const SYSTEM_4_1: SystemDiskDef = {
     releaseDate: [1987, 4, 14],
     prefetchChunks: [0, 1, 2],
     machines: [MAC_II, MAC_SE, MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 4.1.dsk.json"),
 };
 
@@ -185,6 +191,7 @@ const SYSTEM_5_0: SystemDiskDef = {
     releaseDate: [1987, 10, 8],
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 5.0 HD.dsk.json"),
     notable: true,
 };
@@ -195,6 +202,7 @@ const SYSTEM_5_1: SystemDiskDef = {
     releaseDate: [1987, 12, 1],
     prefetchChunks: [0, 1, 2],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 5.1 HD.dsk.json"),
 };
 
@@ -204,6 +212,7 @@ const SYSTEM_6_0: SystemDiskDef = {
     releaseDate: [1988, 4, 30],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0 HD.dsk.json"),
     notable: true,
 };
@@ -222,6 +231,7 @@ const SYSTEM_6_0_2: SystemDiskDef = {
     releaseDate: [1988, 9, 19],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.2 HD.dsk.json"),
 };
 
@@ -231,6 +241,7 @@ const SYSTEM_6_0_3: SystemDiskDef = {
     releaseDate: [1989, 3, 7],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.3 HD.dsk.json"),
 };
 
@@ -241,6 +252,7 @@ const SYSTEM_6_0_4: SystemDiskDef = {
     releaseDate: [1989, 9, 20],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.4 HD.dsk.json"),
 };
 
@@ -251,6 +263,7 @@ const SYSTEM_6_0_5: SystemDiskDef = {
     releaseDate: [1990, 3, 19],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.5 HD.dsk.json"),
     notable: true,
 };
@@ -258,7 +271,7 @@ const SYSTEM_6_0_5: SystemDiskDef = {
 const SYSTEM_6_0_6: PlaceholderDiskDef = {
     type: "placeholder",
     displayName: "System 6.0.6.",
-    releaseDate: [1990, 10, 15], // Officual release date is not known.
+    releaseDate: [1990, 10, 15], // Official release date is not known.
     description: "Never officially released due to an AppleTalk bug.",
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
 };
@@ -270,6 +283,7 @@ const SYSTEM_6_0_7: SystemDiskDef = {
     releaseDate: [1990, 10, 15],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.7 HD.dsk.json"),
 };
 
@@ -280,6 +294,7 @@ const SYSTEM_6_0_8: SystemDiskDef = {
     releaseDate: [1991, 4, 17],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.8 HD.dsk.json"),
 };
 
@@ -822,6 +837,11 @@ ALL_DISKS.forEach(disk => {
 export const INFINITE_HD: EmulatorDiskDef = {
     prefetchChunks: [0, 3692, 3696, 3697, 3698],
     generatedSpec: () => import("./Data/Infinite HD.dsk.json"),
+};
+
+export const INFINITE_HD6: EmulatorDiskDef = {
+    prefetchChunks: [0, 2271, 2274, 2275],
+    generatedSpec: () => import("./Data/Infinite HD6.dsk.json"),
 };
 
 export const INFINITE_HD_MFS: EmulatorDiskDef = {

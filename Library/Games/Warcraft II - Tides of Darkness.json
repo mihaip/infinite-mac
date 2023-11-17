@@ -1,4 +1,5 @@
 {
     "src_url": "https://macintoshgarden.org/sites/macintoshgarden.org/files/games/WarcraftII.sit",
-    "src_image": "Warcraft II.img"
+    "src_image": "Warcraft II.img",
+    "needs_system_7": true
 }
