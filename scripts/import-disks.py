@@ -33,8 +33,17 @@ ImportFolders = typing.Tuple[
 ]
 
 def get_import_folders() -> ImportFolders:
-    import_folders, import_folders7 = import_manifests()
-    import_folders.update(import_zips())
+    import_folders = {}
+    import_folders7 = {}
+
+    manifest_folders, manifest_folders7 = import_manifests()
+    import_folders.update(manifest_folders)
+    import_folders7.update(manifest_folders7)
+
+    zip_folders, zip_folder7 = import_zips()
+    import_folders.update(zip_folders)
+    import_folders7.update(zip_folder7)
+
     return import_folders, import_folders7
 
 
@@ -306,9 +315,17 @@ def update_file_or_folder_from_lsar_entry(
         file_or_folder.crdate = convert_date(entry["XADCreationDate"])
 
 
-def import_zips() -> typing.Dict[str, machfs.Folder]:
+SYSTEM7_ZIP_PATHS = {
+    "Games/Bungie/Marathon Infinity",
+    "Graphics/Adobe Photoshop 3.0",
+    "Graphics/Canvas 3.5",
+    "Graphics/Infini-D",
+}
+
+def import_zips() -> ImportFolders:
     sys.stderr.write("Importing .zips\n")
     import_folders = {}
+    import_folders7 = {}
     debug_filter = os.getenv("DEBUG_LIBRARY_FILTER")
 
     for zip_path in glob.iglob(os.path.join(paths.LIBRARY_DIR, "**", "*.zip"),
@@ -366,9 +383,12 @@ def import_zips() -> typing.Dict[str, machfs.Folder]:
 
             parent[fix_name(file_name)] = file
 
-        import_folders[folder_path] = folder
+        if folder_path in SYSTEM7_ZIP_PATHS:
+            import_folders7[folder_path] = folder
+        else:
+            import_folders[folder_path] = folder
 
-    return import_folders
+    return import_folders, import_folders7
 
 
 def traverse_folders(parent: machfs.Folder, folder_path: str) -> machfs.Folder:
