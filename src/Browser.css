@@ -194,7 +194,7 @@
     text-align: right;
 }
 
-/* Allow the name to be bold when selected without offseting the rest of the
+/* Allow the name to be bold when selected without offsetting the rest of the
 content by leaving enough room for the bold version at all times. */
 .Notable-Toggle-Button .name-sizer {
     font-weight: bold;

@@ -48,5 +48,5 @@ export function About({onDone}: {onDone: () => void}) {
 }
 
 // The HTML of the about screen lives in the index.html page so that it's
-// vsible to crawlers that don't run JavaScript.
+// visible to crawlers that don't run JavaScript.
 const aboutHTML = document.getElementById("about")!.innerHTML;

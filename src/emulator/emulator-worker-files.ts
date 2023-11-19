@@ -48,7 +48,7 @@ export class SharedMemoryEmulatorWorkerFiles implements EmulatorWorkerFiles {
         const cdroms = Array.from(actions.cdroms);
         actions.uploads = [];
         actions.cdroms = [];
-        // Locking might be nice, but in practive we're uploading so rarely
+        // Locking might be nice, but in practice we're uploading so rarely
         // that it's not likely to be an issue.
         const actionsBytes = new TextEncoder().encode(JSON.stringify(actions));
         this.#filesBufferView.set(actionsBytes);

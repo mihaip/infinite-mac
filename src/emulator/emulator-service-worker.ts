@@ -85,7 +85,7 @@ function handleIdleWait(event: FetchEvent) {
     event.respondWith(
         new Promise<Response>(resolve => {
             const interval = self.setInterval(() => {
-                // Iterrupt idlewait if new commands (presumably input) has
+                // Interrupt idlewait if new commands (presumably input) has
                 // come in.
                 if (workerCommands.length || performance.now() >= endTime) {
                     self.clearInterval(interval);
