@@ -4,7 +4,7 @@ import {
 } from "./emulator/emulator-ui";
 
 /**
- * Works in conjunction with the Clouldflare worker defined in
+ * Works in conjunction with the Cloudflare worker defined in
  * workers-ethernet/src/index.mjs to broadcast Ethernet packets to all emulator
  * instances in the same named zone.
  */
@@ -13,7 +13,7 @@ export class CloudflareWorkerEthernetProvider
 {
     #zoneName: string;
     #macAddress?: string;
-    #webSsocket: WebSocket;
+    #webSocket: WebSocket;
     #delegate?: EmulatorEthernetProviderDelegate;
     #state: "opening" | "closed" | "opened" = "opening";
     #bufferedMessages: string[] = [];
@@ -21,7 +21,7 @@ export class CloudflareWorkerEthernetProvider
 
     constructor(zoneName: string) {
         this.#zoneName = zoneName;
-        this.#webSsocket = this.#connect();
+        this.#webSocket = this.#connect();
     }
 
     description(): string {
@@ -50,7 +50,7 @@ export class CloudflareWorkerEthernetProvider
     }
 
     #reconnect(): void {
-        const webSocket = this.#webSsocket;
+        const webSocket = this.#webSocket;
         webSocket.removeEventListener("open", this.#handleOpen);
         webSocket.removeEventListener("close", this.#handleClose);
         webSocket.removeEventListener("error", this.#handleError);
@@ -61,7 +61,7 @@ export class CloudflareWorkerEthernetProvider
             window.clearTimeout(this.#reconnectTimeout);
         }
         this.#reconnectTimeout = window.setTimeout(() => {
-            this.#webSsocket = this.#connect();
+            this.#webSocket = this.#connect();
         }, 1000);
     }
 
@@ -73,7 +73,7 @@ export class CloudflareWorkerEthernetProvider
     close() {
         this.#state = "closed";
         this.#send({type: "close"});
-        this.#webSsocket.close();
+        this.#webSocket.close();
     }
 
     send(destination: string, packet: Uint8Array): void {
@@ -88,7 +88,7 @@ export class CloudflareWorkerEthernetProvider
     #send(message: any) {
         message = JSON.stringify(message);
         if (this.#state === "opened") {
-            this.#webSsocket.send(message);
+            this.#webSocket.send(message);
         } else {
             this.#bufferedMessages.push(message);
         }
@@ -103,7 +103,7 @@ export class CloudflareWorkerEthernetProvider
         const bufferedMessages = this.#bufferedMessages;
         this.#bufferedMessages = [];
         for (const message of bufferedMessages) {
-            this.#webSsocket.send(message);
+            this.#webSocket.send(message);
         }
         if (this.#macAddress) {
             this.init(this.#macAddress);

@@ -19,7 +19,7 @@ function App() {
     let footer: React.ReactElement | undefined = <Footer />;
     if (runDef) {
         const handleDone = () => {
-            // Going back in the history is preferred over reseting the
+            // Going back in the history is preferred over resetting the
             // state because the browser will restore the scroll position.
             if (runDef !== initialRunDef) {
                 history.back();

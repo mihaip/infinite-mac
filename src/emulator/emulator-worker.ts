@@ -1,5 +1,5 @@
 import {
-    type EmlatorFallbackSetClipboardDataCommand,
+    type EmulatorFallbackSetClipboardDataCommand,
     type EmulatorCDROM,
     type EmulatorChunkedFileSpec,
     type EmulatorClipboardData,
@@ -294,7 +294,7 @@ class EmulatorWorkerApi {
 
         // Don't do more than one call per frame, otherwise we end up skipping
         // frames.
-        // TOOD: understand why IdleWait is called multiple times in a row
+        // TODO: understand why IdleWait is called multiple times in a row
         // before VideoRefresh is called again.
         if (this.#lastIdleWaitFrameId === this.#lastBlitFrameId) {
             return false;
@@ -320,7 +320,7 @@ class EmulatorWorkerApi {
             this.#periodicTasks();
 
             // We don't have a more accurate way to determine when Mini vMac
-            // is idle/quiscent (the Mac has finished booting), so we wait for
+            // is idle/quiescent (the Mac has finished booting), so we wait for
             // the disk writes done during boot to finish.
             if (this.disks.isDoneWithDiskWrites()) {
                 this.#markQuiescent();
@@ -534,7 +534,7 @@ export class EmulatorFallbackEndpoint {
 
     consumeSetClipboardData(): EmulatorClipboardData | undefined {
         const datas = this.#consumeCommands(
-            (c): c is EmlatorFallbackSetClipboardDataCommand =>
+            (c): c is EmulatorFallbackSetClipboardDataCommand =>
                 c.type === "set_clipboard_data",
             c => c.data
         );

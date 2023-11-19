@@ -214,7 +214,7 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
             const prefix = `Chunked file "${spec.name}" (mounted at "${spec.baseUrl}")`;
             if (extraPrefetch.length) {
                 console.warn(
-                    `${prefix} had unncessary chunks prefetched:`,
+                    `${prefix} had unnecessary chunks prefetched:`,
                     extraPrefetch.sort(numberCompare)
                 );
             }

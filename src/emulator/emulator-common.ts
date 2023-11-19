@@ -263,7 +263,7 @@ export type EmulatorFallbackCommand =
     | EmulatorFallbackUploadFileCommand
     | EmulatorFallbackLoadCDROMCommand
     | EmulatorFallbackEthernetReceiveCommand
-    | EmlatorFallbackSetClipboardDataCommand;
+    | EmulatorFallbackSetClipboardDataCommand;
 
 export type EmulatorFallbackInputCommand = {
     type: "input";
@@ -287,7 +287,7 @@ export type EmulatorFallbackEthernetReceiveCommand = {
     packetArray: number[];
 };
 
-export type EmlatorFallbackSetClipboardDataCommand = {
+export type EmulatorFallbackSetClipboardDataCommand = {
     type: "set_clipboard_data";
     data: EmulatorClipboardData;
 };
@@ -309,7 +309,7 @@ export function updateInputBufferWithEvents(
     let hasStart = false;
     let hasEthernetInterrupt = false;
     let hasAudioContextRunning = false;
-    let hasSpeeed = false;
+    let hasSpeed = false;
     let speed = -2;
     // currently only one key event can be sent per sync
     // TODO: better key handling code
@@ -363,7 +363,7 @@ export function updateInputBufferWithEvents(
                 hasAudioContextRunning = true;
                 break;
             case "set-speed":
-                hasSpeeed = true;
+                hasSpeed = true;
                 speed = inputEvent.speed;
         }
     }
@@ -394,7 +394,7 @@ export function updateInputBufferWithEvents(
     if (hasAudioContextRunning) {
         inputBufferView[InputBufferAddresses.audioContextRunningFlagAddr] = 1;
     }
-    if (hasSpeeed) {
+    if (hasSpeed) {
         inputBufferView[InputBufferAddresses.speedFlagAddr] = 1;
         inputBufferView[InputBufferAddresses.speedAddr] = speed;
     }

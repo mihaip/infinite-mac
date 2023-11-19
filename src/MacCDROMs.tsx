@@ -206,7 +206,7 @@ function MacCDROM({cdrom, onRun}: {cdrom: EmulatorCDROM; onRun: () => void}) {
         coverImageSize,
         coverImageType = "round",
     } = cdrom;
-    const [coverIamgeWidth, coverImageHeight] = coverImageSize;
+    const [coverImageWidth, coverImageHeight] = coverImageSize;
     const coverImageUrl = `/Covers/${coverImageHash}.jpeg`;
     const coverClassName = classNames("Mac-CDROM-Cover", {
         "Mac-CDROM-Cover-Round": coverImageType === "round",
@@ -216,7 +216,7 @@ function MacCDROM({cdrom, onRun}: {cdrom: EmulatorCDROM; onRun: () => void}) {
             <img
                 className={coverClassName}
                 src={coverImageUrl}
-                width={coverIamgeWidth}
+                width={coverImageWidth}
                 height={coverImageHeight}
                 loading="lazy"
             />

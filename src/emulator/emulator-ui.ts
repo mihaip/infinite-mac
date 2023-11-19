@@ -536,7 +536,7 @@ export class Emulator {
 
             // If this is a paste operation, send the updated clipboard contents
             // to the emulator so that it can be used when executing the paste.
-            // Ideally we would watch for a clipboardchage event, but that's not
+            // Ideally we would watch for a clipboardchange event, but that's not
             // supported broadly (see https://crbug.com/933608).
             if (code === "KeyV" && event.metaKey) {
                 navigator.clipboard.readText().then(
