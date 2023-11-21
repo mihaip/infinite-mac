@@ -372,10 +372,23 @@ export default function Mac({
     function handleDrop(event: React.DragEvent) {
         event.preventDefault();
         setDragCount(0);
+        const emulator = emulatorRef.current;
+        if (!emulator) {
+            return;
+        }
         const files = [];
 
         if (event.dataTransfer.items) {
             for (const item of event.dataTransfer.items) {
+                const entry = item.webkitGetAsEntry?.();
+                if (entry?.isDirectory) {
+                    uploadDirectory(
+                        emulator,
+                        entry as FileSystemDirectoryEntry
+                    );
+                    return;
+                }
+
                 if (item.kind === "file") {
                     files.push(item.getAsFile()!);
                 } else if (
@@ -402,7 +415,7 @@ export default function Mac({
             }
         }
 
-        uploadFiles(files);
+        uploadFiles(emulator, files);
     }
 
     function handleLoadFileClick() {
@@ -415,8 +428,8 @@ export default function Mac({
             // the synthetic click event below) because we may not get a change
             // event if the user cancels the file picker.
             setDragCount(1);
-            if (input.files) {
-                uploadFiles(Array.from(input.files));
+            if (input.files && emulatorRef.current) {
+                uploadFiles(emulatorRef.current, Array.from(input.files));
             }
             input.remove();
             // Delay removing the overlay a bit so that users have a chance to
@@ -424,29 +437,6 @@ export default function Mac({
             setTimeout(() => setDragCount(0), 500);
         };
         input.click();
-    }
-
-    function uploadFiles(files: File[]) {
-        const emulator = emulatorRef.current;
-        if (!emulator) {
-            return;
-        }
-
-        let fileCount = 0;
-        let diskImageCount = 0;
-        for (const file of files) {
-            if (isDiskImageFile(file.name)) {
-                diskImageCount++;
-            } else {
-                fileCount++;
-            }
-            emulator.uploadFile(file);
-        }
-        varz.incrementMulti({
-            "emulator_uploads": files.length,
-            "emulator_uploads:files": fileCount,
-            "emulator_uploads:disks": diskImageCount,
-        });
     }
 
     function loadCDROM(cdrom: EmulatorCDROM) {
@@ -593,6 +583,97 @@ export default function Mac({
             )}
         </ScreenFrame>
     );
+}
+
+/**
+ * Handles a full directory upload, including attempting to read resource forks
+ * for files that have them.
+ */
+function uploadDirectory(
+    emulator: Emulator,
+    directoryEntry: FileSystemDirectoryEntry
+) {
+    let inProgressCount = 1; // we're waiting to read the starting directory
+    const files: File[] = [];
+    const names: string[] = [];
+    const handleFile = (file: File, path: string[]) => {
+        files.push(file);
+        names.push(path.join("/"));
+        checkDone();
+    };
+
+    const checkDone = () => {
+        inProgressCount--;
+        if (inProgressCount === 0) {
+            uploadFiles(emulator, files, names);
+        }
+    };
+
+    const readDirectory = (
+        directoryEntry: FileSystemDirectoryEntry,
+        path: string[]
+    ) => {
+        const directoryReader = directoryEntry.createReader();
+        directoryReader.readEntries(entries => {
+            inProgressCount--; // We finished reading the directory
+            entries.forEach(entry => {
+                inProgressCount++; //
+                if (entry.isDirectory) {
+                    readDirectory(entry as FileSystemDirectoryEntry, [
+                        ...path,
+                        entry.name,
+                    ]);
+                    return;
+                }
+                const fileEntry = entry as FileSystemFileEntry;
+                fileEntry.file(file => handleFile(file, [...path, entry.name]));
+
+                inProgressCount++;
+                directoryEntry.getFile(
+                    `${entry.name}/..namedfork/rsrc`,
+                    {},
+                    resourceEntry =>
+                        (resourceEntry as FileSystemFileEntry).file(
+                            resourceFile =>
+                                // Assume that the emulator is using the
+                                // Basilisk II/SheepShaver ExtFS convention of a
+                                // parallel .rsrc directory for resource forks.
+                                handleFile(resourceFile, [
+                                    ...path,
+                                    ".rsrc",
+                                    entry.name,
+                                ]),
+                            checkDone // Ignore errors, not all files have resource forks
+                        ),
+                    checkDone // Ignore errors, not all files have resource forks
+                );
+            });
+        });
+    };
+
+    readDirectory(directoryEntry, [directoryEntry.name]);
+}
+
+function uploadFiles(emulator: Emulator, files: File[], names: string[] = []) {
+    let fileCount = 0;
+    let diskImageCount = 0;
+    for (const file of files) {
+        if (isDiskImageFile(file.name)) {
+            diskImageCount++;
+        } else {
+            fileCount++;
+        }
+    }
+    const resourceForkCount = names.filter(name =>
+        name.includes("/.rsrc/")
+    ).length;
+    emulator.uploadFiles(files, names);
+    varz.incrementMulti({
+        "emulator_uploads": files.length,
+        "emulator_uploads:files": fileCount,
+        "emulator_uploads:disks": diskImageCount,
+        "emulator_uploads:resource_forks": resourceForkCount,
+    });
 }
 
 const SMALL_BEZEL_THRESHOLD = 80;

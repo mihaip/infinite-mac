@@ -428,17 +428,29 @@ export class Emulator {
         });
     }
 
-    async uploadFile(file: File) {
-        const uploads = await uploadsFromDirectoryExtractionFile(file);
-        if (uploads) {
-            this.#files.uploadFiles(uploads);
+    async uploadFiles(files: File[], names: string[] = []) {
+        const remainingFiles = [];
+        const remainingNames: string[] = [];
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const uploads = await uploadsFromDirectoryExtractionFile(file);
+            if (uploads) {
+                this.#files.uploadFiles(uploads);
+                continue;
+            }
+            remainingFiles.push(file);
+            remainingNames.push(names[i]);
+        }
+        if (!remainingFiles.length) {
             return;
         }
-        this.#files.uploadFile({
-            name: file.name,
-            url: URL.createObjectURL(file),
-            size: file.size,
-        });
+        this.#files.uploadFiles(
+            remainingFiles.map((file, i) => ({
+                name: remainingNames[i] ?? file.name, // Full paths are handled by worker
+                url: URL.createObjectURL(file),
+                size: file.size,
+            }))
+        );
     }
 
     loadCDROM(cdrom: EmulatorCDROM) {
