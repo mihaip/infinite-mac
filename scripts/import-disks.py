@@ -71,6 +71,10 @@ def import_manifests() -> ImportFolders:
         if src_ext in [".img", ".dsk", ".iso"]:
             folder = import_disk_image(manifest_json)
         elif src_ext in [".hqx", ".sit", ".bin", ".zip"]:
+            if not os.path.exists(paths.LSAR_PATH):
+                sys.stderr.write("    Skipping archive import, lsar not found "
+                                 "(build it with npm run build-xadmaster)\n")
+                continue
             folder = import_archive(manifest_json)
         else:
             assert False, "Unexpected manifest URL extension: %s" % src_ext
