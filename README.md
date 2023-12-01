@@ -10,12 +10,14 @@ This project uses submodules, use `git clone --recursive https://github.com/miha
 
 Common development tasks, all done via `npm run`:
 
--   `start`: Run local dev server (will be running at http://localhost:3127). Depends on having disk images built (`import-disks` needs to be run at least once).
+-   `start`: Run local dev server (will be running at http://localhost:3127). Depends on [dependencies](#dependencies) being installed and built.
 -   `import-emulator <emulator>`: Copy generated WebAssembly from an emulator submodule (only necessary if modifying the emulator cores, see [below](#building-the-emulators) for how to rebuild them). The following emulators are supported:
     -   `basiliskii`: Basilisk II from https://github.com/mihaip/macemu
     -   `sheepshaver`: SheepShaver from https://github.com/mihaip/macemu
-    -   `minivmac-Plus`: Mini vMac variants from https://github.com/mihaip/minivmac
+    -   `minivmac-Plus` (and others): Mini vMac variants from https://github.com/mihaip/minivmac
+    -   `dingusppc`: DingusPPC from https://github.com/mihaip/dingusppc
 -   `import-disks`: Build disk images for serving. Copies base OS images for the above emulators, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving. This requires the macOS versions of Basilisk II and Mini vMac to be installed, since they are used as part of the image building process.
+-   `import-cd-roms`: Build CD-ROM library (actual CD-ROMs are hosted on archive.org and other sites, the library contains metadata)
 
 Common deployment tasks (also done via `npm run`)
 
@@ -34,9 +36,16 @@ pip3 install -r requirements.txt
 npm run build-xadmaster
 ```
 
+Supporting data files need to be generated with:
+
+```
+npm run import-disks
+npm run import-cd-roms
+```
+
 ### Building the emulators
 
-Basilisk II, SheepShaver and Mini vMac are the original 68K and PowerPC emulators that enable this project.They are hosted in [separate](https://github.com/mihaip/minivmac/) [repos](https://github.com/mihaip/macemu/) and are included via Git submodules. Rebuilding them is only required when making changes to the emulator core, the generated files are in `src/emulator` and included in the Git repository.
+Basilisk II, SheepShaver and Mini vMac are the original 68K and PowerPC emulators that enable this project. They are hosted in [separate](https://github.com/mihaip/minivmac/) [repos](https://github.com/mihaip/macemu/) and are included via Git submodules. Rebuilding them is only required when making changes to the emulator core, the generated files are in `src/emulator` and included in the Git repository.
 
 To begin, ensure that you have a Docker image built with the Emscripten toolchain and supporting libraries:
 
@@ -60,7 +69,7 @@ cd /macemu/BasiliskII/src/Unix
 ./_embootstrap.sh
 # Switch into building for WASM
 ./_emconfigure.sh
-# Actually compile Basilisk II targetting WASM
+# Actually compile Basilisk II targeting WASM
 make -j8
 ```
 
@@ -72,7 +81,7 @@ Once it has built, use `npm run import-emulator basiliskii` from the host to upd
 cd /macemu/SheepShaver/src/Unix
 # Configure for building for WASM
 ./_emconfigure.sh
-# Actually compile SheepShaver targetting WASM
+# Actually compile SheepShaver targeting WASM
 make -j8
 ```
 
@@ -92,7 +101,7 @@ cd /minivmac
 # - `-m 512Ke`: Mac 512ke
 # - `-m SE`: Mac SE
 # - `-m II`: Mac II
-# Actually compile Mini vMac targetting WASM
+# Actually compile Mini vMac targeting WASM
 make -j8
 ```
 
