@@ -885,27 +885,27 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  126416: () => { return workerApi.acquireInputLock(); },  
- 126457: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 126546: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 126636: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 126720: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 126804: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 126889: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 126969: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 127050: () => { workerApi.releaseInputLock(); },  
- 127084: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
- 127128: () => { return workerApi.audioBufferSize(); },  
- 127168: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
- 127204: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 127240: ($0, $1) => { workerApi.blit($0, $1); },  
- 127268: () => { workerApi.blit(0, 0); },  
- 127294: ($0, $1) => { workerApi.blit($0, $1); },  
- 127322: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 127373: ($0) => { workerApi.disks.close($0); },  
- 127404: ($0) => { return workerApi.disks.size($0); },  
- 127441: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 127490: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
+  128528: () => { return workerApi.acquireInputLock(); },  
+ 128569: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 128658: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 128748: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 128832: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 128916: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 129001: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 129081: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 129162: () => { workerApi.releaseInputLock(); },  
+ 129196: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
+ 129240: () => { return workerApi.audioBufferSize(); },  
+ 129280: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 129316: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 129352: ($0, $1) => { workerApi.blit($0, $1); },  
+ 129380: () => { workerApi.blit(0, 0); },  
+ 129406: ($0, $1) => { workerApi.blit($0, $1); },  
+ 129434: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 129485: ($0) => { workerApi.disks.close($0); },  
+ 129516: ($0) => { return workerApi.disks.size($0); },  
+ 129553: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 129602: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
 };
 
 
@@ -5400,7 +5400,6 @@ var wasmImports = {
   "invoke_ii": invoke_ii,
   "invoke_jij": invoke_jij,
   "invoke_v": invoke_v,
-  "invoke_vi": invoke_vi,
   "strftime_l": _strftime_l
 };
 var asm = createWasm();
@@ -5535,17 +5534,6 @@ function invoke_ii(index,a1) {
   var sp = stackSave();
   try {
     return getWasmTableEntry(index)(a1);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_vi(index,a1) {
-  var sp = stackSave();
-  try {
-    getWasmTableEntry(index)(a1);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
