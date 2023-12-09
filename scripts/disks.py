@@ -133,10 +133,10 @@ MAC_OS_9 = Disk(name="Mac OS 9.0 HD.dsk")
 MAC_OS_904 = Disk(name="Mac OS 9.0.4 HD.dsk")
 
 JAPANESE_WELCOME_STICKY = stickies.Sticky(
-    top=244,
-    left=28,
-    bottom=306,
-    right=214,
+    top=56,
+    left=454,
+    bottom=114,
+    right=640,
     font=stickies.Font.OSAKA,
     size=18,
     style={stickies.Style.BOLD},
