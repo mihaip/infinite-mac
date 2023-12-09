@@ -62,3 +62,14 @@
     width: 20px;
     margin-left: 4px;
 }
+
+.Custom-Dialog-ScreenSize {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.Custom-Dialog-ScreenSize input[type="number"] {
+    width: 32px;
+    height: 10px;
+    font-size: 12px;
+}

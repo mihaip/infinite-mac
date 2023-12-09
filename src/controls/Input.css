@@ -10,12 +10,27 @@
     font-family: "Helvetica", "Arial", sans-serif;
 }
 
+.Input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.Input::-webkit-outer-spin-button,
+.Input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
 .Input:focus {
     outline: none;
 }
 
 .Input:focus-visible {
     outline: 2px solid #000000;
+    outline-offset: -1px;
+    border-radius: 1px;
+}
+
+.Input:invalid {
+    outline: 2px solid red;
     outline-offset: -1px;
     border-radius: 1px;
 }
@@ -30,4 +45,8 @@
 
 .Input.Input-Platinum:focus-visible {
     outline-color: #6666c5;
+}
+
+.Input.Input-Platinum:invalid {
+    outline-color: red;
 }

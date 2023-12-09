@@ -38,6 +38,7 @@ import {
 } from "./emulator/emulator-ui-disk-saver";
 import {type Appearance} from "./controls/Appearance";
 import {emulatorSupportsDownloadsFolder} from "./emulator/emulator-common-emulators";
+import {type ScreenSize} from "./run-def";
 
 export type MacProps = {
     disks: SystemDiskDef[];
@@ -47,6 +48,7 @@ export type MacProps = {
     initialErrorText?: string;
     machine: MachineDef;
     ramSize?: MachineDefRAMSize;
+    screenSize: ScreenSize;
     ethernetProvider?: EmulatorEthernetProvider;
     debugFallback?: boolean;
     debugAudio?: boolean;
@@ -63,6 +65,7 @@ export default function Mac({
     initialErrorText,
     machine,
     ramSize,
+    screenSize: screenSizeProp,
     ethernetProvider,
     debugFallback,
     debugAudio,
@@ -101,7 +104,11 @@ export default function Mac({
     const emulatorSettingsRef = useRef(emulatorSettings);
     emulatorSettingsRef.current = emulatorSettings;
 
-    const initialScreenSize = machine.fixedScreenSize ?? SCREEN_SIZE_FOR_WINDOW;
+    const initialScreenSize =
+        machine.fixedScreenSize ??
+        (typeof screenSizeProp === "object"
+            ? screenSizeProp
+            : SCREEN_SIZES[screenSizeProp]);
     const {width: initialScreenWidth, height: initialScreenHeight} =
         initialScreenSize;
     const [screenSize, setScreenSize] = useState(initialScreenSize);
@@ -110,12 +117,6 @@ export default function Mac({
     const hasSavedHD = includeSavedHD && canSaveDisks();
 
     useEffect(() => {
-        document.addEventListener("fullscreenchange", handleFullScreenChange);
-        document.addEventListener(
-            "webkitfullscreenchange",
-            handleFullScreenChange
-        );
-
         const emulatorDisks: EmulatorDiskDef[] = [...disks];
         const delayedDisks: EmulatorDiskDef[] = [];
         if (includeInfiniteHD) {
@@ -251,14 +252,6 @@ export default function Mac({
         varz.incrementMulti(startVarz);
 
         return () => {
-            document.removeEventListener(
-                "fullscreenchange",
-                handleFullScreenChange
-            );
-            document.removeEventListener(
-                "webkitfullscreenchange",
-                handleFullScreenChange
-            );
             emulator.stop();
             emulatorRef.current = undefined;
             ethernetProvider?.close?.();
@@ -288,7 +281,7 @@ export default function Mac({
         document.body.requestFullscreen?.() ||
             document.body.webkitRequestFullscreen?.();
     };
-    const handleFullScreenChange = () => {
+    const handleFullScreenChange = useCallback(() => {
         const isFullScreen = Boolean(
             document.fullscreenElement ?? document.webkitFullscreenElement
         );
@@ -299,7 +292,7 @@ export default function Mac({
         }
 
         document.body.classList.toggle("fullscreen", isFullScreen);
-        if (isFullScreen) {
+        if (isFullScreen && screenSizeProp === "auto") {
             const heightScale =
                 window.screen.availHeight / screenRef.current!.height;
             const widthScale =
@@ -308,7 +301,24 @@ export default function Mac({
         } else {
             setScale(undefined);
         }
-    };
+    }, [screenSizeProp]);
+    useEffect(() => {
+        document.addEventListener("fullscreenchange", handleFullScreenChange);
+        document.addEventListener(
+            "webkitfullscreenchange",
+            handleFullScreenChange
+        );
+        return () => {
+            document.removeEventListener(
+                "fullscreenchange",
+                handleFullScreenChange
+            );
+            document.removeEventListener(
+                "webkitfullscreenchange",
+                handleFullScreenChange
+            );
+        };
+    }, [handleFullScreenChange]);
 
     const [settingsVisible, setSettingsVisible] = useState(false);
     const handleSettingsClick = () => {
@@ -483,7 +493,8 @@ export default function Mac({
     const devicePixelRatio = useDevicePixelRatio();
     const screenClassName = classNames("Mac-Screen", {
         "Mac-Screen-Smooth-Scaling":
-            fullscreen || devicePixelRatio !== Math.floor(devicePixelRatio),
+            screenSizeProp === "auto" &&
+            (fullscreen || devicePixelRatio !== Math.floor(devicePixelRatio)),
     });
 
     return (
@@ -494,7 +505,12 @@ export default function Mac({
             width={screenWidth}
             height={screenHeight}
             scale={scale}
-            fullscreen={fullscreen}
+            fullscreen={
+                fullscreen ||
+                // These screen sizes always want fullscreen-like bezels
+                screenSizeProp === "fullscreen" ||
+                screenSizeProp === "window"
+            }
             led={!emulatorLoaded || emulatorLoadingDiskChunk ? "Loading" : "On"}
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
@@ -679,23 +695,30 @@ function uploadFiles(emulator: Emulator, files: File[], names: string[] = []) {
 const SMALL_BEZEL_THRESHOLD = 80;
 const MEDIUM_BEZEL_THRESHOLD = 168;
 
-const SCREEN_SIZE_FOR_WINDOW = (() => {
-    const availableWidth = window.innerWidth - MEDIUM_BEZEL_THRESHOLD;
-    const availableHeight = window.innerHeight - MEDIUM_BEZEL_THRESHOLD;
-    for (const [width, height] of [
-        [1600, 1200],
-        [1280, 1024],
-        [1152, 870],
-        [1024, 768],
-        [800, 600],
-        [640, 480],
-    ]) {
-        if (width <= availableWidth && height <= availableHeight) {
-            return {width, height};
+const SCREEN_SIZES = {
+    "auto": (() => {
+        const availableWidth = window.innerWidth - MEDIUM_BEZEL_THRESHOLD;
+        const availableHeight = window.innerHeight - MEDIUM_BEZEL_THRESHOLD;
+        for (const [width, height] of [
+            [1600, 1200],
+            [1280, 1024],
+            [1152, 870],
+            [1024, 768],
+            [800, 600],
+            [640, 480],
+        ]) {
+            if (width <= availableWidth && height <= availableHeight) {
+                return {width, height};
+            }
         }
-    }
-    return {width: 640, height: 480};
-})();
+        return {width: 640, height: 480};
+    })(),
+    "window": {width: window.innerWidth, height: window.innerHeight},
+    "fullscreen": {
+        width: window.screen.width,
+        height: window.screen.availHeight,
+    },
+};
 
 // Assume that mobile devices that can't do hover events also need an explicit
 // control for bringing up the on-screen keyboard.

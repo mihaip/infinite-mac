@@ -3,9 +3,19 @@ import {About} from "./About";
 import {Donate} from "./Donate";
 import "./Footer.css";
 
-export function Footer({onLogoClick}: {onLogoClick?: () => void}) {
+export function Footer({
+    onLogoClick,
+    showFullscreenButton,
+}: {
+    onLogoClick?: () => void;
+    showFullscreenButton?: boolean;
+}) {
     const [aboutVisible, setAboutVisible] = useState(false);
     const [donateVisible, setDonateVisible] = useState(false);
+    const handleFullScreenClick = () => {
+        document.body.requestFullscreen?.() ||
+            document.body.webkitRequestFullscreen?.();
+    };
 
     return (
         <div className="Footer">
@@ -14,16 +24,21 @@ export function Footer({onLogoClick}: {onLogoClick?: () => void}) {
             <span onClick={onLogoClick} className="Footer-Logo">
                 Infinite Mac
             </span>
+            {showFullscreenButton && (
+                <span
+                    onClick={handleFullScreenClick}
+                    className="Footer-Fullscreen">
+                    Full Screen
+                </span>
+            )}
             <span
                 onClick={() => setAboutVisible(true)}
-                className="Footer-About"
-            >
+                className="Footer-About">
                 About
             </span>
             <span
                 onClick={() => setDonateVisible(true)}
-                className="Footer-Donate"
-            >
+                className="Footer-Donate">
                 Donate
             </span>
         </div>

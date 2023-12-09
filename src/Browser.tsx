@@ -240,6 +240,7 @@ function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
     const run = (event: React.MouseEvent) => {
         const runDef = {
             disks: [disk],
+            screenSize: "auto",
             includeInfiniteHD: true,
             includeSavedHD: canSaveDisks(),
             machine: disk.machines[0],

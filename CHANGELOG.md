@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2023-12-09: Custom instances now support custom screen sizes.
+
 2023-09-09: Added the Saved HD as a way to persist data. Its contents can also be imported and exported.
 
 2023-08-13: Custom instances now support overriding the RAM size of the emulated machine.

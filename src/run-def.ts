@@ -17,6 +17,7 @@ import {
 export type RunDef = {
     machine: MachineDef;
     ramSize?: MachineDefRAMSize;
+    screenSize: ScreenSize;
     disks: SystemDiskDef[];
     cdromURLs: string[];
     includeInfiniteHD: boolean;
@@ -28,6 +29,12 @@ export type RunDef = {
     debugPaused?: boolean;
     debugLog?: boolean;
 };
+
+export type ScreenSize =
+    | "auto"
+    | "fullscreen"
+    | "window"
+    | {width: number; height: number};
 
 export function runDefFromUrl(urlString: string): RunDef | undefined {
     let url;
@@ -77,6 +84,26 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     if (ramSizeParam && machine.ramSizes.includes(ramSizeParam)) {
         ramSize = ramSizeParam;
     }
+    let screenSize: ScreenSize = "auto";
+    const screenSizeParam = searchParams.get("screenSize");
+    switch (screenSizeParam) {
+        case "auto":
+        case "fullscreen":
+        case "window":
+            screenSize = screenSizeParam;
+            break;
+        case null:
+            break;
+        default: {
+            const [width, height] = screenSizeParam
+                .split("x")
+                .map(s => parseInt(s));
+            if (!isNaN(width) && !isNaN(height)) {
+                screenSize = {width, height};
+            }
+            break;
+        }
+    }
 
     const cdromURLs = [
         ...searchParams.getAll("cdrom"),
@@ -103,6 +130,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         includeSavedHD,
         machine,
         ramSize,
+        screenSize,
         ethernetProvider,
         cdromURLs,
         debugFallback,
@@ -144,6 +172,14 @@ export function runDefToUrl(runDef: RunDef): string {
     }
     if (runDef.ramSize && runDef.ramSize !== machine.ramSizes[0]) {
         url.searchParams.set("ram", runDef.ramSize);
+    }
+    if (runDef.screenSize !== "auto") {
+        url.searchParams.set(
+            "screenSize",
+            typeof runDef.screenSize === "object"
+                ? `${runDef.screenSize.width}x${runDef.screenSize.height}`
+                : runDef.screenSize
+        );
     }
     if (ethernetProvider instanceof CloudflareWorkerEthernetProvider) {
         url.searchParams.set("appleTalk", ethernetProvider.zoneName());

@@ -33,7 +33,12 @@ function App() {
                 <RunDefMac runDef={runDef} onDone={handleDone} />
             </Suspense>
         );
-        footer = <Footer onLogoClick={handleDone} />;
+        footer = (
+            <Footer
+                onLogoClick={handleDone}
+                showFullscreenButton={runDef.screenSize === "fullscreen"}
+            />
+        );
     } else {
         contents = (
             <React.StrictMode>
