@@ -33,6 +33,11 @@
     width: 36px;
 }
 
+.Footer .Footer-Fullscreen {
+    background-image: url(./Images/Footer-Fullscreen.png);
+    width: 68px;
+}
+
 .Footer .Footer-Donate {
     background-image: url(./Images/Footer-Donate.png);
     width: 44px;

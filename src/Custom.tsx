@@ -2,7 +2,7 @@ import "./Custom.css";
 import {useCallback, useEffect, useState} from "react";
 import {Dialog} from "./controls/Dialog";
 import * as varz from "./varz";
-import {type RunDef} from "./run-def";
+import {type ScreenSize, type RunDef} from "./run-def";
 import {
     ALL_MACHINES,
     MACHINES_BY_NAME,
@@ -47,6 +47,7 @@ export function Custom({
     const [runDef, setRunDef] = useState<RunDef>({
         machine: defaultDisk.machines[0] ?? QUADRA_650,
         ramSize: undefined,
+        screenSize: "auto",
         disks: [defaultDisk],
         cdromURLs: [],
         includeInfiniteHD: true,
@@ -160,6 +161,27 @@ export function Custom({
                 <div className="Custom-Dialog-Description Dialog-Description">
                     Not all operating systems versions can run with a reduced
                     amount of RAM.
+                </div>
+            </label>
+            <label className="Custom-Dialog-Row">
+                <span className="Custom-Dialog-Label">Screen Size:</span>
+                {runDef.machine.fixedScreenSize ? (
+                    <>
+                        {runDef.machine.fixedScreenSize.width} x{" "}
+                        {runDef.machine.fixedScreenSize.height}
+                    </>
+                ) : (
+                    <ScreenSizePicker
+                        appearance={appearance}
+                        value={runDef.screenSize}
+                        onChange={screenSize =>
+                            setRunDef({...runDef, screenSize})
+                        }
+                    />
+                )}
+                <div className="Custom-Dialog-Description Dialog-Description">
+                    Not all machines support custom screen sizes, some sizes may
+                    result in crashes.
                 </div>
             </label>
 
@@ -470,5 +492,82 @@ function CDROMOption({
                 +
             </Button>
         </label>
+    );
+}
+
+function ScreenSizePicker({
+    appearance,
+    value,
+    onChange,
+}: {
+    appearance: Appearance;
+    value: ScreenSize;
+    onChange: (value: ScreenSize) => void;
+}) {
+    const [width, setWidth] = useState(
+        typeof value === "string" ? 640 : value.width
+    );
+    const [height, setHeight] = useState(
+        typeof value === "string" ? 480 : value.height
+    );
+
+    return (
+        <div className="Custom-Dialog-ScreenSize">
+            <Select
+                appearance={appearance}
+                value={typeof value === "string" ? value : "custom"}
+                onChange={e => {
+                    const option = e.target.value;
+                    if (option === "custom") {
+                        onChange({width, height});
+                    } else {
+                        onChange(option as ScreenSize);
+                    }
+                }}>
+                {Object.entries({
+                    "auto": "Automatic",
+                    "window": "Window",
+                    "fullscreen": "Full Screen",
+                    "custom": "Custom",
+                }).map(([value, label]) => (
+                    <option key={value} value={value}>
+                        {label}
+                    </option>
+                ))}
+            </Select>
+            {typeof value !== "string" && (
+                <>
+                    <Input
+                        appearance={appearance}
+                        type="number"
+                        min={2}
+                        max={4096}
+                        step={2}
+                        value={width}
+                        onChange={e => {
+                            const width = parseInt(e.target.value);
+                            setWidth(width);
+                            onChange({width, height});
+                        }}
+                        size={4}
+                    />{" "}
+                    ×{" "}
+                    <Input
+                        appearance={appearance}
+                        type="number"
+                        min={2}
+                        max={4096}
+                        step={2}
+                        value={height}
+                        onChange={e => {
+                            const height = parseInt(e.target.value);
+                            setHeight(height);
+                            onChange({width, height});
+                        }}
+                        size={4}
+                    />
+                </>
+            )}
+        </div>
     );
 }
