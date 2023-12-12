@@ -138,7 +138,7 @@ export function Custom({
                     ))}
                 </Select>
                 <div className="Custom-Dialog-Description Dialog-Description">
-                    Note that machines cannot run all system software versions.
+                    Emulator: {runDef.machine.emulatorType}
                 </div>
             </label>
             <label className="Custom-Dialog-Row">
@@ -239,7 +239,7 @@ export function Custom({
                     </>
                 )}
                 <div className="Custom-Dialog-Description Dialog-Description">
-                    System software disks from the Infinite Mac collection.
+                    Some machines and system software combinations may not work.
                 </div>
             </div>
 
