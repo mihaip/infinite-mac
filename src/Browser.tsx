@@ -182,7 +182,7 @@ type DiskProps = {
 };
 
 function Disk({disk, onRun}: DiskProps) {
-    const [bezelStyle, setBezelStyle] = useState(disk.machines[0].bezelStyle);
+    const bezelStyle = disk.machines[0].bezelStyle;
     return (
         <DiskFrame
             bezelStyle={bezelStyle}
@@ -190,11 +190,7 @@ function Disk({disk, onRun}: DiskProps) {
                 isPlaceholderDiskDef(disk) ? (
                     <PlaceholderDiskContents disk={disk} />
                 ) : (
-                    <DiskContents
-                        setBezelStyle={setBezelStyle}
-                        disk={disk}
-                        onRun={onRun}
-                    />
+                    <DiskContents disk={disk} onRun={onRun} />
                 )
             }
         />
@@ -232,10 +228,9 @@ function DiskFrame({
 type DiskContentsProps = {
     disk: SystemDiskDef;
     onRun: BrowserRunFn;
-    setBezelStyle: (bezelStyle: MachineDef["bezelStyle"]) => void;
 };
 
-function DiskContents({disk, onRun, setBezelStyle}: DiskContentsProps) {
+function DiskContents({disk, onRun}: DiskContentsProps) {
     const [customVisible, setCustomVisible] = useState(false);
     const run = (event: React.MouseEvent) => {
         const runDef = {
