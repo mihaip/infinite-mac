@@ -313,7 +313,9 @@ class EmulatorWorkerApi {
     }
 
     #sleep(timeSeconds: number) {
-        this.#input.idleWait(timeSeconds * 1000);
+        if (timeSeconds) {
+            this.#input.idleWait(timeSeconds * 1000);
+        }
 
         if (this.#lastIdleWaitFrameId !== this.#lastBlitFrameId) {
             this.#lastIdleWaitFrameId = this.#lastBlitFrameId;
