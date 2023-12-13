@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2023-12-13: Experimental support for the Power Macintosh 6100 and G3 (Beige) machines. See https://blog.persistent.info/2023/12/dingusppc.html for more details.
+
 2023-12-09: Custom instances now support custom screen sizes.
 
 2023-09-09: Added the Saved HD as a way to persist data. Its contents can also be imported and exported.

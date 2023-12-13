@@ -45,7 +45,7 @@ npm run import-cd-roms
 
 ### Building the emulators
 
-Basilisk II, SheepShaver and Mini vMac are the original 68K and PowerPC emulators that enable this project. They are hosted in [separate](https://github.com/mihaip/minivmac/) [repos](https://github.com/mihaip/macemu/) and are included via Git submodules. Rebuilding them is only required when making changes to the emulator core, the generated files are in `src/emulator` and included in the Git repository.
+Basilisk II, SheepShaver, Mini vMac and DingusPPC are the original 68K and PowerPC emulators that enable this project. They are hosted in [separate](https://github.com/mihaip/minivmac/) [repos](https://github.com/mihaip/macemu/) and are included via Git submodules. Rebuilding them is only required when making changes to the emulator core, the generated files are in `src/emulator` and included in the Git repository.
 
 To begin, ensure that you have a Docker image built with the Emscripten toolchain and supporting libraries:
 
