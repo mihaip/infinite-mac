@@ -7,6 +7,8 @@ import {type RunDef, runDefFromUrl, runDefToUrl} from "./run-def";
 function App() {
     const initialRunDef = useMemo(() => runDefFromUrl(location.href), []);
     const [runDef, setRunDef] = useState<RunDef | undefined>(initialRunDef);
+    const [initialBrowserCustomRunDef, setInitialBrowserCustomRunDef] =
+        useState<RunDef | undefined>(undefined);
     useEffect(() => {
         const listener = () => {
             setRunDef(runDefFromUrl(location.href));
@@ -27,6 +29,7 @@ function App() {
                 history.pushState({}, "", "/");
                 setRunDef(undefined);
             }
+            setInitialBrowserCustomRunDef(runDef.isCustom ? runDef : undefined);
         };
         contents = (
             <Suspense fallback={<div />}>
@@ -43,6 +46,7 @@ function App() {
         contents = (
             <React.StrictMode>
                 <Browser
+                    initialCustomRunDef={initialBrowserCustomRunDef}
                     onRun={(runDef, inNewWindow) => {
                         const runDefUrl = runDefToUrl(runDef);
                         if (inNewWindow) {

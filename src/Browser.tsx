@@ -23,11 +23,13 @@ import {canSaveDisks} from "./canSaveDisks";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
-export type BrowserProps = {
+export function Browser({
+    onRun,
+    initialCustomRunDef,
+}: {
     onRun: BrowserRunFn;
-};
-
-export function Browser({onRun}: BrowserProps) {
+    initialCustomRunDef?: RunDef;
+}) {
     const [notableOnly, setNotableOnly] = useState(true);
     const disksByYear = notableOnly ? NOTABLE_DISKS_BY_YEAR : DISKS_BY_YEAR;
     return (
@@ -37,7 +39,10 @@ export function Browser({onRun}: BrowserProps) {
                     <h1>Infinite Mac</h1>
                 </div>
             </header>
-            <Description onRun={onRun} />
+            <Description
+                onRun={onRun}
+                initialCustomRunDef={initialCustomRunDef}
+            />
             <div className="Disks-Container">
                 <NotableToggle
                     notableOnly={notableOnly}
@@ -64,12 +69,18 @@ export function Browser({onRun}: BrowserProps) {
     );
 }
 
-function Description({onRun}: {onRun: BrowserRunFn}) {
+function Description({
+    onRun,
+    initialCustomRunDef,
+}: {
+    onRun: BrowserRunFn;
+    initialCustomRunDef?: RunDef;
+}) {
     const [aboutVisible, setAboutVisible] = useState(false);
     const [changelogVisible, setChangelogVisible] = useState(false);
     const [donateVisible, setDonateVisible] = useState(false);
     const [customVisible, setCustomVisible] = useState(
-        location.pathname === "/run"
+        location.pathname === "/run" || initialCustomRunDef !== undefined
     );
 
     return (
@@ -92,11 +103,9 @@ function Description({onRun}: {onRun: BrowserRunFn}) {
                 welcome screen in each machine for more details.
                 {customVisible && (
                     <Custom
+                        initialRunDef={initialCustomRunDef}
                         onRun={onRun}
-                        onDone={() => {
-                            history.replaceState({}, "", "/");
-                            setCustomVisible(false);
-                        }}
+                        onDone={() => setCustomVisible(false)}
                     />
                 )}
             </p>

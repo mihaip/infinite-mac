@@ -32,10 +32,12 @@ const ALL_DISKS_BY_NAME = {
 };
 
 export function Custom({
+    initialRunDef,
     defaultDisk = ALL_DISKS_BY_NAME["System 7.1"],
     onRun,
     onDone,
 }: {
+    initialRunDef?: RunDef;
     defaultDisk?: SystemDiskDef;
     onRun: (def: RunDef, inNewWindow?: boolean) => void;
     onDone: () => void;
@@ -44,15 +46,20 @@ export function Custom({
         varz.increment("custom_shown");
     }, []);
 
-    const [runDef, setRunDef] = useState<RunDef>({
-        machine: defaultDisk.machines[0] ?? QUADRA_650,
-        ramSize: undefined,
-        screenSize: "auto",
-        disks: [defaultDisk],
-        cdromURLs: [],
-        includeInfiniteHD: true,
-        includeSavedHD: canSaveDisks(),
-    });
+    const [runDef, setRunDef] = useState<RunDef>(
+        initialRunDef
+            ? {...initialRunDef, isCustom: true}
+            : {
+                  machine: defaultDisk.machines[0] ?? QUADRA_650,
+                  ramSize: undefined,
+                  screenSize: "auto",
+                  disks: [defaultDisk],
+                  cdromURLs: [],
+                  includeInfiniteHD: true,
+                  includeSavedHD: canSaveDisks(),
+                  isCustom: true,
+              }
+    );
     const appleTalkSupported =
         runDef.disks.length > 0 &&
         runDef.disks[0].appleTalkSupported === true &&
