@@ -28,6 +28,7 @@ export type RunDef = {
     debugAudio?: boolean;
     debugPaused?: boolean;
     debugLog?: boolean;
+    isCustom?: boolean;
 };
 
 export type ScreenSize =
@@ -46,6 +47,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
 
     const {searchParams} = url;
 
+    let isCustom = false;
     let includeInfiniteHD;
     let includeSavedHD;
     const disks: SystemDiskDef[] = [];
@@ -57,6 +59,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     } else {
         includeInfiniteHD = searchParams.get("infinite_hd") === "true";
         includeSavedHD = searchParams.get("saved_hd") === "true";
+        isCustom = true;
     }
 
     for (const diskName of searchParams.getAll("disk")) {
@@ -72,6 +75,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     const machineName = searchParams.get("machine");
     if (machineName) {
         machine = MACHINES_BY_NAME[machineName];
+        isCustom = true;
     }
     if (!machine && disks.length > 0) {
         machine = disks[0].machines[0];
@@ -83,6 +87,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     const ramSizeParam = searchParams.get("ram") as MachineDefRAMSize | null;
     if (ramSizeParam && machine.ramSizes.includes(ramSizeParam)) {
         ramSize = ramSizeParam;
+        isCustom = true;
     }
     let screenSize: ScreenSize = "auto";
     const screenSizeParam = searchParams.get("screenSize");
@@ -137,6 +142,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         debugAudio,
         debugPaused,
         debugLog,
+        isCustom,
     };
 }
 
