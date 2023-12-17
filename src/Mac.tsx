@@ -23,6 +23,7 @@ import {
     INFINITE_HD_MFS,
     SAVED_HD,
     INFINITE_HD6,
+    type DiskFile,
 } from "./disks";
 import {type MachineDefRAMSize, type MachineDef} from "./machines";
 import classNames from "classnames";
@@ -44,6 +45,7 @@ export type MacProps = {
     disks: SystemDiskDef[];
     includeInfiniteHD: boolean;
     includeSavedHD: boolean;
+    diskFiles: DiskFile[];
     cdroms: EmulatorCDROM[];
     initialErrorText?: string;
     machine: MachineDef;
@@ -61,6 +63,7 @@ export default function Mac({
     disks,
     includeInfiniteHD,
     includeSavedHD,
+    diskFiles,
     cdroms,
     initialErrorText,
     machine,
@@ -146,6 +149,12 @@ export default function Mac({
                 screenHeight: initialScreenHeight,
                 screenCanvas: screenRef.current!,
                 disks: emulatorDisks,
+                diskFiles: diskFiles.map(df => ({
+                    name: df.file.name,
+                    url: URL.createObjectURL(df.file),
+                    size: df.file.size,
+                    isCDROM: df.treatAsCDROM,
+                })),
                 delayedDisks,
                 cdroms,
                 ethernetProvider,

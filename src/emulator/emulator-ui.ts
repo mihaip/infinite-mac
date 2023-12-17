@@ -1,4 +1,5 @@
 import {
+    type EmulatorDiskFile,
     type EmulatorCDROM,
     type EmulatorChunkedFileSpec,
     type EmulatorFallbackCommand,
@@ -71,6 +72,7 @@ export type EmulatorConfig = {
     screenHeight: number;
     screenCanvas: HTMLCanvasElement;
     disks: EmulatorDiskDef[];
+    diskFiles: EmulatorDiskFile[];
     delayedDisks?: EmulatorDiskDef[];
     cdroms: EmulatorCDROM[];
     ethernetProvider?: EmulatorEthernetProvider;
@@ -333,6 +335,7 @@ export class Emulator {
             wasmUrl: wasmBlobUrl,
             disks,
             delayedDisks,
+            diskFiles: this.#config.diskFiles,
             deviceImageHeader,
             cdroms: this.#config.cdroms,
             useCDROM: emulatorUsesCDROMDrive(emulatorType),
@@ -877,6 +880,13 @@ function configToEmulatorPrefs(
     for (const cdrom of config.cdroms) {
         prefsStr += `disk ${cdrom.name}\n`;
     }
+    for (const diskFile of config.diskFiles) {
+        if (diskFile.isCDROM) {
+            prefsStr += `cdrom ${diskFile.name}\n`;
+        } else {
+            prefsStr += `disk ${diskFile.name}\n`;
+        }
+    }
     const useCDROM = emulatorUsesCDROMDrive(machine.emulatorType);
     if (useCDROM) {
         for (let i = 0; i < EMULATOR_CD_DRIVE_COUNT; i++) {
@@ -930,6 +940,13 @@ function configToEmulatorArgs(
     }
     for (const spec of config.cdroms) {
         args.push("--cdr_img", spec.name);
+    }
+    for (const diskFile of config.diskFiles) {
+        if (diskFile.isCDROM) {
+            args.push("--cdr_img", diskFile.name);
+        } else {
+            args.push("--hdd_img", diskFile.name);
+        }
     }
     if (config.ramSize?.endsWith("M")) {
         args.push("--rambank1_size", config.ramSize.slice(0, -1));

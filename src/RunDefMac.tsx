@@ -33,6 +33,7 @@ export default function RunDefMac({
             disks={runDef.disks}
             includeInfiniteHD={runDef.includeInfiniteHD}
             includeSavedHD={runDef.includeSavedHD}
+            diskFiles={runDef.diskFiles}
             cdroms={cdroms}
             initialErrorText={cdromErrorText}
             machine={runDef.machine}

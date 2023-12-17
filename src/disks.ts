@@ -48,6 +48,11 @@ export type SystemDiskDef = EmulatorDiskDef & {
     notable?: boolean;
 };
 
+export type DiskFile = {
+    file: File;
+    treatAsCDROM: boolean;
+};
+
 export type PlaceholderDiskDef = {
     type: "placeholder";
     displayName: string;

@@ -124,6 +124,7 @@ export type EmulatorWorkerConfig = {
     wasmUrl: string;
     disks: EmulatorChunkedFileSpec[];
     delayedDisks?: EmulatorChunkedFileSpec[];
+    diskFiles: EmulatorDiskFile[];
     deviceImageHeader: ArrayBuffer;
     cdroms: EmulatorCDROM[];
     useCDROM: boolean;
@@ -257,6 +258,10 @@ export type EmulatorWorkerFallbackClipboardConfig = {
 };
 
 export type EmulatorFileUpload = {name: string; url: string; size: number};
+
+export type EmulatorDiskFile = EmulatorFileUpload & {
+    isCDROM: boolean;
+};
 
 export type EmulatorFallbackCommand =
     | EmulatorFallbackInputCommand
@@ -412,18 +417,20 @@ export type EmulatorWorkerDirectorExtraction = {
     contents: EmulatorWorkerDirectorExtractionEntry[];
 };
 
+export const diskImageExtensions = [
+    ".iso",
+    ".hda",
+    ".dsk",
+    ".img",
+    ".image",
+    ".toast",
+    ".cdr",
+    ".smi",
+];
+
 export function isDiskImageFile(name: string): boolean {
     name = name.toLowerCase();
-    return (
-        name.endsWith(".iso") ||
-        name.endsWith(".hda") ||
-        name.endsWith(".dsk") ||
-        name.endsWith(".img") ||
-        name.endsWith(".image") ||
-        name.endsWith(".toast") ||
-        name.endsWith(".cdr") ||
-        name.endsWith(".smi")
-    );
+    return diskImageExtensions.some(ext => name.endsWith(ext));
 }
 
 export function ethernetMacAddressToString(mac: Uint8Array) {
