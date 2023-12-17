@@ -12,6 +12,7 @@ import {
 import {
     SYSTEM_DISKS_BY_NAME,
     FLOPPY_DISKS_BY_NAME,
+    type DiskFile,
     type SystemDiskDef,
     systemDiskName,
 } from "./disks";
@@ -25,6 +26,7 @@ import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvid
 import classNames from "classnames";
 import {canSaveDisks} from "./canSaveDisks";
 import {systemCDROMs} from "./cdroms";
+import {diskImageExtensions} from "./emulator/emulator-common";
 
 const ALL_DISKS_BY_NAME = {
     ...SYSTEM_DISKS_BY_NAME,
@@ -58,6 +60,7 @@ export function Custom({
                   includeInfiniteHD: true,
                   includeSavedHD: canSaveDisks(),
                   isCustom: true,
+                  diskFiles: [],
               }
     );
     const appleTalkSupported =
@@ -66,6 +69,36 @@ export function Custom({
         emulatorSupportsAppleTalk(runDef.machine.emulatorType);
     const [appleTalkEnabled, setAppleTalkEnabled] = useState(false);
     const [appleTalkZoneName, setAppleTalkZoneName] = useState("");
+
+    const handleAddDiskFile = useCallback(
+        (i: number, onDiskFileAdded?: () => void) => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = diskImageExtensions.join(",");
+            input.onchange = () => {
+                if (input.files?.length) {
+                    const file = input.files[0];
+                    setRunDef(runDef => ({
+                        ...runDef,
+                        diskFiles: [
+                            ...runDef.diskFiles.slice(0, i + 1),
+                            {
+                                file,
+                                treatAsCDROM:
+                                    file.name.endsWith(".iso") ||
+                                    file.name.endsWith(".toast"),
+                            },
+                            ...runDef.diskFiles.slice(i + 1),
+                        ],
+                    }));
+                    onDiskFileAdded?.();
+                }
+                input.remove();
+            };
+            input.click();
+        },
+        []
+    );
 
     const handleRun = useCallback(
         (event: React.MouseEvent) => {
@@ -93,6 +126,7 @@ export function Custom({
     const canRun =
         // Need a disk
         (runDef.disks.length > 0 ||
+            runDef.diskFiles.length > 0 ||
             runDef.cdromURLs.length > 0 ||
             runDef.includeSavedHD) &&
         // Need AppleTalk to be configured if enabled.
@@ -217,12 +251,42 @@ export function Custom({
                                 ],
                             })
                         }
+                        onAddDiskFile={onDiskFileAdded =>
+                            handleAddDiskFile(0, onDiskFileAdded)
+                        }
                         onRemove={() =>
-                            setRunDef({
+                            setRunDef(runDef => ({
                                 ...runDef,
                                 disks: [
                                     ...runDef.disks.slice(0, i),
                                     ...runDef.disks.slice(i + 1),
+                                ],
+                            }))
+                        }
+                        appearance={appearance}
+                    />
+                ))}
+                {runDef.diskFiles.map((diskFile, i) => (
+                    <DiskFileOption
+                        key={i}
+                        diskFile={diskFile}
+                        onChange={diskFile =>
+                            setRunDef({
+                                ...runDef,
+                                diskFiles: [
+                                    ...runDef.diskFiles.slice(0, i),
+                                    diskFile,
+                                    ...runDef.diskFiles.slice(i + 1),
+                                ],
+                            })
+                        }
+                        onAdd={() => handleAddDiskFile(i)}
+                        onRemove={() =>
+                            setRunDef({
+                                ...runDef,
+                                diskFiles: [
+                                    ...runDef.diskFiles.slice(0, i),
+                                    ...runDef.diskFiles.slice(i + 1),
                                 ],
                             })
                         }
@@ -397,12 +461,14 @@ function DiskOption({
     disk,
     onChange,
     onAdd,
+    onAddDiskFile,
     onRemove,
     appearance,
 }: {
     disk: SystemDiskDef;
     onChange: (disk: SystemDiskDef) => void;
     onAdd: () => void;
+    onAddDiskFile: (onDiskFileAdded?: () => void) => void;
     onRemove: () => void;
     appearance: Appearance;
 }) {
@@ -415,17 +481,28 @@ function DiskOption({
         );
     };
     return (
-        <label className="Custom-Dialog-Repeated">
+        <div className="Custom-Dialog-Repeated">
             <span className="Custom-Dialog-Label">Disk:</span>
             <Select
+                className="Custom-Dialog-Repeated-Disk"
                 appearance={appearance}
                 value={systemDiskName(disk)}
-                onChange={e => onChange(ALL_DISKS_BY_NAME[e.target.value])}>
+                onChange={e => {
+                    const value = e.target.value;
+                    if (value === "disk-file") {
+                        onAddDiskFile(onRemove);
+                    } else {
+                        onChange(ALL_DISKS_BY_NAME[e.target.value]);
+                    }
+                }}>
                 {Object.values(SYSTEM_DISKS_BY_NAME).map(diskOption)}
                 <option disabled>Floppy Disks</option>
                 {Object.values(FLOPPY_DISKS_BY_NAME).map(diskOption)}
+                <option disabled>Custom</option>
+                <option value="disk-file">Disk File…</option>
             </Select>
             <Button
+                className="AddRemove"
                 appearance={appearance}
                 onClick={e => {
                     e.preventDefault();
@@ -434,6 +511,7 @@ function DiskOption({
                 –
             </Button>
             <Button
+                className="AddRemove"
                 appearance={appearance}
                 onClick={e => {
                     e.preventDefault();
@@ -441,7 +519,48 @@ function DiskOption({
                 }}>
                 +
             </Button>
-        </label>
+        </div>
+    );
+}
+
+function DiskFileOption({
+    diskFile,
+    onChange,
+    onAdd,
+    onRemove,
+    appearance,
+}: {
+    diskFile: DiskFile;
+    onChange: (diskFile: DiskFile) => void;
+    onAdd: () => void;
+    onRemove: () => void;
+    appearance: Appearance;
+}) {
+    return (
+        <div className="Custom-Dialog-Repeated">
+            <span className="Custom-Dialog-Label">Disk:</span>
+            <div className="Custom-Dialog-Repeated-Disk">
+                {diskFile.file.name}
+            </div>
+            <Button
+                className="AddRemove"
+                appearance={appearance}
+                onClick={e => {
+                    e.preventDefault();
+                    onRemove();
+                }}>
+                –
+            </Button>
+            <Button
+                className="AddRemove"
+                appearance={appearance}
+                onClick={e => {
+                    e.preventDefault();
+                    onAdd();
+                }}>
+                +
+            </Button>
+        </div>
     );
 }
 
@@ -459,7 +578,7 @@ function CDROMOption({
     appearance: Appearance;
 }) {
     return (
-        <label className="Custom-Dialog-Repeated">
+        <div className="Custom-Dialog-Repeated">
             <span className="Custom-Dialog-Label">Disk URL:</span>
             <Input
                 type="url"
@@ -483,6 +602,7 @@ function CDROMOption({
                 ))}
             </Select>
             <Button
+                className="AddRemove"
                 appearance={appearance}
                 onClick={e => {
                     e.preventDefault();
@@ -491,6 +611,7 @@ function CDROMOption({
                 –
             </Button>
             <Button
+                className="AddRemove"
                 appearance={appearance}
                 onClick={e => {
                     e.preventDefault();
@@ -498,7 +619,7 @@ function CDROMOption({
                 }}>
                 +
             </Button>
-        </label>
+        </div>
     );
 }
 

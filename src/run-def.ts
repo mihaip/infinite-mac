@@ -5,6 +5,7 @@ import {
     DISKS_BY_YEAR,
     FLOPPY_DISKS,
     isPlaceholderDiskDef,
+    type DiskFile,
     type SystemDiskDef,
 } from "./disks";
 import {type EmulatorEthernetProvider} from "./emulator/emulator-ui";
@@ -19,6 +20,7 @@ export type RunDef = {
     ramSize?: MachineDefRAMSize;
     screenSize: ScreenSize;
     disks: SystemDiskDef[];
+    diskFiles: DiskFile[];
     cdromURLs: string[];
     includeInfiniteHD: boolean;
     includeSavedHD: boolean;
@@ -138,6 +140,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         screenSize,
         ethernetProvider,
         cdromURLs,
+        diskFiles: [],
         debugFallback,
         debugAudio,
         debugPaused,

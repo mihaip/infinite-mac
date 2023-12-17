@@ -125,6 +125,7 @@ class EmulatorWorkerApi {
             clipboard: clipboardConfig,
             disks,
             delayedDisks,
+            diskFiles,
             cdroms,
         } = config;
         const blitSender = (
@@ -179,6 +180,7 @@ class EmulatorWorkerApi {
                       getFallbackEndpoint()
                   );
 
+        const needsDeviceImage = emulatorNeedsDeviceImage(config.emulatorType);
         this.disks = new EmulatorWorkerDisksApi(
             [
                 ...disks.map(spec => {
@@ -188,10 +190,17 @@ class EmulatorWorkerApi {
                         return new EmulatorWorkerChunkedDisk(spec, saver);
                     }
                     const disk = new EmulatorWorkerChunkedDisk(spec, this);
-                    if (
-                        emulatorNeedsDeviceImage(config.emulatorType) &&
-                        !spec.isFloppy
-                    ) {
+                    if (needsDeviceImage && !spec.isFloppy) {
+                        return new EmulatorWorkerDeviceImageDisk(
+                            disk,
+                            config.deviceImageHeader
+                        );
+                    }
+                    return disk;
+                }),
+                ...diskFiles.map(spec => {
+                    const disk = new EmulatorWorkerUploadDisk(spec, this);
+                    if (needsDeviceImage && !spec.isCDROM) {
                         return new EmulatorWorkerDeviceImageDisk(
                             disk,
                             config.deviceImageHeader

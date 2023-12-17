@@ -249,6 +249,7 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
             includeSavedHD: canSaveDisks(),
             machine: disk.machines[0],
             cdromURLs: [],
+            diskFiles: [],
         } satisfies RunDef;
         const inNewWindow =
             event.button === 2 || event.metaKey || event.ctrlKey;

@@ -42,6 +42,7 @@
 .Custom-Dialog-Repeated {
     display: flex !important;
     align-items: center;
+    margin-bottom: 8px;
 }
 
 .Custom-Dialog-Repeated input {
@@ -49,13 +50,20 @@
     box-sizing: border-box;
 }
 
-.Custom-Dialog-Repeated .Button {
+.Custom-Dialog-Repeated .Button.AddRemove {
     margin-left: 4px;
     width: 20px;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.Custom-Dialog-Repeated-Disk {
+    width: 256px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .Custom-Dialog-CDROMs {
