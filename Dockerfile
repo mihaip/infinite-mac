@@ -12,8 +12,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
 # the SDK manually.
 RUN git clone https://github.com/emscripten-core/emsdk.git \
     && cd emsdk \
-    && ./emsdk install 3.1.33 \
-    && ./emsdk activate 3.1.33 \
+    && ./emsdk install 3.1.47 \
+    && ./emsdk activate 3.1.47 \
     && echo "source $(pwd)/emsdk_env.sh" >> $HOME/.bashrc
 
 COPY macemu/BasiliskII/src/Unix/_em_build_mpfr.sh /tmp/_em_build_mpfr.sh

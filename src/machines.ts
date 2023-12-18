@@ -145,7 +145,7 @@ export const POWER_MACINTOSH_9500: MachineDef = {
     emulatorType: "SheepShaver",
     prefsPath: sheepShaverPrefsPath,
     bezelStyle: "Platinum",
-    ramSizes: ["128M", "256M", "64M", "32M", "16M"],
+    ramSizes: ["256M", "128M", "64M", "32M", "16M"],
 };
 
 export const POWER_MACINTOSH_G3_BEIGE: MachineDef = {
@@ -168,7 +168,7 @@ export const POWER_MACINTOSH_G3_BW: MachineDef = {
     emulatorType: "SheepShaver",
     prefsPath: sheepShaverPrefsPath,
     bezelStyle: "Pinstripes",
-    ramSizes: ["128M", "256M", "64M"],
+    ramSizes: ["256M", "128M", "64M"],
 };
 
 export const ALL_MACHINES = [
