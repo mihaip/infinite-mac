@@ -1,6 +1,7 @@
 Tips
 • Files in the “Saved HD” disk will be saved across emulator runs. Its contents can also be exported and imported.
 • To add additional files (e.g. downloads from archives like Macintosh Repository and Macintosh Garden), simply drag them onto the screen. They will appear in the “Downloads” folder in The Outside World.
+• To preserve resource forks and metadata of dragged in folders or files from a modern macOS computer, compress them (via the “Compress” Finder context menu) before dragging them in.
 • Conversely, to get folders or files out the Mac, you put them in the “Uploads” folder. A .zip archive with them will be generated and downloaded by your browser.
 • To go full screen, you can use the command that appears next to the monitor's Apple logo.
 • Additional settings can be toggled by using the “Settings” command, also next to the monitor's Apple logo.
