@@ -87,3 +87,19 @@ function getDebugFinderFlags(flags: number): string[] {
     }
     return result;
 }
+
+/**
+ * Given a serialized FInfo struct, checks to see if the location data is
+ * present. If it's not, it clears the "has been inited" flag so that the Finder
+ * assigns a position to the item when it loads it.
+ */
+export function fixArchiveFinderInfo(buffer: ArrayBuffer) {
+    const fInfoView = new DataView(buffer);
+    const x = fInfoView.getInt16(FInfoFields.fdLocation);
+    const y = fInfoView.getInt16(FInfoFields.fdLocation + 2);
+    if (x === 0 && y === 0) {
+        let flags = fInfoView.getInt16(FInfoFields.fdFlags);
+        flags &= ~FinderFlags.kHasBeenInited;
+        fInfoView.setInt16(FInfoFields.fdFlags, flags);
+    }
+}

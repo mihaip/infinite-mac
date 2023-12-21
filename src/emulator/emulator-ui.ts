@@ -41,7 +41,7 @@ import {
 } from "./emulator-ui-files";
 import {
     handleDirectoryExtraction,
-    uploadsFromDirectoryExtractionFile,
+    uploadsFromFile,
 } from "./emulator-ui-extractor";
 import {
     JS_CODE_TO_ADB_KEYCODE,
@@ -436,7 +436,7 @@ export class Emulator {
         const remainingNames: string[] = [];
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            const uploads = await uploadsFromDirectoryExtractionFile(file);
+            const uploads = await uploadsFromFile(file);
             if (uploads) {
                 this.#files.uploadFiles(uploads);
                 continue;
