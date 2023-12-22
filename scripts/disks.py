@@ -21,6 +21,8 @@ class Disk:
         return os.path.join(paths.IMAGES_DIR, self.name)
 
 
+SYSTEM_10_ORIGINAL = Disk(name="System 1.0 (Original).dsk")
+
 SYSTEM_10 = Disk(
     name="System 1.0.dsk",
     sticky_placeholder_overwrite_byte=b'\xca',
@@ -158,6 +160,7 @@ KANJITALK_753 = Disk(
     welcome_sticky_override=JAPANESE_WELCOME_STICKY)
 
 ALL_DISKS = [
+    SYSTEM_10_ORIGINAL,
     SYSTEM_10,
     SYSTEM_11,
     SYSTEM_20,

@@ -88,6 +88,18 @@ const SYSTEM_1_0: SystemDiskDef = {
     notable: true,
 };
 
+const SYSTEM_1_0_ORIGINAL: SystemDiskDef = {
+    displayName: "System 1.0 (System Disk)",
+    description: "Initial system software release, shipped with the Mac 128K.",
+    releaseDate: [1984, 1, 24],
+    prefetchChunks: [0, 1],
+    machines: [MAC_128K],
+    infiniteHdSubset: "mfs",
+    delayAdditionalDiskMount: true,
+    generatedSpec: () => import("./Data/System 1.0 (Original).dsk.json"),
+    isFloppy: true,
+};
+
 const SYSTEM_1_1: SystemDiskDef = {
     displayName: "System 1.1",
     description:
@@ -791,6 +803,7 @@ export const ALL_DISKS = [
 ];
 
 export const FLOPPY_DISKS = [
+    SYSTEM_1_0_ORIGINAL,
     SYSTEM_7_1_2_DISK_TOOLS,
     SYSTEM_7_5_DISK_TOOLS,
     MAC_OS_8_1_DISK_TOOLS_68K,
