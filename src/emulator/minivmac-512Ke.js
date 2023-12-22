@@ -999,29 +999,29 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  75600: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
- 75650: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 75699: ($0) => { return workerApi.disks.size($0); },  
- 75736: ($0) => { workerApi.sleep($0); },  
- 75761: ($0) => { workerApi.disks.close($0); },  
- 75792: () => { workerApi.blit(0, 0); },  
- 75818: ($0, $1, $2, $3, $4, $5) => { workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5}); },  
- 75890: ($0, $1) => { return workerApi.enqueueAudio($0, $1); },  
- 75933: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 75984: ($0) => { workerApi.disks.close($0); },  
- 76015: () => { return workerApi.acquireInputLock(); },  
- 76056: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 76145: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 76235: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
- 76322: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
- 76409: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 76494: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 76574: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 76655: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr); },  
- 76737: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedAddr); },  
- 76815: () => { workerApi.releaseInputLock(); },  
- 76849: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
- 76889: ($0, $1) => { workerApi.didOpenVideo($0, $1); }
+  75632: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
+ 75682: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 75731: ($0) => { return workerApi.disks.size($0); },  
+ 75768: ($0) => { workerApi.sleep($0); },  
+ 75793: ($0) => { workerApi.disks.close($0); },  
+ 75824: () => { workerApi.blit(0, 0); },  
+ 75850: ($0, $1, $2, $3, $4, $5) => { workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5}); },  
+ 75922: ($0, $1) => { return workerApi.enqueueAudio($0, $1); },  
+ 75965: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 76016: ($0) => { workerApi.disks.close($0); },  
+ 76047: () => { return workerApi.acquireInputLock(); },  
+ 76088: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 76177: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 76267: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
+ 76354: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
+ 76441: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 76526: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 76606: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 76687: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr); },  
+ 76769: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedAddr); },  
+ 76847: () => { workerApi.releaseInputLock(); },  
+ 76881: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
+ 76921: ($0, $1) => { workerApi.didOpenVideo($0, $1); }
 };
 function consumeDiskName() { const diskName = workerApi.disks.consumeDiskName(); if (!diskName || !diskName.length) { return 0; } const diskNameLength = lengthBytesUTF8(diskName) + 1; const diskNameCstr = _malloc(diskNameLength); stringToUTF8(diskName, diskNameCstr, diskNameLength); return diskNameCstr; }
 
@@ -4573,8 +4573,8 @@ var stackRestore = createExportWrapper('stackRestore');
 var stackAlloc = createExportWrapper('stackAlloc');
 var _emscripten_stack_get_current = () => (_emscripten_stack_get_current = wasmExports['emscripten_stack_get_current'])();
 var dynCall_jiji = Module['dynCall_jiji'] = createExportWrapper('dynCall_jiji');
-var ___start_em_js = Module['___start_em_js'] = 76925;
-var ___stop_em_js = Module['___stop_em_js'] = 77215;
+var ___start_em_js = Module['___start_em_js'] = 76957;
+var ___stop_em_js = Module['___stop_em_js'] = 77247;
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===
