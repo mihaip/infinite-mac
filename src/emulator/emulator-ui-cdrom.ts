@@ -4,7 +4,6 @@ export async function fetchCDROM(
     cdrom: EmulatorCDROM,
     onProgress: (fraction: number) => void
 ): Promise<EmulatorCDROM> {
-    console.log("fetching", cdrom.srcUrl);
     const response = await fetch(cdrom.srcUrl);
     if (!response.ok) {
         const body = await response.text();
