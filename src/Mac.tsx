@@ -381,7 +381,10 @@ export default function Mac({
     }
     if (emulatorCDROMLoadingProgress < 1.0) {
         progress = (
-            <div className="Mac-Loading">
+            <div
+                className={classNames("Mac-Loading", {
+                    "Mac-Loading-Non-Modal": emulatorLoaded,
+                })}>
                 Loading CD-ROM…
                 <span className="Mac-Loading-Fraction">
                     {(emulatorCDROMLoadingProgress * 100).toFixed(0)}%
