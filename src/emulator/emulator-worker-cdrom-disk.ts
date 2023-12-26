@@ -4,6 +4,7 @@ import {
     type EmulatorWorkerChunkedDiskDelegate,
 } from "./emulator-worker-chunked-disk";
 import {type EmulatorWorkerDisk} from "./emulator-worker-disks";
+import {EmulatorWorkerUploadDisk} from "./emulator-worker-upload-disk";
 
 const CHUNK_SIZE = 128 * 1024;
 
@@ -11,6 +12,16 @@ export function createEmulatorWorkerCDROMDisk(
     cdrom: EmulatorCDROM,
     delegate: EmulatorWorkerChunkedDiskDelegate
 ): EmulatorWorkerDisk {
+    if (cdrom.srcUrl.startsWith("blob:")) {
+        return new EmulatorWorkerUploadDisk(
+            {
+                name: cdrom.name,
+                size: cdrom.fileSize,
+                url: cdrom.srcUrl,
+            },
+            delegate
+        );
+    }
     const {name} = cdrom;
     let chunkStart = 0;
     const chunks: string[] = [];
