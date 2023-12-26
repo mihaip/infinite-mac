@@ -20,6 +20,18 @@ body.fullscreen {
     color: white;
 }
 
+.Mac-Loading-Non-Modal {
+    height: auto;
+    left: 50%;
+    width: auto;
+    transform: translate(-50%, 0);
+    top: auto;
+    bottom: calc(var(--screen-underscan) + 10px);
+    background: #282c3422;
+    padding: 10px;
+    border-radius: 10px;
+}
+
 .Mac-Loading-Fraction {
     opacity: 0.5;
     padding-left: 0.5em;
