@@ -63,6 +63,7 @@ import {
 import {type MachineDefRAMSize, type MachineDef} from "../machines";
 import {type EmulatorDiskDef} from "../disks";
 import deviceImageHeaderPath from "../Data/Device Image Header.hda";
+import {fetchCDROM} from "./emulator-ui-cdrom";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -122,6 +123,11 @@ export interface EmulatorDelegate {
         errorRaw: string
     ): void;
     emulatorSettings?(emulator: Emulator): EmulatorSettings;
+    emulatorDidMakeCDROMLoadingProgress?(
+        emulator: Emulator,
+        cdrom: EmulatorCDROM,
+        progress: number
+    ): void;
 }
 
 export type EmulatorFallbackCommandSender = (
@@ -337,7 +343,7 @@ export class Emulator {
             delayedDisks,
             diskFiles: this.#config.diskFiles,
             deviceImageHeader,
-            cdroms: this.#config.cdroms,
+            cdroms: await this.#handleCDROMs(this.#config.cdroms),
             useCDROM: emulatorUsesCDROMDrive(emulatorType),
             autoloadFiles: {
                 [romFileName]: rom,
@@ -456,8 +462,29 @@ export class Emulator {
         );
     }
 
-    loadCDROM(cdrom: EmulatorCDROM) {
-        this.#files.loadCDROM(cdrom);
+    async loadCDROM(cdrom: EmulatorCDROM) {
+        const cdroms = await this.#handleCDROMs([cdrom]);
+        this.#files.loadCDROM(cdroms[0]);
+    }
+
+    async #handleCDROMs(cdroms: EmulatorCDROM[]): Promise<EmulatorCDROM[]> {
+        const result = [];
+        for (const cdrom of cdroms) {
+            if (cdrom.fetchClientSide) {
+                result.push(
+                    await fetchCDROM(cdrom, loadedFraction => {
+                        this.#delegate?.emulatorDidMakeCDROMLoadingProgress?.(
+                            this,
+                            cdrom,
+                            loadedFraction
+                        );
+                    })
+                );
+            } else {
+                result.push(cdrom);
+            }
+        }
+        return result;
     }
 
     #handleMouseMove = (event: MouseEvent) => {

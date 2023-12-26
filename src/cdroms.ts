@@ -27,6 +27,9 @@ export async function getCDROMInfo(url: string): Promise<EmulatorCDROM> {
     if (libraryCDROM) {
         return libraryCDROM;
     }
+    if (isCompressedCDROMURL(url)) {
+        return fetchCompressedCDROMInfo(url);
+    }
     return fetchCDROMInfo(url);
 }
 
@@ -41,5 +44,80 @@ async function fetchCDROMInfo(cdromURL: string): Promise<EmulatorCDROM> {
     }
     const cdrom = await response.json();
     varz.increment("emulator_cdrom:custom_url");
+    return cdrom;
+}
+
+function isCompressedCDROMURL(srcUrl: string) {
+    const {host, pathname} = new URL(srcUrl);
+    const path = pathname.toLowerCase();
+    return (
+        host.endsWith("archive.org") &&
+        (path.endsWith(".7z") || path.endsWith(".zip"))
+    );
+}
+
+async function fetchCompressedCDROMInfo(
+    srcUrl: string
+): Promise<EmulatorCDROM> {
+    const cacheKey = `compressed_cdrom:${srcUrl}`;
+    if (cacheKey in localStorage) {
+        return JSON.parse(localStorage[cacheKey]);
+    }
+    const contentsResponse = await fetch(`${srcUrl}/`, {
+        headers: {
+            "User-Agent": "Infinite Mac (+https://infinitemac.org)",
+        },
+        signal: AbortSignal.timeout(2000),
+    });
+    if (!contentsResponse.ok) {
+        throw new Error(
+            `Compressed CD-ROM contents request failed: ${contentsResponse.status} (${contentsResponse.statusText})`
+        );
+    }
+    const contentsBody = await contentsResponse.text();
+    const contentsDOM = new DOMParser().parseFromString(
+        contentsBody,
+        "text/html"
+    );
+    const cells = contentsDOM.querySelectorAll(".archext tr td");
+    if (cells.length < 4) {
+        throw new Error(
+            `Compressed CD-ROM contents request failed: no contents found`
+        );
+    }
+    const fileNameCell = cells[0];
+    const fileName = fileNameCell.textContent?.trim() ?? "";
+    if (!fileName) {
+        throw new Error(
+            `Compressed CD-ROM contents request failed: no filename`
+        );
+    }
+    // We cache the manifest and use the redirected URL (which is served from
+    // a specific archive.org node) so that we get a stable URL for the CD-ROM.
+    const downloadUrl =
+        contentsResponse.url + `&file=${encodeURIComponent(fileName)}`;
+    const fileSizeCell = cells[3];
+    const fileSizeStr = fileSizeCell.textContent?.trim() ?? "";
+    const fileSize = parseInt(fileSizeStr);
+    if (isNaN(fileSize)) {
+        throw new Error(
+            `Compressed CD-ROM contents request failed: invalid size (${fileSizeStr})`
+        );
+    }
+
+    const cdrom = {
+        // The name is not that important, but try to use the filename from the
+        // URL if possible.
+        name: new URL(srcUrl).pathname.split("/").pop() ?? "Untitled",
+        srcUrl: downloadUrl,
+        fileSize,
+        // Cover images are not shown for on-demand CD-ROMs, so leave them
+        // blank.
+        coverImageHash: "",
+        coverImageSize: [0, 0],
+        fetchClientSide: true,
+    } satisfies EmulatorCDROM;
+
+    localStorage[cacheKey] = JSON.stringify(cdrom);
     return cdrom;
 }

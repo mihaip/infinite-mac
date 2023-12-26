@@ -83,6 +83,8 @@ export default function Mac({
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
         0, 0,
     ]);
+    const [emulatorCDROMLoadingProgress, setEmulatorCDROMLoadingProgress] =
+        useState(1.0);
     const [emulatorLoadingDiskChunk, setEmulatorLoadingDiskChunk] =
         useState(false);
     const [emulatorErrorText, setEmulatorErrorText] =
@@ -235,6 +237,13 @@ export default function Mac({
                 emulatorSettings(emulator) {
                     return emulatorSettingsRef.current;
                 },
+                emulatorDidMakeCDROMLoadingProgress(
+                    emulator,
+                    cdrom,
+                    loadedFraction
+                ) {
+                    setEmulatorCDROMLoadingProgress(loadedFraction);
+                },
             }
         );
         emulatorRef.current = emulator;
@@ -267,6 +276,7 @@ export default function Mac({
         };
     }, [
         disks,
+        diskFiles,
         includeInfiniteHD,
         cdroms,
         machine,
@@ -368,6 +378,16 @@ export default function Mac({
                 </div>
             );
         }
+    }
+    if (emulatorCDROMLoadingProgress < 1.0) {
+        progress = (
+            <div className="Mac-Loading">
+                Loading CD-ROM…
+                <span className="Mac-Loading-Fraction">
+                    {(emulatorCDROMLoadingProgress * 100).toFixed(0)}%
+                </span>
+            </div>
+        );
     }
 
     function handleDragStart(event: React.DragEvent) {
