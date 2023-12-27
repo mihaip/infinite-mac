@@ -86,7 +86,8 @@ export function Custom({
                                 file,
                                 treatAsCDROM:
                                     file.name.endsWith(".iso") ||
-                                    file.name.endsWith(".toast"),
+                                    file.name.endsWith(".toast") ||
+                                    file.name.endsWith(".cdr"),
                             },
                             ...runDef.diskFiles.slice(i + 1),
                         ],
