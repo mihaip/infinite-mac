@@ -64,9 +64,6 @@ async function fetchCompressedCDROMInfo(
         return JSON.parse(localStorage[cacheKey]);
     }
     const contentsResponse = await fetch(`${srcUrl}/`, {
-        headers: {
-            "User-Agent": "Infinite Mac (+https://infinitemac.org)",
-        },
         signal: AbortSignal.timeout(2000),
     });
     if (!contentsResponse.ok) {
