@@ -8,10 +8,10 @@ import {
 } from "./emulator-common";
 import {
     type EmulatorSpeed,
-    EMULATOR_CD_DRIVE_COUNT,
+    EMULATOR_REMOVABLE_DISK_COUNT,
     emulatorCpuId,
     emulatorModelId,
-    emulatorUsesCDROMDrive,
+    emulatorUsesPlaceholderDisks,
     emulatorUsesPrefs,
     emulatorUsesArgs,
     emulatorNeedsPointerLock,
@@ -344,7 +344,7 @@ export class Emulator {
             diskFiles: this.#config.diskFiles,
             deviceImageHeader,
             cdroms: await this.#handleCDROMs(this.#config.cdroms),
-            useCDROM: emulatorUsesCDROMDrive(emulatorType),
+            usePlaceholderDisks: emulatorUsesPlaceholderDisks(emulatorType),
             autoloadFiles: {
                 [romFileName]: rom,
                 ...(prefsBuffer ? {"prefs": prefsBuffer} : {}),
@@ -905,7 +905,7 @@ function configToEmulatorPrefs(
         prefsStr += `disk ${spec.name}\n`;
     }
     for (const cdrom of config.cdroms) {
-        prefsStr += `disk ${cdrom.name}\n`;
+        prefsStr += `disk *${cdrom.name}\n`;
     }
     for (const diskFile of config.diskFiles) {
         if (diskFile.isCDROM) {
@@ -914,10 +914,9 @@ function configToEmulatorPrefs(
             prefsStr += `disk ${diskFile.name}\n`;
         }
     }
-    const useCDROM = emulatorUsesCDROMDrive(machine.emulatorType);
-    if (useCDROM) {
-        for (let i = 0; i < EMULATOR_CD_DRIVE_COUNT; i++) {
-            prefsStr += `cdrom /cdrom/${i}\n`;
+    if (emulatorUsesPlaceholderDisks(machine.emulatorType)) {
+        for (let i = 0; i < EMULATOR_REMOVABLE_DISK_COUNT; i++) {
+            prefsStr += `disk */placeholder/${i}\n`;
         }
     }
     if (config.ethernetProvider) {

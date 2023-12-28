@@ -212,7 +212,7 @@ class EmulatorWorkerApi {
                     createEmulatorWorkerCDROMDisk(spec, this)
                 ),
             ],
-            config.useCDROM,
+            config.usePlaceholderDisks,
             this.#emscriptenModule
         );
         this.#delayedDiskSpecs = delayedDisks;

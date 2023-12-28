@@ -684,7 +684,8 @@ var ASM_CONSTS = {
  187587: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
  187637: ($0) => { return workerApi.disks.size($0); },  
  187674: ($0) => { return workerApi.disks.isMediaPresent($0); },  
- 187721: ($0) => { workerApi.disks.eject($0); }
+ 187721: ($0) => { return workerApi.disks.isFixedDisk($0); },  
+ 187765: ($0) => { workerApi.disks.eject($0); }
 };
 function getClipboardText() { const clipboardText = workerApi.getClipboardText(); if (!clipboardText || !clipboardText.length) { return 0; } const clipboardTextLength = lengthBytesUTF8(clipboardText) + 1; const clipboardTextCstr = _malloc(clipboardTextLength); stringToUTF8(clipboardText, clipboardTextCstr, clipboardTextLength); return clipboardTextCstr; }
 
@@ -5468,8 +5469,8 @@ var ___cxa_is_pointer_type = (a0) => (___cxa_is_pointer_type = wasmExports['__cx
 var dynCall_iiiji = Module['dynCall_iiiji'] = (a0, a1, a2, a3, a4, a5) => (dynCall_iiiji = Module['dynCall_iiiji'] = wasmExports['dynCall_iiiji'])(a0, a1, a2, a3, a4, a5);
 var dynCall_ji = Module['dynCall_ji'] = (a0, a1) => (dynCall_ji = Module['dynCall_ji'] = wasmExports['dynCall_ji'])(a0, a1);
 var dynCall_jiji = Module['dynCall_jiji'] = (a0, a1, a2, a3, a4) => (dynCall_jiji = Module['dynCall_jiji'] = wasmExports['dynCall_jiji'])(a0, a1, a2, a3, a4);
-var ___start_em_js = Module['___start_em_js'] = 187752;
-var ___stop_em_js = Module['___stop_em_js'] = 188088;
+var ___start_em_js = Module['___start_em_js'] = 187796;
+var ___stop_em_js = Module['___stop_em_js'] = 188132;
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===

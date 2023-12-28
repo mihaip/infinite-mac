@@ -1,4 +1,4 @@
-import {EMULATOR_CD_DRIVE_COUNT} from "./emulator-common-emulators";
+import {EMULATOR_REMOVABLE_DISK_COUNT} from "./emulator-common-emulators";
 
 type DiskId = number;
 
@@ -18,22 +18,22 @@ export class EmulatorWorkerDisksApi {
     #lastDiskWriteTime = 0;
     #diskIdCounter = 0;
 
-    #cdroms: EmulatorCDROMDrive[] = [];
-    #useCDROM: boolean;
+    #removableDisks: EmulatorRemovableDisk[] = [];
+    #useRemovableDisks: boolean;
 
     #emscriptenModule: EmscriptenModule;
 
     constructor(
         disks: EmulatorWorkerDisk[],
-        useCDROM: boolean,
+        useRemovableDisks: boolean,
         emscriptenModule: EmscriptenModule
     ) {
         this.#disks = disks;
-        this.#useCDROM = useCDROM;
+        this.#useRemovableDisks = useRemovableDisks;
         this.#emscriptenModule = emscriptenModule;
-        if (useCDROM) {
-            for (let i = 0; i < EMULATOR_CD_DRIVE_COUNT; i++) {
-                this.#cdroms.push(new EmulatorCDROMDrive());
+        if (useRemovableDisks) {
+            for (let i = 0; i < EMULATOR_REMOVABLE_DISK_COUNT; i++) {
+                this.#removableDisks.push(new EmulatorRemovableDisk());
             }
         }
     }
@@ -43,7 +43,19 @@ export class EmulatorWorkerDisksApi {
         if (!disk) {
             throw new Error(`Disk not found: ${diskId}`);
         }
-        return disk instanceof EmulatorCDROMDrive && disk.hasDisk();
+        if (!(disk instanceof EmulatorRemovableDisk)) {
+            // Assumed to be non-removable and thus always present.
+            return true;
+        }
+        return disk.hasDisk();
+    }
+
+    isFixedDisk(diskId: DiskId): boolean {
+        const disk = this.#openedDisks.get(diskId);
+        if (!disk) {
+            throw new Error(`Disk not found: ${diskId}`);
+        }
+        return !(disk instanceof EmulatorRemovableDisk);
     }
 
     eject(diskId: DiskId) {
@@ -51,21 +63,25 @@ export class EmulatorWorkerDisksApi {
         if (!disk) {
             throw new Error(`Disk not found: ${diskId}`);
         }
-        if (!(disk instanceof EmulatorCDROMDrive)) {
-            console.warn("Cannot eject non-CD-ROM disk");
+        if (!(disk instanceof EmulatorRemovableDisk)) {
+            console.warn("Cannot eject non-removable disk");
             return;
         }
         disk.eject();
     }
 
     addDisk(disk: EmulatorWorkerDisk) {
-        if (this.#useCDROM) {
-            const cdrom = this.#cdroms.find(cd => !cd.hasDisk());
-            if (cdrom) {
-                cdrom.insert(disk);
+        if (this.#useRemovableDisks) {
+            const removableDisk = this.#removableDisks.find(
+                cd => !cd.hasDisk()
+            );
+            if (removableDisk) {
+                removableDisk.insert(disk);
                 return;
             } else {
-                console.warn("No empty CD-ROM drive found, discarding disk");
+                console.warn(
+                    "No empty removable disk drive found, discarding disk"
+                );
             }
             return;
         }
@@ -76,9 +92,9 @@ export class EmulatorWorkerDisksApi {
     open(name: string): DiskId {
         const diskId = this.#diskIdCounter++;
         let disk: EmulatorWorkerDisk | undefined;
-        if (name.startsWith("/cdrom/")) {
-            const cdIndex = parseInt(name.slice("/cdrom/".length));
-            disk = this.#cdroms[cdIndex];
+        if (name.startsWith("/placeholder/")) {
+            const index = parseInt(name.slice("/placeholder/".length));
+            disk = this.#removableDisks[index];
         } else {
             disk = this.#disks.find(d => d.name === name);
         }
@@ -96,7 +112,7 @@ export class EmulatorWorkerDisksApi {
             throw new Error(`Disk not found: ${diskId}`);
         }
         this.#openedDisks.delete(diskId);
-        if (disk instanceof EmulatorCDROMDrive) {
+        if (disk instanceof EmulatorRemovableDisk) {
             disk.eject();
         }
     }
@@ -164,12 +180,12 @@ export class EmulatorWorkerDisksApi {
     }
 }
 
-class EmulatorCDROMDrive implements EmulatorWorkerDisk {
+class EmulatorRemovableDisk implements EmulatorWorkerDisk {
     #disk: EmulatorWorkerDisk | undefined;
 
     get name() {
         if (!this.#disk) {
-            console.warn("CD-ROM drive is empty, cannot get name");
+            console.warn("Removable disk drive is empty, cannot get name");
             return "";
         }
         return this.#disk.name;
@@ -177,7 +193,7 @@ class EmulatorCDROMDrive implements EmulatorWorkerDisk {
 
     get size() {
         if (!this.#disk) {
-            console.warn("CD-ROM drive is empty, cannot get size");
+            console.warn("Removable disk drive is empty, cannot get size");
             return 0;
         }
         return this.#disk.size;
@@ -185,7 +201,7 @@ class EmulatorCDROMDrive implements EmulatorWorkerDisk {
 
     insert(disk: EmulatorWorkerDisk) {
         if (this.#disk) {
-            console.warn("CD-ROM drive was not empty");
+            console.warn("Removable drive was not empty");
             return;
         }
         this.#disk = disk;
@@ -193,7 +209,7 @@ class EmulatorCDROMDrive implements EmulatorWorkerDisk {
 
     eject() {
         if (!this.#disk) {
-            console.warn("CD-ROM drive is empty, cannot eject");
+            console.warn("Removable drive is empty, cannot eject");
             return;
         }
         this.#disk = undefined;
@@ -205,7 +221,7 @@ class EmulatorCDROMDrive implements EmulatorWorkerDisk {
 
     read(buffer: Uint8Array, offset: number, length: number): number {
         if (!this.#disk) {
-            console.warn("CD-ROM drive is empty, cannot read");
+            console.warn("Removable disk drive is empty, cannot read");
             return 0;
         }
         return this.#disk.read(buffer, offset, length);
@@ -213,7 +229,7 @@ class EmulatorCDROMDrive implements EmulatorWorkerDisk {
 
     write(buffer: Uint8Array, offset: number, length: number): number {
         if (!this.#disk) {
-            console.warn("CD-ROM drive is empty, cannot write");
+            console.warn("Removable disk drive is empty, cannot write");
             return 0;
         }
         return this.#disk.write(buffer, offset, length);
@@ -221,7 +237,7 @@ class EmulatorCDROMDrive implements EmulatorWorkerDisk {
 
     validate(): void {
         if (!this.#disk) {
-            console.warn("CD-ROM drive is empty, cannot validate");
+            console.warn("Removable disk drive is empty, cannot validate");
             return;
         }
         return this.#disk.validate?.();
