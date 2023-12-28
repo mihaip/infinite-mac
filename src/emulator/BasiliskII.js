@@ -687,7 +687,8 @@ var ASM_CONSTS = {
  455243: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
  455293: ($0) => { return workerApi.disks.size($0); },  
  455330: ($0) => { return workerApi.disks.isMediaPresent($0); },  
- 455377: ($0) => { workerApi.disks.eject($0); }
+ 455377: ($0) => { return workerApi.disks.isFixedDisk($0); },  
+ 455421: ($0) => { workerApi.disks.eject($0); }
 };
 function getClipboardText() { const clipboardText = workerApi.getClipboardText(); if (!clipboardText || !clipboardText.length) { return 0; } const clipboardTextLength = lengthBytesUTF8(clipboardText) + 1; const clipboardTextCstr = _malloc(clipboardTextLength); stringToUTF8(clipboardText, clipboardTextCstr, clipboardTextLength); return clipboardTextCstr; }
 
@@ -5701,8 +5702,8 @@ var dynCall_viijii = Module['dynCall_viijii'] = (a0, a1, a2, a3, a4, a5, a6) => 
 var dynCall_iiiiij = Module['dynCall_iiiiij'] = (a0, a1, a2, a3, a4, a5, a6) => (dynCall_iiiiij = Module['dynCall_iiiiij'] = wasmExports['dynCall_iiiiij'])(a0, a1, a2, a3, a4, a5, a6);
 var dynCall_iiiiijj = Module['dynCall_iiiiijj'] = (a0, a1, a2, a3, a4, a5, a6, a7, a8) => (dynCall_iiiiijj = Module['dynCall_iiiiijj'] = wasmExports['dynCall_iiiiijj'])(a0, a1, a2, a3, a4, a5, a6, a7, a8);
 var dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) => (dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = wasmExports['dynCall_iiiiiijj'])(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);
-var ___start_em_js = Module['___start_em_js'] = 455408;
-var ___stop_em_js = Module['___stop_em_js'] = 455744;
+var ___start_em_js = Module['___start_em_js'] = 455452;
+var ___stop_em_js = Module['___stop_em_js'] = 455788;
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===

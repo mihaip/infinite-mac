@@ -16,7 +16,7 @@ export type EmulatorCpu =
     | "604"
     | "G3";
 
-export const EMULATOR_CD_DRIVE_COUNT = 7;
+export const EMULATOR_REMOVABLE_DISK_COUNT = 7;
 
 export function emulatorUsesPrefs(type: EmulatorType): boolean {
     return type !== "DingusPPC";
@@ -26,7 +26,7 @@ export function emulatorUsesArgs(type: EmulatorType): boolean {
     return type === "DingusPPC";
 }
 
-export function emulatorUsesCDROMDrive(type: EmulatorType): boolean {
+export function emulatorUsesPlaceholderDisks(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";
 }
 

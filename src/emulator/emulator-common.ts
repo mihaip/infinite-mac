@@ -127,7 +127,7 @@ export type EmulatorWorkerConfig = {
     diskFiles: EmulatorDiskFile[];
     deviceImageHeader: ArrayBuffer;
     cdroms: EmulatorCDROM[];
-    useCDROM: boolean;
+    usePlaceholderDisks: boolean;
     autoloadFiles: {[name: string]: ArrayBuffer};
     arguments: string[];
     video: EmulatorWorkerVideoConfig;
