@@ -69,6 +69,26 @@ function MacCDROMsContents({
         }
         cdromsByCategory[category].push(cdrom);
     }
+    const sortedCategories = Object.keys(cdromsByCategory).sort((a, b) => {
+        if (a === b) {
+            return 0;
+        }
+        if (a.startsWith(b)) {
+            return 1;
+        }
+        if (b.startsWith(a)) {
+            return -1;
+        }
+        return a.localeCompare(b);
+    });
+    const sortedCdromsByCategory = Object.fromEntries(
+        sortedCategories.map(category => [category, cdromsByCategory[category]])
+    );
+    for (const cdroms of Object.values(sortedCdromsByCategory)) {
+        cdroms.sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, {numeric: true})
+        );
+    }
 
     const [customCDROMVisible, setCustomCDROMVisible] = useState(false);
 
@@ -100,22 +120,24 @@ function MacCDROMsContents({
                 />
             </div>
             <div className="Mac-CDROMs-List">
-                {Object.entries(cdromsByCategory).map(([category, cdroms]) => (
-                    <div key={category} className="Mac-CDROMs-Category">
-                        <h3>{category}</h3>
-                        <div className="Mac-CDROMs-Category-Contents">
-                            {cdroms.map(cdrom => (
-                                <MacCDROM
-                                    key={cdrom.name}
-                                    cdrom={cdrom}
-                                    onRun={() => {
-                                        onRun(cdrom);
-                                    }}
-                                />
-                            ))}
+                {Object.entries(sortedCdromsByCategory).map(
+                    ([category, cdroms]) => (
+                        <div key={category} className="Mac-CDROMs-Category">
+                            <h3>{category}</h3>
+                            <div className="Mac-CDROMs-Category-Contents">
+                                {cdroms.map(cdrom => (
+                                    <MacCDROM
+                                        key={cdrom.name}
+                                        cdrom={cdrom}
+                                        onRun={() => {
+                                            onRun(cdrom);
+                                        }}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    )
+                )}
             </div>
         </div>
     );
