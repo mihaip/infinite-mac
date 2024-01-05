@@ -19,6 +19,10 @@ elif [ "$1" = "dingusppc" ]; then
     EMULATOR=$1
     JS_EXTENSION=".js"
     EMULATOR_DIR="${ROOT_DIR}/dingusppc/build/bin"
+elif [ "$1" = "previous" ]; then
+    EMULATOR=$1
+    JS_EXTENSION=".js"
+    EMULATOR_DIR="${ROOT_DIR}/previous/build/src"
 else
     echo "Unknown emulator $1"
     exit 1

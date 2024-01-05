@@ -6,12 +6,13 @@ import MinivMacSEJsPath from "./minivmac-SE.js?url";
 import BasiliskIIJsPath from "./BasiliskII.js?url";
 import SheepShaverJsPath from "./SheepShaver.js?url";
 import DingusPPCJsPath from "./dingusppc.js?url";
+import PreviousJsPath from "./previous.js?url";
 import {type EmulatorDef} from "./emulator-common-emulators";
 
 // Import the Emscripten-generated JS module wrapper for the emulator Wasm
 // binary. Assumes that Emscripten has been run with
 // `-s MODULARIZE -s EXPORT_ES6 -s EXPORT_NAME=emulator`.
-export function importEmulator(def: EmulatorDef) {
+export function importEmulator(def: EmulatorDef): Promise<{default: any}> {
     const {emulatorType, emulatorSubtype} = def;
     switch (emulatorType) {
         case "BasiliskII":
@@ -37,6 +38,8 @@ export function importEmulator(def: EmulatorDef) {
             }
         case "DingusPPC":
             return import("./dingusppc");
+        case "Previous":
+            return import("./previous");
     }
 }
 
@@ -87,5 +90,7 @@ export function getEmulatorJsPath(def: EmulatorDef) {
             }[emulatorSubtype!];
         case "DingusPPC":
             return DingusPPCJsPath;
+        case "Previous":
+            return PreviousJsPath;
     }
 }

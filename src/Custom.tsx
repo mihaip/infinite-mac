@@ -8,6 +8,7 @@ import {
     MACHINES_BY_NAME,
     QUADRA_650,
     type MachineDefRAMSize,
+    isExperimentalMachine,
 } from "./machines";
 import {
     SYSTEM_DISKS_BY_NAME,
@@ -163,17 +164,15 @@ export function Custom({
                         }
                         setRunDef({...runDef, ...update});
                     }}>
-                    {ALL_MACHINES.filter(
-                        m => m.emulatorType !== "DingusPPC"
-                    ).map(m => (
-                        <option key={m.name} value={m.name}>
-                            {m.name}
-                        </option>
-                    ))}
+                    {ALL_MACHINES.filter(m => !isExperimentalMachine(m)).map(
+                        m => (
+                            <option key={m.name} value={m.name}>
+                                {m.name}
+                            </option>
+                        )
+                    )}
                     <option disabled>Experimental</option>
-                    {ALL_MACHINES.filter(
-                        m => m.emulatorType === "DingusPPC"
-                    ).map(m => (
+                    {ALL_MACHINES.filter(isExperimentalMachine).map(m => (
                         <option key={m.name} value={m.name}>
                             {m.name}
                         </option>
