@@ -6,9 +6,10 @@ import MinivMacSEWasmPath from "./minivmac-SE.wasm?url";
 import BasiliskIIWasmPath from "./BasiliskII.wasm?url";
 import SheepShaverWasmPath from "./SheepShaver.wasm?url";
 import DingusPPCWasmPath from "./dingusppc.wasm?url";
+import PreviousWasmPath from "./previous.wasm?url";
 import {type EmulatorDef} from "./emulator-common-emulators";
 
-export function getEmulatorWasmPath(def: EmulatorDef) {
+export function getEmulatorWasmPath(def: EmulatorDef): string {
     const {emulatorType, emulatorSubtype} = def;
     switch (emulatorType) {
         case "BasiliskII":
@@ -25,5 +26,7 @@ export function getEmulatorWasmPath(def: EmulatorDef) {
             }[emulatorSubtype!];
         case "DingusPPC":
             return DingusPPCWasmPath;
+        case "Previous":
+            return PreviousWasmPath;
     }
 }

@@ -12,8 +12,6 @@ import {
     emulatorCpuId,
     emulatorModelId,
     emulatorUsesPlaceholderDisks,
-    emulatorUsesPrefs,
-    emulatorUsesArgs,
     emulatorNeedsPointerLock,
 } from "./emulator-common-emulators";
 import {getEmulatorWasmPath} from "./emulator-ui-emulators";
@@ -306,34 +304,39 @@ export class Emulator {
             ? await loadDisks(this.#config.delayedDisks)
             : undefined;
 
-        let prefs = "";
-        let prefsBuffer;
+        const autoloadFiles: {[name: string]: ArrayBuffer} = {};
         let args: string[] = [];
+        let configDebugStr;
         const {emulatorType, emulatorSubtype} = this.#config.machine;
-        if (emulatorUsesPrefs(emulatorType)) {
-            prefs = configToEmulatorPrefs(this.#config, {
+        if (emulatorType === "DingusPPC") {
+            args = configToDingusPPCArgs(this.#config, {disks, romFileName});
+            configDebugStr = args.join(" ");
+        } else if (emulatorType === "Previous") {
+            const config = configToPreviousConfig(this.#config, {
+                baseConfig: basePrefs,
+                disks,
+                romFileName,
+            });
+            autoloadFiles["previous.cfg"] = new TextEncoder().encode(
+                config
+            ).buffer;
+            configDebugStr = config;
+        } else {
+            const prefs = configToEmulatorPrefs(this.#config, {
                 basePrefs,
                 disks,
                 romFileName,
             });
-            prefsBuffer = new TextEncoder().encode(prefs).buffer;
-            console.groupCollapsed(
-                "%cGenerated emulator prefs",
-                "font-weight: normal"
-            );
-            console.log(prefs);
-            console.groupEnd();
-        } else if (emulatorUsesArgs(emulatorType)) {
-            args = configToEmulatorArgs(this.#config, {disks, romFileName});
-            console.groupCollapsed(
-                "%cGenerated emulator args",
-                "font-weight: normal"
-            );
-            console.log(JSON.stringify(args, undefined, 2));
-            console.groupEnd();
-        } else {
-            throw new Error(`Unknown emulator type: ${emulatorType}`);
+            args = ["--config", "prefs"];
+            autoloadFiles["prefs"] = new TextEncoder().encode(prefs).buffer;
+            configDebugStr = prefs;
         }
+        console.groupCollapsed(
+            "%cGenerated emulator config",
+            "font-weight: normal"
+        );
+        console.log(configDebugStr);
+        console.groupEnd();
 
         const config: EmulatorWorkerConfig = {
             emulatorType,
@@ -347,9 +350,9 @@ export class Emulator {
             usePlaceholderDisks: emulatorUsesPlaceholderDisks(emulatorType),
             autoloadFiles: {
                 [romFileName]: rom,
-                ...(prefsBuffer ? {"prefs": prefsBuffer} : {}),
+                ...autoloadFiles,
             },
-            arguments: prefs ? ["--config", "prefs"] : args,
+            arguments: args,
             video: this.#video.workerConfig(),
             input: this.#input.workerConfig(),
             audio: this.#audio.workerConfig(),
@@ -374,7 +377,7 @@ export class Emulator {
         this.#worker.postMessage({type: "start", config}, [
             rom,
             deviceImageHeader,
-            ...(prefsBuffer ? [prefsBuffer] : []),
+            ...Object.values(autoloadFiles),
         ]);
     }
 
@@ -929,7 +932,7 @@ function configToEmulatorPrefs(
     return prefsStr;
 }
 
-function configToEmulatorArgs(
+function configToDingusPPCArgs(
     config: EmulatorConfig,
     {
         romFileName,
@@ -978,4 +981,50 @@ function configToEmulatorArgs(
         args.push("--rambank1_size", config.ramSize.slice(0, -1));
     }
     return args;
+}
+
+function configToPreviousConfig(
+    config: EmulatorConfig,
+    {
+        baseConfig,
+        romFileName,
+        disks,
+    }: {
+        baseConfig: ArrayBuffer;
+        romFileName: string;
+        disks: EmulatorChunkedFileSpec[];
+    }
+): string {
+    const floppyStrs: string[] = [];
+    const diskStrs: string[] = [];
+    function addDisk(strs: string[], name: string, isCDROM: boolean) {
+        // TODO: implement custom disk image reading in Previous. We don't add the
+        // disks to the config for now because Previous will try to find the
+        // paths on disk and refuse to start when they are not found.
+        return;
+        const i = strs.length;
+        strs.push(`
+szImageName${i} = ${name}
+nDeviceType${i} = ${isCDROM ? 2 : 1}
+bDiskInserted${i} = TRUE
+bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
+`);
+    }
+    for (const disk of disks) {
+        addDisk(disk.isFloppy ? floppyStrs : diskStrs, disk.name, false);
+    }
+    for (const spec of config.cdroms) {
+        addDisk(diskStrs, spec.name, true);
+    }
+    for (const diskFile of config.diskFiles) {
+        addDisk(diskStrs, diskFile.name, diskFile.isCDROM);
+    }
+
+    const configStr = new TextDecoder()
+        .decode(baseConfig)
+        .replaceAll("{ROM_PATH}", romFileName)
+        .replaceAll("{FLOPPIES}", floppyStrs.join("\n"))
+        .replaceAll("{DISKS}", diskStrs.join("\n"));
+
+    return configStr;
 }

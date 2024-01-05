@@ -92,6 +92,9 @@
         "concepts": "cpp",
         "numeric": "cpp",
         "algorithm": "cpp",
-        "*.def": "cpp"
+        "*.def": "cpp",
+        "stddef.h": "c",
+        "host.h": "c",
+        "nextbus.hpp": "c"
     }
 }

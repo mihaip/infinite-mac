@@ -623,9 +623,20 @@ async function startEmulator(config: EmulatorWorkerConfig) {
                 for (const [name, buffer] of Object.entries(
                     config.autoloadFiles
                 )) {
+                    const path = name.split("/");
+                    const fileName = path[path.length - 1];
+                    const parentPath = [];
+                    let parent = "/";
+                    for (const dir of path.slice(0, path.length - 1)) {
+                        parentPath.push(dir);
+                        parent = "/" + parentPath.join("/");
+                        if (!FS.analyzePath(parent).exists) {
+                            FS.mkdir(parent);
+                        }
+                    }
                     FS.createDataFile(
-                        "/",
-                        name,
+                        parent,
+                        fileName,
                         new Uint8Array(buffer),
                         true,
                         true,

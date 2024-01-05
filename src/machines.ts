@@ -8,9 +8,11 @@ import newWorldRomPath from "./Data/New-World.rom";
 import powerMacintosh6100RomPath from "./Data/Power-Macintosh-6100.rom";
 import powerMacintosh9500RomPath from "./Data/Power-Macintosh-9500.rom";
 import powerMacintoshG3RomPath from "./Data/Power-Macintosh-G3.rom";
+import nextRev33V74RomPath from "./Data/NeXT-Rev_3.3_v74.rom";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
 import emptyPrefsPath from "./Data/EmptyPrefs.txt";
+import previousConfigPath from "./Data/PreviousConfig.txt";
 import {
     type EmulatorCpu,
     type EmulatorSubtype,
@@ -171,6 +173,18 @@ export const POWER_MACINTOSH_G3_BW: MachineDef = {
     ramSizes: ["256M", "128M", "64M"],
 };
 
+export const NEXT_STATION_TURBO_COLOR: MachineDef = {
+    name: "NeXTstation Turbo Color",
+    cpu: "68040",
+    romPath: nextRev33V74RomPath,
+    gestaltID: 67,
+    emulatorType: "Previous",
+    prefsPath: previousConfigPath,
+    fixedScreenSize: {width: 1120, height: 832},
+    bezelStyle: "Platinum",
+    ramSizes: ["128M"],
+};
+
 export const ALL_MACHINES = [
     MAC_128K,
     MAC_512KE,
@@ -183,8 +197,16 @@ export const ALL_MACHINES = [
     POWER_MACINTOSH_9500,
     POWER_MACINTOSH_G3_BEIGE,
     POWER_MACINTOSH_G3_BW,
+    NEXT_STATION_TURBO_COLOR,
 ];
 
 export const MACHINES_BY_NAME = Object.fromEntries(
     ALL_MACHINES.map(machine => [machine.name, machine])
 );
+
+export function isExperimentalMachine(machine: MachineDef): boolean {
+    return (
+        machine.emulatorType === "DingusPPC" ||
+        machine.emulatorType === "Previous"
+    );
+}

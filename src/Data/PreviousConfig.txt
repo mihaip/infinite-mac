@@ -1,0 +1,175 @@
+[Log]
+sLogFileName = stderr
+sTraceFileName = stderr
+nTextLogLevel = 5
+nAlertDlgLogLevel = 1
+bConfirmQuit = FALSE
+bConsoleWindow = FALSE
+
+[ConfigDialog]
+bShowConfigDialogAtStartup = FALSE
+
+[Debugger]
+nNumberBase = 10
+nSymbolLines = -1
+nMemdumpLines = -1
+nDisasmLines = -1
+nBacktraceLines = 0
+nExceptionDebugMask = 515
+nDisasmOptions = 7
+bDisasmUAE = TRUE
+
+[Screen]
+nMonitorType = 1
+nMonitorNum = 0
+bFullScreen = FALSE
+bShowStatusbar = FALSE
+bShowDriveLed = FALSE
+
+[Keyboard]
+bSwapCmdAlt = FALSE
+nKeymapType = 1
+szMappingFileName =
+
+[ShortcutsWithModifiers]
+kOptions = O
+kFullScreen = F
+kMouseMode = M
+kColdReset = C
+kCursorEmu = J
+kScreenshot = G
+kRecord = R
+kSound = S
+kPause = P
+kDebuggerM68K = D
+kDebuggerI860 = I
+kQuit = Q
+kDimension = N
+kStatusbar = B
+
+[ShortcutsWithoutModifiers]
+kOptions = F12
+kFullScreen = F11
+kMouseMode =
+kColdReset =
+kCursorEmu =
+kScreenshot =
+kRecord =
+kSound =
+kPause =
+kDebuggerM68K =
+kDebuggerI860 =
+kQuit =
+kDimension =
+kStatusbar =
+
+[Mouse]
+bEnableAutoGrab = TRUE
+bEnableMapToKey = FALSE
+fLinSpeedNormal = 1
+fLinSpeedLocked = 1
+fExpSpeedNormal = 1
+fExpSpeedLocked = 1
+
+[Sound]
+bEnableMicrophone = TRUE
+bEnableSound = TRUE
+
+[Memory]
+nMemoryBankSize0 = 32
+nMemoryBankSize1 = 32
+nMemoryBankSize2 = 32
+nMemoryBankSize3 = 32
+nMemorySpeed = 1
+
+[Boot]
+nBootDevice = 1
+bEnableDRAMTest = FALSE
+bEnablePot = TRUE
+bEnableSoundTest = TRUE
+bEnableSCSITest = TRUE
+bLoopPot = FALSE
+bVerbose = TRUE
+bExtendedPot = FALSE
+bVisible = FALSE
+
+[HardDisk]
+{DISKS}
+
+[MagnetoOptical]
+szImageName0 = /
+bDriveConnected0 = FALSE
+bDiskInserted0 = FALSE
+bWriteProtected0 = FALSE
+szImageName1 = /
+bDriveConnected1 = FALSE
+bDiskInserted1 = FALSE
+bWriteProtected1 = FALSE
+
+[Floppy]
+{FLOPPIES}
+
+[Ethernet]
+bEthernetConnected = FALSE
+bTwistedPair = FALSE
+nHostInterface = 0
+szInterfaceName =
+szNFSroot = /Shared/
+bNetworkTime = FALSE
+
+[ROM]
+szRom030FileName = {ROM_PATH}
+szRom040FileName = {ROM_PATH}
+szRomTurboFileName = {ROM_PATH}
+bUseCustomMac = FALSE
+nRomCustomMac0 = 0
+nRomCustomMac1 = 0
+nRomCustomMac2 = 15
+nRomCustomMac3 = 0
+nRomCustomMac4 = 0
+nRomCustomMac5 = 0
+
+[Printer]
+bPrinterConnected = FALSE
+nPaperSize = 0
+szPrintToFileName = /Shared/
+
+[System]
+nMachineType = 2
+bColor = TRUE
+bTurbo = TRUE
+bNBIC = FALSE
+nSCSI = TRUE
+nRTC = TRUE
+nCpuLevel = 4
+nCpuFreq = 40
+bCompatibleCpu = TRUE
+bRealtime = TRUE
+nDSPType = 2
+bDSPMemoryExpansion = TRUE
+n_FPUType = 68040
+bCompatibleFPU = TRUE
+bMMU = TRUE
+
+[Dimension]
+bI860Thread = TRUE
+bMainDisplay = FALSE
+nMainDisplay = 0
+bEnabled0 = FALSE
+nMemoryBankSize00 = 4
+nMemoryBankSize01 = 4
+nMemoryBankSize02 = 4
+nMemoryBankSize03 = 4
+szRomFileName0 = /
+bEnabled1 = FALSE
+nMemoryBankSize10 = 4
+nMemoryBankSize11 = 4
+nMemoryBankSize12 = 4
+nMemoryBankSize13 = 4
+szRomFileName1 = /
+bEnabled2 = FALSE
+nMemoryBankSize20 = 4
+nMemoryBankSize21 = 4
+nMemoryBankSize22 = 4
+nMemoryBankSize23 = 4
+szRomFileName2 = /
