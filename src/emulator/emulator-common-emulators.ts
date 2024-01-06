@@ -32,7 +32,7 @@ export function emulatorSupportsAppleTalk(type: EmulatorType): boolean {
 }
 
 export function emulatorNeedsPointerLock(type: EmulatorType): boolean {
-    return type === "DingusPPC";
+    return type === "DingusPPC" || type === "Previous";
 }
 
 export function emulatorSupportsDownloadsFolder(type: EmulatorType): boolean {
