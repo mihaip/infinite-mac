@@ -320,6 +320,15 @@ export class Emulator {
             autoloadFiles["previous.cfg"] = new TextEncoder().encode(
                 config
             ).buffer;
+            // Previous expects to find all of the disk files on the filesystem,
+            // create some dummy files.
+            for (const disk of [
+                ...disks,
+                ...(delayedDisks ?? []),
+                ...this.#config.cdroms,
+            ]) {
+                autoloadFiles[disk.name] = new ArrayBuffer(0);
+            }
             configDebugStr = config;
         } else {
             const prefs = configToEmulatorPrefs(this.#config, {
@@ -998,10 +1007,6 @@ function configToPreviousConfig(
     const floppyStrs: string[] = [];
     const diskStrs: string[] = [];
     function addDisk(strs: string[], name: string, isCDROM: boolean) {
-        // TODO: implement custom disk image reading in Previous. We don't add the
-        // disks to the config for now because Previous will try to find the
-        // paths on disk and refuse to start when they are not found.
-        return;
         const i = strs.length;
         strs.push(`
 szImageName${i} = ${name}

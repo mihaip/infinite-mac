@@ -12,6 +12,7 @@ import {
     POWER_MACINTOSH_9500,
     QUADRA_650,
     POWER_MACINTOSH_6100,
+    NEXT_STATION_TURBO_COLOR,
 } from "./machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -756,6 +757,17 @@ const MAC_OS_9_0_4: SystemDiskDef = {
     generatedSpec: () => import("./Data/Mac OS 9.0.4 HD.dsk.json"),
 };
 
+const NEXTSTEP_3_3: SystemDiskDef = {
+    displayName: "NeXTSTEP 3.3",
+    description:
+        "Final NeXTSTEP release, improved Intel support and added MIME support to NeXTmail.",
+    releaseDate: [1994, 12, 7],
+    prefetchChunks: [0],
+    machines: [NEXT_STATION_TURBO_COLOR],
+    appearance: "Platinum",
+    generatedSpec: () => import("./Data/NEXTSTEP 3.3 HD.dsk.json"),
+};
+
 export const ALL_DISKS = [
     SYSTEM_1_0,
     SYSTEM_1_1,
@@ -800,6 +812,7 @@ export const ALL_DISKS = [
     MAC_OS_9_0_2,
     MAC_OS_9_0_3,
     MAC_OS_9_0_4,
+    NEXTSTEP_3_3,
 ];
 
 export const FLOPPY_DISKS = [
