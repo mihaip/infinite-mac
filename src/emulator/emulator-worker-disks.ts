@@ -154,10 +154,13 @@ export class EmulatorWorkerDisksApi {
         return disk.write(buffer, offset, length);
     }
 
-    size(diskId: DiskId): number {
-        const disk = this.#openedDisks.get(diskId);
+    size(diskIdOrName: DiskId | string): number {
+        const disk =
+            typeof diskIdOrName === "string"
+                ? this.#disks.find(d => d.name === diskIdOrName)
+                : this.#openedDisks.get(diskIdOrName);
         if (!disk) {
-            throw new Error(`Disk not found: ${diskId}`);
+            throw new Error(`Disk not found: ${diskIdOrName}`);
         }
         return disk.size;
     }
