@@ -762,7 +762,7 @@ const NEXTSTEP_3_3: SystemDiskDef = {
     description:
         "Final NeXTSTEP release, improved Intel support and added MIME support to NeXTmail.",
     releaseDate: [1994, 12, 7],
-    prefetchChunks: [0],
+    prefetchChunks: [0, 384, 385, 386, 392, 393, 394, 395, 396, 397],
     machines: [NEXT_STATION_TURBO_COLOR],
     appearance: "Platinum",
     generatedSpec: () => import("./Data/NEXTSTEP 3.3 HD.dsk.json"),
