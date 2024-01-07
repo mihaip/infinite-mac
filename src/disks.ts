@@ -766,6 +766,7 @@ const NEXTSTEP_3_3: SystemDiskDef = {
     machines: [NEXT_STATION_TURBO_COLOR],
     appearance: "Platinum",
     generatedSpec: () => import("./Data/NEXTSTEP 3.3 HD.dsk.json"),
+    isUnstable: true,
 };
 
 export const ALL_DISKS = [
