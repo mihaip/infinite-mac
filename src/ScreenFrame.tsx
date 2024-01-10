@@ -2,11 +2,12 @@ import React from "react";
 import "./ScreenFrame.css";
 import {ReactComponent as AppleLogoColor} from "./Images/AppleLogoColor.svg";
 import {ReactComponent as AppleLogoGrey} from "./Images/AppleLogoGrey.svg";
+import {ReactComponent as NeXTLogo} from "./Images/NeXTLogo.svg";
 import classNames from "classnames";
 
 export type ScreenFrameProps = {
     className?: string;
-    bezelStyle: "Beige" | "Platinum" | "Pinstripes";
+    bezelStyle: "Beige" | "Platinum" | "Pinstripes" | "NeXT";
     bezelSize?: "Small" | "Small-ish" | "Medium" | "Large";
     width: number;
     height: number;
@@ -46,14 +47,20 @@ export function ScreenFrame(props: ScreenFrameProps) {
         `ScreenFrame-Bezel-${bezelSize}`,
         className,
         {
+            "ScreenFrame-CenterLogo":
+                bezelStyle === "NeXT" || bezelStyle === "Pinstripes",
             "ScreenFrame-Fullscreen": fullscreen,
         }
     );
     const ledClassName = classNames("ScreenFrame-Led", {
         "ScreenFrame-Led-Loading": led === "Loading",
     });
-    const AppleLogo =
-        bezelStyle === "Pinstripes" ? AppleLogoGrey : AppleLogoColor;
+    const Logo =
+        bezelStyle === "NeXT"
+            ? NeXTLogo
+            : bezelStyle === "Pinstripes"
+            ? AppleLogoGrey
+            : AppleLogoColor;
 
     return (
         <div
@@ -65,9 +72,9 @@ export function ScreenFrame(props: ScreenFrameProps) {
             }}
             {...divProps}>
             <div className="ScreenFrame-Controls-Container">
-                <div className="ScreenFrame-Apple-Logo">
-                    <AppleLogo className="Background" />
-                    <AppleLogo className="Foreground" />
+                <div className="ScreenFrame-Logo">
+                    <Logo className="Background" />
+                    <Logo className="Foreground" />
                 </div>
                 {controls.map(({label, handler, alwaysVisible}, i) => (
                     <div
