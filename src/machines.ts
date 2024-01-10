@@ -29,7 +29,7 @@ export type MachineDef = {
     prefsPath: string;
     fixedScreenSize?: {width: number; height: number};
     mfsOnly?: boolean;
-    bezelStyle: "Beige" | "Platinum" | "Pinstripes";
+    bezelStyle: "Beige" | "Platinum" | "Pinstripes" | "NeXT";
     ramSizes: MachineDefRAMSize[]; // First value is the default
 };
 
@@ -181,7 +181,7 @@ export const NEXT_STATION_TURBO_COLOR: MachineDef = {
     emulatorType: "Previous",
     prefsPath: previousConfigPath,
     fixedScreenSize: {width: 1120, height: 832},
-    bezelStyle: "Platinum",
+    bezelStyle: "NeXT",
     ramSizes: ["128M"],
 };
 
