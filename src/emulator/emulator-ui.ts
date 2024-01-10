@@ -1025,11 +1025,28 @@ bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
         addDisk(diskStrs, diskFile.name, diskFile.isCDROM);
     }
 
-    const configStr = new TextDecoder()
+    let configStr = new TextDecoder()
         .decode(baseConfig)
         .replaceAll("{ROM_PATH}", romFileName)
         .replaceAll("{FLOPPIES}", floppyStrs.join("\n"))
         .replaceAll("{DISKS}", diskStrs.join("\n"));
+
+    const ramSize = config.ramSize ?? config.machine.ramSizes[0];
+    // Replicate valid combinations from defmemsize in Previous's dlgAdvanced.c.
+    const RAM_BANKS: {[size: MachineDefRAMSize]: number[]} = {
+        "128M": [32, 32, 32, 32],
+        "64M": [32, 32, 0, 0],
+        "32M": [8, 8, 8, 8],
+        "16M": [8, 8, 0, 0],
+    };
+    const ramBankSizes =
+        ramSize in RAM_BANKS ? RAM_BANKS[ramSize] : RAM_BANKS["128M"];
+    ramBankSizes.forEach((size, i) => {
+        configStr = configStr.replaceAll(
+            `{RAM_BANK_SIZE${i}}`,
+            size.toString()
+        );
+    });
 
     return configStr;
 }

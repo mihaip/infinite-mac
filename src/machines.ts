@@ -182,7 +182,7 @@ export const NEXT_STATION_TURBO_COLOR: MachineDef = {
     prefsPath: previousConfigPath,
     fixedScreenSize: {width: 1120, height: 832},
     bezelStyle: "NeXT",
-    ramSizes: ["128M"],
+    ramSizes: ["128M", "64M", "32M", "16M"],
 };
 
 export const ALL_MACHINES = [

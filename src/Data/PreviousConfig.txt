@@ -76,10 +76,10 @@ bEnableMicrophone = TRUE
 bEnableSound = TRUE
 
 [Memory]
-nMemoryBankSize0 = 32
-nMemoryBankSize1 = 32
-nMemoryBankSize2 = 32
-nMemoryBankSize3 = 32
+nMemoryBankSize0 = {RAM_BANK_SIZE0}
+nMemoryBankSize1 = {RAM_BANK_SIZE1}
+nMemoryBankSize2 = {RAM_BANK_SIZE2}
+nMemoryBankSize3 = {RAM_BANK_SIZE3}
 nMemorySpeed = 1
 
 [Boot]
