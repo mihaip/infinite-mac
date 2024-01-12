@@ -85,13 +85,13 @@ nMemorySpeed = 1
 [Boot]
 nBootDevice = 1
 bEnableDRAMTest = FALSE
-bEnablePot = TRUE
-bEnableSoundTest = TRUE
-bEnableSCSITest = TRUE
+bEnablePot = {DEBUG_LOG}
+bEnableSoundTest = {DEBUG_LOG}
+bEnableSCSITest = {DEBUG_LOG}
 bLoopPot = FALSE
-bVerbose = TRUE
-bExtendedPot = FALSE
-bVisible = FALSE
+bVerbose = {DEBUG_LOG}
+bExtendedPot = {DEBUG_LOG}
+bVisible = {DEBUG_LOG}
 
 [HardDisk]
 {DISKS}
