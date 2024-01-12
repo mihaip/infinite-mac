@@ -1029,7 +1029,8 @@ bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
         .decode(baseConfig)
         .replaceAll("{ROM_PATH}", romFileName)
         .replaceAll("{FLOPPIES}", floppyStrs.join("\n"))
-        .replaceAll("{DISKS}", diskStrs.join("\n"));
+        .replaceAll("{DISKS}", diskStrs.join("\n"))
+        .replaceAll("{DEBUG_LOG}", config.debugLog ? "TRUE" : "FALSE");
 
     const ramSize = config.ramSize ?? config.machine.ramSizes[0];
     // Replicate valid combinations from defmemsize in Previous's dlgAdvanced.c.
