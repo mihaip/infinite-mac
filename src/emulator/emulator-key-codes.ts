@@ -117,7 +117,7 @@ export const JS_CODE_TO_ADB_KEYCODE: {[code: string]: number} = {
     "PageUp": 0x74, // kVK_PageUp
     "Delete": 0x75, // kVK_ForwardDelete
     "F4": 0x76, // kVK_F4
-    "Ebd": 0x77, // kVK_End
+    "End": 0x77, // kVK_End
     "F2": 0x78, // kVK_F2
     "PageDown": 0x79, // kVK_PageDown
     "F1": 0x7a, // kVK_F1
@@ -142,4 +142,130 @@ export const JS_CODE_TO_MINI_VMAC_KEYCODE: {[code: string]: number} = {
     // for it.
     "ControlLeft": 0x3b, // MKC_Control
     "ControlRight": 0x3b, // MKC_Control
+};
+
+/**
+ * Mapping of JavaScript/DOM key codes to NeXT key codes (see keymap.c in the
+ * Previous emulator).
+ */
+export const JS_CODE_TO_NEXT_KEYCODE: {[code: string]: number} = {
+    "KeyA": 0x39, // NEXTKEY_A
+    "KeyS": 0x3a, // NEXTKEY_S
+    "KeyD": 0x3b, // NEXTKEY_D
+    "KeyF": 0x3c, // NEXTKEY_F
+    "KeyH": 0x40, // NEXTKEY_H
+    "KeyG": 0x3d, // NEXTKEY_G
+    "KeyZ": 0x31, // NEXTKEY_Z
+    "KeyX": 0x32, // NEXTKEY_X
+    "KeyC": 0x33, // NEXTKEY_C
+    "KeyV": 0x34, // NEXTKEY_V
+    "KeyB": 0x35, // NEXTKEY_B
+    "KeyQ": 0x42, // NEXTKEY_Q
+    "KeyW": 0x43, // NEXTKEY_W
+    "KeyE": 0x44, // NEXTKEY_E
+    "KeyR": 0x45, // NEXTKEY_R
+    "KeyY": 0x47, // NEXTKEY_Y
+    "KeyT": 0x48, // NEXTKEY_T
+    "Digit1": 0x4a, // NEXTKEY_1
+    "Digit2": 0x4b, // NEXTKEY_2
+    "Digit3": 0x4c, // NEXTKEY_3
+    "Digit4": 0x4d, // NEXTKEY_4
+    "Digit6": 0x4f, // NEXTKEY_6
+    "Digit5": 0x50, // NEXTKEY_5
+    "Equal": 0x1c, // NEXTKEY_EQUALS
+    "Digit9": 0x1f, // NEXTKEY_9
+    "Digit7": 0x4e, // // NEXTKEY_7
+    "Minus": 0x1d, // NEXTKEY_MINUS
+    "Digit8": 0x1e, // NEXTKEY_8
+    "Digit0": 0x20, // NEXTKEY_0
+    "BracketRight": 0x04, // NEXTKEY_CLOSEBRACKET
+    "KeyO": 0x07, // NEXTKEY_o
+    "KeyU": 0x46, // NEXTKEY_0
+    "BracketLeft": 0x05, // NEXTKEY_OPENBRACKET
+    "KeyI": 0x06, // NEXTKEY_I
+    "KeyP": 0x08, // NEXTKEY_P
+    "KeyL": 0x2d, // NEXTKEY_L
+    "KeyJ": 0x3f, // NEXTKEY_J
+    "Quote": 0x2b, // NEXTKEY_QUOTE
+    "KeyK": 0x3e, // NEXTKEY_K
+    "Semicolon": 0x2c, // NEXTKEY_SEMICOLON
+    "Backslash": 0x03, // NEXTKEY_BACKSLASH
+    "Comma": 0x2e, // NEXTKEY_COMMA
+    "Slash": 0x30, // NEXTKEY_SLASH
+    "KeyN": 0x37, // NEXTKEY_N
+    "KeyM": 0x36, // NEXTKEY_M
+    "Period": 0x2f, // NEXTKEY_PERIOD
+    "Backquote": 0x26, // NEXTKEY_BACKQUOTE
+    "NumpadDecimal": 0x0c, // NEXTKEY_KEYPAD_PERIOD
+    "NumpadMultiply": 0x25, // NEXTKEY_KEYPAD_MULTIPLY
+    "NumpadAdd": 0x15, // NEXTKEY_KEYPAD_PLUS
+    "NumLock": 0x26, // NEXTKEY_BACKQUOTE
+    "NumpadDivide": 0x28, // NEXTKEY_KEYPAD_DIVIDE
+    "NumpadEnter": 0x0d, // NEXTKEY_KEYPAD_ENTER
+    "NumpadMinus": 0x24, // NEXTKEY_KEYPAD_MINUS
+    "NumpadEqual": 0x27, // NEXTKEY_KEYPAD_EQUALS
+    "Numpad0": 0x0b, // NEXTKEY_KEYPAD_0
+    "Numpad1": 0x11, // NEXTKEY_KEYPAD_1
+    "Numpad2": 0x17, // NEXTKEY_KEYPAD_2
+    "Numpad3": 0x14, // NEXTKEY_KEYPAD_3
+    "Numpad4": 0x12, // NEXTKEY_KEYPAD_4
+    "Numpad5": 0x18, // NEXTKEY_KEYPAD_5
+    "Numpad6": 0x13, // NEXTKEY_KEYPAD_6
+    "Numpad7": 0x21, // NEXTKEY_KEYPAD_7
+    "Numpad8": 0x22, // NEXTKEY_KEYPAD_8
+    "Numpad9": 0x23, // NEXTKEY_KEYPAD_9
+    "Enter": 0x2a, // NEXTKEY_RETURN
+    "Tab": 0x0, // NEXTKEY_TAB
+    "Space": 0x38, // NEXTKEY_SPACE
+    "Backspace": 0x1b, // NEXTKEY_DELETE
+    "Escape": 0x49, // NEXTKEY_ESC
+    "AudioVolumeUp": 0x1a, // NEXTKEY_VOLUME_UP
+    "AudioVolumeDown": 0x02, // NEXTKEY_VOLUME_DOWN
+    "F5": 0x02, // NEXTKEY_VOLUME_DOWN
+    "F6": 0x1a, // NEXTKEY_VOLUME_UP
+    "F10": 0x58, // NEXTKEY_POWER
+    "Home": 0x1a, // NEXTKEY_VOLUME_UP
+    "PageUp": 0x19, // NEXTKEY_BRIGHTNESS_UP
+    "Delete": 0x58, // NEXTKEY_POWER
+    "F2": 0x19, // NEXTKEY_BRIGHTNESS_UP,
+    "PageDown": 0x01, // NEXTKEY_BRGHTNESS_DOWN
+    "F1": 0x01, // NEXTKEY_BRGHTNESS_DOWN
+    "ArrowLeft": 0x09, // NEXTKEY_LEFT_ARROW
+    "ArrowRight": 0x10, // NEXTKEY_RIGHT_ARROW
+    "ArrowDown": 0x0f, // NEXTKEY_DOWN_ARROW
+    "ArrowUp": 0x16, // NEXTKEY_UP_ARROW
+    "End": 0x02, // NEXTKEY_VOLUME_DOWN
+
+    // Modifiers are sent as separate flags
+    "MetaLeft": 0x00,
+    "OSLeft": 0x00,
+    "ShiftLeft": 0x00,
+    "CapsLock": 0x00,
+    "AltLeft": 0x00,
+    "ControlLeft": 0x00,
+    "MetaRight": 0x00,
+    "OSRight": 0x00,
+    "ShiftRight": 0x00,
+    "AltRight": 0x00,
+    "ControlRight": 0x00,
+    "Fn": 0x00,
+
+    // Unmapped keys (NEXTKEY_NONE)
+    "F3": 0x0,
+    "F4": 0x0,
+    "F7": 0x0,
+    "F8": 0x0,
+    "F9": 0x0,
+    "F11": 0x0,
+    "F12": 0x0,
+    "F13": 0x0,
+    "F15": 0x0,
+    "F16": 0x0,
+    "F14": 0x0,
+    "F17": 0x00,
+    "F18": 0x0,
+    "F19": 0x0,
+    "F20": 0x0,
+    "AudioVolumeMute": 0x0,
+    "Help": 0x0,
 };

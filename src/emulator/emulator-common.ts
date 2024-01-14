@@ -6,20 +6,25 @@ import {
 
 export const InputBufferAddresses = {
     globalLockAddr: 0,
+
     mousePositionFlagAddr: 1,
     mousePositionXAddr: 2,
     mousePositionYAddr: 3,
     mouseButtonStateAddr: 4,
+    mouseDeltaXAddr: 13,
+    mouseDeltaYAddr: 14,
+
     keyEventFlagAddr: 5,
     keyCodeAddr: 6,
     keyStateAddr: 7,
+    keyModifiersAddr: 15,
+
     stopFlagAddr: 8,
     ethernetInterruptFlagAddr: 9,
     audioContextRunningFlagAddr: 10,
+
     speedFlagAddr: 11,
     speedAddr: 12,
-    mouseDeltaXAddr: 13,
-    mouseDeltaYAddr: 14,
 };
 
 export type EmulatorMouseEvent =
@@ -30,6 +35,7 @@ export type EmulatorTouchEvent = {type: "touchstart"; x: number; y: number};
 export type EmulatorKeyboardEvent = {
     type: "keydown" | "keyup";
     keyCode: number;
+    modifiers?: number;
 };
 export type EmulatorStopEvent = {
     type: "stop";
@@ -310,6 +316,7 @@ export function updateInputBufferWithEvents(
     let hasKeyEvent = false;
     let keyCode = -1;
     let keyState = -1;
+    let keyModifiers = 0;
     let hasStop = false;
     let hasStart = false;
     let hasEthernetInterrupt = false;
@@ -354,6 +361,7 @@ export function updateInputBufferWithEvents(
                 hasKeyEvent = true;
                 keyState = inputEvent.type === "keydown" ? 1 : 0;
                 keyCode = inputEvent.keyCode;
+                keyModifiers = inputEvent.modifiers ?? 0;
                 break;
             case "stop":
                 hasStop = true;
@@ -387,6 +395,7 @@ export function updateInputBufferWithEvents(
         inputBufferView[InputBufferAddresses.keyEventFlagAddr] = 1;
         inputBufferView[InputBufferAddresses.keyCodeAddr] = keyCode;
         inputBufferView[InputBufferAddresses.keyStateAddr] = keyState;
+        inputBufferView[InputBufferAddresses.keyModifiersAddr] = keyModifiers;
     }
     if (hasStop) {
         inputBufferView[InputBufferAddresses.stopFlagAddr] = 1;
