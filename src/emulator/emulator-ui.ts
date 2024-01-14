@@ -44,6 +44,7 @@ import {
 import {
     JS_CODE_TO_ADB_KEYCODE,
     JS_CODE_TO_MINI_VMAC_KEYCODE,
+    JS_CODE_TO_NEXT_KEYCODE,
 } from "./emulator-key-codes";
 import {
     type EmulatorEthernet,
@@ -601,6 +602,7 @@ export class Emulator {
             this.#input.handleInput({
                 type: "keydown",
                 keyCode: adbKeyCode,
+                modifiers: this.#getAdbKeyModifiers(event),
             });
         } else {
             console.warn(`Unhandled key: ${code}`);
@@ -617,6 +619,7 @@ export class Emulator {
                 this.#input.handleInput({
                     type: "keyup",
                     keyCode: adbKeyCode,
+                    modifiers: this.#getAdbKeyModifiers(event),
                 });
             }
         };
@@ -647,6 +650,9 @@ export class Emulator {
                 code = "Control" + code.slice("Meta".length);
             }
         }
+        if (this.#config.machine.emulatorType === "Previous") {
+            return JS_CODE_TO_NEXT_KEYCODE[code];
+        }
         if (this.#config.machine.emulatorType === "Mini vMac") {
             const keyCode = JS_CODE_TO_MINI_VMAC_KEYCODE[code];
             if (keyCode !== undefined) {
@@ -654,6 +660,38 @@ export class Emulator {
             }
         }
         return JS_CODE_TO_ADB_KEYCODE[code];
+    }
+
+    #getAdbKeyModifiers(event: KeyboardEvent): number | undefined {
+        // Only Previous needs to have modifiers sent separately.
+        if (this.#config.machine.emulatorType !== "Previous") {
+            return undefined;
+        }
+        let modifiers = 0;
+        if (event.altKey) {
+            modifiers |= 0x20; // NEXTKEY_MOD_LALT
+        }
+        if (event.shiftKey) {
+            modifiers |= 0x02; // NEXTKEY_MOD_LSHIFT
+        }
+        // Previous appears to already do a meta/control swap, so we need to
+        // flip the modifier codes that we send it.
+        if (this.#delegate?.emulatorSettings?.(this).swapControlAndCommand) {
+            if (event.ctrlKey) {
+                modifiers |= 0x08; // NEXTKEY_MOD_LCTRL
+            }
+            if (event.metaKey) {
+                modifiers |= 0x01; // NEXTKEY_MOD_META
+            }
+        } else {
+            if (event.ctrlKey) {
+                modifiers |= 0x01; // NEXTKEY_MOD_META
+            }
+            if (event.metaKey) {
+                modifiers |= 0x08; // NEXTKEY_MOD_LCTRL
+            }
+        }
+        return modifiers;
     }
 
     #handleBeforeUnload = () => {
