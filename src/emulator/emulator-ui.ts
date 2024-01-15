@@ -580,11 +580,16 @@ export class Emulator {
     };
 
     #handleKeyDown = (event: KeyboardEvent) => {
-        if (event.target instanceof HTMLInputElement) {
+        const {target, code} = event;
+        // Ignore input events in UI, except for the dummy <input> that we use
+        // to get keyboard events on mobile.
+        if (
+            target instanceof HTMLInputElement &&
+            !target.classList.contains("Mac-Keyboard-Input")
+        ) {
             return;
         }
         event.preventDefault();
-        const {code} = event;
         const adbKeyCode = this.#getAdbKeyCode(code);
         if (adbKeyCode !== undefined) {
             this.#downKeyCodes.add(code);
