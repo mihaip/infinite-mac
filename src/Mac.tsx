@@ -351,11 +351,11 @@ export default function Mac({
             return;
         }
         // Bringing up the on-screen keyboard on iOS requires that the input
-        // is visible, but only for the focus request to be honored. We can
-        // hide it immediately after to avoid ending up with a blinking caret.
+        // is visible, and as of iOS 17, it needs to be on-screen at all times.
+        // We don't show it by default to avoid any unintended side effects from
+        // from it.
         input.style.visibility = "visible";
         input.focus();
-        input.style.removeProperty("visibility");
     };
     const handleStartClick = () => {
         emulatorRef.current?.start();
