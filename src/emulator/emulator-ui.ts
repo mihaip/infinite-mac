@@ -1063,12 +1063,25 @@ bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
         addDisk(diskStrs, diskFile.name, diskFile.isCDROM);
     }
 
+    // Possible values come from the BOOT_DEVICE enum in Previous's
+    // configuration.h.
+    let bootDevice = 1; // BOOT_SCSI
+    if (
+        config.cdroms.length + config.disks.length + config.diskFiles.length ===
+        0
+    ) {
+        bootDevice = 0; // BOOT_ROM
+    } else if (disks.length === 1 && disks[0].isFloppy) {
+        bootDevice = 4; // BOOT_FLOPPY
+    }
+
     let configStr = new TextDecoder()
         .decode(baseConfig)
         .replaceAll("{ROM_PATH}", romFileName)
         .replaceAll("{FLOPPIES}", floppyStrs.join("\n"))
         .replaceAll("{DISKS}", diskStrs.join("\n"))
-        .replaceAll("{DEBUG_LOG}", config.debugLog ? "TRUE" : "FALSE");
+        .replaceAll("{DEBUG_LOG}", config.debugLog ? "TRUE" : "FALSE")
+        .replaceAll("{BOOT_DEVICE}", bootDevice.toString());
 
     const ramSize = config.ramSize ?? config.machine.ramSizes[0];
     // Replicate valid combinations from defmemsize in Previous's dlgAdvanced.c.

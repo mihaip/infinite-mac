@@ -83,7 +83,7 @@ nMemoryBankSize3 = {RAM_BANK_SIZE3}
 nMemorySpeed = 1
 
 [Boot]
-nBootDevice = 1
+nBootDevice = {BOOT_DEVICE}
 bEnableDRAMTest = FALSE
 bEnablePot = {DEBUG_LOG}
 bEnableSoundTest = {DEBUG_LOG}
