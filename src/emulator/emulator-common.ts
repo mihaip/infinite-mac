@@ -469,6 +469,7 @@ export type EmulatorCDROM = {
     coverImageSize: [width: number, height: number];
     coverImageType?: "square" | "round"; // Default is round
     mode?: "MODE1/2352"; // TODO: other modes
+    platform?: "Macintosh" | "NeXT";
     fetchClientSide?: boolean;
 };
 

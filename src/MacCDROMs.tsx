@@ -7,13 +7,16 @@ import {Dialog} from "./controls/Dialog";
 import {cdromLibrary, getCDROMInfo} from "./cdroms";
 import {Input} from "./controls/Input";
 import {type Appearance} from "./controls/Appearance";
+import {type MachinePlatform} from "./machines";
 
 export function MacCDROMs({
     onRun,
     appearance,
+    platform,
 }: {
     onRun: (cdrom: EmulatorCDROM) => void;
     appearance: Appearance;
+    platform?: MachinePlatform;
 }) {
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(value => !value);
@@ -33,6 +36,7 @@ export function MacCDROMs({
                         onRun(cdrom);
                     }}
                     appearance={appearance}
+                    platform={platform}
                 />
             )}
         </div>
@@ -42,9 +46,11 @@ export function MacCDROMs({
 function MacCDROMsContents({
     onRun,
     appearance,
+    platform = "Macintosh",
 }: {
     onRun: (cdrom: EmulatorCDROM) => void;
     appearance: Appearance;
+    platform?: MachinePlatform;
 }) {
     const [search, setSearch] = useState("");
     const cdroms = cdromLibrary;
@@ -59,6 +65,10 @@ function MacCDROMsContents({
             continue;
         }
         const cdrom = cdroms[folderPath];
+        const {platform: cdromPlatform = "Macintosh"} = cdrom;
+        if (cdromPlatform !== platform) {
+            continue;
+        }
         const category = folderPath.substring(
             0,
             folderPath.length - cdrom.name.length - 1
