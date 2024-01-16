@@ -31,9 +31,12 @@ export type MachineDef = {
     mfsOnly?: boolean;
     bezelStyle: "Beige" | "Platinum" | "Pinstripes" | "NeXT";
     ramSizes: MachineDefRAMSize[]; // First value is the default
+    platform?: MachinePlatform;
 };
 
 export type MachineDefRAMSize = `${number}M` | `${number}K`;
+
+export type MachinePlatform = "Macintosh" | "NeXT";
 
 export const MAC_128K: MachineDef = {
     name: "Mac 128K",
@@ -183,6 +186,7 @@ export const NEXT_STATION_TURBO_COLOR: MachineDef = {
     fixedScreenSize: {width: 1120, height: 832},
     bezelStyle: "NeXT",
     ramSizes: ["128M", "64M", "32M", "16M"],
+    platform: "NeXT",
 };
 
 export const ALL_MACHINES = [

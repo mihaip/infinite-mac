@@ -22,6 +22,7 @@ class InputManifest(typing.TypedDict):
     cover_image: str
     cover_image_type: typing.NotRequired[str]
     mode: typing.NotRequired[str]
+    platform: typing.NotRequired[str]
 
 
 class OutputManifest(typing.TypedDict):
@@ -32,7 +33,7 @@ class OutputManifest(typing.TypedDict):
     coverImageHash: str
     fileSize: int
     mode: typing.NotRequired[str]
-
+    platform: typing.NotRequired[str]
 
 def load_manifests() -> typing.Dict[str, InputManifest]:
     for manifest_path in glob.iglob(os.path.join(paths.CD_ROMS_DIR, "**",
@@ -78,6 +79,8 @@ def get_output_manifest(input_manifest: InputManifest) -> OutputManifest:
         output_manifest["coverImageType"] = input_manifest["cover_image_type"]
     if "mode" in input_manifest:
         output_manifest["mode"] = input_manifest["mode"]
+    if "platform" in input_manifest:
+        output_manifest["platform"] = input_manifest["platform"]
 
     return output_manifest
 

@@ -1049,12 +1049,17 @@ function configToPreviousConfig(
 ): string {
     const floppyStrs: string[] = [];
     const diskStrs: string[] = [];
-    function addDisk(strs: string[], name: string, isCDROM: boolean) {
+    function addDisk(
+        strs: string[],
+        name: string,
+        isCDROM: boolean,
+        isInserted: boolean = true
+    ) {
         const i = strs.length;
         strs.push(`
 szImageName${i} = ${name}
 nDeviceType${i} = ${isCDROM ? 2 : 1}
-bDiskInserted${i} = TRUE
+bDiskInserted${i} = ${isInserted ? "TRUE" : "FALSE"}
 bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
 `);
     }
@@ -1067,6 +1072,8 @@ bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
     for (const diskFile of config.diskFiles) {
         addDisk(diskStrs, diskFile.name, diskFile.isCDROM);
     }
+    // Placeholder used to handle CD-ROMs being inserted after boot.
+    addDisk(diskStrs, "/", true, false);
 
     // Possible values come from the BOOT_DEVICE enum in Previous's
     // configuration.h.

@@ -627,7 +627,11 @@ export default function Mac({
                 />
             )}
             {!fullscreen && disks[0]?.infiniteHdSubset !== "mfs" && (
-                <MacCDROMs onRun={loadCDROM} appearance={appearance} />
+                <MacCDROMs
+                    onRun={loadCDROM}
+                    appearance={appearance}
+                    platform={machine.platform}
+                />
             )}
         </ScreenFrame>
     );

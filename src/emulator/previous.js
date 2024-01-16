@@ -693,6 +693,7 @@ var ASM_CONSTS = {
  289402: () => { return window.innerWidth; },  
  289432: () => { return window.innerHeight; }
 };
+function consumeDiskName() { const diskName = workerApi.disks.consumeDiskName(); if (!diskName || !diskName.length) { return 0; } const diskNameLength = lengthBytesUTF8(diskName) + 1; const diskNameCstr = _malloc(diskNameLength); stringToUTF8(diskName, diskNameCstr, diskNameLength); return diskNameCstr; }
 
 
 // end include: preamble.js
@@ -10500,6 +10501,8 @@ var wasmImports = {
   /** @export */
   abort: _abort,
   /** @export */
+  consumeDiskName: consumeDiskName,
+  /** @export */
   eglBindAPI: _eglBindAPI,
   /** @export */
   eglChooseConfig: _eglChooseConfig,
@@ -11016,7 +11019,8 @@ var dynCall_viijii = Module['dynCall_viijii'] = (a0, a1, a2, a3, a4, a5, a6) => 
 var dynCall_iiiiij = Module['dynCall_iiiiij'] = (a0, a1, a2, a3, a4, a5, a6) => (dynCall_iiiiij = Module['dynCall_iiiiij'] = wasmExports['dynCall_iiiiij'])(a0, a1, a2, a3, a4, a5, a6);
 var dynCall_iiiiijj = Module['dynCall_iiiiijj'] = (a0, a1, a2, a3, a4, a5, a6, a7, a8) => (dynCall_iiiiijj = Module['dynCall_iiiiijj'] = wasmExports['dynCall_iiiiijj'])(a0, a1, a2, a3, a4, a5, a6, a7, a8);
 var dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) => (dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = wasmExports['dynCall_iiiiiijj'])(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);
-
+var ___start_em_js = Module['___start_em_js'] = 289463;
+var ___stop_em_js = Module['___stop_em_js'] = 289753;
 function invoke_viii(index,a1,a2,a3) {
   var sp = stackSave();
   try {
