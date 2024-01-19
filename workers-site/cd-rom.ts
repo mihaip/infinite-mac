@@ -40,6 +40,8 @@ function isValidSrcUrl(srcUrl: string) {
         "archive.org",
         "img.classicmacdemos.com",
         "macintoshrepository.org",
+        "fsck.technology",
+        "nextcomputers.org",
     ];
     for (const allowedDomain of allowedDomains) {
         if (

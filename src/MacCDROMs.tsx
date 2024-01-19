@@ -8,6 +8,8 @@ import {cdromLibrary, getCDROMInfo} from "./cdroms";
 import {Input} from "./controls/Input";
 import {type Appearance} from "./controls/Appearance";
 import {type MachinePlatform} from "./machines";
+import defaultCDROMImage from "./Images/DefaultCDROM.png";
+import defaultCDROMNeXTImage from "./Images/DefaultCDROM-NeXT.png";
 
 export function MacCDROMs({
     onRun,
@@ -238,11 +240,20 @@ function MacCDROM({cdrom, onRun}: {cdrom: EmulatorCDROM; onRun: () => void}) {
         coverImageSize,
         coverImageType = "round",
     } = cdrom;
-    const [coverImageWidth, coverImageHeight] = coverImageSize;
-    const coverImageUrl = `/Covers/${coverImageHash}.jpeg`;
-    const coverClassName = classNames("Mac-CDROM-Cover", {
-        "Mac-CDROM-Cover-Round": coverImageType === "round",
-    });
+    let coverClassName, coverImageUrl, coverImageWidth, coverImageHeight;
+    if (coverImageHash && coverImageSize) {
+        coverImageUrl = `/Covers/${coverImageHash}.jpeg`;
+        [coverImageWidth, coverImageHeight] = coverImageSize;
+        coverClassName = classNames("Mac-CDROM-Cover", {
+            "Mac-CDROM-Cover-Round": coverImageType === "round",
+        });
+    } else {
+        const isNext = cdrom.platform === "NeXT";
+        coverImageUrl = isNext ? defaultCDROMNeXTImage : defaultCDROMImage;
+        coverImageWidth = isNext ? 48 : 32;
+        coverImageHeight = isNext ? 48 : 32;
+        coverClassName = classNames("Mac-CDROM-Cover", "Default");
+    }
     return (
         <div className="Mac-CDROM" onClick={onRun}>
             <img

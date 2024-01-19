@@ -19,7 +19,7 @@ MAX_COVER_SIZE = 512
 class InputManifest(typing.TypedDict):
     name: str
     src_url: str
-    cover_image: str
+    cover_image: typing.NotRequired[str]
     cover_image_type: typing.NotRequired[str]
     mode: typing.NotRequired[str]
     platform: typing.NotRequired[str]
@@ -29,8 +29,8 @@ class OutputManifest(typing.TypedDict):
     name: str
     srcUrl: str
     coverImageType: typing.NotRequired[str]
-    coverImageSize: typing.Tuple[int, int]
-    coverImageHash: str
+    coverImageSize: typing.NotRequired[typing.Tuple[int, int]]
+    coverImageHash: typing.NotRequired[str]
     fileSize: int
     mode: typing.NotRequired[str]
     platform: typing.NotRequired[str]
@@ -61,20 +61,20 @@ def get_output_manifest(input_manifest: InputManifest) -> OutputManifest:
     src_url = input_manifest["src_url"]
     headers = urls.read_url_headers(src_url)
     file_size = int(headers["Content-Length"])
-    accepts_ranges = headers["Accept-Ranges"] == "bytes"
+    accepts_ranges = headers.get("Accept-Ranges") == "bytes"
     if not accepts_ranges:
         sys.stderr.write("  WARNING: %s does not support range requests\n" %
                          src_url)
-
-    cover_image_hash, cover_image_size = load_cover_image(
-        input_manifest["cover_image"], input_manifest.get("cover_image_inset"))
     output_manifest = {
         "name": input_manifest["name"],
         "srcUrl": src_url,
         "fileSize": file_size,
-        "coverImageHash": cover_image_hash,
-        "coverImageSize": cover_image_size,
     }
+    if "cover_image" in input_manifest:
+        cover_image_hash, cover_image_size = load_cover_image(
+            input_manifest["cover_image"], input_manifest.get("cover_image_inset"))
+        output_manifest["coverImageHash"] = cover_image_hash
+        output_manifest["coverImageSize"] = cover_image_size
     if "cover_image_type" in input_manifest:
         output_manifest["coverImageType"] = input_manifest["cover_image_type"]
     if "mode" in input_manifest:
