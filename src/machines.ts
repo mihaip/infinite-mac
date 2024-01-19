@@ -32,6 +32,7 @@ export type MachineDef = {
     bezelStyle: "Beige" | "Platinum" | "Pinstripes" | "NeXT";
     ramSizes: MachineDefRAMSize[]; // First value is the default
     platform?: MachinePlatform;
+    nextColor?: boolean;
 };
 
 export type MachineDefRAMSize = `${number}M` | `${number}K`;
@@ -176,17 +177,32 @@ export const POWER_MACINTOSH_G3_BW: MachineDef = {
     ramSizes: ["256M", "128M", "64M"],
 };
 
-export const NEXT_STATION_TURBO_COLOR: MachineDef = {
-    name: "NeXTstation Turbo Color",
+export const NEXT_STATION_TURBO: MachineDef = {
+    name: "NeXTstation Turbo",
     cpu: "68040",
     romPath: nextRev33V74RomPath,
-    gestaltID: 67,
+    gestaltID: 2,
     emulatorType: "Previous",
     prefsPath: previousConfigPath,
     fixedScreenSize: {width: 1120, height: 832},
     bezelStyle: "NeXT",
     ramSizes: ["128M", "64M", "32M", "16M"],
     platform: "NeXT",
+    nextColor: false,
+};
+
+export const NEXT_STATION_TURBO_COLOR: MachineDef = {
+    name: "NeXTstation Turbo Color",
+    cpu: "68040",
+    romPath: nextRev33V74RomPath,
+    gestaltID: 2,
+    emulatorType: "Previous",
+    prefsPath: previousConfigPath,
+    fixedScreenSize: {width: 1120, height: 832},
+    bezelStyle: "NeXT",
+    ramSizes: ["128M", "64M", "32M", "16M"],
+    platform: "NeXT",
+    nextColor: true,
 };
 
 export const ALL_MACHINES = [
@@ -201,6 +217,7 @@ export const ALL_MACHINES = [
     POWER_MACINTOSH_9500,
     POWER_MACINTOSH_G3_BEIGE,
     POWER_MACINTOSH_G3_BW,
+    NEXT_STATION_TURBO,
     NEXT_STATION_TURBO_COLOR,
 ];
 
@@ -209,8 +226,5 @@ export const MACHINES_BY_NAME = Object.fromEntries(
 );
 
 export function isExperimentalMachine(machine: MachineDef): boolean {
-    return (
-        machine.emulatorType === "DingusPPC" ||
-        machine.emulatorType === "Previous"
-    );
+    return machine.emulatorType === "DingusPPC";
 }

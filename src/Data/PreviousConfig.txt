@@ -136,7 +136,7 @@ szPrintToFileName = /Shared/
 
 [System]
 nMachineType = 2
-bColor = TRUE
+bColor = {COLOR}
 bTurbo = TRUE
 bNBIC = FALSE
 nSCSI = TRUE

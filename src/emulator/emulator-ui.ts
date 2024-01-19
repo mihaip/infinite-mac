@@ -1093,7 +1093,8 @@ bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
         .replaceAll("{FLOPPIES}", floppyStrs.join("\n"))
         .replaceAll("{DISKS}", diskStrs.join("\n"))
         .replaceAll("{DEBUG_LOG}", config.debugLog ? "TRUE" : "FALSE")
-        .replaceAll("{BOOT_DEVICE}", bootDevice.toString());
+        .replaceAll("{BOOT_DEVICE}", bootDevice.toString())
+        .replaceAll("{COLOR}", config.machine.nextColor ? "TRUE" : "FALSE");
 
     const ramSize = config.ramSize ?? config.machine.ramSizes[0];
     // Replicate valid combinations from defmemsize in Previous's dlgAdvanced.c.

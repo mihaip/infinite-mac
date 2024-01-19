@@ -13,6 +13,7 @@ import {
     QUADRA_650,
     POWER_MACINTOSH_6100,
     NEXT_STATION_TURBO_COLOR,
+    NEXT_STATION_TURBO,
 } from "./machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -784,10 +785,9 @@ const NEXTSTEP_3_3: SystemDiskDef = {
         644, 648, 649, 652, 653, 654, 656, 657, 660, 672, 673, 684, 688, 692,
         693, 728, 729, 744, 745, 756, 757, 768, 769, 784, 785, 786, 796,
     ],
-    machines: [NEXT_STATION_TURBO_COLOR],
+    machines: [NEXT_STATION_TURBO_COLOR, NEXT_STATION_TURBO],
     appearance: "Platinum",
     generatedSpec: () => import("./Data/NEXTSTEP 3.3 HD.dsk.json"),
-    isUnstable: true,
 };
 
 export const ALL_DISKS = [
