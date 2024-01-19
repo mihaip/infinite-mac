@@ -9,6 +9,7 @@ import {
     QUADRA_650,
     type MachineDefRAMSize,
     isExperimentalMachine,
+    type MachineDef,
 } from "./machines";
 import {
     SYSTEM_DISKS_BY_NAME,
@@ -135,6 +136,24 @@ export function Custom({
         (!appleTalkSupported || !appleTalkEnabled || appleTalkZoneName !== "");
 
     const {appearance = "Classic"} = runDef.disks[0] ?? {};
+    const macMachines = [];
+    const nextMachines = [];
+    const experimentalMachines = [];
+    for (const machine of ALL_MACHINES) {
+        if (isExperimentalMachine(machine)) {
+            experimentalMachines.push(machine);
+        } else if (machine.platform === "NeXT") {
+            nextMachines.push(machine);
+        } else {
+            macMachines.push(machine);
+        }
+    }
+    const machineOptions = (machines: MachineDef[]) =>
+        machines.map(m => (
+            <option key={m.name} value={m.name}>
+                {m.name}
+            </option>
+        ));
 
     return (
         <Dialog
@@ -164,19 +183,12 @@ export function Custom({
                         }
                         setRunDef({...runDef, ...update});
                     }}>
-                    {ALL_MACHINES.filter(m => !isExperimentalMachine(m)).map(
-                        m => (
-                            <option key={m.name} value={m.name}>
-                                {m.name}
-                            </option>
-                        )
-                    )}
+                    <option disabled>Macs</option>
+                    {machineOptions(macMachines)}
                     <option disabled>Experimental</option>
-                    {ALL_MACHINES.filter(isExperimentalMachine).map(m => (
-                        <option key={m.name} value={m.name}>
-                            {m.name}
-                        </option>
-                    ))}
+                    {machineOptions(experimentalMachines)}
+                    <option disabled>NeXT</option>
+                    {machineOptions(nextMachines)}
                 </Select>
                 <div className="Custom-Dialog-Description Dialog-Description">
                     Emulator: {runDef.machine.emulatorType}
@@ -480,6 +492,17 @@ function DiskOption({
             </option>
         );
     };
+
+    const macDisks = [];
+    const nextDisks = [];
+    for (const disk of Object.values(SYSTEM_DISKS_BY_NAME)) {
+        if (disk.machines[0].platform === "NeXT") {
+            nextDisks.push(disk);
+        } else {
+            macDisks.push(disk);
+        }
+    }
+
     return (
         <div className="Custom-Dialog-Repeated">
             <span className="Custom-Dialog-Label">Disk:</span>
@@ -495,7 +518,9 @@ function DiskOption({
                         onChange(ALL_DISKS_BY_NAME[e.target.value]);
                     }
                 }}>
-                {Object.values(SYSTEM_DISKS_BY_NAME).map(diskOption)}
+                {macDisks.map(diskOption)}
+                <option disabled>NeXT</option>
+                {nextDisks.map(diskOption)}
                 <option disabled>Floppy Disks</option>
                 {Object.values(FLOPPY_DISKS_BY_NAME).map(diskOption)}
                 <option disabled>Custom</option>
