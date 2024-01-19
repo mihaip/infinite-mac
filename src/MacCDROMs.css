@@ -134,6 +134,10 @@
     overflow: auto;
 }
 
+.Mac-CDROM-Cover.Default {
+    image-rendering: pixelated;
+}
+
 .Mac-CDROM-Cover-Round {
     border-radius: 50%;
     overflow: hidden;
