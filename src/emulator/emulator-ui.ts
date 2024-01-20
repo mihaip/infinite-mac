@@ -517,7 +517,7 @@ export class Emulator {
             !this.#requestedPointerLock
         ) {
             this.#config.screenCanvas.requestPointerLock({
-                unadjustedMovement: true,
+                unadjustedMovement: false,
             });
             this.#requestedPointerLock = true;
         }
