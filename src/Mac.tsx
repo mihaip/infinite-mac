@@ -543,7 +543,11 @@ export default function Mac({
                 screenSizeProp === "fullscreen" ||
                 screenSizeProp === "window"
             }
-            led={!emulatorLoaded || emulatorLoadingDiskChunk ? "Loading" : "On"}
+            led={
+                (!emulatorLoaded && !debugPaused) || emulatorLoadingDiskChunk
+                    ? "Loading"
+                    : "On"
+            }
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
