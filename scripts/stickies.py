@@ -3,9 +3,11 @@ from __future__ import annotations
 import dataclasses
 import datetime
 import enum
+import nextstep
 import struct
 import typing
 
+nextstep.register_nextstep_codec()
 
 class Font(enum.Enum):
     CHICAGO = 0x0000
@@ -142,8 +144,10 @@ class StickiesFile:
             if sticky.skip_in_ttxt:
                 continue
             if text:
-                text += "\r\r"
-            text += sticky.text.replace("\n", "\r")
+                text += "\n\n"
+            text += sticky.text
+        if encoding != "nextstep":
+            text = text.replace("\n", "\r")
         return text.encode(encoding)
 
 
@@ -168,3 +172,12 @@ def generate_ttxt_placeholder() -> bytes:
     for i in range(1000):
         text += f" text {i}"
     return text.encode("mac_roman")
+
+# The NeXT UFS disk ends up breaking up files in 8K chunks, so generate a
+# slightly smaller placeholder to make sure it's contiguous.
+def generate_next_placeholder() -> bytes:
+    text = "Placeholder next"
+    for i in range(800):
+        text += f" text {i}"
+    return text.encode("ascii")
+
