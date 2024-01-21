@@ -89,6 +89,11 @@
     font-family: Helvetica, Arial, sans-serif;
 }
 
+.DiskContents-NeXT {
+    background: #aaa;
+    border-radius: 0;
+}
+
 .DiskContents.DiskContents-Placeholder {
     opacity: 0.5;
 }
@@ -104,10 +109,18 @@
     color: #999;
 }
 
+.DiskContents-NeXT h3 .Subtitle {
+    color: #555;
+}
+
 .DiskContents h3 .ReleaseDate {
     color: #999;
     font-size: 14px;
     font-family: Helvetica, Arial, sans-serif;
+}
+
+.DiskContents-NeXT h3 .ReleaseDate {
+    color: #555;
 }
 
 .DiskContents .Row {

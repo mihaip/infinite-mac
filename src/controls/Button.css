@@ -50,3 +50,12 @@
 .Button.Button-Platinum:focus-visible {
     outline-color: #6666c5;
 }
+
+.Button.Button-NeXT {
+    border-image-source: url(../Images/NeXTButton.png);
+}
+
+.Button.Button-NeXT:active {
+    color: #000;
+    border-image-source: url(../Images/NeXTButton-Active.png);
+}

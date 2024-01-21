@@ -1,1 +1,1 @@
-export type Appearance = "Classic" | "Platinum";
+export type Appearance = "Classic" | "Platinum" | "NeXT";

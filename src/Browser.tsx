@@ -191,7 +191,7 @@ type DiskProps = {
 };
 
 function Disk({disk, onRun}: DiskProps) {
-    const bezelStyle = disk.machines[0].bezelStyle;
+    const {bezelStyle} = disk.machines[0];
     return (
         <DiskFrame
             bezelStyle={bezelStyle}
@@ -240,6 +240,7 @@ type DiskContentsProps = {
 };
 
 function DiskContents({disk, onRun}: DiskContentsProps) {
+    const {bezelStyle} = disk.machines[0];
     const [customVisible, setCustomVisible] = useState(false);
     const run = (event: React.MouseEvent) => {
         const runDef = {
@@ -259,7 +260,11 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
     const {appearance = "Classic"} = disk;
 
     return (
-        <div className="DiskContents">
+        <div
+            className={classNames(
+                "DiskContents",
+                `DiskContents-${bezelStyle}`
+            )}>
             <DiskHeader disk={disk} />
             <div className="Row DiskDescription">{disk.description}</div>
             {disk.isUnstable && (

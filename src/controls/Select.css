@@ -52,3 +52,12 @@
 .Select.Select-Platinum:focus-visible {
     outline-color: #6666c5;
 }
+
+.Select.Select-NeXT {
+    border-image-source: url(../Images/NeXTSelect.png);
+}
+
+.Select.Select-NeXT:active {
+    color: #000;
+    border-image-source: url(../Images/NeXTSelect-Active.png);
+}
