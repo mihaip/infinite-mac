@@ -10,7 +10,7 @@
 
 2023-07-20: Added the option to create custom instances with arbitrary system disks and URL-based disk images: https://infinitemac.org/run.
 
-2023-06-19: Added a CD-ROM library, with a few dozen CDs that can be browsed and mounted, as the ability to mount arbirary CD-ROM images from archive.org and similar sites.
+2023-06-19: Added a CD-ROM library, with a few dozen CDs that can be browsed and mounted, and the ability to mount arbitrary CD-ROM images from archive.org and similar sites.
 
 2023-06-03: Filtering of system software releases (all vs. just notable ones).
 
