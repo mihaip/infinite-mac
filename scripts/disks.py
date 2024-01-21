@@ -16,9 +16,13 @@ class Disk:
     # NULL byte does not work in TechText when run on older versions, but a
     # non-breaking space does, so we allow it to be overridden per-disk.
     sticky_placeholder_overwrite_byte: bytes = b'\x00'
+    compressed: bool = False
 
     def path(self) -> str:
-        return os.path.join(paths.IMAGES_DIR, self.name)
+        name = self.name
+        if self.compressed:
+            name += ".zip"
+        return os.path.join(paths.IMAGES_DIR, name)
 
 
 SYSTEM_10_ORIGINAL = Disk(name="System 1.0 (Original).dsk")
@@ -157,9 +161,14 @@ KANJITALK_753 = Disk(
         ]
     ],
     stickies_encoding="shift_jis",
-    welcome_sticky_override=JAPANESE_WELCOME_STICKY)
+    welcome_sticky_override=JAPANESE_WELCOME_STICKY,
+)
 
-NEXTSTEP_33 = Disk(name="NeXTSTEP 3.3 HD.dsk")
+NEXTSTEP_33 = Disk(
+    name="NeXTSTEP 3.3 HD.dsk",
+    compressed=True,
+    stickies_encoding="nextstep",
+)
 
 ALL_DISKS = [
     SYSTEM_10_ORIGINAL,

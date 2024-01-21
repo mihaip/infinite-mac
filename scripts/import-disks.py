@@ -487,17 +487,25 @@ def build_system_image(
     dest_dir: str,
 ) -> ImageDef:
     sys.stderr.write("Building system image %s\n" % (disk.name, ))
+
     input_path = disk.path()
+    if disk.compressed:
+        with zipfile.ZipFile(input_path, "r") as zip:
+            image_data = zip.read(disk.name)
+    else:
+        with open(input_path, "rb") as image:
+            image_data = image.read()
 
     stickies_placeholder = stickies.generate_placeholder()
-    with open(input_path, "rb") as image:
-        image_data = image.read()
-
     stickies_index = image_data.find(stickies_placeholder)
     use_ttxt = False
     if stickies_index == -1:
         use_ttxt = True
         stickies_placeholder = stickies.generate_ttxt_placeholder()
+        stickies_index = image_data.find(stickies_placeholder)
+    if stickies_index == -1:
+        use_ttxt = True
+        stickies_placeholder = stickies.generate_next_placeholder()
         stickies_index = image_data.find(stickies_placeholder)
 
     if stickies_index == -1:
