@@ -60,3 +60,27 @@
 .Checkbox-Platinum:checked:active::before {
     background-image: url(../Images/PlatinumCheckbox-CheckedActive.png);
 }
+
+.Checkbox-NeXT {
+    width: 15px;
+    height: 15px;
+}
+
+.Checkbox-NeXT::before {
+    width: 15px;
+    height: 15px;
+    background-size: 15px 15px;
+    background-image: url(../Images/NeXTCheckbox.png);
+}
+
+.Checkbox-NeXT:active::before {
+    background-image: url(../Images/NeXTCheckbox-Active.png);
+}
+
+.Checkbox-NeXT:checked::before {
+    background-image: url(../Images/NeXTCheckbox-Checked.png);
+}
+
+.Checkbox-NeXT:checked:active::before {
+    background-image: url(../Images/NeXTCheckbox-CheckedActive.png);
+}

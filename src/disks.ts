@@ -786,7 +786,7 @@ const NEXTSTEP_3_3: SystemDiskDef = {
         693, 728, 729, 744, 745, 756, 757, 768, 769, 784, 785, 786, 796,
     ],
     machines: [NEXT_STATION_TURBO_COLOR, NEXT_STATION_TURBO],
-    appearance: "Platinum",
+    appearance: "NeXT",
     generatedSpec: () => import("./Data/NEXTSTEP 3.3 HD.dsk.json"),
 };
 

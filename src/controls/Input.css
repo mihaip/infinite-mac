@@ -50,3 +50,7 @@
 .Input.Input-Platinum:invalid {
     outline-color: red;
 }
+
+.Input.Input-NeXT {
+    border-image-source: url(../Images/NeXTInput.png);
+}
