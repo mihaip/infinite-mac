@@ -11,6 +11,7 @@ export const InputBufferAddresses = {
     mousePositionXAddr: 2,
     mousePositionYAddr: 3,
     mouseButtonStateAddr: 4,
+    mouseButton2StateAddr: 16,
     mouseDeltaXAddr: 13,
     mouseDeltaYAddr: 14,
 
@@ -29,8 +30,8 @@ export const InputBufferAddresses = {
 
 export type EmulatorMouseEvent =
     | {type: "mousemove"; x: number; y: number; deltaX: number; deltaY: number}
-    | {type: "mousedown"}
-    | {type: "mouseup"};
+    | {type: "mousedown"; button: number}
+    | {type: "mouseup"; button: number};
 export type EmulatorTouchEvent = {type: "touchstart"; x: number; y: number};
 export type EmulatorKeyboardEvent = {
     type: "keydown" | "keyup";
@@ -313,6 +314,7 @@ export function updateInputBufferWithEvents(
     let mouseDeltaX = 0;
     let mouseDeltaY = 0;
     let mouseButtonState = -1;
+    let mouseButton2State = -1;
     let hasKeyEvent = false;
     let keyCode = -1;
     let keyState = -1;
@@ -336,7 +338,7 @@ export function updateInputBufferWithEvents(
                 hasMousePosition = true;
                 mousePositionX = inputEvent.x;
                 mousePositionY = inputEvent.y;
-                remainingEvents.push({type: "mousedown"});
+                remainingEvents.push({type: "mousedown", button: 0});
                 break;
             case "mousemove":
                 if (hasMousePosition) {
@@ -350,7 +352,11 @@ export function updateInputBufferWithEvents(
                 break;
             case "mousedown":
             case "mouseup":
-                mouseButtonState = inputEvent.type === "mousedown" ? 1 : 0;
+                if (inputEvent.button === 2) {
+                    mouseButton2State = inputEvent.type === "mousedown" ? 1 : 0;
+                } else {
+                    mouseButtonState = inputEvent.type === "mousedown" ? 1 : 0;
+                }
                 break;
             case "keydown":
             case "keyup":
@@ -391,6 +397,8 @@ export function updateInputBufferWithEvents(
     }
     inputBufferView[InputBufferAddresses.mouseButtonStateAddr] =
         mouseButtonState;
+    inputBufferView[InputBufferAddresses.mouseButton2StateAddr] =
+        mouseButton2State;
     if (hasKeyEvent) {
         inputBufferView[InputBufferAddresses.keyEventFlagAddr] = 1;
         inputBufferView[InputBufferAddresses.keyCodeAddr] = keyCode;

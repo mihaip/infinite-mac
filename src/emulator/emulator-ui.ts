@@ -511,7 +511,7 @@ export class Emulator {
     };
 
     #handleMouseDown = (event: MouseEvent) => {
-        this.#input.handleInput({type: "mousedown"});
+        this.#input.handleInput({type: "mousedown", button: event.button});
         if (
             emulatorNeedsPointerLock(this.#config.machine.emulatorType) &&
             !this.#requestedPointerLock
@@ -530,7 +530,7 @@ export class Emulator {
     };
 
     #handleMouseUp = (event: MouseEvent) => {
-        this.#input.handleInput({type: "mouseup"});
+        this.#input.handleInput({type: "mouseup", button: event.button});
     };
 
     #handleTouchMove = (event: TouchEvent) => {
@@ -576,7 +576,7 @@ export class Emulator {
     }
 
     #handleTouchEnd = (event: TouchEvent) => {
-        this.#input.handleInput({type: "mouseup"});
+        this.#input.handleInput({type: "mouseup", button: 0});
     };
 
     #handleKeyDown = (event: KeyboardEvent) => {
