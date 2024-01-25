@@ -327,6 +327,7 @@ export class Emulator {
                 ...disks,
                 ...(delayedDisks ?? []),
                 ...this.#config.cdroms,
+                ...this.#config.diskFiles,
             ]) {
                 autoloadFiles[disk.name] = new ArrayBuffer(0);
             }
