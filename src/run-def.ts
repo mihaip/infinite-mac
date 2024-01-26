@@ -1,5 +1,6 @@
 import {BroadcastChannelEthernetProvider} from "./BroadcastChannelEthernetProvider";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
+import {fromDateString, toDateString} from "./dates";
 import {
     ALL_DISKS,
     DISKS_BY_YEAR,
@@ -31,6 +32,7 @@ export type RunDef = {
     debugPaused?: boolean;
     debugLog?: boolean;
     isCustom?: boolean;
+    customDate?: Date;
 };
 
 export type ScreenSize =
@@ -126,6 +128,12 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     } else if (searchParams.get("broadcast_channel_ethernet") === "true") {
         ethernetProvider = new BroadcastChannelEthernetProvider();
     }
+
+    let customDate;
+    const customDateParam = searchParams.get("date");
+    if (customDateParam) {
+        customDate = fromDateString(customDateParam);
+    }
     const debugFallback = searchParams.get("debug_fallback") === "true";
     const debugAudio = searchParams.get("debug_audio") === "true";
     const debugPaused = searchParams.get("debug_paused") === "true";
@@ -141,6 +149,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         ethernetProvider,
         cdromURLs,
         diskFiles: [],
+        customDate,
         debugFallback,
         debugAudio,
         debugPaused,
@@ -195,6 +204,10 @@ export function runDefToUrl(runDef: RunDef): string {
     } else if (ethernetProvider instanceof BroadcastChannelEthernetProvider) {
         url.searchParams.set("broadcast_channel_ethernet", "true");
     }
+    if (runDef.customDate) {
+        url.searchParams.set("date", toDateString(runDef.customDate));
+    }
+
     if (runDef.debugAudio) {
         url.searchParams.set("debug_audio", "true");
     }

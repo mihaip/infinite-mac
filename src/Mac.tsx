@@ -52,6 +52,7 @@ export type MacProps = {
     ramSize?: MachineDefRAMSize;
     screenSize: ScreenSize;
     ethernetProvider?: EmulatorEthernetProvider;
+    customDate?: Date;
     debugFallback?: boolean;
     debugAudio?: boolean;
     debugPaused?: boolean;
@@ -70,6 +71,7 @@ export default function Mac({
     ramSize,
     screenSize: screenSizeProp,
     ethernetProvider,
+    customDate,
     debugFallback,
     debugAudio,
     debugPaused,
@@ -160,6 +162,7 @@ export default function Mac({
                 delayedDisks,
                 cdroms,
                 ethernetProvider,
+                customDate,
                 debugAudio,
                 debugLog,
             },
@@ -283,6 +286,7 @@ export default function Mac({
         ethernetProvider,
         initialScreenWidth,
         initialScreenHeight,
+        customDate,
         debugFallback,
         debugAudio,
         debugPaused,

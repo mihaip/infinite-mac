@@ -128,7 +128,7 @@ export function generateNextChunkUrl(
 export type EmulatorWorkerConfig = {
     emulatorType: EmulatorType;
     emulatorSubtype?: EmulatorSubtype;
-    wasmUrl: string;
+    wasm: ArrayBuffer;
     disks: EmulatorChunkedFileSpec[];
     delayedDisks?: EmulatorChunkedFileSpec[];
     diskFiles: EmulatorDiskFile[];
@@ -143,6 +143,7 @@ export type EmulatorWorkerConfig = {
     files: EmulatorWorkerFilesConfig;
     ethernet: EmulatorWorkerEthernetConfig;
     clipboard: EmulatorWorkerClipboardConfig;
+    dateOffset: number;
 };
 
 export type EmulatorWorkerVideoConfig =
