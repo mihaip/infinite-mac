@@ -71,6 +71,10 @@
     margin: 2px 0 0 22px;
 }
 
+.Dialog.Dialog-NeXT .Dialog-Description {
+    color: #444;
+}
+
 .Dialog label {
     display: block;
     margin: 0 0 8px 0;
