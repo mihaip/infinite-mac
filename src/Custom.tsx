@@ -52,7 +52,9 @@ export function Custom({
 
     const [runDef, setRunDef] = useState<RunDef>(
         initialRunDef
-            ? {...initialRunDef, isCustom: true}
+            ? initialRunDef.isCustom
+                ? initialRunDef
+                : {...initialRunDef, isCustom: true}
             : {
                   machine: defaultDisk.machines[0] ?? QUADRA_650,
                   ramSize: undefined,
