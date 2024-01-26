@@ -20,6 +20,7 @@ import {type RunDef} from "./run-def";
 import {Custom} from "./Custom";
 import classNames from "classnames";
 import {canSaveDisks} from "./canSaveDisks";
+import {usePersistentState} from "./usePersistentState";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -30,7 +31,10 @@ export function Browser({
     onRun: BrowserRunFn;
     initialCustomRunDef?: RunDef;
 }) {
-    const [notableOnly, setNotableOnly] = useState(true);
+    const [notableOnly, setNotableOnly] = usePersistentState(
+        true,
+        "notableOnly"
+    );
     const disksByYear = notableOnly ? NOTABLE_DISKS_BY_YEAR : DISKS_BY_YEAR;
     return (
         <div className="Browser">
