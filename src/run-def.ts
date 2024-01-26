@@ -49,7 +49,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
 
     const {searchParams} = url;
 
-    let isCustom = false;
+    let isCustom = searchParams.has("edit");
     let includeInfiniteHD;
     let includeSavedHD;
     const disks: SystemDiskDef[] = [];

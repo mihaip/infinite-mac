@@ -5,10 +5,18 @@ import {Footer} from "./Footer";
 import {type RunDef, runDefFromUrl, runDefToUrl} from "./run-def";
 
 function App() {
-    const initialRunDef = useMemo(() => runDefFromUrl(location.href), []);
-    const [runDef, setRunDef] = useState<RunDef | undefined>(initialRunDef);
+    const [initialRunDef, editInitialRunDef] = useMemo(() => {
+        const runDef = runDefFromUrl(location.href);
+        const isEdit = new URL(location.href).searchParams.has("edit");
+        return [runDef, isEdit];
+    }, []);
+    const [runDef, setRunDef] = useState<RunDef | undefined>(
+        editInitialRunDef ? undefined : initialRunDef
+    );
     const [initialBrowserCustomRunDef, setInitialBrowserCustomRunDef] =
-        useState<RunDef | undefined>(undefined);
+        useState<RunDef | undefined>(
+            editInitialRunDef ? initialRunDef : undefined
+        );
     useEffect(() => {
         const listener = () => {
             setRunDef(runDefFromUrl(location.href));
