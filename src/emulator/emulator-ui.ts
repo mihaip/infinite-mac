@@ -76,6 +76,7 @@ export type EmulatorConfig = {
     delayedDisks?: EmulatorDiskDef[];
     cdroms: EmulatorCDROM[];
     ethernetProvider?: EmulatorEthernetProvider;
+    customDate?: Date;
     debugAudio?: boolean;
     debugLog?: boolean;
 };
@@ -281,9 +282,9 @@ export class Emulator {
         // Fetch all of the dependent files ourselves, to avoid a waterfall
         // if we let Emscripten handle it (it would first load the JS, and
         // then that would load the WASM and data files).
-        const [[wasmBlobUrl], [rom, basePrefs, deviceImageHeader]] = await load(
-            [emulatorWasmPath],
+        const [wasm, rom, basePrefs, deviceImageHeader] = await load(
             [
+                emulatorWasmPath,
                 this.#config.machine.romPath,
                 this.#config.machine.prefsPath,
                 deviceImageHeaderPath,
@@ -349,10 +350,14 @@ export class Emulator {
         console.log(configDebugStr);
         console.groupEnd();
 
+        const dateOffset = this.#config.customDate
+            ? this.#config.customDate.getTime() - Date.now()
+            : 0;
+
         const config: EmulatorWorkerConfig = {
             emulatorType,
             emulatorSubtype,
-            wasmUrl: wasmBlobUrl,
+            wasm,
             disks,
             delayedDisks,
             diskFiles: this.#config.diskFiles,
@@ -370,6 +375,7 @@ export class Emulator {
             files: this.#files.workerConfig(),
             ethernet: this.#ethernet.workerConfig(),
             clipboard: this.#clipboard.workerConfig(),
+            dateOffset,
         };
 
         const serviceWorkerAvailable = await this.#serviceWorkerReady;
@@ -386,6 +392,7 @@ export class Emulator {
             );
         }
         this.#worker.postMessage({type: "start", config}, [
+            wasm,
             rom,
             deviceImageHeader,
             ...Object.values(autoloadFiles),
@@ -881,33 +888,20 @@ export class Emulator {
 }
 
 async function load(
-    blobUrlPaths: string[],
-    arrayBufferPaths: string[],
+    paths: string[],
     progress: (total: number, left: number) => any
-): Promise<[string[], ArrayBuffer[]]> {
-    const paths = blobUrlPaths.concat(arrayBufferPaths);
+): Promise<ArrayBuffer[]> {
     let left = paths.length;
     progress(paths.length, left);
-
-    const blobUrls: string[] = [];
     const arrayBuffers: ArrayBuffer[] = [];
-
     await Promise.all(
-        paths.map(async path => {
+        paths.map(async (path, i) => {
             const response = await fetch(path);
-            const blobUrlIndex = blobUrlPaths.indexOf(path);
-            if (blobUrlIndex !== -1) {
-                const blobUrl = URL.createObjectURL(await response.blob());
-                blobUrls[blobUrlIndex] = blobUrl;
-            } else {
-                const arrayBufferIndex = arrayBufferPaths.indexOf(path);
-                arrayBuffers[arrayBufferIndex] = await response.arrayBuffer();
-            }
+            arrayBuffers[i] = await response.arrayBuffer();
             progress(paths.length, --left);
         })
     );
-
-    return [blobUrls, arrayBuffers];
+    return arrayBuffers;
 }
 
 async function loadDisks(

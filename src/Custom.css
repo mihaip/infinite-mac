@@ -15,6 +15,14 @@
     display: inline;
 }
 
+.Custom-Dialog-Row.Custom-Dialog-InputCompensate {
+    margin-top: -5px;
+}
+
+.Custom-Dialog-Row.Custom-Dialog-InputCompensate .Custom-Dialog-Description {
+    margin-top: -3px;
+}
+
 .Custom-Dialog-Row label.disabled {
     color: #999;
     pointer-events: none;

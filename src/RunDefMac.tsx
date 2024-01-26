@@ -40,6 +40,7 @@ export default function RunDefMac({
             ramSize={runDef.ramSize}
             screenSize={runDef.screenSize}
             ethernetProvider={runDef.ethernetProvider}
+            customDate={runDef.customDate}
             debugFallback={runDef.debugFallback}
             debugAudio={runDef.debugAudio}
             debugPaused={runDef.debugPaused}

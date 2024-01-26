@@ -29,6 +29,7 @@ import classNames from "classnames";
 import {canSaveDisks} from "./canSaveDisks";
 import {systemCDROMs} from "./cdroms";
 import {diskImageExtensions} from "./emulator/emulator-common";
+import {fromDateString, toDateString} from "./dates";
 
 const ALL_DISKS_BY_NAME = {
     ...SYSTEM_DISKS_BY_NAME,
@@ -73,6 +74,9 @@ export function Custom({
         emulatorSupportsAppleTalk(runDef.machine.emulatorType);
     const [appleTalkEnabled, setAppleTalkEnabled] = useState(false);
     const [appleTalkZoneName, setAppleTalkZoneName] = useState("");
+    const [customDateEnabled, setCustomDateEnabled] = useState(
+        runDef.customDate !== undefined
+    );
 
     const handleAddDiskFile = useCallback(
         (i: number, onDiskFileAdded?: () => void) => {
@@ -437,8 +441,47 @@ export function Custom({
                 </div>
             </div>
 
+            <div className="Custom-Dialog-Row Custom-Dialog-InputCompensate">
+                <span className="Custom-Dialog-Label" />
+                <label>
+                    <Checkbox
+                        appearance={appearance}
+                        checked={customDateEnabled}
+                        onChange={() => {
+                            if (customDateEnabled) {
+                                setCustomDateEnabled(false);
+                                setRunDef({
+                                    ...runDef,
+                                    customDate: undefined,
+                                });
+                            } else {
+                                setCustomDateEnabled(true);
+                            }
+                        }}
+                    />
+                    Custom Date
+                </label>{" "}
+                <Input
+                    style={{
+                        visibility: customDateEnabled ? "visible" : "hidden",
+                    }}
+                    appearance={appearance}
+                    type="date"
+                    value={toDateString(runDef.customDate ?? new Date())}
+                    onChange={e =>
+                        setRunDef({
+                            ...runDef,
+                            customDate: fromDateString(e.target.value),
+                        })
+                    }
+                />
+                <div className="Custom-Dialog-Description Dialog-Description">
+                    Allows time-limited software to be used.
+                </div>
+            </div>
+
             {appleTalkSupported && (
-                <div className="Custom-Dialog-Row">
+                <div className="Custom-Dialog-Row Custom-Dialog-InputCompensate">
                     <span className="Custom-Dialog-Label" />
                     <label>
                         <Checkbox
