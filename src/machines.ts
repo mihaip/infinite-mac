@@ -6,6 +6,7 @@ import macIIfxRomPath from "./Data/Mac-IIfx.rom";
 import quadra650RomPath from "./Data/Quadra-650.rom";
 import newWorldRomPath from "./Data/New-World.rom";
 import powerMacintosh6100RomPath from "./Data/Power-Macintosh-6100.rom";
+import powerMacintosh7500RomPath from "./Data/Power-Macintosh-7500.rom";
 import powerMacintosh9500RomPath from "./Data/Power-Macintosh-9500.rom";
 import powerMacintoshG3RomPath from "./Data/Power-Macintosh-G3.rom";
 import nextRev33V74RomPath from "./Data/NeXT-Rev_3.3_v74.rom";
@@ -154,6 +155,18 @@ export const POWER_MACINTOSH_9500: MachineDef = {
     ramSizes: ["256M", "128M", "64M", "32M", "16M"],
 };
 
+export const POWER_MACINTOSH_7500: MachineDef = {
+    name: "Power Macintosh 7500",
+    cpu: "601",
+    romPath: powerMacintosh7500RomPath,
+    gestaltID: 68,
+    emulatorType: "DingusPPC",
+    prefsPath: emptyPrefsPath,
+    bezelStyle: "Platinum",
+    fixedScreenSize: {width: 640, height: 480},
+    ramSizes: ["16M", "32M", "64M", "128M", "256M"],
+};
+
 export const POWER_MACINTOSH_G3_BEIGE: MachineDef = {
     name: "Power Macintosh G3 (Beige)",
     cpu: "G3",
@@ -214,6 +227,7 @@ export const ALL_MACHINES = [
     MAC_IIFX,
     QUADRA_650,
     POWER_MACINTOSH_6100,
+    POWER_MACINTOSH_7500,
     POWER_MACINTOSH_9500,
     POWER_MACINTOSH_G3_BEIGE,
     POWER_MACINTOSH_G3_BW,
