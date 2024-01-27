@@ -26,6 +26,7 @@ export default defineConfig(() => {
         server: {
             port: 3127,
             headers,
+            host: "0.0.0.0",
         },
         preview: {
             port: 4127,
