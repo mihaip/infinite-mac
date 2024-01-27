@@ -6,40 +6,48 @@
 
 .Browser {
     --browser-padding: 40px;
-    --browser-logo-scale: 1;
+    --browser-logo-scale: 2;
     padding: var(--browser-padding);
 }
 
-@media (max-width: 400px) {
+@media (max-width: 440px) {
+    .Browser header {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 640px) {
     .Browser {
-        --browser-padding: 10px;
-        --browser-logo-scale: 0.67;
+        --browser-padding: 15px;
+        --browser-logo-scale: 1;
     }
 }
 
 .Browser header {
-    max-width: 100vw;
-    background-color: #fff;
+    display: flex;
+    gap: var(--browser-padding);
+    background: #d9e5fe;
     margin: calc(var(--browser-padding) * -1);
-    margin-bottom: 0;
     padding: var(--browser-padding);
+    margin-bottom: 0;
+    align-items: center;
 }
 
 .Browser .Logo {
-    background-image: url(./Images/Header.png);
+    flex-shrink: 0;
+    background-image: url(./Images/HeaderLogo.png);
     background-size: cover;
     image-rendering: pixelated;
-    width: calc(325px * var(--browser-logo-scale));
-    height: calc(170px * var(--browser-logo-scale));
-    margin: 0 auto;
+    width: calc(114px * var(--browser-logo-scale));
+    height: calc(74px * var(--browser-logo-scale));
 }
 
-.Browser .Description {
-    margin: 0 calc(var(--browser-padding) * -1);
-    padding: calc(var(--browser-padding) / 2) var(--browser-padding);
-    background: #d9e5fe;
-    max-width: 100vw;
-    box-sizing: border-box;
+.Browser .Description p:first-child {
+    margin-top: 0;
+}
+
+.Browser .Description p:last-child {
+    margin-bottom: 0;
 }
 
 .Browser .Description span {
