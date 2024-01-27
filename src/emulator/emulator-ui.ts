@@ -63,6 +63,7 @@ import {
     type MachineDefRAMSize,
     type MachineDef,
     POWER_MACINTOSH_7500,
+    POWER_MACINTOSH_6100,
 } from "../machines";
 import {type EmulatorDiskDef} from "../disks";
 import deviceImageHeaderPath from "../Data/Device Image Header.hda";
@@ -1001,32 +1002,41 @@ function configToDingusPPCArgs(
             "--log-to-stderr-verbose"
         );
     }
-    let addedHardDisk = false;
-    let addedFloppy = false;
+    const floppies = [];
+    const hardDisks = [];
+    const cdroms = [];
     for (const spec of disks) {
-        // TODO: support more than one disk in DingusPPC
         if (spec.isFloppy) {
-            if (addedFloppy) {
-                continue;
-            }
-            addedFloppy = true;
+            floppies.push(spec.name);
         } else {
-            if (addedHardDisk) {
-                continue;
-            }
-            addedHardDisk = true;
+            hardDisks.push(spec.name);
         }
-        args.push(spec.isFloppy ? "--fdd_img" : "--hdd_img", spec.name);
     }
     for (const spec of config.cdroms) {
-        args.push("--cdr_img", spec.name);
+        cdroms.push(spec.name);
     }
     for (const diskFile of config.diskFiles) {
         if (diskFile.isCDROM) {
-            args.push("--cdr_img", diskFile.name);
+            cdroms.push(diskFile.name);
         } else {
-            args.push("--hdd_img", diskFile.name);
+            hardDisks.push(diskFile.name);
         }
+    }
+    if (floppies.length > 0) {
+        // TODO: support more than one floppy
+        args.push("--fdd_img", floppies[0]);
+    }
+    if (hardDisks.length > 0) {
+        // TODO: support more than one hard disk in non-PDM machines
+        if (config.machine.gestaltID === POWER_MACINTOSH_6100.gestaltID) {
+            args.push("--hdd_img", hardDisks.join(":"));
+        } else {
+            args.push("--hdd_img", hardDisks[0]);
+        }
+    }
+    if (cdroms.length > 0) {
+        // TODO: support more than one CD-ROM
+        args.push("--cdr_img", cdroms[0]);
     }
     if (config.ramSize?.endsWith("M")) {
         args.push("--rambank1_size", config.ramSize.slice(0, -1));
