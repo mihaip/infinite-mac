@@ -59,7 +59,11 @@ import {
     FallbackEmulatorClipboard,
     SharedMemoryEmulatorClipboard,
 } from "./emulator-ui-clipboard";
-import {type MachineDefRAMSize, type MachineDef} from "../machines";
+import {
+    type MachineDefRAMSize,
+    type MachineDef,
+    POWER_MACINTOSH_7500,
+} from "../machines";
 import {type EmulatorDiskDef} from "../disks";
 import deviceImageHeaderPath from "../Data/Device Image Header.hda";
 import {fetchCDROM} from "./emulator-ui-cdrom";
@@ -1026,6 +1030,14 @@ function configToDingusPPCArgs(
     }
     if (config.ramSize?.endsWith("M")) {
         args.push("--rambank1_size", config.ramSize.slice(0, -1));
+    }
+    // DingusPPC normally auto-detects the machine based on the ROM, but in some
+    // cases the same ROM was used for multiple machines and we need to give it
+    // an explicit hint.
+    switch (config.machine.gestaltID) {
+        case POWER_MACINTOSH_7500.gestaltID:
+            args.push("--machine", "pm7500");
+            break;
     }
     return args;
 }
