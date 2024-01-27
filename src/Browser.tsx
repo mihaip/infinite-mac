@@ -42,11 +42,11 @@ export function Browser({
                 <div className="Logo">
                     <h1>Infinite Mac</h1>
                 </div>
+                <Description
+                    onRun={onRun}
+                    initialCustomRunDef={initialCustomRunDef}
+                />
             </header>
-            <Description
-                onRun={onRun}
-                initialCustomRunDef={initialCustomRunDef}
-            />
             <div className="Disks-Container">
                 <NotableToggle
                     notableOnly={notableOnly}
