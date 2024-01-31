@@ -184,12 +184,14 @@ class EmulatorWorkerApi {
         this.disks = new EmulatorWorkerDisksApi(
             [
                 ...disks.map(spec => {
+                    let disk;
                     if (spec.persistent) {
                         const saver = new EmulatorWorkerDiskSaver(spec, this);
                         this.#diskSavers.push(saver);
-                        return new EmulatorWorkerChunkedDisk(spec, saver);
+                        disk = new EmulatorWorkerChunkedDisk(spec, saver);
+                    } else {
+                        disk = new EmulatorWorkerChunkedDisk(spec, this);
                     }
-                    const disk = new EmulatorWorkerChunkedDisk(spec, this);
                     if (needsDeviceImage && !spec.isFloppy) {
                         return new EmulatorWorkerDeviceImageDisk(
                             disk,
