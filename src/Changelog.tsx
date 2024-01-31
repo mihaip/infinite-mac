@@ -3,7 +3,6 @@ import {Dialog} from "./controls/Dialog";
 import * as varz from "./varz";
 import changelogText from "../CHANGELOG.md?raw";
 import Linkify from "linkify-react";
-import "./Changelog.css";
 
 const changelogLines = changelogText
     .split("\n")
@@ -17,13 +16,11 @@ export function Changelog({onDone}: {onDone: () => void}) {
 
     return (
         <Dialog title="Changelog" onDone={onDone}>
-            <div className="Changelog-Text">
-                {changelogLines.map(l => (
-                    <p key={l}>
-                        <Linkify>{l}</Linkify>
-                    </p>
-                ))}
-            </div>
+            {changelogLines.map(l => (
+                <p key={l}>
+                    <Linkify>{l}</Linkify>
+                </p>
+            ))}
         </Dialog>
     );
 }
