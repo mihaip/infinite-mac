@@ -53,6 +53,11 @@
     border-image-source: url(../Images/NeXTDialogFrame.png);
 }
 
+.Dialog-Content {
+    max-height: calc(90vh - 30px * 2); /* Footer and header */
+    overflow: auto;
+}
+
 .Dialog h1 {
     font-size: 16px;
     font-weight: bold;

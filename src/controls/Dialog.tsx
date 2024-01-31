@@ -38,7 +38,7 @@ export function Dialog({
                 )}>
                 <h1>{title}</h1>
 
-                {children}
+                <div className="Dialog-Content">{children}</div>
 
                 <footer>
                     {onCancel && (

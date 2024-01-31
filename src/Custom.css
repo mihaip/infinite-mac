@@ -37,6 +37,8 @@
     width: 100px;
     text-align: right;
     margin-right: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .Custom-Dialog-Description {
@@ -56,6 +58,7 @@
 .Custom-Dialog-Repeated input {
     height: 22px;
     box-sizing: border-box;
+    max-width: calc(100% - 100px - 80px); /* Label + buttons */
 }
 
 .Custom-Dialog-Repeated .Button.AddRemove {
