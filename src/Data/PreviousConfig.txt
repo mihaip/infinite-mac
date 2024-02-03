@@ -85,12 +85,12 @@ nMemorySpeed = 1
 [Boot]
 nBootDevice = {BOOT_DEVICE}
 bEnableDRAMTest = FALSE
-bEnablePot = {DEBUG_LOG}
+bEnablePot = TRUE
 bEnableSoundTest = {DEBUG_LOG}
 bEnableSCSITest = {DEBUG_LOG}
 bLoopPot = FALSE
 bVerbose = {DEBUG_LOG}
-bExtendedPot = {DEBUG_LOG}
+bExtendedPot = false
 bVisible = {DEBUG_LOG}
 
 [HardDisk]
@@ -135,19 +135,19 @@ nPaperSize = 0
 szPrintToFileName = /Shared/
 
 [System]
-nMachineType = 2
+nMachineType = {MACHINE_TYPE}
 bColor = {COLOR}
-bTurbo = TRUE
-bNBIC = FALSE
-nSCSI = TRUE
-nRTC = TRUE
-nCpuLevel = 4
-nCpuFreq = 40
+bTurbo = {TURBO}
+bNBIC = {NBIC}
+nSCSI = {SCSI_CHIP}
+nRTC = {RTC_CHIP}
+nCpuLevel = {CPU_LEVEL}
+nCpuFreq = {CPU_FREQ}
 bCompatibleCpu = TRUE
 bRealtime = FALSE
-nDSPType = 2
-bDSPMemoryExpansion = TRUE
-n_FPUType = 68040
+nDSPType = {DSP_TYPE}
+bDSPMemoryExpansion = {DSP_MEMORY_EXPANSION}
+n_FPUType = {FPU_TYPE}
 bCompatibleFPU = TRUE
 bMMU = TRUE
 

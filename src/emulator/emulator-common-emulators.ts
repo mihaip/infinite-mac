@@ -5,7 +5,18 @@ export type EmulatorType =
     | "DingusPPC"
     | "Previous";
 
-export type EmulatorSubtype = "128K" | "512Ke" | "Plus" | "SE" | "II";
+export type EmulatorSubtype =
+    // Mini vMac
+    | "128K"
+    | "512Ke"
+    | "Plus"
+    | "SE"
+    | "II"
+    // Previous
+    | "NeXT Computer"
+    | "NeXTcube"
+    | "NeXTstation"
+    | "NeXTstation Turbo Color";
 
 export type EmulatorCpu =
     | "68000"

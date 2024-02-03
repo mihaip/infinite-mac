@@ -1104,31 +1104,57 @@ bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
         bootDevice = 4; // BOOT_FLOPPY
     }
 
-    let configStr = new TextDecoder()
-        .decode(baseConfig)
-        .replaceAll("{ROM_PATH}", romFileName)
-        .replaceAll("{FLOPPIES}", floppyStrs.join("\n"))
-        .replaceAll("{DISKS}", diskStrs.join("\n"))
-        .replaceAll("{DEBUG_LOG}", config.debugLog ? "TRUE" : "FALSE")
-        .replaceAll("{BOOT_DEVICE}", bootDevice.toString())
-        .replaceAll("{COLOR}", config.machine.nextColor ? "TRUE" : "FALSE");
+    const {machine} = config;
+    const turbo = machine.emulatorSubtype === "NeXTstation Turbo Color";
+
+    // Based on Configuration_SetSystemDefaults for the different machines
+    const replacements: {[key: string]: number | string | boolean} = {
+        "MACHINE_TYPE": machine.gestaltID,
+        "ROM_PATH": romFileName,
+        "FLOPPIES": floppyStrs.join("\n"),
+        "DISKS": diskStrs.join("\n"),
+        "DEBUG_LOG": config.debugLog ?? false,
+        "BOOT_DEVICE": bootDevice,
+        "TURBO": turbo,
+        "COLOR": turbo,
+        "CPU_LEVEL": machine.cpu === "68040" ? 4 : 3,
+        "CPU_FREQ":
+            // Technically the Turbo only had a 33 MHz 68040, but simulate it being
+            // upgraded with a Nitro card to get a bit more pep.
+            turbo ? 40 : 25,
+        "FPU_TYPE": machine.cpu === "68040" ? "68040" : "68882",
+        "DSP_TYPE": 2, // DSP_TYPE_EMU
+        "DSP_MEMORY_EXPANSION": machine.emulatorSubtype !== "NeXT Computer",
+        "SCSI_CHIP": machine.emulatorSubtype !== "NeXT Computer",
+        "RTC_CHIP": turbo,
+        "NBIC":
+            machine.emulatorSubtype === "NeXT Computer" ||
+            machine.emulatorSubtype === "NeXTcube",
+    };
 
     const ramSize = config.ramSize ?? config.machine.ramSizes[0];
     // Replicate valid combinations from defmemsize in Previous's dlgAdvanced.c.
     const RAM_BANKS: {[size: MachineDefRAMSize]: number[]} = {
         "128M": [32, 32, 32, 32],
-        "64M": [32, 32, 0, 0],
-        "32M": [8, 8, 8, 8],
-        "16M": [8, 8, 0, 0],
+        "64M": turbo ? [32, 32, 0, 0] : [16, 16, 16, 16],
+        "32M": turbo ? [8, 8, 8, 8] : [16, 16, 0, 0],
+        "16M": turbo ? [8, 8, 0, 0] : [16, 0, 0, 0],
     };
     const ramBankSizes =
         ramSize in RAM_BANKS ? RAM_BANKS[ramSize] : RAM_BANKS["128M"];
-    ramBankSizes.forEach((size, i) => {
-        configStr = configStr.replaceAll(
-            `{RAM_BANK_SIZE${i}}`,
-            size.toString()
-        );
-    });
+    ramBankSizes.forEach(
+        (size, i) => (replacements[`RAM_BANK_SIZE${i}`] = size)
+    );
 
+    let configStr = new TextDecoder().decode(baseConfig);
+    for (const [key, value] of Object.entries(replacements)) {
+        const replacement =
+            typeof value === "boolean"
+                ? value
+                    ? "TRUE"
+                    : "FALSE"
+                : value.toString();
+        configStr = configStr.replaceAll(`{${key}}`, replacement);
+    }
     return configStr;
 }
