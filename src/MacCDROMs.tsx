@@ -4,7 +4,7 @@ import {type EmulatorCDROM} from "./emulator/emulator-common";
 import {Button} from "./controls/Button";
 import classNames from "classnames";
 import {Dialog} from "./controls/Dialog";
-import {cdromLibrary, getCDROMInfo} from "./cdroms";
+import {cdromLibrary, getCDROMInfo, systemCDROMCompare} from "./cdroms";
 import {Input} from "./controls/Input";
 import {type Appearance} from "./controls/Appearance";
 import {type MachinePlatform} from "./machines";
@@ -96,10 +96,13 @@ function MacCDROMsContents({
     const sortedCdromsByCategory = Object.fromEntries(
         sortedCategories.map(category => [category, cdromsByCategory[category]])
     );
-    for (const cdroms of Object.values(sortedCdromsByCategory)) {
+    for (const [category, cdroms] of Object.entries(sortedCdromsByCategory)) {
         cdroms.sort((a, b) =>
             a.name.localeCompare(b.name, undefined, {numeric: true})
         );
+        if (category === "System Software") {
+            cdroms.sort(systemCDROMCompare);
+        }
     }
 
     const [customCDROMVisible, setCustomCDROMVisible] = useState(false);

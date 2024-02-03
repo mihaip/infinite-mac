@@ -1,5 +1,5 @@
 import "./Custom.css";
-import {useCallback, useEffect, useState} from "react";
+import {Fragment, useCallback, useEffect, useState} from "react";
 import {Dialog} from "./controls/Dialog";
 import * as varz from "./varz";
 import {type ScreenSize, type RunDef} from "./run-def";
@@ -27,7 +27,7 @@ import {emulatorSupportsAppleTalk} from "./emulator/emulator-common-emulators";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 import classNames from "classnames";
 import {canSaveDisks} from "./canSaveDisks";
-import {systemCDROMs} from "./cdroms";
+import {systemCDROMEra, systemCDROMs} from "./cdroms";
 import {diskImageExtensions} from "./emulator/emulator-common";
 import {fromDateString, toDateString} from "./dates";
 
@@ -665,10 +665,15 @@ function CDROMOption({
                 <option value="" disabled>
                     System CD-ROMs
                 </option>
-                {systemCDROMs.map(cdrom => (
-                    <option key={cdrom.srcUrl} value={cdrom.srcUrl}>
-                        {cdrom.name}
-                    </option>
+                {systemCDROMs.map((cdrom, i) => (
+                    <Fragment key={cdrom.srcUrl}>
+                        {i > 0 &&
+                            systemCDROMEra(cdrom) !==
+                                systemCDROMEra(systemCDROMs[i - 1]) && (
+                                <option disabled />
+                            )}
+                        <option value={cdrom.srcUrl}>{cdrom.name}</option>
+                    </Fragment>
                 ))}
             </Select>
             <Button
