@@ -14,16 +14,46 @@ export const systemCDROMs = Object.entries(cdromLibrary)
             !path.startsWith("System Software/Compilations/")
     )
     .map(([path, entry]) => entry)
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .sort((a, b) => {
-        const aVersion = /\d+\.\d+/.exec(a.name);
-        const bVersion = /\d+\.\d+/.exec(b.name);
-        if (!aVersion || !bVersion) {
-            return 0;
-        }
-        return parseFloat(aVersion[0]) - parseFloat(bVersion[0]);
-    });
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}))
+    .sort(systemCDROMCompare);
 
+enum SystemSoftwareEra {
+    CLASSIC = 0,
+    NEXT,
+    RHAPSODY,
+    MAC_OS_X_SERVER,
+    MAC_OS_X,
+}
+
+export function systemCDROMEra(cdrom: EmulatorCDROM): SystemSoftwareEra {
+    const {name} = cdrom;
+    if (name.includes("Rhapsody")) {
+        return SystemSoftwareEra.RHAPSODY;
+    } else if (name.includes("Mac OS X Server")) {
+        return SystemSoftwareEra.MAC_OS_X_SERVER;
+    } else if (name.includes("Mac OS X") || name.includes("OpenDarwin")) {
+        return SystemSoftwareEra.MAC_OS_X;
+    } else if (name.includes("NeXT")) {
+        return SystemSoftwareEra.NEXT;
+    } else {
+        return SystemSoftwareEra.CLASSIC;
+    }
+}
+
+export function systemCDROMCompare(a: EmulatorCDROM, b: EmulatorCDROM) {
+    // Sort by era and then version number
+    const aEra = systemCDROMEra(a);
+    const bEra = systemCDROMEra(b);
+    if (aEra !== bEra) {
+        return aEra - bEra;
+    }
+    const aVersion = /\d+\.\d+/.exec(a.name);
+    const bVersion = /\d+\.\d+/.exec(b.name);
+    if (!aVersion || !bVersion) {
+        return 0;
+    }
+    return parseFloat(aVersion[0]) - parseFloat(bVersion[0]);
+}
 export async function getCDROMInfo(url: string): Promise<EmulatorCDROM> {
     const libraryCDROM = Object.values(cdromLibrary).find(
         cdrom => cdrom.srcUrl === url
