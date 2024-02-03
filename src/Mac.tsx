@@ -315,7 +315,7 @@ export default function Mac({
         }
 
         document.body.classList.toggle("fullscreen", isFullScreen);
-        if (isFullScreen && screenSizeProp === "auto") {
+        if (isFullScreen && screenSizeProp !== "fullscreen") {
             const heightScale =
                 window.screen.availHeight / screenRef.current!.height;
             const widthScale =
