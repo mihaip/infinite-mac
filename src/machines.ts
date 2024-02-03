@@ -9,6 +9,8 @@ import powerMacintosh6100RomPath from "./Data/Power-Macintosh-6100.rom";
 import powerMacintosh7500RomPath from "./Data/Power-Macintosh-7500.rom";
 import powerMacintosh9500RomPath from "./Data/Power-Macintosh-9500.rom";
 import powerMacintoshG3RomPath from "./Data/Power-Macintosh-G3.rom";
+import nextRev10V41RomPath from "./Data/NeXT-Rev_1.0_v41.rom";
+import nextRev25V66RomPath from "./Data/NeXT-Rev_2.5_v66.rom";
 import nextRev33V74RomPath from "./Data/NeXT-Rev_3.3_v74.rom";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
@@ -33,7 +35,6 @@ export type MachineDef = {
     bezelStyle: "Beige" | "Platinum" | "Pinstripes" | "NeXT";
     ramSizes: MachineDefRAMSize[]; // First value is the default
     platform?: MachinePlatform;
-    nextColor?: boolean;
 };
 
 export type MachineDefRAMSize = `${number}M` | `${number}K`;
@@ -190,32 +191,60 @@ export const POWER_MACINTOSH_G3_BW: MachineDef = {
     ramSizes: ["256M", "128M", "64M"],
 };
 
-export const NEXT_STATION_TURBO: MachineDef = {
-    name: "NeXTstation Turbo",
-    cpu: "68040",
-    romPath: nextRev33V74RomPath,
-    gestaltID: 2,
+export const NEXT_COMPUTER: MachineDef = {
+    name: "NeXT Computer",
+    cpu: "68030",
+    romPath: nextRev10V41RomPath,
+    gestaltID: 0, // NEXT_CUBE030
     emulatorType: "Previous",
+    emulatorSubtype: "NeXT Computer",
     prefsPath: previousConfigPath,
     fixedScreenSize: {width: 1120, height: 832},
     bezelStyle: "NeXT",
-    ramSizes: ["128M", "64M", "32M", "16M"],
+    ramSizes: ["64M", "32M", "16M"],
     platform: "NeXT",
-    nextColor: false,
+};
+
+export const NEXT_CUBE: MachineDef = {
+    name: "NeXTcube",
+    cpu: "68040",
+    romPath: nextRev25V66RomPath,
+    gestaltID: 1, // NEXT_CUBE040
+    emulatorType: "Previous",
+    emulatorSubtype: "NeXTcube",
+    prefsPath: previousConfigPath,
+    fixedScreenSize: {width: 1120, height: 832},
+    bezelStyle: "NeXT",
+    ramSizes: ["64M", "32M", "16M"],
+    platform: "NeXT",
+};
+
+export const NEXT_STATION: MachineDef = {
+    name: "NeXTstation",
+    cpu: "68040",
+    romPath: nextRev25V66RomPath,
+    gestaltID: 2, // NEXT_STATION
+    emulatorType: "Previous",
+    emulatorSubtype: "NeXTstation",
+    prefsPath: previousConfigPath,
+    fixedScreenSize: {width: 1120, height: 832},
+    bezelStyle: "NeXT",
+    ramSizes: ["32M", "16M"],
+    platform: "NeXT",
 };
 
 export const NEXT_STATION_TURBO_COLOR: MachineDef = {
     name: "NeXTstation Turbo Color",
     cpu: "68040",
     romPath: nextRev33V74RomPath,
-    gestaltID: 2,
+    gestaltID: 2, // NEXT_STATION
     emulatorType: "Previous",
+    emulatorSubtype: "NeXTstation Turbo Color",
     prefsPath: previousConfigPath,
     fixedScreenSize: {width: 1120, height: 832},
     bezelStyle: "NeXT",
     ramSizes: ["128M", "64M", "32M", "16M"],
     platform: "NeXT",
-    nextColor: true,
 };
 
 export const ALL_MACHINES = [
@@ -231,7 +260,9 @@ export const ALL_MACHINES = [
     POWER_MACINTOSH_9500,
     POWER_MACINTOSH_G3_BEIGE,
     POWER_MACINTOSH_G3_BW,
-    NEXT_STATION_TURBO,
+    NEXT_COMPUTER,
+    NEXT_CUBE,
+    NEXT_STATION,
     NEXT_STATION_TURBO_COLOR,
 ];
 

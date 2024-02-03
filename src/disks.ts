@@ -12,8 +12,10 @@ import {
     POWER_MACINTOSH_9500,
     QUADRA_650,
     POWER_MACINTOSH_6100,
+    NEXT_COMPUTER,
+    NEXT_CUBE,
+    NEXT_STATION,
     NEXT_STATION_TURBO_COLOR,
-    NEXT_STATION_TURBO,
 } from "./machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -791,7 +793,12 @@ const NEXTSTEP_3_3: SystemDiskDef = {
         3244, 3248, 3252, 3264, 3268, 3273, 3276, 3480, 3481, 3484, 3492, 3500,
         3504, 4092,
     ],
-    machines: [NEXT_STATION_TURBO_COLOR, NEXT_STATION_TURBO],
+    machines: [
+        NEXT_STATION_TURBO_COLOR,
+        NEXT_STATION,
+        NEXT_CUBE,
+        NEXT_COMPUTER,
+    ],
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NEXTSTEP 3.3 HD.dsk.json"),
 };
