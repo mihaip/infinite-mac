@@ -439,6 +439,7 @@ def write_chunked_image(image: ImageDef) -> None:
     total_size = 0
     chunks = []
     chunk_signatures = set()
+    zero_chunk_count = 0
     salt = b'raw'
     with open(image.path, "rb") as image_file:
         image_bytes = image_file.read()
@@ -452,6 +453,7 @@ def write_chunked_image(image: ImageDef) -> None:
         # the signature takes up space, and we don't need to load them
         if chunk == ZERO_CHUNK:
             chunks.append("")
+            zero_chunk_count += 1
             continue
         chunk_signature = hashlib.blake2b(chunk, digest_size=16,
                                           salt=salt).hexdigest()
@@ -467,7 +469,12 @@ def write_chunked_image(image: ImageDef) -> None:
         with open(chunk_path, "wb+") as chunk_file:
             chunk_file.write(chunk)
 
-    sys.stderr.write("\n")
+    sys.stderr.write(
+        "Chunked %s: %d%% unique chunks, %d%% zero chunks\n" % (
+            image.name,
+            round(len(chunk_signatures) / len(chunks) * 100),
+            round(zero_chunk_count / len(chunks) * 100),
+        ))
 
     manifest_path = os.path.join(paths.DATA_DIR, f"{image.name}.json")
     with open(manifest_path, "w+") as manifest_file:
