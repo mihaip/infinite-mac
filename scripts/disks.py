@@ -164,6 +164,12 @@ KANJITALK_753 = Disk(
     welcome_sticky_override=JAPANESE_WELCOME_STICKY,
 )
 
+NEXTSTEP_08 = Disk(
+    name="NeXTStep 0.8 HD.dsk",
+    compressed=True,
+    stickies_encoding="nextstep",
+)
+
 NEXTSTEP_33 = Disk(
     name="NeXTSTEP 3.3 HD.dsk",
     compressed=True,
@@ -212,5 +218,6 @@ ALL_DISKS = [
     MAC_OS_86,
     MAC_OS_9,
     MAC_OS_904,
+    NEXTSTEP_08,
     NEXTSTEP_33,
 ]

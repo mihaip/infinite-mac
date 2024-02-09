@@ -35,4 +35,5 @@ public/Covers
 # We only commit the compressed versions of these images, but having the
 # uncompressed ones around is useful for local development.
 Images/Saved HD.dsk
+Images/NeXTStep 0.8 HD.dsk
 Images/NeXTSTEP 3.3 HD.dsk
