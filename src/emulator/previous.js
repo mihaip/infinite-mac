@@ -666,22 +666,23 @@ var ASM_CONSTS = {
  226738: ($0) => { return workerApi.disks.size(UTF8ToString($0)); },  
  226789: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
  226839: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 226888: () => { workerApi.sleep(0); },  
- 226912: () => { return workerApi.acquireInputLock(); },  
- 226953: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 227042: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr); },  
- 227132: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 227222: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 227306: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 227390: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 227475: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 227555: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyModifiersAddr); },  
- 227640: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 227721: () => { workerApi.releaseInputLock(); },  
- 227755: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 227791: () => { workerApi.blit(0, 0); },  
- 227817: () => { workerApi.blit(0, 0); },  
- 227843: ($0, $1) => { workerApi.blit($0, $1); }
+ 226888: ($0) => { workerApi.sleep($0); },  
+ 226913: () => { workerApi.sleep(0); },  
+ 226937: () => { return workerApi.acquireInputLock(); },  
+ 226978: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 227067: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr); },  
+ 227157: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 227247: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 227331: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 227415: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 227500: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 227580: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyModifiersAddr); },  
+ 227665: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 227746: () => { workerApi.releaseInputLock(); },  
+ 227780: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 227816: () => { workerApi.blit(0, 0); },  
+ 227842: () => { workerApi.blit(0, 0); },  
+ 227868: ($0, $1) => { workerApi.blit($0, $1); }
 };
 function consumeDiskName() { const diskName = workerApi.disks.consumeDiskName(); if (!diskName || !diskName.length) { return 0; } const diskNameLength = lengthBytesUTF8(diskName) + 1; const diskNameCstr = _malloc(diskNameLength); stringToUTF8(diskName, diskNameCstr, diskNameLength); return diskNameCstr; }
 
@@ -6188,8 +6189,8 @@ var dynCall_viijii = Module['dynCall_viijii'] = (a0, a1, a2, a3, a4, a5, a6) => 
 var dynCall_iiiiij = Module['dynCall_iiiiij'] = (a0, a1, a2, a3, a4, a5, a6) => (dynCall_iiiiij = Module['dynCall_iiiiij'] = wasmExports['dynCall_iiiiij'])(a0, a1, a2, a3, a4, a5, a6);
 var dynCall_iiiiijj = Module['dynCall_iiiiijj'] = (a0, a1, a2, a3, a4, a5, a6, a7, a8) => (dynCall_iiiiijj = Module['dynCall_iiiiijj'] = wasmExports['dynCall_iiiiijj'])(a0, a1, a2, a3, a4, a5, a6, a7, a8);
 var dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) => (dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = wasmExports['dynCall_iiiiiijj'])(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);
-var ___start_em_js = Module['___start_em_js'] = 227871;
-var ___stop_em_js = Module['___stop_em_js'] = 228161;
+var ___start_em_js = Module['___start_em_js'] = 227896;
+var ___stop_em_js = Module['___stop_em_js'] = 228186;
 function invoke_viii(index,a1,a2,a3) {
   var sp = stackSave();
   try {
