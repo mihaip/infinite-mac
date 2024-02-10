@@ -772,6 +772,7 @@ const NEEDS_KEYBOARD_BUTTON =
 const DEFAULT_EMULATOR_SETTINGS: EmulatorSettings = {
     swapControlAndCommand: false,
     speed: -2,
+    useMouseDeltas: false,
 };
 
 function MacEthernetStatus({

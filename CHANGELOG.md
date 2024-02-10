@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2024-02-19: Added option to use relative mouse movement in Basilisk II and SheepShaver-based machines, which improves compatibility with some games.
+
 2024-01-25: Custom instances now support overriding the current date.
 
 2023-12-13: Experimental support for the Power Macintosh 6100 and G3 (Beige) machines. See https://blog.persistent.info/2023/12/dingusppc.html for more details.

@@ -26,6 +26,9 @@ export const InputBufferAddresses = {
 
     speedFlagAddr: 11,
     speedAddr: 12,
+
+    useMouseDeltasFlagAddr: 17,
+    useMouseDeltasAddr: 18,
 };
 
 export type EmulatorMouseEvent =
@@ -59,6 +62,11 @@ export type EmulatorSetSpeedEvent = {
     speed: EmulatorSpeed;
 };
 
+export type EmulatorSetUseMouseDeltas = {
+    type: "set-use-mouse-deltas";
+    useMouseDeltas: boolean;
+};
+
 export type EmulatorInputEvent =
     | EmulatorMouseEvent
     | EmulatorTouchEvent
@@ -67,7 +75,8 @@ export type EmulatorInputEvent =
     | EmulatorStartEvent
     | EmulatorEthernetInterruptEvent
     | EmulatorAudioContextRunningEvent
-    | EmulatorSetSpeedEvent;
+    | EmulatorSetSpeedEvent
+    | EmulatorSetUseMouseDeltas;
 
 export enum LockStates {
     READY_FOR_UI_THREAD,
@@ -324,8 +333,6 @@ export function updateInputBufferWithEvents(
     let hasStart = false;
     let hasEthernetInterrupt = false;
     let hasAudioContextRunning = false;
-    let hasSpeed = false;
-    let speed = -2;
     // currently only one key event can be sent per sync
     // TODO: better key handling code
     const remainingEvents: EmulatorInputEvent[] = [];
@@ -383,8 +390,16 @@ export function updateInputBufferWithEvents(
                 hasAudioContextRunning = true;
                 break;
             case "set-speed":
-                hasSpeed = true;
-                speed = inputEvent.speed;
+                inputBufferView[InputBufferAddresses.speedFlagAddr] = 1;
+                inputBufferView[InputBufferAddresses.speedAddr] =
+                    inputEvent.speed;
+                break;
+            case "set-use-mouse-deltas":
+                inputBufferView[
+                    InputBufferAddresses.useMouseDeltasFlagAddr
+                ] = 1;
+                inputBufferView[InputBufferAddresses.useMouseDeltasAddr] =
+                    inputEvent.useMouseDeltas ? 1 : 0;
         }
     }
     if (hasMousePosition) {
@@ -416,10 +431,6 @@ export function updateInputBufferWithEvents(
         hasEthernetInterrupt ? 1 : 0;
     if (hasAudioContextRunning) {
         inputBufferView[InputBufferAddresses.audioContextRunningFlagAddr] = 1;
-    }
-    if (hasSpeed) {
-        inputBufferView[InputBufferAddresses.speedFlagAddr] = 1;
-        inputBufferView[InputBufferAddresses.speedAddr] = speed;
     }
     return remainingEvents;
 }
