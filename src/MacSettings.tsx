@@ -5,6 +5,7 @@ import {
     type EmulatorType,
     emulatorSupportsSpeedSetting,
     EMULATOR_SPEEDS,
+    emulatorSupportsMouseDeltas,
 } from "./emulator/emulator-common-emulators";
 import {Dialog} from "./controls/Dialog";
 import {type Appearance} from "./controls/Appearance";
@@ -86,6 +87,27 @@ export function MacSettings({
                     browser or OS).
                 </div>
             </label>
+            {emulatorSupportsMouseDeltas(emulatorType) && (
+                <label>
+                    <Checkbox
+                        appearance={appearance}
+                        checked={emulatorSettings.useMouseDeltas}
+                        onChange={() =>
+                            setEmulatorSettings({
+                                ...emulatorSettings,
+                                useMouseDeltas:
+                                    !emulatorSettings.useMouseDeltas,
+                            })
+                        }
+                    />
+                    Use relative mouse movements
+                    <div className="Dialog-Description">
+                        Send relative mouse movements to the emulator instead of
+                        absolute positions. This can help with compatibility of
+                        games such as Apeiron.
+                    </div>
+                </label>
+            )}
             {emulatorSupportsSpeedSetting(emulatorType) && (
                 <label>
                     Speed:

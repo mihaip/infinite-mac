@@ -38,6 +38,13 @@ export function emulatorSupportsSpeedSetting(type: EmulatorType): boolean {
     return type === "Mini vMac";
 }
 
+// True if the emulator can optionally use mouse deltas instead of absolute
+// coordinates (separate from emulatorNeedsPointerLock, those emulators always
+// use deltas).
+export function emulatorSupportsMouseDeltas(type: EmulatorType): boolean {
+    return type === "BasiliskII" || type === "SheepShaver";
+}
+
 export function emulatorSupportsAppleTalk(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";
 }

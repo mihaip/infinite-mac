@@ -670,22 +670,26 @@ var ASM_CONSTS = {
  186651: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
  186740: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
  186830: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
- 186917: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
- 187004: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 187089: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 187169: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 187250: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr); },  
- 187344: () => { workerApi.releaseInputLock(); },  
- 187378: () => { workerApi.sleep(0.001); },  
- 187406: ($0) => { workerApi.setClipboardText(UTF8ToString($0)); },  
- 187456: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 187507: ($0) => { workerApi.disks.close($0); },  
- 187538: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 187587: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
- 187637: ($0) => { return workerApi.disks.size($0); },  
- 187674: ($0) => { return workerApi.disks.isMediaPresent($0); },  
- 187721: ($0) => { return workerApi.disks.isFixedDisk($0); },  
- 187765: ($0) => { workerApi.disks.eject($0); }
+ 186917: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 187001: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
+ 187088: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 187172: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasFlagAddr); },  
+ 187263: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasAddr); },  
+ 187350: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 187435: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 187515: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 187596: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr); },  
+ 187690: () => { workerApi.releaseInputLock(); },  
+ 187724: () => { workerApi.sleep(0.001); },  
+ 187752: ($0) => { workerApi.setClipboardText(UTF8ToString($0)); },  
+ 187802: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 187853: ($0) => { workerApi.disks.close($0); },  
+ 187884: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 187933: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
+ 187983: ($0) => { return workerApi.disks.size($0); },  
+ 188020: ($0) => { return workerApi.disks.isMediaPresent($0); },  
+ 188067: ($0) => { return workerApi.disks.isFixedDisk($0); },  
+ 188111: ($0) => { workerApi.disks.eject($0); }
 };
 function getClipboardText() { const clipboardText = workerApi.getClipboardText(); if (!clipboardText || !clipboardText.length) { return 0; } const clipboardTextLength = lengthBytesUTF8(clipboardText) + 1; const clipboardTextCstr = _malloc(clipboardTextLength); stringToUTF8(clipboardText, clipboardTextCstr, clipboardTextLength); return clipboardTextCstr; }
 
@@ -5469,8 +5473,8 @@ var ___cxa_is_pointer_type = (a0) => (___cxa_is_pointer_type = wasmExports['__cx
 var dynCall_iiiji = Module['dynCall_iiiji'] = (a0, a1, a2, a3, a4, a5) => (dynCall_iiiji = Module['dynCall_iiiji'] = wasmExports['dynCall_iiiji'])(a0, a1, a2, a3, a4, a5);
 var dynCall_ji = Module['dynCall_ji'] = (a0, a1) => (dynCall_ji = Module['dynCall_ji'] = wasmExports['dynCall_ji'])(a0, a1);
 var dynCall_jiji = Module['dynCall_jiji'] = (a0, a1, a2, a3, a4) => (dynCall_jiji = Module['dynCall_jiji'] = wasmExports['dynCall_jiji'])(a0, a1, a2, a3, a4);
-var ___start_em_js = Module['___start_em_js'] = 187796;
-var ___stop_em_js = Module['___stop_em_js'] = 188132;
+var ___start_em_js = Module['___start_em_js'] = 188142;
+var ___stop_em_js = Module['___stop_em_js'] = 188478;
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===

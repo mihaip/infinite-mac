@@ -89,6 +89,7 @@ export type EmulatorConfig = {
 export type EmulatorSettings = {
     swapControlAndCommand: boolean;
     speed: EmulatorSpeed;
+    useMouseDeltas: boolean;
 };
 
 export interface EmulatorEthernetProvider {
@@ -409,6 +410,14 @@ export class Emulator {
         if (speed !== undefined) {
             this.#input.handleInput({type: "set-speed", speed});
         }
+        const useMouseDeltas =
+            this.#delegate?.emulatorSettings?.(this)?.useMouseDeltas;
+        if (useMouseDeltas !== undefined) {
+            this.#input.handleInput({
+                type: "set-use-mouse-deltas",
+                useMouseDeltas,
+            });
+        }
     }
 
     stop() {
@@ -526,7 +535,8 @@ export class Emulator {
     #handleMouseDown = (event: MouseEvent) => {
         this.#input.handleInput({type: "mousedown", button: event.button});
         if (
-            emulatorNeedsPointerLock(this.#config.machine.emulatorType) &&
+            (emulatorNeedsPointerLock(this.#config.machine.emulatorType) ||
+                this.#delegate?.emulatorSettings?.(this).useMouseDeltas) &&
             !this.#requestedPointerLock
         ) {
             this.#config.screenCanvas.requestPointerLock({
