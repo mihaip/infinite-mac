@@ -16,6 +16,7 @@ Common development tasks, all done via `npm run`:
     -   `sheepshaver`: SheepShaver from https://github.com/mihaip/macemu
     -   `minivmac-Plus` (and others): Mini vMac variants from https://github.com/mihaip/minivmac
     -   `dingusppc`: DingusPPC from https://github.com/mihaip/dingusppc
+    -   `previous`: Previous from https://github.com/mihaip/previous
 -   `import-disks`: Build disk images for serving. Copies base OS images for the above emulators, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving. This requires the macOS versions of Basilisk II and Mini vMac to be installed, since they are used as part of the image building process.
 -   `import-cd-roms`: Build CD-ROM library (actual CD-ROMs are hosted on archive.org and other sites, the library contains metadata)
 
@@ -25,6 +26,7 @@ Common deployment tasks (also done via `npm run`)
 -   `preview`: Serve built assets locally using Vite's server (will be running at https://localhost:4127)
 -   `worker-dev`: Preview built assets in a local Cloudflare Worker (requires a separate `build` invocation, result will be running at http://localhost:3128)
 -   `worker-deploy`: Deploy built assets to the live version of the Cloudflare Worker (requires a separate `build` invocation)
+-   `sync-disks`: Sync disk images to a Cloudflare R2 bucket. Should be done after disks are rebuilt with `import-disks` (and before `worker-deploy`).
 
 ### Dependencies
 
@@ -34,6 +36,7 @@ Dependencies can be installed with:
 npm install
 pip3 install -r requirements.txt
 npm run build-xadmaster
+sudo -v ; curl https://rclone.org/install.sh | sudo bash
 ```
 
 Supporting data files need to be generated with:

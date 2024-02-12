@@ -1,5 +1,6 @@
 import * as varz from "./varz";
 import * as cdrom from "./cd-rom";
+import * as disk from "./disk";
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
 // @ts-expect-error TODO: include declaration for this generated module.
 import manifestJSON from "__STATIC_CONTENT_MANIFEST";
@@ -9,6 +10,7 @@ type Env = {
     __STATIC_CONTENT: string;
     ETHERNET_ZONE: DurableObjectNamespace;
     VARZ: KVNamespace;
+    DISK_BUCKET: R2Bucket;
 };
 const handler: ExportedHandler<Env> = {fetch: handleRequest};
 
@@ -39,6 +41,9 @@ async function handleRequest(
     if (path[0] === "CD-ROM") {
         return cdrom.handleRequest(url.pathname, request.method);
     }
+    if (path[0] === "Disk") {
+        return disk.handleRequest(request, env.DISK_BUCKET, ctx);
+    }
 
     const legacyDomainRedirect = getLegacyDomainRedirect(url);
     if (legacyDomainRedirect) {
@@ -68,11 +73,7 @@ async function handleRequest(
         // Force a MIME type from the list at
         // https://support.cloudflare.com/hc/en-us/articles/200168396 to ensure
         // that the ROM and chunks get compressed.
-        if (
-            pathname.endsWith(".rom") ||
-            pathname.endsWith(".hda") ||
-            pathname.endsWith(".chunk")
-        ) {
+        if (pathname.endsWith(".rom") || pathname.endsWith(".hda")) {
             response.headers.set("Content-Type", "multipart/mixed");
         }
 
@@ -90,10 +91,7 @@ async function handleRequest(
 
         // Static content uses a content hash in the URL, so it can be cached
         // for a while (30 days).
-        if (
-            pathname.startsWith("/assets") ||
-            (pathname.startsWith("/Disk") && pathname.endsWith(".chunk"))
-        ) {
+        if (pathname.startsWith("/assets")) {
             response.headers.set(
                 "Cache-Control",
                 `max-age=${60 * 60 * 24 * 30}`
