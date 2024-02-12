@@ -44,6 +44,7 @@
         "preview": "vite preview --host",
         "worker-dev": "wrangler dev --port=3128",
         "worker-deploy": "wrangler deploy --env production",
+        "sync-disks": "scripts/sync-disks.sh",
         "prettier": "prettier --write src workers-site",
         "lint": "eslint --fix src workers-site",
         "check": "tsc --noEmit && tsc --noEmit --project workers-site/tsconfig.json",

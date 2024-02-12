@@ -1,0 +1,11 @@
+# Example configuration for rclone to sync built disk chunks with a Cloudflare
+# R2 bucket.
+# To use it, copy this file scripts/rclone.conf and replace the placeholder
+# values with your own (see https://developers.cloudflare.com/r2/examples/rclone/).
+[cf]
+type = s3
+provider = Cloudflare
+access_key_id = ACCESS_KEY_ID
+secret_access_key = SECRET_ACCESS_KEY
+endpoint = S3_API_ENDPOINT
+

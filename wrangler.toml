@@ -17,7 +17,7 @@ new_classes = ["EthernetZone"]
 
 [site]
 bucket = "./build"
-exclude = ["BasiliskII.wasm.map"]
+exclude = ["Disk/"]
 
 [env.production]
 routes = [
@@ -40,4 +40,8 @@ durable_objects.bindings = [
 ]
 kv_namespaces = [
     {binding = "VARZ", id = "1725dc172d284ec4bd41bf950d5df01c"}
+]
+
+r2_buckets  = [
+  { binding = "DISK_BUCKET", bucket_name = "infinite-mac-disk" },
 ]
