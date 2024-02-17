@@ -6,6 +6,8 @@ import {
     isPlaceholderDiskDef,
     NOTABLE_DISKS,
     ALL_DISKS,
+    NEXT_DISKS,
+    NEXT_DISKS_BY_YEAR,
 } from "./disks";
 import {type MachineDef} from "./machines";
 import {ScreenFrame} from "./ScreenFrame";
@@ -31,11 +33,9 @@ export function Browser({
     onRun: BrowserRunFn;
     initialCustomRunDef?: RunDef;
 }) {
-    const [notableOnly, setNotableOnly] = usePersistentState(
-        true,
-        "notableOnly"
-    );
-    const disksByYear = notableOnly ? NOTABLE_DISKS_BY_YEAR : DISKS_BY_YEAR;
+    const [diskFilter, setDiskFilter] = useDiskFilter();
+    const {byYear: disksByYear} = disks[diskFilter];
+
     return (
         <div className="Browser">
             <header>
@@ -48,10 +48,7 @@ export function Browser({
                 />
             </header>
             <div className="Disks-Container">
-                <NotableToggle
-                    notableOnly={notableOnly}
-                    setNotableOnly={setNotableOnly}
-                />
+                <DiskFilters value={diskFilter} onChange={setDiskFilter} />
                 {Array.from(Object.entries(disksByYear), ([year, disks]) => (
                     <div className="Year" key={year}>
                         <h2>{year}</h2>
@@ -135,35 +132,61 @@ function Description({
     );
 }
 
-function NotableToggle({
-    notableOnly,
-    setNotableOnly,
+const disks = {
+    "all": {label: "All", all: ALL_DISKS, byYear: DISKS_BY_YEAR},
+    "notable": {
+        label: "Notable",
+        all: NOTABLE_DISKS,
+        byYear: NOTABLE_DISKS_BY_YEAR,
+    },
+    "next": {label: "NeXT", all: NEXT_DISKS, byYear: NEXT_DISKS_BY_YEAR},
+};
+type DiskFilter = keyof typeof disks;
+
+function useDiskFilter() {
+    const filterParam = new URLSearchParams(location.search).get("filter");
+    let defaultValue: DiskFilter = "notable";
+    let useClientState = false;
+    // If using query params, we go into a temporary client state.
+    if (filterParam && filterParam.toLowerCase() in disks) {
+        defaultValue = filterParam as DiskFilter;
+        useClientState = true;
+    }
+
+    const clientState = useState<DiskFilter>(defaultValue);
+    const persistentState = usePersistentState<DiskFilter>(
+        defaultValue,
+        "diskFilter"
+    );
+    return useClientState ? clientState : persistentState;
+}
+
+function DiskFilters({
+    value,
+    onChange,
 }: {
-    notableOnly: boolean;
-    setNotableOnly: (v: boolean) => void;
+    value: DiskFilter;
+    onChange: (v: DiskFilter) => void;
 }) {
     return (
-        <div className="Notable-Toggle-Container">
-            <div className="Notable-Toggle">
-                <span className="Notable-Toggle-Label">Releases:</span>
-                <NotableToggleButton
-                    onClick={() => setNotableOnly(true)}
-                    selected={notableOnly}
-                    label="Notable"
-                    count={NOTABLE_DISKS.length}
-                />
-                <NotableToggleButton
-                    onClick={() => setNotableOnly(false)}
-                    selected={!notableOnly}
-                    label="All"
-                    count={ALL_DISKS.length}
-                />
+        <div className="Disk-Filters-Container">
+            <div className="Disk-Filters">
+                <span className="Disk-Filters-Label">Releases:</span>
+                {Object.entries(disks).map(([filter, {label, all}]) => (
+                    <DiskFiltersButton
+                        key={filter}
+                        onClick={() => onChange(filter as DiskFilter)}
+                        selected={filter === value}
+                        label={label}
+                        count={all.length}
+                    />
+                ))}
             </div>
         </div>
     );
 }
 
-function NotableToggleButton({
+function DiskFiltersButton({
     onClick,
     selected,
     label,
@@ -177,7 +200,7 @@ function NotableToggleButton({
     return (
         <button
             onClick={onClick}
-            className={classNames("Notable-Toggle-Button", {
+            className={classNames("Disk-Filters-Button", {
                 "selected": selected,
             })}>
             <span className="name-container">
