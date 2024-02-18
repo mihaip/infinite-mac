@@ -176,6 +176,12 @@ NEXTSTEP_33 = Disk(
     stickies_encoding="nextstep",
 )
 
+NEXTSTEP_40 = Disk(
+    name="NeXTSTEP 4.0 HD.dsk",
+    compressed=True,
+    stickies_encoding="nextstep",
+)
+
 OPENSTEP_40 = Disk(
     name="OPENSTEP 4.0 HD.dsk",
     compressed=True,
@@ -226,5 +232,6 @@ ALL_DISKS = [
     MAC_OS_904,
     NEXTSTEP_08,
     NEXTSTEP_33,
+    NEXTSTEP_40,
     OPENSTEP_40,
 ]
