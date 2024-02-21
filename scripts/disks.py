@@ -188,6 +188,24 @@ NEXTSTEP_22 = Disk(
     stickies_encoding="nextstep",
 )
 
+NEXTSTEP_30 = Disk(
+    name="NeXTSTEP 3.0 HD.dsk",
+    compressed=True,
+    stickies_encoding="nextstep",
+)
+
+NEXTSTEP_31 = Disk(
+    name="NeXTSTEP 3.1 HD.dsk",
+    compressed=True,
+    stickies_encoding="nextstep",
+)
+
+NEXTSTEP_32 = Disk(
+    name="NeXTSTEP 3.2 HD.dsk",
+    compressed=True,
+    stickies_encoding="nextstep",
+)
+
 NEXTSTEP_33 = Disk(
     name="NeXTSTEP 3.3 HD.dsk",
     compressed=True,
@@ -258,6 +276,9 @@ ALL_DISKS = [
     NEXTSTEP_20,
     NEXTSTEP_21,
     NEXTSTEP_22,
+    NEXTSTEP_30,
+    NEXTSTEP_31,
+    NEXTSTEP_32,
     NEXTSTEP_33,
     NEXTSTEP_40,
     OPENSTEP_40,
