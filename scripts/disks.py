@@ -170,6 +170,24 @@ NEXTSTEP_08 = Disk(
     stickies_encoding="nextstep",
 )
 
+NEXTSTEP_09 = Disk(
+    name="NeXTStep 0.9 HD.dsk",
+    compressed=True,
+    stickies_encoding="nextstep",
+)
+
+NEXTSTEP_10 = Disk(
+    name="NeXTStep 1.0 HD.dsk",
+    compressed=True,
+    stickies_encoding="nextstep",
+)
+
+NEXTSTEP_10a = Disk(
+    name="NeXTStep 1.0a HD.dsk",
+    compressed=True,
+    stickies_encoding="nextstep",
+)
+
 NEXTSTEP_20 = Disk(
     name="NeXTStep 2.0 HD.dsk",
     compressed=True,
@@ -273,6 +291,9 @@ ALL_DISKS = [
     MAC_OS_9,
     MAC_OS_904,
     NEXTSTEP_08,
+    NEXTSTEP_09,
+    NEXTSTEP_10,
+    NEXTSTEP_10a,
     NEXTSTEP_20,
     NEXTSTEP_21,
     NEXTSTEP_22,

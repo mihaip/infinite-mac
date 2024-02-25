@@ -39,6 +39,9 @@ scripts/rclone.conf
 # uncompressed ones around is useful for local development.
 Images/Saved HD.dsk
 Images/NeXTStep 0.8 HD.dsk
+Images/NeXTStep 0.9 HD.dsk
+Images/NeXTStep 1.0 HD.dsk
+Images/NeXTStep 1.0a HD.dsk
 Images/NeXTStep 2.0 HD.dsk
 Images/NeXTStep 2.1 HD.dsk
 Images/NeXTStep 2.2 HD.dsk

@@ -787,6 +787,91 @@ const NEXTSTEP_0_8: SystemDiskDef = {
     machines: [NEXT_COMPUTER],
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTStep 0.8 HD.dsk.json"),
+    notable: true,
+};
+
+const NEXTSTEP_0_9: SystemDiskDef = {
+    displayName: "NeXTStep 0.9",
+    description:
+        "Introduces the Preferences application, a window resize control, indicator in the dock of running apps, and other UI polish. Bundles FrameMaker, Mathematica and additional demo apps.",
+    releaseDate: [1989, 5, 1],
+    prefetchChunks: [
+        0, 1, 2, 3, 9, 10, 11, 12, 13, 14, 16, 17, 435, 436, 437, 438, 442, 443,
+        444, 445, 446, 450, 451, 452, 458, 459, 460, 461, 462, 464, 465, 466,
+        467, 468, 474, 475, 489, 490, 491, 495, 496, 497, 498, 513, 514, 520,
+        521, 528, 536, 543, 544, 551, 552, 553, 554, 559, 560, 575, 576, 599,
+        691, 753, 754, 776, 784, 807, 808, 815, 816, 822, 823, 824, 830, 831,
+        832, 833, 834, 837, 838, 839, 840, 841, 846, 854, 855, 856, 884, 885,
+        886, 900, 901, 1001, 1002, 1003, 1133, 1134, 1148, 1149, 1150, 1151,
+        1152, 1156, 1157, 1158, 1159, 1160, 1163, 1164, 1165, 1166, 1188, 1189,
+        1242, 1244, 1257, 1258, 1287, 1289, 1311, 1318, 1326, 1327, 1334, 1335,
+        1342, 1343, 1351, 1354, 1355, 1356, 1357, 1358, 1359, 1360, 1361, 1362,
+        1363, 1364, 1365, 1366, 1367, 1371, 1372, 1373, 1374, 1377, 1388, 1389,
+        1390, 1391, 1423, 1424, 1427, 1428, 1652, 1659, 1660, 1667, 1668, 1683,
+        1684, 1690, 1691, 1692, 1698, 1699, 1700, 1706, 1707, 1714, 1715, 1721,
+        1722, 1723, 1729, 1731, 1745, 1746, 1752, 1753, 1760, 1761, 1776, 1783,
+        1784, 1800, 1892, 1893, 1907, 1908, 1910, 2109, 3070, 3071, 3079, 3080,
+        3081, 3082, 3087, 3088, 3089, 3093, 3094, 3095, 3098, 3099, 3100, 3233,
+        3234, 3241, 3807,
+    ],
+    machines: [NEXT_COMPUTER],
+    appearance: "NeXT",
+    generatedSpec: () => import("./Data/NeXTStep 0.9 HD.dsk.json"),
+};
+
+const NEXTSTEP_1_0: SystemDiskDef = {
+    displayName: "NeXTStep 1.0",
+    description:
+        "Includes the ability to kill applications from Workspace Manager, a redesigned Preferences application with additional features and other polish.",
+    releaseDate: [1989, 9, 11],
+    prefetchChunks: [
+        0, 1, 2, 9, 10, 11, 12, 13, 14, 15, 16, 17, 125, 141, 142, 143, 144,
+        149, 156, 158, 159, 160, 162, 164, 166, 168, 334, 336, 342, 343, 344,
+        350, 351, 352, 365, 367, 373, 381, 382, 383, 384, 386, 387, 388, 389,
+        391, 392, 393, 397, 398, 401, 402, 403, 404, 405, 406, 412, 413, 414,
+        427, 428, 435, 436, 443, 444, 450, 451, 452, 474, 475, 489, 491, 512,
+        513, 520, 521, 536, 543, 544, 551, 552, 576, 590, 591, 598, 599, 615,
+        714, 715, 723, 724, 725, 726, 731, 732, 736, 737, 738, 739, 740, 743,
+        744, 745, 746, 747, 748, 749, 750, 753, 754, 784, 838, 839, 900, 901,
+        902, 903, 915, 916, 924, 931, 932, 939, 940, 941, 942, 943, 946, 947,
+        948, 954, 955, 962, 963, 970, 971, 1016, 1017, 1024, 1026, 1032, 1035,
+        1039, 1041, 1042, 1047, 1048, 1055, 1056, 1194, 1196, 1202, 1203, 1204,
+        1241, 1264, 1265, 1304, 1307, 1583, 1587, 1589, 1594, 1791, 1792, 1800,
+        1808, 1822, 1824, 1825, 1826, 1827, 1828, 1830, 1831, 1832, 1838, 1839,
+        1845, 1846, 1847, 1853, 1854, 1855, 1861, 1862, 1863, 1870, 1876, 1877,
+        1878, 1884, 1885, 1886, 1892, 1893, 1895, 1900, 1907, 1908, 1915, 1916,
+        1928, 1954, 1955, 2481, 2482, 2483, 2489, 2490, 3318, 3319, 3807,
+    ],
+    machines: [NEXT_COMPUTER],
+    appearance: "NeXT",
+    generatedSpec: () => import("./Data/NeXTStep 1.0 HD.dsk.json"),
+    notable: true,
+};
+
+const NEXTSTEP_1_0a: SystemDiskDef = {
+    displayName: "NeXTStep 1.0a",
+    description: "Bugfix release.",
+    releaseDate: [1989, 12, 21],
+    prefetchChunks: [
+        0, 1, 2, 3, 4, 5, 6, 7, 9, 24, 25, 156, 164, 172, 174, 175, 179, 180,
+        182, 184, 185, 186, 188, 357, 359, 365, 367, 373, 389, 390, 391, 392,
+        394, 395, 396, 397, 399, 400, 401, 404, 405, 406, 409, 410, 411, 412,
+        413, 414, 420, 421, 422, 435, 436, 443, 444, 450, 452, 458, 459, 460,
+        481, 483, 497, 520, 521, 528, 543, 544, 551, 552, 559, 560, 598, 599,
+        621, 722, 723, 731, 732, 733, 734, 738, 739, 742, 743, 745, 746, 747,
+        748, 751, 752, 753, 754, 755, 756, 757, 758, 761, 776, 777, 778, 779,
+        791, 792, 847, 848, 924, 932, 940, 946, 947, 948, 949, 950, 954, 955,
+        956, 962, 970, 971, 977, 978, 979, 1032, 1039, 1040, 1041, 1047, 1049,
+        1055, 1063, 1070, 1071, 1204, 1210, 1211, 1256, 1257, 1272, 1273, 1312,
+        1314, 1591, 1595, 1597, 1602, 1800, 1808, 1816, 1830, 1831, 1832, 1833,
+        1834, 1835, 1836, 1839, 1840, 1845, 1846, 1847, 1853, 1855, 1861, 1862,
+        1863, 1869, 1870, 1871, 1877, 1884, 1885, 1886, 1892, 1893, 1900, 1901,
+        1903, 1907, 1908, 1915, 1916, 1923, 1924, 1935, 1963, 2489, 2490, 2496,
+        2497, 2498, 2504, 2505, 3807,
+    ],
+    machines: [NEXT_COMPUTER],
+    appearance: "NeXT",
+    generatedSpec: () => import("./Data/NeXTStep 1.0a HD.dsk.json"),
 };
 
 const NEXTSTEP_2_0: SystemDiskDef = {
@@ -813,6 +898,7 @@ const NEXTSTEP_2_0: SystemDiskDef = {
     machines: [NEXT_STATION, NEXT_COMPUTER, NEXT_CUBE],
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTStep 2.0 HD.dsk.json"),
+    notable: true,
 };
 
 const NEXTSTEP_2_1: SystemDiskDef = {
@@ -918,6 +1004,7 @@ const NEXTSTEP_3_0: SystemDiskDef = {
     ],
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NEXTSTEP 3.0 HD.dsk.json"),
+    notable: true,
 };
 
 const NEXTSTEP_3_1: SystemDiskDef = {
@@ -1085,6 +1172,7 @@ const NEXTSTEP_4_0: SystemDiskDef = {
     ],
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NEXTSTEP 4.0 HD.dsk.json"),
+    notable: true,
 };
 
 const OPENSTEP_4_0: SystemDiskDef = {
@@ -1141,6 +1229,7 @@ const OPENSTEP_4_0: SystemDiskDef = {
     ],
     appearance: "NeXT",
     generatedSpec: () => import("./Data/OPENSTEP 4.0 HD.dsk.json"),
+    notable: true,
 };
 
 const OPENSTEP_4_1: PlaceholderDiskDef = {
@@ -1212,6 +1301,7 @@ const OPENSTEP_4_2: SystemDiskDef = {
     ],
     appearance: "NeXT",
     generatedSpec: () => import("./Data/OPENSTEP 4.2 HD.dsk.json"),
+    notable: true,
 };
 
 export const ALL_DISKS = [
@@ -1259,6 +1349,9 @@ export const ALL_DISKS = [
     MAC_OS_9_0_3,
     MAC_OS_9_0_4,
     NEXTSTEP_0_8,
+    NEXTSTEP_0_9,
+    NEXTSTEP_1_0,
+    NEXTSTEP_1_0a,
     NEXTSTEP_2_0,
     NEXTSTEP_2_1,
     NEXTSTEP_2_2,
