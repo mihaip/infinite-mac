@@ -35,7 +35,6 @@ export type EmulatorMouseEvent =
     | {type: "mousemove"; x: number; y: number; deltaX: number; deltaY: number}
     | {type: "mousedown"; button: number}
     | {type: "mouseup"; button: number};
-export type EmulatorTouchEvent = {type: "touchstart"; x: number; y: number};
 export type EmulatorKeyboardEvent = {
     type: "keydown" | "keyup";
     keyCode: number;
@@ -69,7 +68,6 @@ export type EmulatorSetUseMouseDeltas = {
 
 export type EmulatorInputEvent =
     | EmulatorMouseEvent
-    | EmulatorTouchEvent
     | EmulatorKeyboardEvent
     | EmulatorStopEvent
     | EmulatorStartEvent
@@ -338,16 +336,6 @@ export function updateInputBufferWithEvents(
     const remainingEvents: EmulatorInputEvent[] = [];
     for (const inputEvent of inputEvents) {
         switch (inputEvent.type) {
-            case "touchstart":
-                // We need to make sure that the mouse is first moved to the
-                // current location and then we send the mousedown, otherwise
-                // the Mac thinks that the mouse was moved with the button down,
-                // and interprets it as a drag.
-                hasMousePosition = true;
-                mousePositionX = inputEvent.x;
-                mousePositionY = inputEvent.y;
-                remainingEvents.push({type: "mousedown", button: 0});
-                break;
             case "mousemove":
                 if (hasMousePosition) {
                     break;

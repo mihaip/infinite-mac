@@ -255,12 +255,9 @@ export class Emulator {
 
     async start() {
         const {screenCanvas: canvas} = this.#config;
-        canvas.addEventListener("touchmove", this.#handleTouchMove);
-        canvas.addEventListener("touchstart", this.#handleTouchStart);
-        canvas.addEventListener("touchend", this.#handleTouchEnd);
-        canvas.addEventListener("mousemove", this.#handleMouseMove);
-        canvas.addEventListener("mousedown", this.#handleMouseDown);
-        canvas.addEventListener("mouseup", this.#handleMouseUp);
+        canvas.addEventListener("pointermove", this.#handlePointerMove);
+        canvas.addEventListener("pointerdown", this.#handlePointerDown);
+        canvas.addEventListener("pointerup", this.#handlePointerUp);
         window.addEventListener("keydown", this.#handleKeyDown);
         window.addEventListener("keyup", this.#handleKeyUp);
         window.addEventListener("beforeunload", this.#handleBeforeUnload);
@@ -422,12 +419,9 @@ export class Emulator {
 
     stop() {
         const {screenCanvas: canvas} = this.#config;
-        canvas.removeEventListener("touchmove", this.#handleTouchMove);
-        canvas.removeEventListener("touchstart", this.#handleTouchStart);
-        canvas.removeEventListener("touchend", this.#handleTouchEnd);
-        canvas.removeEventListener("mousemove", this.#handleMouseMove);
-        canvas.removeEventListener("mousedown", this.#handleMouseDown);
-        canvas.removeEventListener("mouseup", this.#handleMouseUp);
+        canvas.removeEventListener("pointermove", this.#handlePointerMove);
+        canvas.removeEventListener("pointerdown", this.#handlePointerDown);
+        canvas.removeEventListener("pointerup", this.#handlePointerUp);
         window.removeEventListener("keydown", this.#handleKeyDown);
         window.removeEventListener("keyup", this.#handleKeyUp);
         window.removeEventListener("beforeunload", this.#handleBeforeUnload);
@@ -522,7 +516,7 @@ export class Emulator {
         return result;
     }
 
-    #handleMouseMove = (event: MouseEvent) => {
+    #handlePointerMove = (event: PointerEvent) => {
         this.#input.handleInput({
             type: "mousemove",
             x: event.offsetX,
@@ -532,8 +526,30 @@ export class Emulator {
         });
     };
 
-    #handleMouseDown = (event: MouseEvent) => {
-        this.#input.handleInput({type: "mousedown", button: event.button});
+    #handlePointerDown = (event: PointerEvent) => {
+        const handleMouseDown = () => {
+            this.#input.handleInput({
+                type: "mousedown",
+                button: event.button,
+            });
+        };
+        if (HAS_HOVER_EVENTS) {
+            handleMouseDown();
+        } else {
+            // If we don't have hover events (e.g. we're on mobile), it means
+            // that we haven't gotten movement events to the current location,
+            // so we need to first send the coordinates and then (after they've
+            // been processed, which will hopefully be within a frame) send the
+            // click event.
+            this.#input.handleInput({
+                type: "mousemove",
+                x: event.offsetX,
+                y: event.offsetY,
+                deltaX: event.movementX,
+                deltaY: event.movementY,
+            });
+            setTimeout(handleMouseDown, 16);
+        }
         if (
             (emulatorNeedsPointerLock(this.#config.machine.emulatorType) ||
                 this.#delegate?.emulatorSettings?.(this).useMouseDeltas) &&
@@ -552,54 +568,8 @@ export class Emulator {
         }
     };
 
-    #handleMouseUp = (event: MouseEvent) => {
+    #handlePointerUp = (event: PointerEvent) => {
         this.#input.handleInput({type: "mouseup", button: event.button});
-    };
-
-    #handleTouchMove = (event: TouchEvent) => {
-        this.#input.handleInput({
-            type: "mousemove",
-            ...this.#getTouchLocation(event),
-        });
-    };
-
-    #handleTouchStart = (event: TouchEvent) => {
-        // Avoid mouse events also being dispatched for the touch.
-        event.preventDefault();
-        // Though we want to treat this as a mouse down, we haven't gotten the
-        // move to the current location yet, so we need to send the coordinates
-        // as well.
-        this.#input.handleInput({
-            type: "touchstart",
-            ...this.#getTouchLocation(event),
-        });
-    };
-
-    #getTouchLocation(event: TouchEvent): {
-        x: number;
-        y: number;
-        deltaX: number;
-        deltaY: number;
-    } {
-        const touch = event.touches[0];
-        const target = touch.target as HTMLElement;
-        const targetBounds = target.getBoundingClientRect();
-        // The touch coordinates and the target bounds are affected by the scale
-        // transform that we do when in full-screen mode, so we need to undo
-        // it.
-        const scaleFactor = targetBounds.width / target.offsetWidth;
-        return {
-            x: (touch.clientX - targetBounds.left) / scaleFactor,
-            y: (touch.clientY - targetBounds.top) / scaleFactor,
-            // Touch events do not support movementX/Y, do not generate deltas
-            // for them for now.
-            deltaX: 0,
-            deltaY: 0,
-        };
-    }
-
-    #handleTouchEnd = (event: TouchEvent) => {
-        this.#input.handleInput({type: "mouseup", button: 0});
     };
 
     #handleKeyDown = (event: KeyboardEvent) => {
@@ -1168,3 +1138,6 @@ bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
     }
     return configStr;
 }
+
+const HAS_HOVER_EVENTS =
+    "matchMedia" in window && window.matchMedia("(hover: hover)").matches;
