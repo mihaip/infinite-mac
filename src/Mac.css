@@ -45,6 +45,8 @@ body.fullscreen {
     /* Disable touble-tap to zoom, we want double-clicking in the Mac to
     take precedence. */
     touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .Mac-Screen.Mac-Screen-Smooth-Scaling {
