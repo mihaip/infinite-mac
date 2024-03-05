@@ -38,7 +38,11 @@ import {
     saveDiskSaverImage,
 } from "./emulator/emulator-ui-disk-saver";
 import {type Appearance} from "./controls/Appearance";
-import {emulatorSupportsDownloadsFolder} from "./emulator/emulator-common-emulators";
+import {
+    emulatorNeedsMouseDeltas,
+    emulatorSupportsDownloadsFolder,
+    emulatorSupportsMouseDeltas,
+} from "./emulator/emulator-common-emulators";
 import {type ScreenSize} from "./run-def";
 
 export type MacProps = {
@@ -57,6 +61,7 @@ export type MacProps = {
     debugAudio?: boolean;
     debugPaused?: boolean;
     debugLog?: boolean;
+    debugTrackpad?: boolean;
     onDone: () => void;
 };
 
@@ -76,6 +81,7 @@ export default function Mac({
     debugAudio,
     debugPaused,
     debugLog,
+    debugTrackpad,
     onDone,
 }: MacProps) {
     const screenRef = useRef<HTMLCanvasElement>(null);
@@ -165,6 +171,7 @@ export default function Mac({
                 customDate,
                 debugAudio,
                 debugLog,
+                debugTrackpad,
             },
             {
                 emulatorDidExit(emulator: Emulator) {
@@ -291,6 +298,7 @@ export default function Mac({
         debugAudio,
         debugPaused,
         debugLog,
+        debugTrackpad,
         hasSavedHD,
         ramSize,
         onDone,
@@ -515,8 +523,27 @@ export default function Mac({
         {label: "Full Screen", handler: handleFullScreenClick},
         {label: "Settings", handler: handleSettingsClick},
     ];
-    if (NEEDS_KEYBOARD_BUTTON) {
+    if (USING_TOUCH_INPUT) {
         controls.push({label: "Keyboard", handler: handleKeyboardClick});
+        const alwaysUsingTrackpadMode =
+            emulatorNeedsMouseDeltas(machine.emulatorType) ||
+            emulatorSettings.useMouseDeltas;
+        if (
+            alwaysUsingTrackpadMode ||
+            emulatorSupportsMouseDeltas(machine.emulatorType)
+        ) {
+            controls.push({
+                label: "Trackpad",
+                handler: () => {
+                    setEmulatorSettings({
+                        ...emulatorSettings,
+                        trackpadMode: !emulatorSettings.trackpadMode,
+                    });
+                },
+                selected:
+                    alwaysUsingTrackpadMode || emulatorSettings.trackpadMode,
+            });
+        }
     }
     if (debugPaused && !emulatorLoaded) {
         controls.splice(1, 0, {
@@ -567,7 +594,7 @@ export default function Mac({
                         height={screenHeight}
                         onContextMenu={e => e.preventDefault()}
                     />
-                    {NEEDS_KEYBOARD_BUTTON && (
+                    {USING_TOUCH_INPUT && (
                         <input
                             type="text"
                             className="Mac-Keyboard-Input"
@@ -766,13 +793,14 @@ const SCREEN_SIZES = {
 
 // Assume that mobile devices that can't do hover events also need an explicit
 // control for bringing up the on-screen keyboard.
-const NEEDS_KEYBOARD_BUTTON =
+const USING_TOUCH_INPUT =
     "matchMedia" in window && !window.matchMedia("(hover: hover)").matches;
 
 const DEFAULT_EMULATOR_SETTINGS: EmulatorSettings = {
     swapControlAndCommand: false,
     speed: -2,
     useMouseDeltas: false,
+    trackpadMode: false,
 };
 
 function MacEthernetStatus({

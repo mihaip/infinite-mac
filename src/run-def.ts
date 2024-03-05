@@ -31,6 +31,7 @@ export type RunDef = {
     debugAudio?: boolean;
     debugPaused?: boolean;
     debugLog?: boolean;
+    debugTrackpad?: boolean;
     isCustom?: boolean;
     customDate?: Date;
 };
@@ -138,6 +139,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     const debugAudio = searchParams.get("debug_audio") === "true";
     const debugPaused = searchParams.get("debug_paused") === "true";
     const debugLog = searchParams.get("debug_log") === "true";
+    const debugTrackpad = searchParams.get("debug_trackpad") === "true";
 
     return {
         disks,
@@ -154,6 +156,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         debugAudio,
         debugPaused,
         debugLog,
+        debugTrackpad,
         isCustom,
     };
 }
@@ -214,8 +217,14 @@ export function runDefToUrl(runDef: RunDef): string {
     if (runDef.debugLog) {
         url.searchParams.set("debug_log", "true");
     }
+    if (runDef.debugPaused) {
+        url.searchParams.set("debug_paused", "true");
+    }
     if (runDef.debugFallback) {
         url.searchParams.set("debug_fallback", "true");
+    }
+    if (runDef.debugTrackpad) {
+        url.searchParams.set("debug_trackpad", "true");
     }
     return url.toString();
 }

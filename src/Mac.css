@@ -1,5 +1,6 @@
 .Mac {
     user-select: none;
+    -webkit-user-select: none;
 }
 
 /* `@media (display-mode: fullscreen)` does not appear to work in iOS Safari,
@@ -40,13 +41,11 @@ body.fullscreen {
 .Mac-Screen {
     /* The emulator draws the cursor */
     cursor: none;
-    /* Avoid bluriness on retina screens */
+    /* Avoid blurriness on retina screens */
     image-rendering: pixelated;
-    /* Disable touble-tap to zoom, we want double-clicking in the Mac to
+    /* Disable double-tap to zoom, we want double-clicking in the Mac to
     take precedence. */
     touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
 }
 
 .Mac-Screen.Mac-Screen-Smooth-Scaling {
