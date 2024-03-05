@@ -39,18 +39,18 @@ export function emulatorSupportsSpeedSetting(type: EmulatorType): boolean {
 }
 
 // True if the emulator can optionally use mouse deltas instead of absolute
-// coordinates (separate from emulatorNeedsPointerLock, those emulators always
+// coordinates (separate from emulatorNeedsMouseDeltas, those emulators always
 // use deltas).
 export function emulatorSupportsMouseDeltas(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";
 }
 
-export function emulatorSupportsAppleTalk(type: EmulatorType): boolean {
-    return type === "BasiliskII" || type === "SheepShaver";
+export function emulatorNeedsMouseDeltas(type: EmulatorType): boolean {
+    return type === "DingusPPC" || type === "Previous";
 }
 
-export function emulatorNeedsPointerLock(type: EmulatorType): boolean {
-    return type === "DingusPPC" || type === "Previous";
+export function emulatorSupportsAppleTalk(type: EmulatorType): boolean {
+    return type === "BasiliskII" || type === "SheepShaver";
 }
 
 export function emulatorSupportsDownloadsFolder(type: EmulatorType): boolean {

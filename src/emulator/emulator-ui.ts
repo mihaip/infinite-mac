@@ -12,7 +12,7 @@ import {
     emulatorCpuId,
     emulatorModelId,
     emulatorUsesPlaceholderDisks,
-    emulatorNeedsPointerLock,
+    emulatorNeedsMouseDeltas,
 } from "./emulator-common-emulators";
 import {getEmulatorWasmPath} from "./emulator-ui-emulators";
 import Worker from "./emulator-worker?worker";
@@ -68,6 +68,7 @@ import {
 import {type EmulatorDiskDef} from "../disks";
 import deviceImageHeaderPath from "../Data/Device Image Header.hda";
 import {fetchCDROM} from "./emulator-ui-cdrom";
+import {EmulatorTrackpadController} from "./emulator-ui-trackpad";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -84,12 +85,14 @@ export type EmulatorConfig = {
     customDate?: Date;
     debugAudio?: boolean;
     debugLog?: boolean;
+    debugTrackpad?: boolean;
 };
 
 export type EmulatorSettings = {
     swapControlAndCommand: boolean;
     speed: EmulatorSpeed;
     useMouseDeltas: boolean;
+    trackpadMode: boolean;
 };
 
 export interface EmulatorEthernetProvider {
@@ -167,6 +170,7 @@ export class Emulator {
     // some edge cases.
     #downKeyCodes = new Set<string>();
 
+    #trackpadController: EmulatorTrackpadController;
     #requestedPointerLock = false;
 
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
@@ -251,6 +255,23 @@ export class Emulator {
         this.#clipboard = useSharedMemory
             ? new SharedMemoryEmulatorClipboard()
             : new FallbackEmulatorClipboard(fallbackCommandSender!);
+        this.#trackpadController = new EmulatorTrackpadController({
+            trackpadDidMove: (deltaX, deltaY) => {
+                this.#input.handleInput({
+                    type: "mousemove",
+                    x: 0,
+                    y: 0,
+                    deltaX,
+                    deltaY,
+                });
+            },
+            trackpadButtonDown: button => {
+                this.#input.handleInput({type: "mousedown", button});
+            },
+            trackpadButtonUp: button => {
+                this.#input.handleInput({type: "mouseup", button});
+            },
+        });
     }
 
     async start() {
@@ -258,6 +279,7 @@ export class Emulator {
         canvas.addEventListener("pointermove", this.#handlePointerMove);
         canvas.addEventListener("pointerdown", this.#handlePointerDown);
         canvas.addEventListener("pointerup", this.#handlePointerUp);
+        canvas.addEventListener("touchstart", this.#handleTouchStart);
         window.addEventListener("keydown", this.#handleKeyDown);
         window.addEventListener("keyup", this.#handleKeyUp);
         window.addEventListener("beforeunload", this.#handleBeforeUnload);
@@ -403,12 +425,12 @@ export class Emulator {
     }
 
     refreshSettings() {
-        const speed = this.#delegate?.emulatorSettings?.(this)?.speed;
+        const settings = this.#delegate?.emulatorSettings?.(this);
+        const speed = settings?.speed;
         if (speed !== undefined) {
             this.#input.handleInput({type: "set-speed", speed});
         }
-        const useMouseDeltas =
-            this.#delegate?.emulatorSettings?.(this)?.useMouseDeltas;
+        const useMouseDeltas = this.#trackpadMode() || settings?.useMouseDeltas;
         if (useMouseDeltas !== undefined) {
             this.#input.handleInput({
                 type: "set-use-mouse-deltas",
@@ -422,6 +444,7 @@ export class Emulator {
         canvas.removeEventListener("pointermove", this.#handlePointerMove);
         canvas.removeEventListener("pointerdown", this.#handlePointerDown);
         canvas.removeEventListener("pointerup", this.#handlePointerUp);
+        canvas.removeEventListener("touchstart", this.#handleTouchStart);
         window.removeEventListener("keydown", this.#handleKeyDown);
         window.removeEventListener("keyup", this.#handleKeyUp);
         window.removeEventListener("beforeunload", this.#handleBeforeUnload);
@@ -516,17 +539,43 @@ export class Emulator {
         return result;
     }
 
+    #useMouseDeltas() {
+        return (
+            emulatorNeedsMouseDeltas(this.#config.machine.emulatorType) ||
+            this.#delegate?.emulatorSettings?.(this).useMouseDeltas === true
+        );
+    }
+
+    #trackpadMode() {
+        if (this.#useMouseDeltas() && !HAS_HOVER_EVENTS) {
+            return true;
+        }
+        return (
+            this.#delegate?.emulatorSettings?.(this).trackpadMode ??
+            this.#config.debugTrackpad ??
+            false
+        );
+    }
+
     #handlePointerMove = (event: PointerEvent) => {
-        this.#input.handleInput({
-            type: "mousemove",
-            x: event.offsetX,
-            y: event.offsetY,
-            deltaX: event.movementX,
-            deltaY: event.movementY,
-        });
+        if (this.#trackpadMode()) {
+            this.#trackpadController.handlePointerMove(event);
+        } else {
+            this.#input.handleInput({
+                type: "mousemove",
+                x: event.offsetX,
+                y: event.offsetY,
+                deltaX: event.movementX,
+                deltaY: event.movementY,
+            });
+        }
     };
 
     #handlePointerDown = (event: PointerEvent) => {
+        if (this.#trackpadMode()) {
+            this.#trackpadController.handlePointerDown(event);
+            return;
+        }
         const handleMouseDown = () => {
             this.#input.handleInput({
                 type: "mousedown",
@@ -550,11 +599,7 @@ export class Emulator {
             });
             setTimeout(handleMouseDown, 16);
         }
-        if (
-            (emulatorNeedsPointerLock(this.#config.machine.emulatorType) ||
-                this.#delegate?.emulatorSettings?.(this).useMouseDeltas) &&
-            !this.#requestedPointerLock
-        ) {
+        if (this.#useMouseDeltas() && !this.#requestedPointerLock) {
             this.#config.screenCanvas.requestPointerLock({
                 unadjustedMovement: false,
             });
@@ -569,7 +614,17 @@ export class Emulator {
     };
 
     #handlePointerUp = (event: PointerEvent) => {
-        this.#input.handleInput({type: "mouseup", button: event.button});
+        if (this.#trackpadMode()) {
+            this.#trackpadController.handlePointerUp(event);
+        } else {
+            this.#input.handleInput({type: "mouseup", button: event.button});
+        }
+    };
+
+    #handleTouchStart = (event: TouchEvent) => {
+        // Make sure that text selection is not triggered when doing tap and
+        // drag gestures.
+        event.preventDefault();
     };
 
     #handleKeyDown = (event: KeyboardEvent) => {

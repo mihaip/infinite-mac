@@ -117,6 +117,13 @@
     cursor: pointer;
 }
 
+.ScreenFrame-Controls-Container
+    .ScreenFrame-Control.ScreenFrame-Control-Selected {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    outline: solid 2px rgba(0, 0, 0, 0.4);
+}
+
 @media (hover: hover) {
     .ScreenFrame-Controls-Container .ScreenFrame-Control {
         visibility: hidden;

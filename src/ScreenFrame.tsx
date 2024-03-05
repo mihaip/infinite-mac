@@ -23,6 +23,7 @@ export type ScreenControl = {
     label: string;
     handler: () => void;
     alwaysVisible?: boolean;
+    selected?: boolean;
 };
 
 export function ScreenFrame(props: ScreenFrameProps) {
@@ -76,17 +77,26 @@ export function ScreenFrame(props: ScreenFrameProps) {
                     <Logo className="Background" />
                     <Logo className="Foreground" />
                 </div>
-                {controls.map(({label, handler, alwaysVisible}, i) => (
-                    <div
-                        className="ScreenFrame-Control ScreenFrame-Bezel-Text"
-                        style={{
-                            visibility: alwaysVisible ? "visible" : undefined,
-                        }}
-                        onClick={handler}
-                        key={label}>
-                        {label}
-                    </div>
-                ))}
+                {controls.map(
+                    ({label, handler, alwaysVisible, selected}, i) => (
+                        <div
+                            className={classNames(
+                                "ScreenFrame-Control ScreenFrame-Bezel-Text",
+                                {
+                                    "ScreenFrame-Control-Selected": selected,
+                                }
+                            )}
+                            style={{
+                                visibility: alwaysVisible
+                                    ? "visible"
+                                    : undefined,
+                            }}
+                            onClick={handler}
+                            key={label}>
+                            {label}
+                        </div>
+                    )
+                )}
             </div>
             {led !== "None" && <div className={ledClassName} />}
             <div

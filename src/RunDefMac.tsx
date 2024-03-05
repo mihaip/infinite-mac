@@ -45,6 +45,7 @@ export default function RunDefMac({
             debugAudio={runDef.debugAudio}
             debugPaused={runDef.debugPaused}
             debugLog={runDef.debugLog}
+            debugTrackpad={runDef.debugTrackpad}
             onDone={onDone}
         />
     ) : (
