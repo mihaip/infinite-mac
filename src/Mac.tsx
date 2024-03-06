@@ -41,7 +41,6 @@ import {type Appearance} from "./controls/Appearance";
 import {
     emulatorNeedsMouseDeltas,
     emulatorSupportsDownloadsFolder,
-    emulatorSupportsMouseDeltas,
 } from "./emulator/emulator-common-emulators";
 import {type ScreenSize} from "./run-def";
 
@@ -528,22 +527,16 @@ export default function Mac({
         const alwaysUsingTrackpadMode =
             emulatorNeedsMouseDeltas(machine.emulatorType) ||
             emulatorSettings.useMouseDeltas;
-        if (
-            alwaysUsingTrackpadMode ||
-            emulatorSupportsMouseDeltas(machine.emulatorType)
-        ) {
-            controls.push({
-                label: "Trackpad",
-                handler: () => {
-                    setEmulatorSettings({
-                        ...emulatorSettings,
-                        trackpadMode: !emulatorSettings.trackpadMode,
-                    });
-                },
-                selected:
-                    alwaysUsingTrackpadMode || emulatorSettings.trackpadMode,
-            });
-        }
+        controls.push({
+            label: "Trackpad",
+            handler: () => {
+                setEmulatorSettings({
+                    ...emulatorSettings,
+                    trackpadMode: !emulatorSettings.trackpadMode,
+                });
+            },
+            selected: alwaysUsingTrackpadMode || emulatorSettings.trackpadMode,
+        });
     }
     if (debugPaused && !emulatorLoaded) {
         controls.splice(1, 0, {
