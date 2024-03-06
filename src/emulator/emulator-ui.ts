@@ -170,6 +170,8 @@ export class Emulator {
     // some edge cases.
     #downKeyCodes = new Set<string>();
 
+    #mouseX = 0;
+    #mouseY = 0;
     #trackpadController: EmulatorTrackpadController;
     #requestedPointerLock = false;
 
@@ -259,11 +261,15 @@ export class Emulator {
             trackpadDidMove: (deltaX, deltaY) => {
                 this.#input.handleInput({
                     type: "mousemove",
-                    x: 0,
-                    y: 0,
+                    // Also send the absolute position, for emulators that don't
+                    // support deltas.
+                    x: this.#mouseX,
+                    y: this.#mouseY,
                     deltaX,
                     deltaY,
                 });
+                this.#mouseX += deltaX;
+                this.#mouseY += deltaY;
             },
             trackpadButtonDown: button => {
                 this.#input.handleInput({type: "mousedown", button});
@@ -561,6 +567,8 @@ export class Emulator {
         if (this.#trackpadMode()) {
             this.#trackpadController.handlePointerMove(event);
         } else {
+            this.#mouseX = event.offsetX;
+            this.#mouseY = event.offsetY;
             this.#input.handleInput({
                 type: "mousemove",
                 x: event.offsetX,
@@ -576,6 +584,8 @@ export class Emulator {
             this.#trackpadController.handlePointerDown(event);
             return;
         }
+        this.#mouseX = event.offsetX;
+        this.#mouseY = event.offsetY;
         const handleMouseDown = () => {
             this.#input.handleInput({
                 type: "mousedown",
