@@ -175,7 +175,7 @@ function getLegacyDomainRedirect(url: URL): string | undefined {
         return undefined;
     }
     const params = url.searchParams;
-    if (appleTalkZone) {
+    if (appleTalkZone && appleTalkZone !== "www") {
         params.set("appleTalk", appleTalkZone);
     }
     let search = params.toString();
