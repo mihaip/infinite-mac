@@ -658,28 +658,28 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  111808: () => { return workerApi.acquireInputLock(); },  
- 111849: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 111938: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 112028: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 112112: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 112196: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 112281: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 112361: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 112442: () => { workerApi.releaseInputLock(); },  
- 112476: () => { workerApi.sleep(0); },  
- 112500: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
- 112544: () => { return workerApi.audioBufferSize(); },  
- 112584: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
- 112620: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 112656: ($0, $1) => { workerApi.blit($0, $1); },  
- 112684: () => { workerApi.blit(0, 0); },  
- 112710: ($0, $1) => { workerApi.blit($0, $1); },  
- 112738: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 112789: ($0) => { workerApi.disks.close($0); },  
- 112820: ($0) => { return workerApi.disks.size($0); },  
- 112857: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 112906: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
+  117072: () => { return workerApi.acquireInputLock(); },  
+ 117113: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 117202: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 117292: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 117376: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 117460: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 117545: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 117625: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 117706: () => { workerApi.releaseInputLock(); },  
+ 117740: () => { workerApi.sleep(0); },  
+ 117764: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
+ 117808: () => { return workerApi.audioBufferSize(); },  
+ 117848: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 117884: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 117920: ($0, $1) => { workerApi.blit($0, $1); },  
+ 117948: () => { workerApi.blit(0, 0); },  
+ 117974: ($0, $1) => { workerApi.blit($0, $1); },  
+ 118002: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 118053: ($0) => { workerApi.disks.close($0); },  
+ 118084: ($0) => { return workerApi.disks.size($0); },  
+ 118121: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 118170: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
 };
 
 
@@ -5027,27 +5027,6 @@ var ASM_CONSTS = {
       return 0;
     };
 
-  
-  var runtimeKeepaliveCounter = 0;
-  var keepRuntimeAlive = () => noExitRuntime || runtimeKeepaliveCounter > 0;
-  
-  var _proc_exit = (code) => {
-      EXITSTATUS = code;
-      if (!keepRuntimeAlive()) {
-        if (Module['onExit']) Module['onExit'](code);
-        ABORT = true;
-      }
-      quit_(code, new ExitStatus(code));
-    };
-  /** @suppress {duplicate } */
-  /** @param {boolean|number=} implicit */
-  var exitJS = (status, implicit) => {
-      EXITSTATUS = status;
-  
-      _proc_exit(status);
-    };
-  var _exit = exitJS;
-
   function _fd_close(fd) {
   try {
   
@@ -5167,6 +5146,18 @@ var ASM_CONSTS = {
   }
   }
 
+  
+  var runtimeKeepaliveCounter = 0;
+  var keepRuntimeAlive = () => noExitRuntime || runtimeKeepaliveCounter > 0;
+  
+  var _proc_exit = (code) => {
+      EXITSTATUS = code;
+      if (!keepRuntimeAlive()) {
+        if (Module['onExit']) Module['onExit'](code);
+        ABORT = true;
+      }
+      quit_(code, new ExitStatus(code));
+    };
 
   
   var arraySum = (array, index) => {
@@ -5468,6 +5459,12 @@ var ASM_CONSTS = {
       return _strftime(s, maxsize, format, tm); // no locale support yet
     };
 
+  /** @param {boolean|number=} implicit */
+  var exitJS = (status, implicit) => {
+      EXITSTATUS = status;
+  
+      _proc_exit(status);
+    };
 
   var handleException = (e) => {
       // Certain exception types we do not treat as errors since they are used for
@@ -5603,8 +5600,6 @@ var wasmImports = {
   environ_get: _environ_get,
   /** @export */
   environ_sizes_get: _environ_sizes_get,
-  /** @export */
-  exit: _exit,
   /** @export */
   fd_close: _fd_close,
   /** @export */
