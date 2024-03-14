@@ -596,9 +596,14 @@ def build_library_images(dest_dir: str) -> typing.Tuple[ImageDef, ImageDef]:
     return image6_def, image_def
 
 
-def build_passthrough_image(base_name: str, dest_dir: str) -> ImageDef:
-    with open(os.path.join(paths.IMAGES_DIR, base_name), "rb") as base:
-        image_data = base.read()
+def build_passthrough_image(base_name: str, dest_dir: str, compressed: bool = False) -> ImageDef:
+    input_path = os.path.join(paths.IMAGES_DIR, base_name)
+    if compressed:
+        with zipfile.ZipFile(input_path + ".zip", "r") as zip:
+            image_data = zip.read(base_name)
+    else:
+        with open(input_path, "rb") as image:
+            image_data = image.read()
     return write_image_def(image_data, base_name, dest_dir)
 
 
@@ -743,6 +748,11 @@ if __name__ == "__main__":
             images.append(
                 build_passthrough_image("Infinite HD (MFS).dsk",
                                         dest_dir=temp_dir))
+            images.append(
+                build_passthrough_image("Infinite HD (NeXT).dsk",
+                                        dest_dir=temp_dir,
+                                        compressed=True))
+
         images.append(build_saved_hd_image("Saved HD.dsk", dest_dir=temp_dir))
 
         for image in images:
