@@ -21,6 +21,7 @@ import {
     type SystemDiskDef,
     INFINITE_HD,
     INFINITE_HD_MFS,
+    INFINITE_HD_NEXT,
     SAVED_HD,
     INFINITE_HD6,
     type DiskFile,
@@ -132,12 +133,19 @@ export default function Mac({
         const emulatorDisks: EmulatorDiskDef[] = [...disks];
         const delayedDisks: EmulatorDiskDef[] = [];
         if (includeInfiniteHD) {
-            const infiniteHd =
-                disks[0]?.infiniteHdSubset === "mfs" || machine.mfsOnly
-                    ? INFINITE_HD_MFS
-                    : disks[0]?.infiniteHdSubset === "system6"
-                    ? INFINITE_HD6
-                    : INFINITE_HD;
+            let infiniteHd;
+            if (machine.platform === "NeXT") {
+                infiniteHd = INFINITE_HD_NEXT;
+            } else if (
+                disks[0]?.infiniteHdSubset === "mfs" ||
+                machine.mfsOnly
+            ) {
+                infiniteHd = INFINITE_HD_MFS;
+            } else if (disks[0]?.infiniteHdSubset === "system6") {
+                infiniteHd = INFINITE_HD6;
+            } else {
+                infiniteHd = INFINITE_HD;
+            }
             if (disks[0]?.delayAdditionalDiskMount) {
                 delayedDisks.push(infiniteHd);
             } else {

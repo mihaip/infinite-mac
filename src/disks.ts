@@ -1301,7 +1301,6 @@ const OPENSTEP_4_2: SystemDiskDef = {
     ],
     appearance: "NeXT",
     generatedSpec: () => import("./Data/OPENSTEP 4.2 HD.dsk.json"),
-    notable: true,
 };
 
 export const ALL_DISKS = [
@@ -1439,6 +1438,11 @@ export const INFINITE_HD6: EmulatorDiskDef = {
 export const INFINITE_HD_MFS: EmulatorDiskDef = {
     prefetchChunks: [0, 1, 2],
     generatedSpec: () => import("./Data/Infinite HD (MFS).dsk.json"),
+};
+
+export const INFINITE_HD_NEXT: EmulatorDiskDef = {
+    prefetchChunks: [0, 1, 2],
+    generatedSpec: () => import("./Data/Infinite HD (NeXT).dsk.json"),
 };
 
 export const SAVED_HD: EmulatorDiskDef = {
