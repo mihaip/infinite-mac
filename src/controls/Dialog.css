@@ -65,9 +65,23 @@
 }
 
 .Dialog h2 {
+    font-size: 15px;
+    font-weight: bold;
+    margin: 0 0 4px 0;
+}
+
+.Dialog h2 + h3 {
+    margin-top: 8px;
+}
+
+.Dialog h3 {
     font-size: 14px;
     font-weight: bold;
     margin: 0 0 4px 0;
+}
+
+.Dialog h3 + p {
+    margin-top: 6px;
 }
 
 .Dialog-Description {

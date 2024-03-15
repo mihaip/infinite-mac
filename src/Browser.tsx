@@ -87,14 +87,14 @@ function Description({
     return (
         <div className="Description">
             <p>
-                Infinite Mac is a collection of classic Macintosh system
-                releases and software, all easily accessible from the comfort of
-                a (modern) web browser.
+                Infinite Mac is a collection of classic Macintosh and NeXT
+                system releases and software, all easily accessible from the
+                comfort of a (modern) web browser.
             </p>
             <p>
-                Pick any version of System Software/Mac OS from the 1980s or
-                1990s and run it (and major software of that era) within a
-                virtual machine. You can also{" "}
+                Pick any version of System Software/Mac OS or NeXTStep/OPENSTEP
+                from the 1980s or 1990s and run it (and major software of that
+                era) within a virtual machine. You can also{" "}
                 <span onClick={() => setCustomVisible(true)}>
                     run a custom version
                 </span>{" "}
