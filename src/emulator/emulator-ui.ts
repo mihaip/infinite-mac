@@ -1128,12 +1128,16 @@ bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
     for (const disk of disks) {
         addDisk(disk.isFloppy ? floppyStrs : diskStrs, disk.name, false);
     }
-    for (const spec of config.cdroms) {
-        addDisk(diskStrs, spec.name, true);
-    }
     for (const diskFile of config.diskFiles) {
         addDisk(diskStrs, diskFile.name, diskFile.isCDROM);
     }
+    for (const spec of config.cdroms) {
+        // If all we have is a CD-ROM, assume it's actually a hard drive image
+        // (since read-only media can't be booted from).
+        const isCDROM = diskStrs.length > 0;
+        addDisk(diskStrs, spec.name, isCDROM);
+    }
+
     // Placeholder used to handle CD-ROMs being inserted after boot.
     addDisk(diskStrs, "/", true, false);
 
