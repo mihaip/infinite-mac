@@ -964,7 +964,7 @@ const NEXTSTEP_2_2: SystemDiskDef = {
 };
 
 const NEXTSTEP_3_0: SystemDiskDef = {
-    displayName: "NeXTSTEP 3.0",
+    displayName: "NeXTStep 3.0",
     description:
         "Introduced Distributed Objects, Project Builder and several development kits. Improved compatibility with other networking and file systems.",
     releaseDate: [1992, 9, 8],
