@@ -658,28 +658,28 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  117904: () => { return workerApi.acquireInputLock(); },  
- 117945: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 118034: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 118124: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 118208: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 118292: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 118377: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 118457: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 118538: () => { workerApi.releaseInputLock(); },  
- 118572: () => { workerApi.sleep(0); },  
- 118596: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
- 118640: () => { return workerApi.audioBufferSize(); },  
- 118680: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
- 118716: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 118752: ($0, $1) => { workerApi.blit($0, $1); },  
- 118780: () => { workerApi.blit(0, 0); },  
- 118806: ($0, $1) => { workerApi.blit($0, $1); },  
- 118834: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 118885: ($0) => { workerApi.disks.close($0); },  
- 118916: ($0) => { return workerApi.disks.size($0); },  
- 118953: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 119002: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
+  121968: () => { return workerApi.acquireInputLock(); },  
+ 122009: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 122098: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 122188: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 122272: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 122356: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 122441: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 122521: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 122602: () => { workerApi.releaseInputLock(); },  
+ 122636: () => { workerApi.sleep(0); },  
+ 122660: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
+ 122704: () => { return workerApi.audioBufferSize(); },  
+ 122744: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 122780: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 122816: ($0, $1) => { workerApi.blit($0, $1); },  
+ 122844: () => { workerApi.blit(0, 0); },  
+ 122870: ($0, $1) => { workerApi.blit($0, $1); },  
+ 122898: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 122949: ($0) => { workerApi.disks.close($0); },  
+ 122980: ($0) => { return workerApi.disks.size($0); },  
+ 123017: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 123066: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
 };
 
 
@@ -5615,7 +5615,7 @@ var wasmImports = {
   /** @export */
   invoke_iii: invoke_iii,
   /** @export */
-  invoke_jij: invoke_jij,
+  invoke_ji: invoke_ji,
   /** @export */
   invoke_v: invoke_v,
   /** @export */
@@ -5636,9 +5636,8 @@ var stackSave = () => (stackSave = wasmExports['stackSave'])();
 var stackRestore = (a0) => (stackRestore = wasmExports['stackRestore'])(a0);
 var stackAlloc = (a0) => (stackAlloc = wasmExports['stackAlloc'])(a0);
 var ___cxa_is_pointer_type = (a0) => (___cxa_is_pointer_type = wasmExports['__cxa_is_pointer_type'])(a0);
-var dynCall_jij = Module['dynCall_jij'] = (a0, a1, a2, a3) => (dynCall_jij = Module['dynCall_jij'] = wasmExports['dynCall_jij'])(a0, a1, a2, a3);
-var dynCall_j = Module['dynCall_j'] = (a0) => (dynCall_j = Module['dynCall_j'] = wasmExports['dynCall_j'])(a0);
 var dynCall_ji = Module['dynCall_ji'] = (a0, a1) => (dynCall_ji = Module['dynCall_ji'] = wasmExports['dynCall_ji'])(a0, a1);
+var dynCall_j = Module['dynCall_j'] = (a0) => (dynCall_j = Module['dynCall_j'] = wasmExports['dynCall_j'])(a0);
 var dynCall_iij = Module['dynCall_iij'] = (a0, a1, a2, a3) => (dynCall_iij = Module['dynCall_iij'] = wasmExports['dynCall_iij'])(a0, a1, a2, a3);
 var dynCall_vij = Module['dynCall_vij'] = (a0, a1, a2, a3) => (dynCall_vij = Module['dynCall_vij'] = wasmExports['dynCall_vij'])(a0, a1, a2, a3);
 var dynCall_jiji = Module['dynCall_jiji'] = (a0, a1, a2, a3, a4) => (dynCall_jiji = Module['dynCall_jiji'] = wasmExports['dynCall_jiji'])(a0, a1, a2, a3, a4);
@@ -5680,10 +5679,10 @@ function invoke_ii(index,a1) {
   }
 }
 
-function invoke_jij(index,a1,a2,a3) {
+function invoke_ji(index,a1) {
   var sp = stackSave();
   try {
-    return dynCall_jij(index,a1,a2,a3);
+    return dynCall_ji(index,a1);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
