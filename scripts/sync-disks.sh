@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Assumes that NOCOMMIT
+# Assumes that rclone is installed and access token with Object Read & Write
+# permissions is configured.
 
 echo "Syncing disk chunks to Cloudflare R2…"
 TIMEFORMAT='Synced disk chunks to Cloudflare R2: %R'
