@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2024-03-24: Added all major NeXTSTEP releases.
+
 2024-02-19: Added option to use relative mouse movement in Basilisk II and SheepShaver-based machines, which improves compatibility with some games.
 
 2024-01-25: Custom instances now support overriding the current date.
