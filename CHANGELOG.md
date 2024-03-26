@@ -1,6 +1,6 @@
 # CHANGELOG
 
-2024-03-24: Added all major NeXTSTEP releases.
+2024-03-25: Added all major NeXTSTEP releases. See https://blog.persistent.info/2024/03/infinite-mac-nextstep.html for more details.
 
 2024-02-19: Added option to use relative mouse movement in Basilisk II and SheepShaver-based machines, which improves compatibility with some games.
 
