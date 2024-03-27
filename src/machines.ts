@@ -138,11 +138,9 @@ export const POWER_MACINTOSH_6100: MachineDef = {
     prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 640, height: 480},
     bezelStyle: "Platinum",
-    // The 6100 has 8M of RAM soldered to the motherboard, so these are
-    // technically additional RAM on top of that. In practice DingusPPC does
-    // not seem to do anything with the RAM config for this machine, so it
-    // doesn't matter.
-    ramSizes: ["8M", "16M", "32M", "64M", "128M"],
+    // The 6100 has 8MB of RAM soldered to the motherboard, these are sizes with
+    // with pairs of 64, 32, 16, 8, 4, and 2MB and 0MB SIMMs installed.
+    ramSizes: ["136M", "72M", "40M", "24M", "12M", "8M"],
 };
 
 export const POWER_MACINTOSH_9500: MachineDef = {
