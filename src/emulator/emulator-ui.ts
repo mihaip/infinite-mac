@@ -1083,9 +1083,21 @@ function configToDingusPPCArgs(
         // TODO: support more than one CD-ROM
         args.push("--cdr_img", cdroms[0]);
     }
-    if (config.ramSize?.endsWith("M")) {
-        args.push("--rambank1_size", config.ramSize.slice(0, -1));
+    const ramSize = config.ramSize ?? config.machine.ramSizes[0];
+    switch (config.machine.gestaltID) {
+        case POWER_MACINTOSH_6100.gestaltID: {
+            // The passed in RAM size is the total, convert it to installed SIMMs
+            // that are needed on top of the built-in 8 MB.
+            const simmSize = Math.floor((parseInt(ramSize) - 8) / 2).toString();
+            args.push("--rambank1_size", simmSize);
+            args.push("--rambank2_size", simmSize);
+            break;
+        }
+        default:
+            args.push("--rambank1_size", ramSize.slice(0, -1));
+            break;
     }
+
     // DingusPPC normally auto-detects the machine based on the ROM, but in some
     // cases the same ROM was used for multiple machines and we need to give it
     // an explicit hint.
