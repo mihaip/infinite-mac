@@ -138,6 +138,10 @@ MAC_OS_9 = Disk(name="Mac OS 9.0 HD.dsk")
 
 MAC_OS_904 = Disk(name="Mac OS 9.0.4 HD.dsk")
 
+MAC_OS_91 = Disk(name="Mac OS 9.1 HD.dsk")
+
+MAC_OS_922 = Disk(name="Mac OS 9.2.2 HD.dsk")
+
 JAPANESE_WELCOME_STICKY = stickies.Sticky(
     top=56,
     left=454,
@@ -290,6 +294,8 @@ ALL_DISKS = [
     MAC_OS_86,
     MAC_OS_9,
     MAC_OS_904,
+    MAC_OS_91,
+    MAC_OS_922,
     NEXTSTEP_08,
     NEXTSTEP_09,
     NEXTSTEP_10,

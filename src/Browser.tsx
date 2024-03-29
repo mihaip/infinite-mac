@@ -218,7 +218,13 @@ type DiskProps = {
 };
 
 function Disk({disk, onRun}: DiskProps) {
-    const {bezelStyle} = disk.machines[0];
+    let {bezelStyle} = disk.machines[0];
+    // This is wrong, but it makes the 9.1 and 9.2 images that run the
+    // DingusPPC-powered Beige G3 fit in with the B&W one used for
+    // SheepShaver-based 8.5-9.0.4 ones.
+    if (disk.machines[0].emulatorType === "DingusPPC") {
+        bezelStyle = "Pinstripes";
+    }
     return (
         <DiskFrame
             bezelStyle={bezelStyle}
