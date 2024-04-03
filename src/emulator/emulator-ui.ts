@@ -766,8 +766,6 @@ export class Emulator {
     #handleWorkerMessage = (e: MessageEvent) => {
         if (e.data.type === "emulator_ready") {
             this.#delegate?.emulatorDidFinishLoading?.(this);
-        } else if (e.data.type === "emulator_exit") {
-            this.#delegate?.emulatorDidExit?.(this);
         } else if (e.data.type === "emulator_video_open") {
             const {width, height} = e.data;
             this.#screenImageData = this.#screenCanvasContext.createImageData(
@@ -800,7 +798,7 @@ export class Emulator {
         } else if (e.data.type === "emulator_quiescent") {
             console.timeEnd("Emulator quiescent");
         } else if (e.data.type === "emulator_stopped") {
-            this.#handleEmulatorStopped();
+            this.#handleEmulatorStopped(e.data.isExit);
         } else if (e.data.type === "emulator_ethernet_init") {
             const {ethernetProvider} = this.#config;
             if (ethernetProvider) {
@@ -930,10 +928,13 @@ export class Emulator {
         });
     }
 
-    async #handleEmulatorStopped() {
+    async #handleEmulatorStopped(isExit?: boolean) {
         this.#worker.removeEventListener("message", this.#handleWorkerMessage);
         this.#worker.terminate();
         this.#workerTerminated = true;
+        if (isExit) {
+            this.#delegate?.emulatorDidExit?.(this);
+        }
     }
 }
 

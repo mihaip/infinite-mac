@@ -221,8 +221,7 @@ class EmulatorWorkerApi {
     }
 
     exit() {
-        this.#handleStop();
-        postMessage({type: "emulator_exit"});
+        this.#handleStop(true);
         for (;;) {
             // Don't let the process keep executing (it will exit with a non-0
             // status code), instead wait for the worker to be terminated.
@@ -411,13 +410,13 @@ class EmulatorWorkerApi {
         createLazyFile(parent, name, upload.url, upload.size, true, true);
     }
 
-    #handleStop() {
+    #handleStop(isExit = false) {
         if (this.#handledStop) {
             return;
         }
         this.#closeDiskSavers();
         this.#handledStop = true;
-        postMessage({type: "emulator_stopped"});
+        postMessage({type: "emulator_stopped", isExit});
     }
 
     acquireInputLock(): number {
