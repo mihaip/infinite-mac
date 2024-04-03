@@ -40,7 +40,7 @@ export async function exportDiskSaver(disk: EmulatorDiskDef) {
 
     const zipBlob = await zip.generateAsync({
         compression: "DEFLATE",
-        compressionOptions: {level: 9},
+        compressionOptions: {level: 1},
         type: "blob",
     });
     saveAs(zipBlob, spec.name + ".infinitemacdisk");
@@ -135,7 +135,6 @@ export async function saveDiskSaverImage(
             continue;
         }
 
-        console.log("Fetching chunk", chunkIndex);
         const chunkUrl = generateChunkUrl(chunkedSpec, chunkIndex);
         const chunk = await (await fetch(chunkUrl)).arrayBuffer();
         image.set(new Uint8Array(chunk), chunkIndex * spec.chunkSize);
