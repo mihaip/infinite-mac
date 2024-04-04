@@ -658,41 +658,41 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  453856: () => { return workerApi.idleWait(); },  
- 453889: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 453925: () => { workerApi.blit(0, 0); },  
- 453951: ($0, $1) => { workerApi.blit($0, $1); },  
- 453979: () => { return workerApi.etherSeed(); },  
- 454013: ($0) => { workerApi.etherInit(UTF8ToString($0)); },  
- 454056: ($0, $1, $2) => { workerApi.etherWrite(UTF8ToString($0), $1, $2); },  
- 454108: ($0) => { return workerApi.etherRead($0, 1514); },  
- 454150: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
- 454186: () => { return workerApi.audioBufferSize(); },  
- 454226: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
- 454266: () => { return workerApi.acquireInputLock(); },  
- 454307: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 454396: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 454486: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
- 454573: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 454657: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
- 454744: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 454828: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasFlagAddr); },  
- 454919: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasAddr); },  
- 455006: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 455091: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 455171: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 455252: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr); },  
- 455346: () => { workerApi.releaseInputLock(); },  
- 455380: () => { workerApi.sleep(0.001); },  
- 455408: ($0) => { workerApi.setClipboardText(UTF8ToString($0)); },  
- 455458: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 455509: ($0) => { workerApi.disks.close($0); },  
- 455540: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 455589: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
- 455639: ($0) => { return workerApi.disks.size($0); },  
- 455676: ($0) => { return workerApi.disks.isMediaPresent($0); },  
- 455723: ($0) => { return workerApi.disks.isFixedDisk($0); },  
- 455767: ($0) => { workerApi.disks.eject($0); }
+  453688: () => { return workerApi.idleWait(); },  
+ 453721: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 453757: () => { workerApi.blit(0, 0); },  
+ 453783: ($0, $1) => { workerApi.blit($0, $1); },  
+ 453811: () => { return workerApi.etherSeed(); },  
+ 453845: ($0) => { workerApi.etherInit(UTF8ToString($0)); },  
+ 453888: ($0, $1, $2) => { workerApi.etherWrite(UTF8ToString($0), $1, $2); },  
+ 453940: ($0) => { return workerApi.etherRead($0, 1514); },  
+ 453982: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 454018: () => { return workerApi.audioBufferSize(); },  
+ 454058: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
+ 454098: () => { return workerApi.acquireInputLock(); },  
+ 454139: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 454228: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 454318: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
+ 454405: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 454489: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
+ 454576: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 454660: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasFlagAddr); },  
+ 454751: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasAddr); },  
+ 454838: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 454923: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 455003: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 455084: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr); },  
+ 455178: () => { workerApi.releaseInputLock(); },  
+ 455212: () => { workerApi.sleep(0.001); },  
+ 455240: ($0) => { workerApi.setClipboardText(UTF8ToString($0)); },  
+ 455290: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 455341: ($0) => { workerApi.disks.close($0); },  
+ 455372: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 455421: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
+ 455471: ($0) => { return workerApi.disks.size($0); },  
+ 455508: ($0) => { return workerApi.disks.isMediaPresent($0); },  
+ 455555: ($0) => { return workerApi.disks.isFixedDisk($0); },  
+ 455599: ($0) => { workerApi.disks.eject($0); }
 };
 function getClipboardText() { const clipboardText = workerApi.getClipboardText(); if (!clipboardText || !clipboardText.length) { return 0; } const clipboardTextLength = lengthBytesUTF8(clipboardText) + 1; const clipboardTextCstr = _malloc(clipboardTextLength); stringToUTF8(clipboardText, clipboardTextCstr, clipboardTextLength); return clipboardTextCstr; }
 
@@ -5706,8 +5706,8 @@ var dynCall_viijii = Module['dynCall_viijii'] = (a0, a1, a2, a3, a4, a5, a6) => 
 var dynCall_iiiiij = Module['dynCall_iiiiij'] = (a0, a1, a2, a3, a4, a5, a6) => (dynCall_iiiiij = Module['dynCall_iiiiij'] = wasmExports['dynCall_iiiiij'])(a0, a1, a2, a3, a4, a5, a6);
 var dynCall_iiiiijj = Module['dynCall_iiiiijj'] = (a0, a1, a2, a3, a4, a5, a6, a7, a8) => (dynCall_iiiiijj = Module['dynCall_iiiiijj'] = wasmExports['dynCall_iiiiijj'])(a0, a1, a2, a3, a4, a5, a6, a7, a8);
 var dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) => (dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = wasmExports['dynCall_iiiiiijj'])(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);
-var ___start_em_js = Module['___start_em_js'] = 455798;
-var ___stop_em_js = Module['___stop_em_js'] = 456134;
+var ___start_em_js = Module['___start_em_js'] = 455630;
+var ___stop_em_js = Module['___stop_em_js'] = 455966;
 
 // include: postamble.js
 // === Auto-generated postamble setup entry stuff ===
