@@ -249,9 +249,8 @@ function DiskFrame({
     const windowWidth = useWindowWidth();
 
     // Match 10 vs. 40px padding chosen via the media query.
-    const isSmallScreen = windowWidth <= 400;
-    let screenWidth = windowWidth - (isSmallScreen ? 110 : 180);
-    const bezelSize = isSmallScreen ? "Small-ish" : "Medium";
+    let screenWidth = windowWidth - (windowWidth <= 400 ? 110 : 180);
+    const bezelSize = windowWidth <= 440 ? "Small-ish" : "Medium";
     screenWidth = Math.max(Math.min(screenWidth, 320), 200);
     const screenHeight = Math.round(screenWidth * 0.75);
 
@@ -300,11 +299,6 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
             )}>
             <DiskHeader disk={disk} />
             <div className="Row DiskDescription">{disk.description}</div>
-            {disk.isUnstable && (
-                <div className="Row Unstable-Warning">
-                    Unstable under emulation.
-                </div>
-            )}
             <div className="Row Buttons">
                 <Button
                     appearance={appearance}
@@ -373,7 +367,7 @@ function CustomDisk({onRun}: {onRun: BrowserRunFn}) {
                         <Button
                             appearance="Platinum"
                             onClick={() => setCustomVisible(true)}>
-                            Run
+                            Run…
                         </Button>
                     </div>
                 </div>
@@ -387,7 +381,7 @@ function DiskHeader({
 }: {
     disk: Pick<
         SystemDiskDef,
-        "releaseDate" | "displayName" | "displaySubtitle"
+        "releaseDate" | "displayName" | "displaySubtitle" | "isUnstable"
     >;
 }) {
     const [year, month, day] = disk.releaseDate;
@@ -406,7 +400,12 @@ function DiskHeader({
                 {disk.displaySubtitle && (
                     <span className="Subtitle"> ({disk.displaySubtitle})</span>
                 )}
-                <div className="ReleaseDate">{releaseDateString}</div>
+                <div className="ReleaseDate">
+                    {releaseDateString}
+                    {disk.isUnstable && (
+                        <div className="Unstable-Warning">Unstable</div>
+                    )}
+                </div>
             </h3>
         </>
     );

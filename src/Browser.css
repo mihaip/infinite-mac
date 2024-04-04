@@ -131,18 +131,23 @@
     color: #555;
 }
 
+.DiskContents .Unstable-Warning {
+    background: #faa;
+    color: #fff;
+    display: inline;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
 .DiskContents .Row {
     margin-bottom: 1em;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 440px) {
     .DiskContents .Row {
         margin-bottom: 0.5em;
     }
-}
-
-.DiskContents .Row.Unstable-Warning {
-    color: #f88;
 }
 
 .DiskContents .Customize,
