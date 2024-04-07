@@ -767,6 +767,9 @@ export class Emulator {
         if (e.data.type === "emulator_ready") {
             this.#delegate?.emulatorDidFinishLoading?.(this);
         } else if (e.data.type === "emulator_video_open") {
+            console.log(
+                `Initializing video (${e.data.width}x${e.data.height})`
+            );
             const {width, height} = e.data;
             this.#screenImageData = this.#screenCanvasContext.createImageData(
                 width,
@@ -1071,6 +1074,9 @@ function configToDingusPPCArgs(
     if (floppies.length > 0) {
         // TODO: support more than one floppy
         args.push("--fdd_img", floppies[0]);
+        // Disks are not actually writable, and by disabling writing we avoid
+        // a system beep that causes the emulator to abort.
+        args.push("--fdd_wr_prot=1");
     }
     if (hardDisks.length > 0) {
         // TODO: support more than one hard disk in non-PDM machines
