@@ -64,6 +64,7 @@ import {
     type MachineDef,
     POWER_MACINTOSH_7500,
     POWER_MACINTOSH_6100,
+    POWER_MACINTOSH_G3_BEIGE,
 } from "../machines";
 import {type EmulatorDiskDef} from "../disks";
 import deviceImageHeaderPath from "../Data/Device Image Header.hda";
@@ -1079,8 +1080,8 @@ function configToDingusPPCArgs(
         args.push("--fdd_wr_prot=1");
     }
     if (hardDisks.length > 0) {
-        // TODO: support more than one hard disk in non-PDM machines
-        if (config.machine.gestaltID === POWER_MACINTOSH_6100.gestaltID) {
+        // TODO: support more than one hard disk on IDE-based machines
+        if (config.machine.gestaltID !== POWER_MACINTOSH_G3_BEIGE.gestaltID) {
             args.push("--hdd_img", hardDisks.join(":"));
         } else {
             args.push("--hdd_img", hardDisks[0]);
