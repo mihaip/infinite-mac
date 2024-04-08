@@ -220,6 +220,25 @@ class EmulatorWorkerApi {
         this.#delayedDiskSpecs = delayedDisks;
     }
 
+    #abortError?: string;
+    setAbortError(error: string) {
+        this.#abortError = error;
+    }
+
+    emulatorDidHaveError(status: number, toThrow?: Error) {
+        if (toThrow) {
+            console.error(toThrow);
+        }
+        let error = toThrow
+            ? toThrow.message || toThrow.toString()
+            : `Exit status ${status}`;
+        if (this.#abortError && error.toLowerCase().includes("aborted")) {
+            error = this.#abortError;
+            this.#abortError = undefined;
+        }
+        postMessage({type: "emulator_did_have_error", error});
+    }
+
     exit() {
         this.#handleStop(true);
         for (;;) {
@@ -694,13 +713,10 @@ async function startEmulator(config: EmulatorWorkerConfig) {
             if (status === 0) {
                 moduleOverrides.workerApi?.exit();
             } else {
-                console.error(toThrow);
-                postMessage({
-                    type: "emulator_did_have_error",
-                    error: toThrow
-                        ? toThrow.message || toThrow.toString()
-                        : `Exit status ${status}`,
-                });
+                moduleOverrides.workerApi?.emulatorDidHaveError(
+                    status,
+                    toThrow
+                );
             }
         },
     };
