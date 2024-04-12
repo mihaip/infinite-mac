@@ -2,6 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {Dialog} from "./controls/Dialog";
 import {Donate} from "./Donate";
 import * as varz from "./varz";
+import {appearanceSystemFont} from "./controls/Appearance";
 
 export function About({onDone}: {onDone: () => void}) {
     const email = [
@@ -18,14 +19,21 @@ export function About({onDone}: {onDone: () => void}) {
     const aboutContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        const aboutContainerDom = aboutContainerRef.current;
+        console.log(aboutContainerDom);
+        if (!aboutContainerDom) {
+            return;
+        }
+        for (const headings of aboutContainerDom.querySelectorAll("h2")) {
+            headings.classList.add(appearanceSystemFont("Classic"));
+        }
+
         const emailLink =
-            aboutContainerRef.current?.querySelector<HTMLAnchorElement>(
-                ".email"
-            );
+            aboutContainerDom.querySelector<HTMLAnchorElement>(".email");
         if (emailLink) {
             emailLink.href = `mailto:${email}`;
         }
-        const donateLink = aboutContainerRef.current?.querySelector(".donate");
+        const donateLink = aboutContainerDom.querySelector(".donate");
         if (donateLink) {
             const showDonate = () => setDonateVisible(true);
             donateLink.addEventListener("click", showDonate);

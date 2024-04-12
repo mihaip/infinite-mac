@@ -7,7 +7,6 @@
     padding: 1px 8px;
     font-size: 13px;
     color: #000;
-    font-family: "Helvetica", "Arial", sans-serif;
     font-weight: bold;
     user-select: none;
     white-space: nowrap;
@@ -33,6 +32,7 @@
 
 .Button.Button-Classic {
     border-image-source: url(../Images/ClassicButton.png);
+    line-height: 13px;
 }
 
 .Button.Button-Classic:active {
@@ -41,6 +41,7 @@
 
 .Button.Button-Platinum {
     border-image-source: url(../Images/PlatinumButton.png);
+    line-height: 13px;
 }
 
 .Button.Button-Platinum:active {
