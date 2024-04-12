@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import "./Select.css";
-import {type Appearance} from "./Appearance";
+import {appearanceSystemFont, type Appearance} from "./Appearance";
 
 export function Select({
     appearance,
@@ -13,6 +13,7 @@ export function Select({
     const selectClassName = classNames(
         "Select",
         `Select-${appearance}`,
+        appearanceSystemFont(appearance),
         className
     );
     return (

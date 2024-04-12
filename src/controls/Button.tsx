@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import "./Button.css";
-import {type Appearance} from "./Appearance";
+import {appearanceSystemFont, type Appearance} from "./Appearance";
 
 export function Button({
     appearance,
@@ -13,6 +13,7 @@ export function Button({
     const buttonClassName = classNames(
         "Button",
         `Button-${appearance}`,
+        appearanceSystemFont(appearance),
         className
     );
     return (

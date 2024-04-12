@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import {Button} from "./Button";
 import "./Dialog.css";
 import classNames from "classnames";
-import {type Appearance} from "./Appearance";
+import {appearanceSystemFont, type Appearance} from "./Appearance";
 
 export function Dialog({
     title,
@@ -36,7 +36,7 @@ export function Dialog({
                     `Dialog-${appearance}`,
                     className
                 )}>
-                <h1>{title}</h1>
+                <h1 className={appearanceSystemFont(appearance)}>{title}</h1>
 
                 <div className="Dialog-Content">{children}</div>
 

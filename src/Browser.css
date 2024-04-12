@@ -141,12 +141,12 @@
 }
 
 .DiskContents .Row {
-    margin-bottom: 1em;
+    margin-bottom: 18px;
 }
 
 @media (max-width: 440px) {
     .DiskContents .Row {
-        margin-bottom: 0.5em;
+        margin-bottom: 12px;
     }
 }
 
