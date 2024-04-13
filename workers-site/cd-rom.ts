@@ -42,6 +42,7 @@ function isValidSrcUrl(srcUrl: string) {
         "macintoshrepository.org",
         "fsck.technology",
         "flanigan.us",
+        "gildev.dev",
     ];
     for (const allowedDomain of allowedDomains) {
         if (
