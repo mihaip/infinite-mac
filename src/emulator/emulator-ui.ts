@@ -67,7 +67,7 @@ import {
     POWER_MACINTOSH_G3_BEIGE,
 } from "../machines";
 import {type EmulatorDiskDef} from "../disks";
-import deviceImageHeaderPath from "../Data/Device Image Header.hda";
+import deviceImageHeaderPath from "../Data/Device Image Header (All Drivers).hda";
 import {fetchCDROM} from "./emulator-ui-cdrom";
 import {EmulatorTrackpadController} from "./emulator-ui-trackpad";
 

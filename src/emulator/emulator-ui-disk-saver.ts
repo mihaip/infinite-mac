@@ -3,7 +3,7 @@ import {saveAs} from "file-saver";
 import {type EmulatorDiskDef} from "../disks";
 import {dirtyChunksFileName, dataFileName} from "./emulator-common-disk-saver";
 import {generateChunkUrl} from "./emulator-common";
-import deviceImageHeaderPath from "../Data/Device Image Header.hda";
+import deviceImageHeaderPath from "../Data/Device Image Header (Apple SCSI 4.3 Driver).hda";
 import {generateDeviceImageHeader} from "./emulator-common-device-image";
 
 export async function resetDiskSaver(disk: EmulatorDiskDef) {

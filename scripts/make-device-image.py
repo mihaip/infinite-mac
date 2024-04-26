@@ -12,7 +12,7 @@ BLOCK_SIZE = 512
 HFS_PARTITION_INDEX = 8
 HFS_PARTITION_OFFSET = (HFS_PARTITION_INDEX + 1) * BLOCK_SIZE
 
-DEVICE_IMAGE_HEADER_PATH = os.path.join(paths.DATA_DIR, "Device Image Header.hda")
+DEVICE_IMAGE_HEADER_PATH = os.path.join(paths.DATA_DIR, "Device Image Header (All Drivers).hda")
 
 def main():
     if len(sys.argv) != 3:
