@@ -658,29 +658,29 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  124992: ($0) => { workerApi.setAbortError(UTF8ToString($0)); },  
- 125039: () => { return workerApi.acquireInputLock(); },  
- 125080: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 125169: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 125259: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 125343: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 125427: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 125512: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 125592: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 125673: () => { workerApi.releaseInputLock(); },  
- 125707: () => { workerApi.sleep(0); },  
- 125731: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
- 125775: () => { return workerApi.audioBufferSize(); },  
- 125815: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
- 125851: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 125887: ($0, $1) => { workerApi.blit($0, $1); },  
- 125915: () => { workerApi.blit(0, 0); },  
- 125941: ($0, $1) => { workerApi.blit($0, $1); },  
- 125969: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 126020: ($0) => { workerApi.disks.close($0); },  
- 126051: ($0) => { return workerApi.disks.size($0); },  
- 126088: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 126137: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
+  129456: ($0) => { workerApi.setAbortError(UTF8ToString($0)); },  
+ 129503: () => { return workerApi.acquireInputLock(); },  
+ 129544: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 129633: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 129723: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 129807: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 129891: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 129976: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 130056: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 130137: () => { workerApi.releaseInputLock(); },  
+ 130171: () => { workerApi.sleep(0); },  
+ 130195: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
+ 130239: () => { return workerApi.audioBufferSize(); },  
+ 130279: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 130315: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 130351: ($0, $1) => { workerApi.blit($0, $1); },  
+ 130379: () => { workerApi.blit(0, 0); },  
+ 130405: ($0, $1) => { workerApi.blit($0, $1); },  
+ 130433: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 130484: ($0) => { workerApi.disks.close($0); },  
+ 130515: ($0) => { return workerApi.disks.size($0); },  
+ 130552: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 130601: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
 };
 
 
@@ -4857,6 +4857,54 @@ var ASM_CONSTS = {
 
   
   
+  var __mktime_js = function(tmPtr) {
+  
+    var ret = (() => { 
+      var date = new Date(HEAP32[(((tmPtr)+(20))>>2)] + 1900,
+                          HEAP32[(((tmPtr)+(16))>>2)],
+                          HEAP32[(((tmPtr)+(12))>>2)],
+                          HEAP32[(((tmPtr)+(8))>>2)],
+                          HEAP32[(((tmPtr)+(4))>>2)],
+                          HEAP32[((tmPtr)>>2)],
+                          0);
+  
+      // There's an ambiguous hour when the time goes back; the tm_isdst field is
+      // used to disambiguate it.  Date() basically guesses, so we fix it up if it
+      // guessed wrong, or fill in tm_isdst with the guess if it's -1.
+      var dst = HEAP32[(((tmPtr)+(32))>>2)];
+      var guessedOffset = date.getTimezoneOffset();
+      var start = new Date(date.getFullYear(), 0, 1);
+      var summerOffset = new Date(date.getFullYear(), 6, 1).getTimezoneOffset();
+      var winterOffset = start.getTimezoneOffset();
+      var dstOffset = Math.min(winterOffset, summerOffset); // DST is in December in South
+      if (dst < 0) {
+        // Attention: some regions don't have DST at all.
+        HEAP32[(((tmPtr)+(32))>>2)] = Number(summerOffset != winterOffset && dstOffset == guessedOffset);
+      } else if ((dst > 0) != (dstOffset == guessedOffset)) {
+        var nonDstOffset = Math.max(winterOffset, summerOffset);
+        var trueOffset = dst > 0 ? dstOffset : nonDstOffset;
+        // Don't try setMinutes(date.getMinutes() + ...) -- it's messed up.
+        date.setTime(date.getTime() + (trueOffset - guessedOffset)*60000);
+      }
+  
+      HEAP32[(((tmPtr)+(24))>>2)] = date.getDay();
+      var yday = ydayFromDate(date)|0;
+      HEAP32[(((tmPtr)+(28))>>2)] = yday;
+      // To match expected behavior, update fields from date
+      HEAP32[((tmPtr)>>2)] = date.getSeconds();
+      HEAP32[(((tmPtr)+(4))>>2)] = date.getMinutes();
+      HEAP32[(((tmPtr)+(8))>>2)] = date.getHours();
+      HEAP32[(((tmPtr)+(12))>>2)] = date.getDate();
+      HEAP32[(((tmPtr)+(16))>>2)] = date.getMonth();
+      HEAP32[(((tmPtr)+(20))>>2)] = date.getYear();
+  
+      return date.getTime() / 1000;
+     })();
+    return (setTempRet0((tempDouble=ret,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? (+(Math.floor((tempDouble)/4294967296.0)))>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)), ret>>>0);
+  };
+
+  
+  
   var stringToNewUTF8 = (str) => {
       var size = lengthBytesUTF8(str) + 1;
       var ret = _malloc(size);
@@ -5583,6 +5631,8 @@ var wasmImports = {
   _emscripten_throw_longjmp: __emscripten_throw_longjmp,
   /** @export */
   _localtime_js: __localtime_js,
+  /** @export */
+  _mktime_js: __mktime_js,
   /** @export */
   _tzset_js: __tzset_js,
   /** @export */
