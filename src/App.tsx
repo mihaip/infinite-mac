@@ -3,6 +3,9 @@ import "./App.css";
 import {Browser} from "./Browser";
 import {Footer} from "./Footer";
 import {type RunDef, runDefFromUrl, runDefToUrl} from "./run-def";
+import {flushSync} from "react-dom";
+import {startViewTransition} from "./view-transitions";
+import {type RunDefMacProps} from "./RunDefMac";
 
 function App() {
     const [initialRunDef, editInitialRunDef] = useMemo(() => {
@@ -29,15 +32,26 @@ function App() {
     let footer: React.ReactElement | undefined = <Footer />;
     if (runDef) {
         const handleDone = () => {
-            // Going back in the history is preferred over resetting the
-            // state because the browser will restore the scroll position.
-            if (runDef !== initialRunDef) {
-                history.back();
-            } else {
-                history.pushState({}, "", "/");
-                setRunDef(undefined);
-            }
-            setInitialBrowserCustomRunDef(runDef.isCustom ? runDef : undefined);
+            startViewTransition(async () => {
+                // Going back in the history is preferred over resetting the
+                // state because the browser will restore the scroll position.
+                if (runDef !== initialRunDef) {
+                    history.back();
+                    await new Promise(resolve => {
+                        window.addEventListener("popstate", resolve, {
+                            once: true,
+                        });
+                    });
+                } else {
+                    history.pushState({}, "", "/");
+                    flushSync(() => {
+                        setRunDef(undefined);
+                    });
+                }
+                setInitialBrowserCustomRunDef(
+                    runDef.isCustom ? runDef : undefined
+                );
+            });
         };
         contents = (
             <Suspense fallback={<div />}>
@@ -62,7 +76,11 @@ function App() {
                             return;
                         }
                         history.pushState({}, "", runDefUrl);
-                        setRunDef(runDef);
+                        startViewTransition(() => {
+                            flushSync(() => {
+                                setRunDef(runDef);
+                            });
+                        });
                     }}
                 />
             </React.StrictMode>
@@ -78,6 +96,14 @@ function App() {
     );
 }
 
-const RunDefMac = React.lazy(() => import("./RunDefMac"));
+// Lazy load to avoid the bundle hit, but prefetch and replace with the
+// implementation so that we can use view transitions and not worry about
+// suspense boundaries.
+const runDefMacLoader = () => import("./RunDefMac");
+let RunDefMac: React.ComponentType<RunDefMacProps> =
+    React.lazy(runDefMacLoader);
+setTimeout(async () => {
+    RunDefMac = (await runDefMacLoader()).default;
+}, 1000);
 
 export default App;
