@@ -13,29 +13,19 @@ import {type EmulatorDef} from "./emulator-common-emulators";
 // binary. Assumes that Emscripten has been run with
 // `-s MODULARIZE -s EXPORT_ES6 -s EXPORT_NAME=emulator`.
 export function importEmulator(def: EmulatorDef): Promise<{default: any}> {
-    const {emulatorType, emulatorSubtype} = def;
-    switch (emulatorType) {
+    switch (def.emulatorType) {
         case "BasiliskII":
             return import("./BasiliskII");
         case "SheepShaver":
             return import("./SheepShaver");
         case "Mini vMac":
-            switch (emulatorSubtype) {
-                case "128K":
-                    return import("./minivmac-128K");
-                case "512Ke":
-                    return import("./minivmac-512Ke");
-                case "Plus":
-                    return import("./minivmac-Plus");
-                case "SE":
-                    return import("./minivmac-SE");
-                case "II":
-                    return import("./minivmac-II");
-                default:
-                    throw new Error(
-                        `Unknown Mini vMac subtype: ${emulatorSubtype}`
-                    );
-            }
+            return {
+                "128K": import("./minivmac-128K"),
+                "512Ke": import("./minivmac-512Ke"),
+                "Plus": import("./minivmac-Plus"),
+                "SE": import("./minivmac-SE"),
+                "II": import("./minivmac-II"),
+            }[def.emulatorSubtype];
         case "DingusPPC":
             return import("./dingusppc");
         case "Previous":
@@ -74,8 +64,7 @@ export async function importEmulatorFallback(def: EmulatorDef) {
 }
 
 export function getEmulatorJsPath(def: EmulatorDef) {
-    const {emulatorType, emulatorSubtype} = def;
-    switch (emulatorType) {
+    switch (def.emulatorType) {
         case "BasiliskII":
             return BasiliskIIJsPath;
         case "SheepShaver":
@@ -87,7 +76,7 @@ export function getEmulatorJsPath(def: EmulatorDef) {
                 "Plus": MinivMacPlusJsPath,
                 "SE": MinivMacSEJsPath,
                 "II": MinivMacIIJsPath,
-            }[emulatorSubtype!];
+            }[def.emulatorSubtype];
         case "DingusPPC":
             return DingusPPCJsPath;
         case "Previous":

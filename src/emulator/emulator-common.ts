@@ -1,7 +1,6 @@
 import {
+    type EmulatorDef,
     type EmulatorSpeed,
-    type EmulatorSubtype,
-    type EmulatorType,
 } from "./emulator-common-emulators";
 
 export const InputBufferAddresses = {
@@ -132,9 +131,7 @@ export function generateNextChunkUrl(
     return generateChunkUrl(spec, chunkIndex + 1);
 }
 
-export type EmulatorWorkerConfig = {
-    emulatorType: EmulatorType;
-    emulatorSubtype?: EmulatorSubtype;
+export type EmulatorWorkerConfig = EmulatorDef & {
     wasm: ArrayBuffer;
     disks: EmulatorChunkedFileSpec[];
     delayedDisks?: EmulatorChunkedFileSpec[];
