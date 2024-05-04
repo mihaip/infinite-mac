@@ -23,7 +23,7 @@ export function getEmulatorWasmPath(def: EmulatorDef): string {
                 "Plus": MinivMacPlusWasmPath,
                 "SE": MinivMacSEWasmPath,
                 "II": MinivMacIIWasmPath,
-            }[emulatorSubtype!];
+            }[emulatorSubtype];
         case "DingusPPC":
             return DingusPPCWasmPath;
         case "Previous":

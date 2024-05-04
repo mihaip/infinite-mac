@@ -5,18 +5,17 @@ export type EmulatorType =
     | "DingusPPC"
     | "Previous";
 
-export type EmulatorSubtype =
-    // Mini vMac
-    | "128K"
-    | "512Ke"
-    | "Plus"
-    | "SE"
-    | "II"
-    // Previous
+export type EmulatorMinivMacSubtypes = "128K" | "512Ke" | "Plus" | "SE" | "II";
+
+export type EmulatorPreviousSubtypes =
     | "NeXT Computer"
     | "NeXTcube"
     | "NeXTstation"
     | "NeXTstation Turbo Color";
+
+export type EmulatorSubtype =
+    | EmulatorMinivMacSubtypes
+    | EmulatorPreviousSubtypes;
 
 export type EmulatorCpu =
     | "68000"
@@ -105,7 +104,16 @@ export const EMULATOR_SPEEDS = new Map<EmulatorSpeed, string>([
     [-1, "All Out"],
 ]);
 
-export type EmulatorDef = {
-    emulatorType: EmulatorType;
-    emulatorSubtype?: EmulatorSubtype;
-};
+export type EmulatorDef =
+    | {
+          emulatorType: Exclude<EmulatorType, "Mini vMac" | "Previous">;
+          emulatorSubtype?: never;
+      }
+    | {
+          emulatorType: "Mini vMac";
+          emulatorSubtype: EmulatorMinivMacSubtypes;
+      }
+    | {
+          emulatorType: "Previous";
+          emulatorSubtype: EmulatorPreviousSubtypes;
+      };

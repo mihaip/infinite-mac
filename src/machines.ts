@@ -17,18 +17,15 @@ import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
 import emptyPrefsPath from "./Data/EmptyPrefs.txt";
 import previousConfigPath from "./Data/PreviousConfig.txt";
 import {
+    type EmulatorDef,
     type EmulatorCpu,
-    type EmulatorSubtype,
-    type EmulatorType,
 } from "./emulator/emulator-common-emulators";
 
-export type MachineDef = {
+export type MachineDef = EmulatorDef & {
     name: string;
     cpu: EmulatorCpu;
     romPath: string;
     gestaltID: number;
-    emulatorType: EmulatorType;
-    emulatorSubtype?: EmulatorSubtype;
     prefsPath: string;
     fixedScreenSize?: {width: number; height: number};
     mfsOnly?: boolean;

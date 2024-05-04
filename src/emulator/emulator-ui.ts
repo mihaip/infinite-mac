@@ -13,6 +13,7 @@ import {
     emulatorModelId,
     emulatorUsesPlaceholderDisks,
     emulatorNeedsMouseDeltas,
+    type EmulatorDef,
 } from "./emulator-common-emulators";
 import {getEmulatorWasmPath} from "./emulator-ui-emulators";
 import Worker from "./emulator-worker?worker";
@@ -341,7 +342,7 @@ export class Emulator {
         const autoloadFiles: {[name: string]: ArrayBuffer} = {};
         let args: string[] = [];
         let configDebugStr;
-        const {emulatorType, emulatorSubtype} = this.#config.machine;
+        const {emulatorType} = this.#config.machine;
         if (emulatorType === "DingusPPC") {
             args = configToDingusPPCArgs(this.#config, {disks, romFileName});
             configDebugStr = args.join(" ");
@@ -387,8 +388,10 @@ export class Emulator {
             : 0;
 
         const config: EmulatorWorkerConfig = {
-            emulatorType,
-            emulatorSubtype,
+            ...({
+                emulatorType: this.#config.machine.emulatorType,
+                emulatorSubtype: this.#config.machine.emulatorSubtype,
+            } as EmulatorDef),
             wasm,
             disks,
             delayedDisks,
