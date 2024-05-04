@@ -23,6 +23,7 @@ import {Custom} from "./Custom";
 import classNames from "classnames";
 import {canSaveDisks} from "./canSaveDisks";
 import {usePersistentState} from "./usePersistentState";
+import {viewTransitionNameForDisk} from "./view-transitions";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -228,6 +229,7 @@ function Disk({disk, onRun}: DiskProps) {
     return (
         <DiskFrame
             bezelStyle={bezelStyle}
+            viewTransitionName={viewTransitionNameForDisk(disk)}
             screen={
                 isPlaceholderDiskDef(disk) ? (
                     <PlaceholderDiskContents disk={disk} />
@@ -242,9 +244,11 @@ function Disk({disk, onRun}: DiskProps) {
 function DiskFrame({
     bezelStyle,
     screen,
+    viewTransitionName,
 }: {
     bezelStyle: MachineDef["bezelStyle"];
     screen: React.ReactElement;
+    viewTransitionName?: string;
 }) {
     const windowWidth = useWindowWidth();
 
@@ -262,6 +266,7 @@ function DiskFrame({
             height={screenHeight}
             bezelSize={bezelSize}
             screen={screen}
+            viewTransitionName={viewTransitionName}
         />
     );
 }

@@ -17,6 +17,7 @@ export type ScreenFrameProps = {
     controls?: ScreenControl[];
     screen?: React.ReactElement;
     children?: React.ReactNode;
+    viewTransitionName?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export type ScreenControl = {
@@ -39,6 +40,7 @@ export function ScreenFrame(props: ScreenFrameProps) {
         controls = [],
         screen,
         children,
+        viewTransitionName,
         ...divProps
     } = props;
 
@@ -70,6 +72,7 @@ export function ScreenFrame(props: ScreenFrameProps) {
                 width: `calc(${width}px + 2 * var(--screen-underscan))`,
                 height: `calc(${height}px + 2 * var(--screen-underscan))`,
                 transform: scale === undefined ? undefined : `scale(${scale})`,
+                viewTransitionName,
             }}
             {...divProps}>
             <div className="ScreenFrame-Controls-Container">

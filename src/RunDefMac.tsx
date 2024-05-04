@@ -4,13 +4,12 @@ import {type RunDef} from "./run-def";
 import Mac from "./Mac";
 import {getCDROMInfo} from "./cdroms";
 
-export default function RunDefMac({
-    runDef,
-    onDone,
-}: {
+export type RunDefMacProps = {
     runDef: RunDef;
     onDone: () => void;
-}) {
+};
+
+export default function RunDefMac({runDef, onDone}: RunDefMacProps) {
     const [cdroms, setCDROMs] = useState<EmulatorCDROM[] | undefined>(
         runDef.cdromURLs.length ? undefined : []
     );
