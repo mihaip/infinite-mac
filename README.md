@@ -137,4 +137,4 @@ emcmake cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_RENDERING_THREAD=0 ..
 make previous -j8
 ```
 
-Once it has built, use `npm run import-emulator dingusppc` from the host to update the files in `src/emulator`.
+Once it has built, use `npm run import-emulator previous` from the host to update the files in `src/emulator`.
