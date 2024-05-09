@@ -10,14 +10,24 @@ const BLOCK_SIZE = 512;
 // 6: Apple_Driver_IOKit
 // 7: Apple_Patches
 // 8: Apple_HFS
-const HFS_PARTITION_INDEX = 8;
+const ALL_DRIVERS_HFS_PARTITION_INDEX = 8;
+
+// Partition blocks defined in the base header
+// 0: Apple_partition_map
+// 1: Apple_Driver43
+// 2: Apple_HFS
+const APPLE_SCSI_43_DRIVER_PARTITION_INDEX = 2;
 
 // +1 to account for for block 0 with the device information
-const HFS_PARTITION_OFFSET = (HFS_PARTITION_INDEX + 1) * BLOCK_SIZE;
+const ALL_DRIVERS_HFS_PARTITION_OFFSET =
+    (ALL_DRIVERS_HFS_PARTITION_INDEX + 1) * BLOCK_SIZE;
+const APPLE_SCSI_43_DRIVER_PARTITION_OFFSET =
+    (APPLE_SCSI_43_DRIVER_PARTITION_INDEX + 1) * BLOCK_SIZE;
 
 export function generateDeviceImageHeader(
     baseHeader: ArrayBuffer,
-    hfsPartitionSize: number
+    hfsPartitionSize: number,
+    isAllDrivers: boolean
 ): ArrayBuffer {
     const headerSize = baseHeader.byteLength;
     if (headerSize !== 0xe4000) {
@@ -34,9 +44,13 @@ export function generateDeviceImageHeader(
     const totalBlocks = totalSize / BLOCK_SIZE;
     headerView.setInt32(0x4, totalBlocks); // sbBlkCount
 
+    const partitionOffset = isAllDrivers
+        ? ALL_DRIVERS_HFS_PARTITION_OFFSET
+        : APPLE_SCSI_43_DRIVER_PARTITION_OFFSET;
+
     const hfsBlocks = hfsPartitionSize / BLOCK_SIZE;
-    headerView.setInt32(HFS_PARTITION_OFFSET + 12, hfsBlocks); // pmPartBlkCnt
-    headerView.setInt32(HFS_PARTITION_OFFSET + 84, hfsBlocks); // pmDataCnt
+    headerView.setInt32(partitionOffset + 12, hfsBlocks); // pmPartBlkCnt
+    headerView.setInt32(partitionOffset + 84, hfsBlocks); // pmDataCnt
 
     return header;
 }

@@ -146,7 +146,8 @@ export async function saveDiskSaverImage(
         ).arrayBuffer();
         const deviceImageHeader = generateDeviceImageHeader(
             baseDeviceImageHeader,
-            spec.totalSize
+            spec.totalSize,
+            false
         );
         saveAs(new Blob([deviceImageHeader, image]), spec.name + ".hda");
         return;
