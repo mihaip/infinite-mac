@@ -9,7 +9,8 @@ export class EmulatorWorkerDeviceImageDisk implements EmulatorWorkerDisk {
         this.#disk = disk;
         this.#deviceHeader = generateDeviceImageHeader(
             baseDeviceHeader,
-            disk.size
+            disk.size,
+            true
         );
     }
 
