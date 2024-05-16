@@ -404,7 +404,8 @@ export default function Mac({
             <div
                 className={classNames("Mac-Loading", {
                     "Mac-Loading-Non-Modal": emulatorLoaded,
-                })}>
+                })}
+            >
                 Loading CD-ROM…
                 <span className="Mac-Loading-Fraction">
                     {(emulatorCDROMLoadingProgress * 100).toFixed(0)}%
@@ -611,7 +612,8 @@ export default function Mac({
                             />
                         )}
                     </>
-                }>
+                }
+            >
                 {progress}
                 {dragCount > 0 && (
                     <div
@@ -871,7 +873,8 @@ function MacEthernetStatus({
     return (
         <div
             className="Mac-Ethernet-Status"
-            onClick={() => setExpanded(!expanded)}>
+            onClick={() => setExpanded(!expanded)}
+        >
             <div className="ScreenFrame-Bezel-Text">{text}</div>
             {details}
         </div>
@@ -892,7 +895,8 @@ function MacError({
             appearance={appearance}
             title="Emulator Error"
             onDone={onDone}
-            doneLabel="Bummer">
+            doneLabel="Bummer"
+        >
             <p style={{whiteSpace: "pre-line"}}>{text}</p>
         </Dialog>
     );

@@ -35,7 +35,8 @@ export function Dialog({
                     "Dialog",
                     `Dialog-${appearance}`,
                     className
-                )}>
+                )}
+            >
                 <h1 className={appearanceSystemFont(appearance)}>{title}</h1>
 
                 <div className="Dialog-Content">{children}</div>
@@ -48,7 +49,8 @@ export function Dialog({
                             onClick={e => {
                                 e.preventDefault();
                                 onCancel();
-                            }}>
+                            }}
+                        >
                             Cancel
                         </Button>
                     )}
@@ -59,7 +61,8 @@ export function Dialog({
                             onClick={e => {
                                 e.preventDefault();
                                 onOther(e);
-                            }}>
+                            }}
+                        >
                             {otherLabel}
                         </Button>
                     )}
@@ -69,7 +72,8 @@ export function Dialog({
                         onClick={e => {
                             e.preventDefault();
                             onDone(e);
-                        }}>
+                        }}
+                    >
                         {doneLabel}
                     </Button>
                 </footer>
