@@ -1,8 +1,8 @@
 import React from "react";
 import "./ScreenFrame.css";
-import {ReactComponent as AppleLogoColor} from "./Images/AppleLogoColor.svg";
-import {ReactComponent as AppleLogoGrey} from "./Images/AppleLogoGrey.svg";
-import {ReactComponent as NeXTLogo} from "./Images/NeXTLogo.svg";
+import AppleLogoColor from "./Images/AppleLogoColor.svg?react";
+import AppleLogoGrey from "./Images/AppleLogoGrey.svg?react";
+import NeXTLogo from "./Images/NeXTLogo.svg?react";
 import classNames from "classnames";
 
 export type ScreenFrameProps = {
@@ -74,7 +74,8 @@ export function ScreenFrame(props: ScreenFrameProps) {
                 transform: scale === undefined ? undefined : `scale(${scale})`,
                 viewTransitionName,
             }}
-            {...divProps}>
+            {...divProps}
+        >
             <div className="ScreenFrame-Controls-Container">
                 <div className="ScreenFrame-Logo">
                     <Logo className="Background" />
@@ -95,7 +96,8 @@ export function ScreenFrame(props: ScreenFrameProps) {
                                     : undefined,
                             }}
                             onClick={handler}
-                            key={label}>
+                            key={label}
+                        >
                             {label}
                         </div>
                     )
@@ -107,7 +109,8 @@ export function ScreenFrame(props: ScreenFrameProps) {
                 style={{
                     width,
                     height,
-                }}>
+                }}
+            >
                 {screen}
             </div>
             {children}

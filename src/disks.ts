@@ -1098,7 +1098,7 @@ const NEXTSTEP_3_0: SystemDiskDef = {
         NEXT_COMPUTER,
     ],
     appearance: "NeXT",
-    generatedSpec: () => import("./Data/NEXTSTEP 3.0 HD.dsk.json"),
+    generatedSpec: () => import("./Data/NeXTSTEP 3.0 HD.dsk.json"),
     notable: true,
 };
 
@@ -1141,7 +1141,7 @@ const NEXTSTEP_3_1: SystemDiskDef = {
         NEXT_COMPUTER,
     ],
     appearance: "NeXT",
-    generatedSpec: () => import("./Data/NEXTSTEP 3.1 HD.dsk.json"),
+    generatedSpec: () => import("./Data/NeXTSTEP 3.1 HD.dsk.json"),
 };
 
 const NEXTSTEP_3_2: SystemDiskDef = {
@@ -1183,7 +1183,7 @@ const NEXTSTEP_3_2: SystemDiskDef = {
         NEXT_COMPUTER,
     ],
     appearance: "NeXT",
-    generatedSpec: () => import("./Data/NEXTSTEP 3.2 HD.dsk.json"),
+    generatedSpec: () => import("./Data/NeXTSTEP 3.2 HD.dsk.json"),
 };
 
 const NEXTSTEP_3_3: SystemDiskDef = {
@@ -1226,7 +1226,7 @@ const NEXTSTEP_3_3: SystemDiskDef = {
         NEXT_COMPUTER,
     ],
     appearance: "NeXT",
-    generatedSpec: () => import("./Data/NEXTSTEP 3.3 HD.dsk.json"),
+    generatedSpec: () => import("./Data/NeXTSTEP 3.3 HD.dsk.json"),
 };
 
 const NEXTSTEP_4_0: SystemDiskDef = {
@@ -1266,7 +1266,7 @@ const NEXTSTEP_4_0: SystemDiskDef = {
         NEXT_COMPUTER,
     ],
     appearance: "NeXT",
-    generatedSpec: () => import("./Data/NEXTSTEP 4.0 HD.dsk.json"),
+    generatedSpec: () => import("./Data/NeXTSTEP 4.0 HD.dsk.json"),
     notable: true,
 };
 

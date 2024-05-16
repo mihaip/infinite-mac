@@ -123,7 +123,8 @@ function MacCDROMsContents({
                 </div>
                 <Button
                     appearance={appearance}
-                    onClick={() => setCustomCDROMVisible(true)}>
+                    onClick={() => setCustomCDROMVisible(true)}
+                >
                     Load from URL…
                 </Button>
                 <Input
@@ -190,7 +191,8 @@ function MacCustomCDROM({
             doneLabel="Run"
             doneEnabled={url !== "" && inputRef.current?.validity.valid}
             onCancel={onDone}
-            appearance={appearance}>
+            appearance={appearance}
+        >
             <p>
                 Infinite Mac supports loading of CD-ROM images from URLs. Be
                 aware of the following caveats:

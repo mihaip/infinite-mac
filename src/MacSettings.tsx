@@ -122,7 +122,8 @@ export function MacSettings({
                                     event.target.value
                                 ) as EmulatorSpeed,
                             })
-                        }>
+                        }
+                    >
                         {Array.from(
                             EMULATOR_SPEEDS.entries(),
                             ([speed, label]) => (
@@ -145,7 +146,8 @@ export function MacSettings({
                         <div className="MacSettings-Row-Label">Contents:</div>
                         <Button
                             appearance={appearance}
-                            onClick={() => setStorageExportVisible(true)}>
+                            onClick={() => setStorageExportVisible(true)}
+                        >
                             Export…
                         </Button>
                         <StorageConfirmDialog
@@ -161,7 +163,8 @@ export function MacSettings({
                         />{" "}
                         <Button
                             appearance={appearance}
-                            onClick={() => setStorageImportVisible(true)}>
+                            onClick={() => setStorageImportVisible(true)}
+                        >
                             Import…
                         </Button>
                         <StorageConfirmDialog
@@ -177,7 +180,8 @@ export function MacSettings({
                         />{" "}
                         <Button
                             appearance={appearance}
-                            onClick={() => setStorageResetVisible(true)}>
+                            onClick={() => setStorageResetVisible(true)}
+                        >
                             Reset
                         </Button>
                         <StorageConfirmDialog
@@ -202,7 +206,8 @@ export function MacSettings({
                         <div className="MacSettings-Row-Label" />
                         <Button
                             appearance={appearance}
-                            onClick={() => setSaveImageVisible(true)}>
+                            onClick={() => setSaveImageVisible(true)}
+                        >
                             Save Disk Image…
                         </Button>
                         <StorageConfirmDialog
@@ -237,7 +242,8 @@ export function MacSettings({
                                 {" "}
                                 <Button
                                     appearance={appearance}
-                                    onClick={handleRequestPersistence}>
+                                    onClick={handleRequestPersistence}
+                                >
                                     Request Persistence
                                 </Button>
                             </>
@@ -247,7 +253,8 @@ export function MacSettings({
                             HD data even when running low on disk space (
                             <a
                                 href="https://web.dev/persistent-storage/"
-                                target="_blank">
+                                target="_blank"
+                            >
                                 more info
                             </a>
                             ).
@@ -292,7 +299,8 @@ function StorageConfirmDialog({
             onOther={onOther}
             otherLabel={otherLabel}
             onCancel={() => setVisible(false)}
-            appearance={appearance}>
+            appearance={appearance}
+        >
             <div style={{maxWidth: 400}}>{body}</div>
         </Dialog>
     );

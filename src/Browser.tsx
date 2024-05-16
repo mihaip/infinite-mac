@@ -203,7 +203,8 @@ function DiskFiltersButton({
             onClick={onClick}
             className={classNames("Disk-Filters-Button", {
                 "selected": selected,
-            })}>
+            })}
+        >
             <span className="name-container">
                 <span className="name">{label}</span>
                 <span className="name-sizer">{label}</span>
@@ -298,17 +299,16 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
 
     return (
         <div
-            className={classNames(
-                "DiskContents",
-                `DiskContents-${bezelStyle}`
-            )}>
+            className={classNames("DiskContents", `DiskContents-${bezelStyle}`)}
+        >
             <DiskHeader disk={disk} />
             <div className="Row DiskDescription">{disk.description}</div>
             <div className="Row Buttons">
                 <Button
                     appearance={appearance}
                     className="CustomizeButton"
-                    onClick={() => setCustomVisible(true)}>
+                    onClick={() => setCustomVisible(true)}
+                >
                     Customize…
                 </Button>
                 <Button appearance={appearance} onClick={run}>
@@ -371,7 +371,8 @@ function CustomDisk({onRun}: {onRun: BrowserRunFn}) {
                     <div className="Row Buttons">
                         <Button
                             appearance="Platinum"
-                            onClick={() => setCustomVisible(true)}>
+                            onClick={() => setCustomVisible(true)}
+                        >
                             Run…
                         </Button>
                     </div>

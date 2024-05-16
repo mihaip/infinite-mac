@@ -1,5 +1,5 @@
 import {type ResolvedConfig, defineConfig} from "vite";
-import react from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react-swc";
 import basicSsl from "@vitejs/plugin-basic-ssl";
 import svgr from "vite-plugin-svgr";
 import {viteDevMiddleware} from "./src/vite-dev-middleware";
