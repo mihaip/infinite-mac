@@ -658,29 +658,29 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  130384: ($0) => { workerApi.setAbortError(UTF8ToString($0)); },  
- 130431: () => { return workerApi.acquireInputLock(); },  
- 130472: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 130561: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 130651: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 130735: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 130819: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 130904: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 130984: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 131065: () => { workerApi.releaseInputLock(); },  
- 131099: () => { workerApi.sleep(0); },  
- 131123: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
- 131167: () => { return workerApi.audioBufferSize(); },  
- 131207: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
- 131243: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 131279: ($0, $1) => { workerApi.blit($0, $1); },  
- 131307: () => { workerApi.blit(0, 0); },  
- 131333: ($0, $1) => { workerApi.blit($0, $1); },  
- 131361: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 131412: ($0) => { workerApi.disks.close($0); },  
- 131443: ($0) => { return workerApi.disks.size($0); },  
- 131480: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 131529: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
+  148032: ($0) => { workerApi.setAbortError(UTF8ToString($0)); },  
+ 148079: () => { return workerApi.acquireInputLock(); },  
+ 148120: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 148209: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 148299: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 148383: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 148467: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 148552: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 148632: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 148713: () => { workerApi.releaseInputLock(); },  
+ 148747: () => { workerApi.sleep(0); },  
+ 148771: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
+ 148815: () => { return workerApi.audioBufferSize(); },  
+ 148855: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 148891: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 148927: ($0, $1) => { workerApi.blit($0, $1); },  
+ 148955: () => { workerApi.blit(0, 0); },  
+ 148981: ($0, $1) => { workerApi.blit($0, $1); },  
+ 149009: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 149060: ($0) => { workerApi.disks.close($0); },  
+ 149091: ($0) => { return workerApi.disks.size($0); },  
+ 149128: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 149177: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
 };
 
 
@@ -5670,6 +5670,8 @@ var wasmImports = {
   /** @export */
   invoke_v: invoke_v,
   /** @export */
+  invoke_viiiiii: invoke_viiiiii,
+  /** @export */
   proc_exit: _proc_exit,
   /** @export */
   strftime_l: _strftime_l
@@ -5712,6 +5714,17 @@ function invoke_iii(index,a1,a2) {
   var sp = stackSave();
   try {
     return getWasmTableEntry(index)(a1,a2);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiii(index,a1,a2,a3,a4,a5,a6) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
