@@ -476,6 +476,7 @@ export type EmulatorCDROM = {
     mode?: "MODE1/2352"; // TODO: other modes
     platform?: "Macintosh" | "NeXT";
     fetchClientSide?: boolean;
+    mountReadWrite?: boolean;
 };
 
 export type EmulatorCDROMLibrary = {[path: string]: EmulatorCDROM};

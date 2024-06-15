@@ -1013,7 +1013,7 @@ function configToEmulatorPrefs(
         prefsStr += `disk ${spec.name}\n`;
     }
     for (const cdrom of config.cdroms) {
-        prefsStr += `disk *${cdrom.name}\n`;
+        prefsStr += `disk ${cdrom.mountReadWrite ? "" : "*"}${cdrom.name}\n`;
     }
     for (const diskFile of config.diskFiles) {
         if (diskFile.isCDROM) {

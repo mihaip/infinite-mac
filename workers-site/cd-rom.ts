@@ -143,6 +143,9 @@ async function handlePUT(srcUrl: string) {
     if (srcUrl.endsWith(".bin")) {
         cdrom.mode = "MODE1/2352";
     }
+    if (srcUrl.endsWith(".dsk")) {
+        cdrom.mountReadWrite = true;
+    }
     return new Response(JSON.stringify(cdrom), {
         status: 200,
         headers: {
