@@ -90,11 +90,14 @@ export type EmulatorConfig = {
     debugTrackpad?: boolean;
 };
 
+export type EmulatorScreenScaling = "auto" | "smooth" | "pixelated";
+
 export type EmulatorSettings = {
     swapControlAndCommand: boolean;
     speed: EmulatorSpeed;
     useMouseDeltas: boolean;
     trackpadMode: boolean;
+    screenScaling?: EmulatorScreenScaling;
 };
 
 export interface EmulatorEthernetProvider {
