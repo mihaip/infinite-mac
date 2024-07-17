@@ -14,6 +14,7 @@ import {
     emulatorUsesPlaceholderDisks,
     emulatorNeedsMouseDeltas,
     type EmulatorDef,
+    emulatorSupportsMouseDeltas,
 } from "./emulator-common-emulators";
 import {getEmulatorWasmPath} from "./emulator-ui-emulators";
 import Worker from "./emulator-worker?worker";
@@ -553,9 +554,11 @@ export class Emulator {
     }
 
     #useMouseDeltas() {
+        const {emulatorType} = this.#config.machine;
         return (
-            emulatorNeedsMouseDeltas(this.#config.machine.emulatorType) ||
-            this.#delegate?.emulatorSettings?.(this).useMouseDeltas === true
+            emulatorNeedsMouseDeltas(emulatorType) ||
+            (this.#delegate?.emulatorSettings?.(this).useMouseDeltas === true &&
+                emulatorSupportsMouseDeltas(emulatorType))
         );
     }
 
