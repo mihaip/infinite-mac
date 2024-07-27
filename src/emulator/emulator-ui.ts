@@ -316,15 +316,33 @@ export class Emulator {
 
         const emulatorWasmPath = getEmulatorWasmPath(this.#config.machine);
 
+        let extraMachineFiles: {[fileName: string]: string} = {};
+        for (const disk of [
+            ...this.#config.disks,
+            ...(this.#config.delayedDisks ?? []),
+        ]) {
+            extraMachineFiles = {
+                ...extraMachineFiles,
+                ...disk.extraMachineFiles?.get(this.#config.machine),
+            };
+        }
+
         // Fetch all of the dependent files ourselves, to avoid a waterfall
         // if we let Emscripten handle it (it would first load the JS, and
         // then that would load the WASM and data files).
-        const [wasm, rom, basePrefs, deviceImageHeader] = await load(
+        const [
+            wasm,
+            rom,
+            basePrefs,
+            deviceImageHeader,
+            ...extraMachineFileContents
+        ] = await load(
             [
                 emulatorWasmPath,
                 this.#config.machine.romPath,
                 this.#config.machine.prefsPath,
                 deviceImageHeaderPath,
+                ...Object.values(extraMachineFiles),
             ],
             (total, left) => {
                 this.#delegate?.emulatorDidMakeLoadingProgress?.(
@@ -344,6 +362,10 @@ export class Emulator {
             : undefined;
 
         const autoloadFiles: {[name: string]: ArrayBuffer} = {};
+        Object.keys(extraMachineFiles).forEach((fileName, i) => {
+            autoloadFiles[fileName] = extraMachineFileContents[i];
+        });
+
         let args: string[] = [];
         let configDebugStr;
         const {emulatorType} = this.#config.machine;
@@ -980,6 +1002,7 @@ async function loadDisks(
         prefetchChunks: d.prefetchChunks,
         persistent: d.persistent,
         isFloppy: d.isFloppy,
+        hasDeviceImageHeader: d.hasDeviceImageHeader,
     }));
 }
 

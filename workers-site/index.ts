@@ -73,7 +73,11 @@ async function handleRequest(
         // Force a MIME type from the list at
         // https://support.cloudflare.com/hc/en-us/articles/200168396 to ensure
         // that the ROM and chunks get compressed.
-        if (pathname.endsWith(".rom") || pathname.endsWith(".hda")) {
+        if (
+            [".rom", ".hda", "pram.bin", "nvram.bin"].some(ext =>
+                pathname.endsWith(ext)
+            )
+        ) {
             response.headers.set("Content-Type", "multipart/mixed");
         }
 
