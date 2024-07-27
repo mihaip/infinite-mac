@@ -164,7 +164,11 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
 export function runDefToUrl(runDef: RunDef): string {
     const {disks, machine, ethernetProvider} = runDef;
     let url: URL;
-    if (disks.length === 1 && ALL_DISKS.includes(disks[0])) {
+    if (
+        disks.length === 1 &&
+        ALL_DISKS.includes(disks[0]) &&
+        !disks[0].hiddenInBrowser
+    ) {
         url = new URL(diskToYearPath(disks[0]), location.href);
         if (!runDef.includeInfiniteHD) {
             url.searchParams.set("infinite_hd", "false");

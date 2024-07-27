@@ -192,7 +192,11 @@ class EmulatorWorkerApi {
                     } else {
                         disk = new EmulatorWorkerChunkedDisk(spec, this);
                     }
-                    if (needsDeviceImage && !spec.isFloppy) {
+                    if (
+                        needsDeviceImage &&
+                        !spec.isFloppy &&
+                        !spec.hasDeviceImageHeader
+                    ) {
                         return new EmulatorWorkerDeviceImageDisk(
                             disk,
                             config.deviceImageHeader

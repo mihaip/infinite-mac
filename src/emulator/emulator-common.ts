@@ -91,6 +91,7 @@ export type EmulatorChunkedFileSpec = {
     prefetchChunks: number[];
     persistent?: boolean;
     isFloppy?: boolean;
+    hasDeviceImageHeader?: boolean;
 };
 
 export function generateChunkUrl(
