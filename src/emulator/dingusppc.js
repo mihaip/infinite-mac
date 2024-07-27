@@ -658,29 +658,29 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  147008: ($0) => { workerApi.setAbortError(UTF8ToString($0)); },  
- 147055: () => { return workerApi.acquireInputLock(); },  
- 147096: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 147185: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 147275: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 147359: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 147443: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 147528: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 147608: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 147689: () => { workerApi.releaseInputLock(); },  
- 147723: () => { workerApi.sleep(0); },  
- 147747: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
- 147791: () => { return workerApi.audioBufferSize(); },  
- 147831: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
- 147867: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 147903: ($0, $1) => { workerApi.blit($0, $1); },  
- 147931: () => { workerApi.blit(0, 0); },  
- 147957: ($0, $1) => { workerApi.blit($0, $1); },  
- 147985: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 148036: ($0) => { workerApi.disks.close($0); },  
- 148067: ($0) => { return workerApi.disks.size($0); },  
- 148104: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 148153: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
+  147136: ($0) => { workerApi.setAbortError(UTF8ToString($0)); },  
+ 147183: () => { return workerApi.acquireInputLock(); },  
+ 147224: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 147313: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 147403: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 147487: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 147571: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 147656: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 147736: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 147817: () => { workerApi.releaseInputLock(); },  
+ 147851: () => { workerApi.sleep(0); },  
+ 147875: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
+ 147919: () => { return workerApi.audioBufferSize(); },  
+ 147959: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 147995: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 148031: ($0, $1) => { workerApi.blit($0, $1); },  
+ 148059: ($0, $1) => { workerApi.blit($0, $1); },  
+ 148087: () => { workerApi.blit(0, 0); },  
+ 148113: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 148164: ($0) => { workerApi.disks.close($0); },  
+ 148195: ($0) => { return workerApi.disks.size($0); },  
+ 148232: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 148281: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
 };
 
 
@@ -4982,6 +4982,10 @@ var ASM_CONSTS = {
       var args = readEmAsmArgs(sigPtr, argbuf);
       return ASM_CONSTS[code].apply(null, args);
     };
+  var _emscripten_asm_const_double = (code, sigPtr, argbuf) => {
+      return runEmAsmFunction(code, sigPtr, argbuf);
+    };
+
   var _emscripten_asm_const_int = (code, sigPtr, argbuf) => {
       return runEmAsmFunction(code, sigPtr, argbuf);
     };
@@ -5637,6 +5641,8 @@ var wasmImports = {
   _tzset_js: __tzset_js,
   /** @export */
   abort: _abort,
+  /** @export */
+  emscripten_asm_const_double: _emscripten_asm_const_double,
   /** @export */
   emscripten_asm_const_int: _emscripten_asm_const_int,
   /** @export */
