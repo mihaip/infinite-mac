@@ -3,7 +3,6 @@ import {type PlaceholderDiskDef, type SystemDiskDef} from "./disks";
 export function startViewTransition(
     updateCallback: () => Promise<void> | void
 ) {
-    console.log("startViewTransition");
     if ("startViewTransition" in document) {
         document.startViewTransition(updateCallback);
     } else {
