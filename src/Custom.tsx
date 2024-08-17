@@ -544,10 +544,13 @@ function DiskOption({
     };
 
     const macDisks = [];
+    const macOSXDisks = [];
     const nextDisks = [];
     for (const disk of Object.values(SYSTEM_DISKS_BY_NAME)) {
         if (disk.machines[0].platform === "NeXT") {
             nextDisks.push(disk);
+        } else if (disk.displayName.startsWith("Mac OS X")) {
+            macOSXDisks.push(disk);
         } else {
             macDisks.push(disk);
         }
@@ -570,6 +573,8 @@ function DiskOption({
                 }}
             >
                 {macDisks.map(diskOption)}
+                <option disabled>Mac OS X</option>
+                {macOSXDisks.map(diskOption)}
                 <option disabled>NeXT</option>
                 {nextDisks.map(diskOption)}
                 <option disabled>Floppy Disks</option>
