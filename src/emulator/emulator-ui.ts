@@ -1078,11 +1078,7 @@ function configToDingusPPCArgs(
 ): string[] {
     const args = ["--realtime", "--bootrom", romFileName];
     if (config.debugLog) {
-        args.push(
-            "--log-to-stderr",
-            "--log-no-uptime",
-            "--log-to-stderr-verbose"
-        );
+        args.push("--log-to-stderr", "--log-no-uptime", "--log-verbosity=5");
     }
     const floppies = [];
     const hardDisks = [];
