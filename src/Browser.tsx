@@ -203,8 +203,7 @@ function DiskFiltersButton({
             onClick={onClick}
             className={classNames("Disk-Filters-Button", {
                 "selected": selected,
-            })}
-        >
+            })}>
             <span className="name-container">
                 <span className="name">{label}</span>
                 <span className="name-sizer">{label}</span>
@@ -224,7 +223,10 @@ function Disk({disk, onRun}: DiskProps) {
     // This is wrong, but it makes the 9.1 and 9.2 images that run the
     // DingusPPC-powered Beige G3 fit in with the B&W one used for
     // SheepShaver-based 8.5-9.0.4 ones.
-    if (disk.machines[0].emulatorType === "DingusPPC") {
+    if (
+        disk.machines[0].emulatorType === "DingusPPC" &&
+        disk.displayName.startsWith("Mac OS 9")
+    ) {
         bezelStyle = "Pinstripes";
     }
     return (
@@ -299,16 +301,17 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
 
     return (
         <div
-            className={classNames("DiskContents", `DiskContents-${bezelStyle}`)}
-        >
+            className={classNames(
+                "DiskContents",
+                `DiskContents-${bezelStyle}`
+            )}>
             <DiskHeader disk={disk} />
             <div className="Row DiskDescription">{disk.description}</div>
             <div className="Row Buttons">
                 <Button
                     appearance={appearance}
                     className="CustomizeButton"
-                    onClick={() => setCustomVisible(true)}
-                >
+                    onClick={() => setCustomVisible(true)}>
                     Customize…
                 </Button>
                 <Button appearance={appearance} onClick={run}>
@@ -371,8 +374,7 @@ function CustomDisk({onRun}: {onRun: BrowserRunFn}) {
                     <div className="Row Buttons">
                         <Button
                             appearance="Platinum"
-                            onClick={() => setCustomVisible(true)}
-                        >
+                            onClick={() => setCustomVisible(true)}>
                             Run…
                         </Button>
                     </div>
