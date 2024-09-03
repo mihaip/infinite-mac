@@ -41,10 +41,12 @@ import {
 import {type Appearance} from "./controls/Appearance";
 import {
     emulatorNeedsMouseDeltas,
+    emulatorSupportsCDROMs,
     emulatorSupportsDownloadsFolder,
 } from "./emulator/emulator-common-emulators";
 import {type ScreenSize} from "./run-def";
 import {viewTransitionNameForDisk} from "./view-transitions";
+import {DrawersContainer} from "./controls/Drawer";
 
 export type MacProps = {
     disks: SystemDiskDef[];
@@ -690,11 +692,15 @@ export default function Mac({
                 )}
             </ScreenFrame>
             {!fullscreen && disks[0]?.infiniteHdSubset !== "mfs" && (
-                <MacCDROMs
-                    onRun={loadCDROM}
-                    appearance={appearance}
-                    platform={machine.platform}
-                />
+                <DrawersContainer>
+                    {emulatorSupportsCDROMs(machine.emulatorType) && (
+                        <MacCDROMs
+                            onRun={loadCDROM}
+                            appearance={appearance}
+                            platform={machine.platform}
+                        />
+                    )}
+                </DrawersContainer>
             )}
         </>
     );

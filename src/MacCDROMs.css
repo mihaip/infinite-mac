@@ -1,99 +1,3 @@
-.Mac-CDROMs {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 2;
-    filter: drop-shadow(1px 1px 5px rgba(0, 0, 0, 0.5));
-    pointer-events: none;
-}
-
-.Mac-CDROMs-Title {
-    padding: 4px 4px 4px 28px;
-    cursor: pointer;
-    background-image: url(./Images/CD-ROM.png);
-    background-position: 4px 50%;
-    background-repeat: no-repeat;
-    image-rendering: pixelated;
-    border-radius: 4px 4px 0 0;
-    border: solid 1px black;
-    border-bottom-width: 0;
-    position: relative;
-    top: 1px; /* to cover up the border of the list */
-    pointer-events: auto;
-}
-
-.Mac-CDROMs-Classic .Mac-CDROMs-Title {
-    background-color: white;
-}
-
-.Mac-CDROMs-Classic .Mac-CDROMs-Title:active {
-    background-color: #eee;
-}
-
-.Mac-CDROMs-Platinum .Mac-CDROMs-Title {
-    background-color: #ddd;
-}
-
-.Mac-CDROMs-Platinum .Mac-CDROMs-Title:active {
-    background-color: #dadada;
-}
-
-.Mac-CDROMs-NeXT .Mac-CDROMs-Title {
-    background-color: #aaa;
-    border: solid 1px;
-    border-color: #fff #555 #555 #fff;
-    color: #000;
-    border-radius: 0;
-    font-family: Helvetica, sans-serif;
-    font-weight: bold;
-}
-
-.Mac-CDROMs-Expanded.Mac-CDROMs-NeXT .Mac-CDROMs-Title {
-    box-sizing: border-box;
-    width: 80vw;
-    background-color: #000;
-    border-color: #aaa #555 #555 #aaa;
-    color: #fff;
-    outline: solid 1px #000;
-}
-
-.Mac-CDROMs-Contents {
-    background: white;
-    border: solid 1px black;
-    border-bottom-width: 0;
-    border-radius: 4px 4px 0 0;
-    height: 50vh;
-    width: 80vw;
-    pointer-events: auto;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.Mac-CDROMs-NeXT .Mac-CDROMs-Contents {
-    border-radius: 0;
-    background: #aaa;
-}
-
-.Mac-CDROMs-List {
-    overflow: auto;
-}
-
-.Mac-CDROMs-Header {
-    padding: 8px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    width: 100%;
-    justify-content: space-between;
-    box-sizing: border-box;
-    font-size: 12px;
-}
-
 .Mac-CDROMs-Instructions {
     flex-grow: 1;
 }
@@ -102,75 +6,10 @@
     width: 60px;
 }
 
-.Mac-CDROMs-Classic .Mac-CDROMs-Header {
-    border-bottom: solid 1px #9e9e9e;
-}
-
-.Mac-CDROMs-Platinum .Mac-CDROMs-Header {
-    background: #ddd;
-    border-bottom: solid 1px #a5a5a5;
-}
-
-.Mac-CDROMs-NeXT .Mac-CDROMs-Header {
-    background: #aaa;
-    border-top: solid 1px #000;
-    border-bottom: solid 1px #555;
-    position: relative;
-}
-
-.Mac-CDROMs-NeXT .Mac-CDROMs-Header:after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 1px;
-    background: #fff;
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-}
-
 .Mac-CDROMs-Contents .link {
     cursor: pointer;
     text-decoration: underline;
     color: #00c;
-}
-
-.Mac-CDROMs-Category {
-    margin: 8px 0;
-}
-
-.Mac-CDROMs-Category h3 {
-    margin: 8px 0;
-    background: linear-gradient(to right, #ddd, #fff);
-    padding: 1px 8px;
-}
-
-.Mac-CDROMs-NeXT .Mac-CDROMs-Category h3 {
-    /* Simulate a 2x2 gray and clear checkerboard, similar to a disabled scrollbar in NeXTSTEP 3.3 */
-    background-position: 0px 0px, 1px 1px;
-    background-size: 2px 2px;
-    background-image: linear-gradient(
-            45deg,
-            #555 25%,
-            transparent 25%,
-            transparent 75%,
-            #555 75%,
-            #555 100%
-        ),
-        linear-gradient(
-            45deg,
-            #555 25%,
-            transparent 25%,
-            transparent 75%,
-            #555 75%,
-            #555 100%
-        );
-}
-
-.Mac-CDROMs-Category-Contents {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
 }
 
 .Mac-Custom-CDROM-URL {
@@ -205,20 +44,4 @@
 .Mac-CDROM-Cover-Round {
     border-radius: 50%;
     overflow: hidden;
-}
-
-@media (max-width: 440px) {
-    .Mac-CDROMs {
-        align-items: start;
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-
-    .Mac-CDROMs-Title {
-        margin-left: 20px;
-    }
-
-    .Mac-CDROMs-Contents {
-        width: 100%;
-    }
 }

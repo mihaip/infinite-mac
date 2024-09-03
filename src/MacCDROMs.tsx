@@ -10,6 +10,14 @@ import {type Appearance} from "./controls/Appearance";
 import {type MachinePlatform} from "./machines";
 import defaultCDROMImage from "./Images/DefaultCDROM.png";
 import defaultCDROMNeXTImage from "./Images/DefaultCDROM-NeXT.png";
+import cdromsIcon from "./Images/CD-ROM.png";
+import {
+    Drawer,
+    DrawerContents,
+    DrawerHeader,
+    DrawerList,
+    DrawerListCategory,
+} from "./controls/Drawer";
 
 export function MacCDROMs({
     onRun,
@@ -20,28 +28,22 @@ export function MacCDROMs({
     appearance: Appearance;
     platform?: MachinePlatform;
 }) {
-    const [expanded, setExpanded] = useState(false);
-    const toggleExpanded = () => setExpanded(value => !value);
-    const className = classNames("Mac-CDROMs", `Mac-CDROMs-${appearance}`, {
-        "Mac-CDROMs-Expanded": expanded,
-    });
-
     return (
-        <div className={className}>
-            <div className="Mac-CDROMs-Title" onClick={toggleExpanded}>
-                CD-ROMs
-            </div>
-            {expanded && (
+        <Drawer
+            title="CD-ROMs"
+            titleIconUrl={cdromsIcon}
+            appearance={appearance}
+            contents={collapse => (
                 <MacCDROMsContents
                     onRun={cdrom => {
-                        setExpanded(false);
+                        collapse();
                         onRun(cdrom);
                     }}
                     appearance={appearance}
                     platform={platform}
                 />
             )}
-        </div>
+        />
     );
 }
 
@@ -108,7 +110,7 @@ function MacCDROMsContents({
     const [customCDROMVisible, setCustomCDROMVisible] = useState(false);
 
     return (
-        <div className="Mac-CDROMs-Contents">
+        <DrawerContents>
             {customCDROMVisible && (
                 <MacCustomCDROM
                     onRun={onRun}
@@ -116,15 +118,14 @@ function MacCDROMsContents({
                     appearance={appearance}
                 />
             )}
-            <div className="Mac-CDROMs-Header">
+            <DrawerHeader>
                 <div className="Mac-CDROMs-Instructions">
                     Load CD-ROM images into the emulated Mac to access software
                     that is too large to pre-install on Infinite HD.
                 </div>
                 <Button
                     appearance={appearance}
-                    onClick={() => setCustomCDROMVisible(true)}
-                >
+                    onClick={() => setCustomCDROMVisible(true)}>
                     Load from URL…
                 </Button>
                 <Input
@@ -134,28 +135,25 @@ function MacCDROMsContents({
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                 />
-            </div>
-            <div className="Mac-CDROMs-List">
+            </DrawerHeader>
+            <DrawerList>
                 {Object.entries(sortedCdromsByCategory).map(
                     ([category, cdroms]) => (
-                        <div key={category} className="Mac-CDROMs-Category">
-                            <h3>{category}</h3>
-                            <div className="Mac-CDROMs-Category-Contents">
-                                {cdroms.map(cdrom => (
-                                    <MacCDROM
-                                        key={cdrom.name}
-                                        cdrom={cdrom}
-                                        onRun={() => {
-                                            onRun(cdrom);
-                                        }}
-                                    />
-                                ))}
-                            </div>
-                        </div>
+                        <DrawerListCategory key={category} title={category}>
+                            {cdroms.map(cdrom => (
+                                <MacCDROM
+                                    key={cdrom.name}
+                                    cdrom={cdrom}
+                                    onRun={() => {
+                                        onRun(cdrom);
+                                    }}
+                                />
+                            ))}
+                        </DrawerListCategory>
                     )
                 )}
-            </div>
-        </div>
+            </DrawerList>
+        </DrawerContents>
     );
 }
 
@@ -191,8 +189,7 @@ function MacCustomCDROM({
             doneLabel="Run"
             doneEnabled={url !== "" && inputRef.current?.validity.valid}
             onCancel={onDone}
-            appearance={appearance}
-        >
+            appearance={appearance}>
             <p>
                 Infinite Mac supports loading of CD-ROM images from URLs. Be
                 aware of the following caveats:

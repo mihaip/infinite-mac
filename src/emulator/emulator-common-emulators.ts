@@ -56,6 +56,10 @@ export function emulatorSupportsDownloadsFolder(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";
 }
 
+export function emulatorSupportsCDROMs(type: EmulatorType): boolean {
+    return type !== "DingusPPC";
+}
+
 export function emulatorNeedsDeviceImage(type: EmulatorType): boolean {
     return type === "DingusPPC";
 }
