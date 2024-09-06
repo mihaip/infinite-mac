@@ -24,7 +24,7 @@ export async function handleRequest(path: string, method: string) {
 }
 
 // Don't want to become a proxy for arbitrary URLs
-function isValidSrcUrl(srcUrl: string) {
+export function isValidSrcUrl(srcUrl: string) {
     let srcUrlParsed;
     try {
         srcUrlParsed = new URL(srcUrl);

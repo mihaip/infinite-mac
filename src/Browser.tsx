@@ -288,6 +288,7 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
             screenSize: "auto",
             includeInfiniteHD: true,
             includeSavedHD: canSaveDisks(),
+            includeLibrary: false,
             machine: disk.machines[0],
             cdromURLs: [],
             diskFiles: [],

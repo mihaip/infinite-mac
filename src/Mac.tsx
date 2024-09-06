@@ -47,11 +47,13 @@ import {
 import {type ScreenSize} from "./run-def";
 import {viewTransitionNameForDisk} from "./view-transitions";
 import {DrawersContainer} from "./controls/Drawer";
+import {MacLibrary} from "./MacLibrary";
 
 export type MacProps = {
     disks: SystemDiskDef[];
     includeInfiniteHD: boolean;
     includeSavedHD: boolean;
+    includeLibrary: boolean;
     diskFiles: DiskFile[];
     cdroms: EmulatorCDROM[];
     initialErrorText?: string;
@@ -72,6 +74,7 @@ export default function Mac({
     disks,
     includeInfiniteHD,
     includeSavedHD,
+    includeLibrary,
     diskFiles,
     cdroms,
     initialErrorText,
@@ -94,8 +97,8 @@ export default function Mac({
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
         0, 0,
     ]);
-    const [emulatorCDROMLoadingProgress, setEmulatorCDROMLoadingProgress] =
-        useState(1.0);
+    const [emulatorFileLoadingProgress, setEmulatorFileLoadingProgress] =
+        useState<{fraction: number; name: string}>({name: "", fraction: 1.0});
     const [emulatorLoadingDiskChunk, setEmulatorLoadingDiskChunk] =
         useState(false);
     const [emulatorErrorText, setEmulatorErrorText] =
@@ -257,12 +260,8 @@ export default function Mac({
                 emulatorSettings(emulator) {
                     return emulatorSettingsRef.current;
                 },
-                emulatorDidMakeCDROMLoadingProgress(
-                    emulator,
-                    cdrom,
-                    loadedFraction
-                ) {
-                    setEmulatorCDROMLoadingProgress(loadedFraction);
+                emulatorDidMakeCDROMLoadingProgress(emulator, cdrom, fraction) {
+                    setEmulatorFileLoadingProgress({name: "CD-ROM", fraction});
                 },
             }
         );
@@ -401,15 +400,18 @@ export default function Mac({
             );
         }
     }
-    if (emulatorCDROMLoadingProgress < 1.0) {
+    if (
+        emulatorFileLoadingProgress &&
+        emulatorFileLoadingProgress.fraction < 1.0
+    ) {
         progress = (
             <div
                 className={classNames("Mac-Loading", {
                     "Mac-Loading-Non-Modal": emulatorLoaded,
                 })}>
-                Loading CD-ROM…
+                Loading {emulatorFileLoadingProgress.name}…
                 <span className="Mac-Loading-Fraction">
-                    {(emulatorCDROMLoadingProgress * 100).toFixed(0)}%
+                    {(emulatorFileLoadingProgress.fraction * 100).toFixed(0)}%
                 </span>
             </div>
         );
@@ -700,6 +702,26 @@ export default function Mac({
                             platform={machine.platform}
                         />
                     )}
+                    {includeLibrary &&
+                        emulatorSupportsDownloadsFolder(
+                            machine.emulatorType
+                        ) && (
+                            <MacLibrary
+                                appearance={appearance}
+                                onLoadProgress={(name, fraction) => {
+                                    setEmulatorFileLoadingProgress({
+                                        name,
+                                        fraction,
+                                    });
+                                }}
+                                onRun={file => {
+                                    const emulator = emulatorRef.current;
+                                    if (emulator) {
+                                        uploadFiles(emulator, [file]);
+                                    }
+                                }}
+                            />
+                        )}
                 </DrawersContainer>
             )}
         </>

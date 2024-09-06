@@ -1,6 +1,7 @@
 import * as varz from "./varz";
 import * as cdrom from "./cd-rom";
 import * as disk from "./disk";
+import * as library from "./library";
 import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
 // @ts-expect-error TODO: include declaration for this generated module.
 import manifestJSON from "__STATIC_CONTENT_MANIFEST";
@@ -40,6 +41,9 @@ async function handleRequest(
     }
     if (path[0] === "CD-ROM") {
         return cdrom.handleRequest(url.pathname, request.method);
+    }
+    if (path[0] === "Library") {
+        return library.handleRequest(request);
     }
     if (path[0] === "Disk") {
         return disk.handleRequest(request, env.DISK_BUCKET, ctx);
