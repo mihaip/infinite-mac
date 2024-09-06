@@ -2,6 +2,7 @@
 
 import type * as http from "node:http";
 import * as cdrom from "../workers-site/cd-rom";
+import * as library from "../workers-site/library";
 
 /**
  * @fileoverview Helper middleware to inject custom behavior into the Vite dev
@@ -21,7 +22,13 @@ export function viteDevMiddleware(
         handleVarz(req, res);
         return true;
     } else if (url.pathname.startsWith("/CD-ROM/")) {
-        handleCDROM(url.pathname, req.method ?? "GET", res);
+        handleWorkerResponse(
+            cdrom.handleRequest(url.pathname, req.method ?? "GET"),
+            res
+        );
+        return true;
+    } else if (url.pathname.startsWith("/Library/")) {
+        handleWorkerResponse(library.handleRequest(new Request(url)), res);
         return true;
     }
 
@@ -42,14 +49,26 @@ function handleVarz(req: http.IncomingMessage, res: http.ServerResponse) {
     ).end();
 }
 
-async function handleCDROM(
-    path: string,
-    method: string,
+async function handleWorkerResponse(
+    responsePromise: Promise<Response>,
     res: http.ServerResponse
 ) {
-    const response = await cdrom.handleRequest(path, method);
+    const response = await responsePromise;
     const {status, statusText, headers} = response;
     res.writeHead(status, statusText, Object.fromEntries(headers.entries()));
-    const body = await response.arrayBuffer();
-    res.end(await Buffer.from(body));
+    if (response.body) {
+        const reader = response.body.getReader();
+        for (;;) {
+            const {done, value} = await reader.read();
+            if (done) {
+                res.end();
+                break;
+            }
+            res.write(value);
+        }
+        return;
+    } else {
+        const body = await response.arrayBuffer();
+        res.end(await Buffer.from(body));
+    }
 }

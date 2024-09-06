@@ -64,6 +64,7 @@ export function Custom({
                   cdromURLs: [],
                   includeInfiniteHD: true,
                   includeSavedHD: canSaveDisks(),
+                  includeLibrary: false,
                   isCustom: true,
                   diskFiles: [],
               }
@@ -169,8 +170,7 @@ export function Custom({
             doneEnabled={canRun}
             onCancel={onDone}
             appearance={appearance}
-            className="Custom-Dialog"
-        >
+            className="Custom-Dialog">
             <p>
                 Build your own configuration by selecting a machine and disks.
             </p>
@@ -189,8 +189,7 @@ export function Custom({
                             update.ramSize = machine.ramSizes[0];
                         }
                         setRunDef({...runDef, ...update});
-                    }}
-                >
+                    }}>
                     <option disabled>Macs</option>
                     {machineOptions(macMachines)}
                     <option disabled>Experimental</option>
@@ -212,8 +211,7 @@ export function Custom({
                             ...runDef,
                             ramSize: e.target.value as MachineDefRAMSize,
                         })
-                    }
-                >
+                    }>
                     {runDef.machine.ramSizes.map(ramSize => (
                         <option key={ramSize} value={ramSize}>
                             {ramSize}B
@@ -325,8 +323,7 @@ export function Custom({
                                     ...runDef,
                                     disks: [defaultDisk],
                                 });
-                            }}
-                        >
+                            }}>
                             Add
                         </Button>
                     </>
@@ -384,8 +381,7 @@ export function Custom({
                                     ...runDef,
                                     cdromURLs: [""],
                                 });
-                            }}
-                        >
+                            }}>
                             Add
                         </Button>
                     </>
@@ -570,8 +566,7 @@ function DiskOption({
                     } else {
                         onChange(ALL_DISKS_BY_NAME[e.target.value]);
                     }
-                }}
-            >
+                }}>
                 {macDisks.map(diskOption)}
                 <option disabled>Mac OS X</option>
                 {macOSXDisks.map(diskOption)}
@@ -588,8 +583,7 @@ function DiskOption({
                 onClick={e => {
                     e.preventDefault();
                     onRemove();
-                }}
-            >
+                }}>
                 –
             </Button>
             <Button
@@ -598,8 +592,7 @@ function DiskOption({
                 onClick={e => {
                     e.preventDefault();
                     onAdd();
-                }}
-            >
+                }}>
                 +
             </Button>
         </div>
@@ -631,8 +624,7 @@ function DiskFileOption({
                 onClick={e => {
                     e.preventDefault();
                     onRemove();
-                }}
-            >
+                }}>
                 –
             </Button>
             <Button
@@ -641,8 +633,7 @@ function DiskFileOption({
                 onClick={e => {
                     e.preventDefault();
                     onAdd();
-                }}
-            >
+                }}>
                 +
             </Button>
         </div>
@@ -676,8 +667,7 @@ function CDROMOption({
                 appearance={appearance}
                 className="Custom-Dialog-CDROMs"
                 value=""
-                onChange={e => onChange(e.target.value)}
-            >
+                onChange={e => onChange(e.target.value)}>
                 <option value="" disabled>
                     System CD-ROMs
                 </option>
@@ -698,8 +688,7 @@ function CDROMOption({
                 onClick={e => {
                     e.preventDefault();
                     onRemove();
-                }}
-            >
+                }}>
                 –
             </Button>
             <Button
@@ -708,8 +697,7 @@ function CDROMOption({
                 onClick={e => {
                     e.preventDefault();
                     onAdd();
-                }}
-            >
+                }}>
                 +
             </Button>
         </div>
@@ -744,8 +732,7 @@ function ScreenSizePicker({
                     } else {
                         onChange(option as ScreenSize);
                     }
-                }}
-            >
+                }}>
                 {Object.entries({
                     "auto": "Automatic",
                     "window": "Window",
