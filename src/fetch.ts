@@ -1,6 +1,6 @@
 export async function fetchWithProgress(
     url: string,
-    onProgress: (loadedBytes: number) => void
+    onProgress: (loadedBytes: number, totalBytes: number) => void
 ): Promise<Blob> {
     const response = await fetch(url);
     if (!response.ok) {
@@ -13,7 +13,12 @@ export async function fetchWithProgress(
         throw new Error("Could not fetch URL, no response body");
     }
 
-    onProgress(0);
+    const contentLength = parseInt(
+        response.headers.get("Content-Length") ?? ""
+    );
+    const totalBytes = isNaN(contentLength) ? 0 : contentLength;
+
+    onProgress(0, totalBytes);
 
     const reader = response.body.getReader();
     let loaded = 0;
@@ -25,7 +30,7 @@ export async function fetchWithProgress(
                     break;
                 }
                 loaded += value.length;
-                onProgress(loaded);
+                onProgress(loaded, totalBytes);
                 controller.enqueue(value);
             }
             controller.close();
@@ -33,6 +38,6 @@ export async function fetchWithProgress(
     });
 
     const blob = await new Response(stream).blob();
-    onProgress(blob.size);
+    onProgress(blob.size, blob.size);
     return blob;
 }
