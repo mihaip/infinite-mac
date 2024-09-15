@@ -123,18 +123,20 @@ function MacCDROMsContents({
                     Load CD-ROM images into the emulated Mac to access software
                     that is too large to pre-install on Infinite HD.
                 </div>
-                <Button
-                    appearance={appearance}
-                    onClick={() => setCustomCDROMVisible(true)}>
-                    Load from URL…
-                </Button>
-                <Input
-                    appearance={appearance}
-                    type="search"
-                    placeholder="Filter…"
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                />
+                <div className="Mac-CDROMs-Controls">
+                    <Button
+                        appearance={appearance}
+                        onClick={() => setCustomCDROMVisible(true)}>
+                        Load from URL…
+                    </Button>
+                    <Input
+                        appearance={appearance}
+                        type="search"
+                        placeholder="Filter…"
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                    />
+                </div>
             </DrawerHeader>
             <DrawerList>
                 {Object.entries(sortedCdromsByCategory).map(

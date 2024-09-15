@@ -5,6 +5,7 @@ import {
     DrawerHeader,
     DrawerList,
     DrawerListCategory,
+    DrawerLoading,
 } from "./controls/Drawer";
 import {
     APPS_INDEX,
@@ -21,10 +22,9 @@ import {
     type LibraryIndexItem,
 } from "./library";
 import "./MacLibraryContents.css";
-import {Input} from "./controls/Input";
 import {memo, type ReactNode, useCallback, useMemo, useState} from "react";
-import {useDebouncedCallback} from "use-debounce";
 import {Button} from "./controls/Button";
+import {MacLibraryHeader} from "./MacLibrary";
 
 export default function MacLibraryContents({
     onRun,
@@ -70,8 +70,6 @@ function MacLibraryBrowser({
     onSelectItem: OnSelectItemFn;
     appearance: Appearance;
 }) {
-    const setSearchDebounced = useDebouncedCallback(setSearch, 200);
-
     const [games, apps] = useMemo(() => {
         if (!search) {
             return [GAMES_INDEX, APPS_INDEX];
@@ -85,23 +83,11 @@ function MacLibraryBrowser({
 
     return (
         <>
-            <DrawerHeader>
-                <div>
-                    <a href="https://macintoshgarden.org/">
-                        The Macintosh Garden
-                    </a>
-                    's mission is to preserve software for the Macintosh
-                    platform. You can browse its library and directly load files
-                    into the “Downloads” folder of “The Outside World”.
-                </div>
-                <Input
-                    appearance={appearance}
-                    type="search"
-                    placeholder="Filter…"
-                    defaultValue={search}
-                    onChange={e => setSearchDebounced(e.target.value)}
-                />
-            </DrawerHeader>
+            <MacLibraryHeader
+                search={search}
+                setSearch={setSearch}
+                appearance={appearance}
+            />
             <DrawerList>
                 <DrawerListCategory title="Games">
                     <MacLibraryTable
@@ -295,11 +281,7 @@ function MacLibraryItemDetails({
             </div>
         );
     } else {
-        contents = (
-            <div className="Mac-Library-Item-Details Mac-Library-Item-Details-Loading">
-                Loading…
-            </div>
-        );
+        contents = <DrawerLoading />;
     }
 
     return (
