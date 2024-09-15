@@ -91,3 +91,7 @@ export function DrawerListCategory({
         </div>
     );
 }
+
+export function DrawerLoading() {
+    return <div className="Drawer-Loading">Loading…</div>;
+}

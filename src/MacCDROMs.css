@@ -2,6 +2,11 @@
     flex-grow: 1;
 }
 
+.Mac-CDROMs-Controls {
+    display: flex;
+    gap: 8px;
+}
+
 .Mac-CDROMs-Header input[type="search"]:placeholder-shown {
     width: 60px;
 }
@@ -44,4 +49,10 @@
 .Mac-CDROM-Cover-Round {
     border-radius: 50%;
     overflow: hidden;
+}
+
+@media (max-width: 640px) {
+    .Mac-CDROMs-Controls {
+        flex-direction: column;
+    }
 }
