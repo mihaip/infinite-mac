@@ -29,6 +29,10 @@ public/Disk
 src/Data/CD-ROMs.json
 public/Covers
 
+# generated library catalog (index and details)
+src/Data/Library-index.json
+workers-site/Library-details.json
+
 # Cloudflare Worker wrangler CLI state
 .wrangler
 

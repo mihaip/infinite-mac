@@ -11,7 +11,8 @@
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "ringbuf.js": "^0.3.3",
-        "typescript": "^5.4.5"
+        "typescript": "^5.4.5",
+        "use-debounce": "^10.0.3"
     },
     "devDependencies": {
         "@types/audioworklet": "^0.0.46",
@@ -40,6 +41,7 @@
         "import-emulator": "scripts/import-emulator.sh",
         "import-disks": "scripts/import-disks.py",
         "import-cd-roms": "scripts/import-cd-roms.py",
+        "import-library": "scripts/import-library.py",
         "load-placeholder-stickies-file": "scripts/load-placeholder-stickies-file.py",
         "build-xadmaster": "scripts/build-xadmaster.sh",
         "start": "vite",

@@ -1,11 +1,6 @@
+import React, {Suspense} from "react";
 import {type Appearance} from "./controls/Appearance";
-import {
-    Drawer,
-    DrawerContents,
-    DrawerHeader,
-    DrawerList,
-    DrawerListCategory,
-} from "./controls/Drawer";
+import {Drawer, DrawerContents, DrawerHeader} from "./controls/Drawer";
 import {fetchWithProgress} from "./fetch";
 import macintoshGardenIcon from "./Images/Macintosh-Garden.png";
 
@@ -24,57 +19,42 @@ export function MacLibrary({
             titleIconUrl={macintoshGardenIcon}
             appearance={appearance}
             contents={collapse => (
-                <MacLibraryContents
-                    onRun={async (url, size) => {
-                        collapse();
-                        const name =
-                            new URL(url).pathname.split("/").at(-1) ??
-                            "Untitled";
-                        const blob = await fetchWithProgress(
-                            `/Library/proxy?url=${encodeURIComponent(url)}`,
-                            loaded => onLoadProgress(name, loaded / size)
-                        );
-                        onRun(new File([blob], name));
-                    }}
-                    appearance={appearance}
-                />
+                <Suspense fallback={<MacLibraryContentsFallback />}>
+                    <MacLibraryContents
+                        onRun={async (
+                            url,
+                            name = "Untitled",
+                            fileName,
+                            size
+                        ) => {
+                            const progressName = fileName
+                                ? `${name} (${fileName}}`
+                                : name;
+                            collapse();
+                            const blob = await fetchWithProgress(
+                                url,
+                                (loadedBytes, totalBytes) =>
+                                    onLoadProgress(
+                                        progressName,
+                                        loadedBytes / (size ?? totalBytes)
+                                    )
+                            );
+                            onRun(new File([blob], fileName ?? "Untitled"));
+                        }}
+                        appearance={appearance}
+                    />
+                </Suspense>
             )}
         />
     );
 }
 
-function MacLibraryContents({
-    onRun,
-    appearance,
-}: {
-    onRun: (url: string, size: number) => void;
-    appearance: Appearance;
-}) {
+const MacLibraryContents = React.lazy(() => import("./MacLibraryContents"));
+
+function MacLibraryContentsFallback() {
     return (
         <DrawerContents>
-            <DrawerHeader>
-                <div>
-                    <a href="https://macintoshgarden.org/">
-                        The Macintosh Garden
-                    </a>
-                    's mission is to preserve software for the Macintosh
-                    platform. You can browse its library and directly load files
-                    into the “Downloads” folder of “The Outside World”.
-                </div>
-            </DrawerHeader>
-            <DrawerList>
-                <DrawerListCategory title="Games > Action">
-                    <button
-                        onClick={() =>
-                            onRun(
-                                "https://macintoshgarden.org/sites/macintoshgarden.org/files/games/Power_Pete.sit",
-                                7_164_745
-                            )
-                        }>
-                        Power Pete
-                    </button>
-                </DrawerListCategory>
-            </DrawerList>
+            <DrawerHeader>Loading…</DrawerHeader>
         </DrawerContents>
     );
 }

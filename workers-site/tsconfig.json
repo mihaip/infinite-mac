@@ -4,6 +4,7 @@
         "module": "CommonJS",
         "lib": ["ES2020"],
         "types": ["@cloudflare/workers-types"],
-        "strict": true
+        "strict": true,
+        "resolveJsonModule": true
     }
 }
