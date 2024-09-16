@@ -15,8 +15,6 @@ import {
     downloadUrl,
     GAMES_INDEX,
     PERSPECTIVE_INDEX,
-    screenshotThumbnailUrl,
-    screenshotUrl,
     SYSTEM_INDEX,
     useLibraryItemDetails,
     type LibraryIndexItem,
@@ -25,6 +23,7 @@ import "./MacLibraryContents.css";
 import {memo, type ReactNode, useCallback, useMemo, useState} from "react";
 import {Button} from "./controls/Button";
 import {MacLibraryHeader} from "./MacLibrary";
+import {MacLibraryScreenshots} from "./MacLibraryScreenshots";
 
 export default function MacLibraryContents({
     onRun,
@@ -228,16 +227,13 @@ function MacLibraryItemDetails({
         contents = (
             <div className="Mac-Library-Item-Details">
                 <div className="Mac-Library-Item-Details-Columns">
-                    <div className="Mac-Library-Item-Details-Screenshots">
-                        {details.screenshots.map(s => (
-                            <a href={screenshotUrl(s)} target="_blank" key={s}>
-                                <img
-                                    src={screenshotThumbnailUrl(s)}
-                                    alt="Screenshot"
-                                />
-                            </a>
-                        ))}
-                    </div>
+                    {details.screenshots.length > 0 && (
+                        <MacLibraryScreenshots
+                            item={item}
+                            details={details}
+                            appearance={appearance}
+                        />
+                    )}
                     <table className="Mac-Library-Item-Details-Table">
                         <tbody>{detailRows}</tbody>
                     </table>
