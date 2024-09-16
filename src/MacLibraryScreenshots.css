@@ -1,0 +1,61 @@
+.Mac-Library-Screenshots {
+    flex-shrink: 0;
+    position: relative;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.Mac-Library-Screenshots .carousel {
+    width: 320px;
+    scroll-snap-type: x mandatory;
+    overflow-x: scroll;
+    display: flex;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.Mac-Library-Screenshots .carousel::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+}
+
+.Mac-Library-Screenshots img {
+    width: 320px;
+    scroll-snap-align: center;
+}
+
+.Mac-Library-Screenshots .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.Mac-Library-Screenshots .dot-indicators {
+    display: flex;
+    gap: 8px;
+}
+
+.Mac-Library-Screenshots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: solid 1px #000;
+    padding: 0;
+    position: relative;
+}
+
+/* Increase clickable area of dots */
+.Mac-Library-Screenshots .dot:before {
+    content: "";
+    display: block;
+    position: relative;
+    width: 18px;
+    height: 24px;
+    left: -4px;
+    top: -8px;
+}
+
+.Mac-Library-Screenshots .dot.active {
+    background: #000;
+}
