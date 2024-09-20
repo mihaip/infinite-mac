@@ -88,20 +88,27 @@ function MacLibraryBrowser({
                 appearance={appearance}
             />
             <DrawerList>
-                <DrawerListCategory title="Games">
-                    <MacLibraryTable
-                        items={games}
-                        onSelectItem={onSelectItem}
-                        appearance={appearance}
-                    />
-                </DrawerListCategory>
-                <DrawerListCategory title="Applications">
-                    <MacLibraryTable
-                        items={apps}
-                        onSelectItem={onSelectItem}
-                        appearance={appearance}
-                    />
-                </DrawerListCategory>
+                {games.length > 0 && (
+                    <DrawerListCategory title="Games">
+                        <MacLibraryTable
+                            items={games}
+                            onSelectItem={onSelectItem}
+                            appearance={appearance}
+                        />
+                    </DrawerListCategory>
+                )}
+                {apps.length > 0 && (
+                    <DrawerListCategory title="Applications">
+                        <MacLibraryTable
+                            items={apps}
+                            onSelectItem={onSelectItem}
+                            appearance={appearance}
+                        />
+                    </DrawerListCategory>
+                )}
+                {apps.length === 0 && games.length === 0 && (
+                    <div className="Drawer-Loading">No items match!</div>
+                )}
             </DrawerList>
         </>
     );
