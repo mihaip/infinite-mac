@@ -28,11 +28,13 @@ export function DrawersContainer({children}: PropsWithChildren) {
 export function Drawer({
     title,
     titleIconUrl,
+    titleIconSmoothScale,
     appearance,
     contents,
 }: {
     title: string;
     titleIconUrl: string;
+    titleIconSmoothScale?: boolean;
     appearance: Appearance;
     contents: (collapse: () => void) => ReactNode;
 }) {
@@ -56,7 +58,9 @@ export function Drawer({
     return (
         <div className={className} hidden={anyDrawerExpanded && !expanded}>
             <div
-                className="Drawer-Title"
+                className={classNames("Drawer-Title", {
+                    "Drawer-Title-Smooth-Scale": titleIconSmoothScale,
+                })}
                 onClick={toggleExpanded}
                 style={{
                     backgroundImage: `url(${titleIconUrl})`,
@@ -68,8 +72,19 @@ export function Drawer({
     );
 }
 
-export function DrawerContents({children}: PropsWithChildren) {
-    return <div className="Drawer-Contents">{children}</div>;
+export function DrawerContents({
+    children,
+    appearance,
+}: PropsWithChildren<{appearance: Appearance}>) {
+    return (
+        <div
+            className={classNames(
+                "Drawer-Contents",
+                `Drawer-Contents-${appearance}`
+            )}>
+            {children}
+        </div>
+    );
 }
 
 export function DrawerHeader({children}: PropsWithChildren) {

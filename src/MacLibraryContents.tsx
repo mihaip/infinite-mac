@@ -4,7 +4,6 @@ import {
     DrawerContents,
     DrawerHeader,
     DrawerList,
-    DrawerListCategory,
     DrawerLoading,
 } from "./controls/Drawer";
 import {
@@ -14,6 +13,7 @@ import {
     createSearchPredicate,
     downloadUrl,
     GAMES_INDEX,
+    type LibraryDetailsItem,
     PERSPECTIVE_INDEX,
     SYSTEM_INDEX,
     useLibraryItemDetails,
@@ -24,6 +24,7 @@ import {memo, type ReactNode, useCallback, useMemo, useState} from "react";
 import {Button} from "./controls/Button";
 import {MacLibraryHeader} from "./MacLibrary";
 import {MacLibraryScreenshots} from "./MacLibraryScreenshots";
+import {BevelButton} from "./controls/BevelButton";
 
 export default function MacLibraryContents({
     onRun,
@@ -38,7 +39,7 @@ export default function MacLibraryContents({
     >();
 
     return (
-        <DrawerContents>
+        <DrawerContents appearance={appearance}>
             {detailsItem ? (
                 <MacLibraryItemDetails
                     item={detailsItem}
@@ -89,22 +90,20 @@ function MacLibraryBrowser({
             />
             <DrawerList>
                 {games.length > 0 && (
-                    <DrawerListCategory title="Games">
-                        <MacLibraryTable
-                            items={games}
-                            onSelectItem={onSelectItem}
-                            appearance={appearance}
-                        />
-                    </DrawerListCategory>
+                    <MacLibraryTable
+                        title="Game"
+                        items={games}
+                        onSelectItem={onSelectItem}
+                        appearance={appearance}
+                    />
                 )}
                 {apps.length > 0 && (
-                    <DrawerListCategory title="Applications">
-                        <MacLibraryTable
-                            items={apps}
-                            onSelectItem={onSelectItem}
-                            appearance={appearance}
-                        />
-                    </DrawerListCategory>
+                    <MacLibraryTable
+                        title="Application"
+                        items={apps}
+                        onSelectItem={onSelectItem}
+                        appearance={appearance}
+                    />
                 )}
                 {apps.length === 0 && games.length === 0 && (
                     <div className="Drawer-Loading">No items match!</div>
@@ -182,8 +181,8 @@ function MacLibraryItemDetails({
             addDetailRow("Year", item.year);
         }
         addDetailRow(
-            "Category",
-            item.categories.map(c => CATEGORIES_INDEX[c]).join(" ")
+            item.categories.length > 1 ? "Categories" : "Category",
+            item.categories.map(c => CATEGORIES_INDEX[c]).join(", ")
         );
         if (item.perspectives.length) {
             addDetailRow(
@@ -232,7 +231,11 @@ function MacLibraryItemDetails({
         );
 
         contents = (
-            <div className="Mac-Library-Item-Details">
+            <div
+                className={classNames(
+                    "Mac-Library-Item-Details",
+                    `Mac-Library-Item-Details-${appearance}`
+                )}>
                 <div className="Mac-Library-Item-Details-Columns">
                     {details.screenshots.length > 0 && (
                         <MacLibraryScreenshots
@@ -244,36 +247,11 @@ function MacLibraryItemDetails({
                     <table className="Mac-Library-Item-Details-Table">
                         <tbody>{detailRows}</tbody>
                     </table>
-                    <fieldset className="Mac-Library-Item-Details-Downloads">
-                        <legend>Downloads</legend>
-                        <ol>
-                            {Object.entries(details.files).map(
-                                ([file, size]) => {
-                                    const url = downloadUrl(file, item.type);
-                                    return (
-                                        <li key={file}>
-                                            <a
-                                                href={url}
-                                                onClick={e => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    onRun(
-                                                        url,
-                                                        item.title,
-                                                        file,
-                                                        size
-                                                    );
-                                                }}
-                                                target="_blank">
-                                                {file}
-                                            </a>
-                                            ({formatSize(size)})
-                                        </li>
-                                    );
-                                }
-                            )}
-                        </ol>
-                    </fieldset>
+                    <MacLibraryItemDownloads
+                        item={item}
+                        details={details}
+                        onRun={onRun}
+                    />
                 </div>
                 {details.description && (
                     <div
@@ -306,6 +284,42 @@ function MacLibraryItemDetails({
     );
 }
 
+function MacLibraryItemDownloads({
+    item,
+    details,
+    onRun,
+}: {
+    item: LibraryIndexItem;
+    details: LibraryDetailsItem;
+    onRun: OnRunFn;
+}) {
+    return (
+        <fieldset className="Mac-Library-Item-Details-Downloads">
+            <legend>Downloads</legend>
+            <ol>
+                {Object.entries(details.files).map(([file, size]) => {
+                    const url = downloadUrl(file, item.type);
+                    return (
+                        <li key={file}>
+                            <a
+                                href={url}
+                                onClick={e => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onRun(url, item.title, file, size);
+                                }}
+                                target="_blank">
+                                {file}
+                            </a>{" "}
+                            <span className="size">({formatSize(size)})</span>
+                        </li>
+                    );
+                })}
+            </ol>
+        </fieldset>
+    );
+}
+
 type OnRunFn = (
     url: string,
     name?: string,
@@ -315,10 +329,12 @@ type OnRunFn = (
 type OnSelectItemFn = (item: LibraryIndexItem) => void;
 
 const MacLibraryTable = memo(function ({
+    title,
     items,
     onSelectItem,
     appearance,
 }: {
+    title: string;
     items: LibraryIndexItem[];
     onSelectItem: OnSelectItemFn;
     appearance: Appearance;
@@ -328,6 +344,38 @@ const MacLibraryTable = memo(function ({
         truncationCount = items.length - 1000;
         items = items.slice(0, 1000);
     }
+
+    const header = (
+        label: string,
+        {
+            selected,
+            narrow,
+            wide,
+        }: {selected?: boolean; narrow?: boolean; wide?: boolean} = {}
+    ) => {
+        const content =
+            appearance === "Platinum" ? (
+                <BevelButton
+                    appearance={appearance}
+                    selected={selected}
+                    centered={false}>
+                    {label}
+                </BevelButton>
+            ) : (
+                label
+            );
+        return (
+            <th
+                className={classNames({
+                    "selected": selected,
+                    "narrow": narrow,
+                    "wide": wide,
+                })}>
+                {content}
+            </th>
+        );
+    };
+
     return (
         <table
             className={classNames(
@@ -336,10 +384,10 @@ const MacLibraryTable = memo(function ({
             )}>
             <thead>
                 <tr>
-                    <th>Title</th>
-                    <th className="narrow">Year</th>
-                    <th>Category</th>
-                    <th>Author</th>
+                    {header(title, {selected: true, wide: true})}
+                    {header("Year", {narrow: true})}
+                    {header("Category")}
+                    {header("Author")}
                 </tr>
             </thead>
             <tbody>
@@ -373,9 +421,9 @@ const MacLibraryTableRow = memo(function ({
 }) {
     return (
         <tr onClick={() => onSelectItem(item)}>
-            <td>{item.title}</td>
+            <td className="selected">{item.title}</td>
             <td>{item.year ?? "-"}</td>
-            <td>{item.categories.map(c => CATEGORIES_INDEX[c])}</td>
+            <td>{item.categories.map(c => CATEGORIES_INDEX[c]).join(", ")}</td>
             <td>{item.authors.join(" ")}</td>
         </tr>
     );
