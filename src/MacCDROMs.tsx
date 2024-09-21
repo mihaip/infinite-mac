@@ -110,7 +110,7 @@ function MacCDROMsContents({
     const [customCDROMVisible, setCustomCDROMVisible] = useState(false);
 
     return (
-        <DrawerContents>
+        <DrawerContents appearance={appearance}>
             {customCDROMVisible && (
                 <MacCustomCDROM
                     onRun={onRun}

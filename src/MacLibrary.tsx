@@ -10,6 +10,7 @@ import {fetchWithProgress} from "./fetch";
 import macintoshGardenIcon from "./Images/Macintosh-Garden.png";
 import {Input} from "./controls/Input";
 import {useDebouncedCallback} from "use-debounce";
+import classNames from "classnames";
 
 export function MacLibrary({
     onRun,
@@ -24,6 +25,7 @@ export function MacLibrary({
         <Drawer
             title="Macintosh Garden"
             titleIconUrl={macintoshGardenIcon}
+            titleIconSmoothScale
             appearance={appearance}
             contents={collapse => (
                 <Suspense
@@ -74,22 +76,30 @@ export function MacLibraryHeader({
     );
 
     return (
-        <DrawerHeader>
-            <div>
-                <a href="https://macintoshgarden.org/">The Macintosh Garden</a>
-                's mission is to preserve software for the Macintosh platform.
-                You can browse its library and directly load files into the
-                “Downloads” folder of “The Outside World”.
-            </div>
-            <Input
-                appearance={appearance}
-                type="search"
-                placeholder="Filter…"
-                defaultValue={search}
-                disabled={setSearch === undefined}
-                onChange={e => setSearchDebounced(e.target.value)}
-            />
-        </DrawerHeader>
+        <div
+            className={classNames(
+                "Mac-Library-Header",
+                `Mac-Library-Header-${appearance}`
+            )}>
+            <DrawerHeader>
+                <div>
+                    <a href="https://macintoshgarden.org/">
+                        The Macintosh Garden
+                    </a>
+                    's mission is to preserve software for the Macintosh
+                    platform. You can browse its library and directly load files
+                    into the “Downloads” folder of “The Outside World”.
+                </div>
+                <Input
+                    appearance={appearance}
+                    type="search"
+                    placeholder="Filter…"
+                    defaultValue={search}
+                    disabled={setSearch === undefined}
+                    onChange={e => setSearchDebounced(e.target.value)}
+                />
+            </DrawerHeader>
+        </div>
     );
 }
 
@@ -97,7 +107,7 @@ const MacLibraryContents = React.lazy(() => import("./MacLibraryContents"));
 
 function MacLibraryContentsFallback({appearance}: {appearance: Appearance}) {
     return (
-        <DrawerContents>
+        <DrawerContents appearance={appearance}>
             <MacLibraryHeader appearance={appearance} />
             <DrawerLoading />
         </DrawerContents>

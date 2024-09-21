@@ -1,3 +1,8 @@
+.Mac-Library-Header-Platinum {
+    /* Tuck the bottom border under the list header */
+    margin-bottom: -1px;
+}
+
 .Mac-Library-Table {
     table-layout: fixed;
     border-spacing: 0;
@@ -30,10 +35,17 @@
 
 .Mac-Library-Table th {
     text-align: left;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    font-weight: normal;
 }
 
 .Mac-Library-Table th.narrow {
     width: 64px;
+}
+
+.Mac-Library-Table th.wide {
+    width: 50%;
 }
 
 .Mac-Library-Table-Classic thead {
@@ -49,6 +61,39 @@
     border-bottom: double 3px #000;
 }
 
+.Mac-Library-Table-Classic th.selected {
+    text-decoration: underline;
+}
+
+.Mac-Library-Table-Platinum th {
+    padding: 0 !important;
+}
+
+.Mac-Library-Table-Platinum th .BevelButton {
+    width: 100%;
+}
+
+.Mac-Library-Table-Platinum tbody tr {
+    background: #eee;
+}
+
+.Mac-Library-Table-Platinum tbody td {
+    border-bottom: solid 1px #fff;
+}
+
+.Mac-Library-Table-Platinum tbody td.selected {
+    background: #ddd;
+}
+
+.Mac-Library-Table-Platinum tbody tr:hover {
+    background: #ddd;
+    cursor: default;
+}
+
+.Mac-Library-Table-Platinum tbody tr:hover td.selected {
+    background: #ccc;
+}
+
 .Mac-Library-Table-Footer {
     text-align: center;
     opacity: 0.5;
@@ -61,6 +106,21 @@
 .Mac-Library-Item-Details {
     padding: 8px;
     overflow: auto;
+}
+
+.Mac-Library-Item-Details fieldset {
+    padding: 8px;
+}
+
+.Mac-Library-Item-Details-Classic fieldset {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #7f7f7f;
+}
+
+.Mac-Library-Item-Details-Classic legend {
+    font-family: Geneva, Helvetica, sans-serif;
+    font-size: 13px;
 }
 
 .Mac-Library-Item-Details-Columns {
@@ -88,7 +148,14 @@
 }
 
 .Mac-Library-Item-Details-Downloads {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    float: right;
+}
+
+.Mac-Library-Item-Details-Downloads ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.Mac-Library-Item-Details-Downloads .size {
+    color: #999;
 }

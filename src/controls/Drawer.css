@@ -23,8 +23,8 @@
 
 .Drawer-Title {
     padding: 4px 4px 4px 28px;
-    cursor: pointer;
     background-position: 4px 50%;
+    background-size: 20px 20px;
     background-repeat: no-repeat;
     image-rendering: pixelated;
     border-radius: 4px 4px 0 0;
@@ -33,6 +33,11 @@
     position: relative;
     top: 1px; /* to cover up the border of the list */
     pointer-events: auto;
+    user-select: none;
+}
+
+.Drawer-Title-Smooth-Scale {
+    image-rendering: auto;
 }
 
 .Drawer-Classic .Drawer-Title {
@@ -48,7 +53,31 @@
 }
 
 .Drawer-Platinum .Drawer-Title:active {
-    background-color: #dadada;
+    background-color: #ccc;
+}
+
+.Drawer-Platinum.Drawer-Expanded .Drawer-Title {
+    background-color: #ccc;
+}
+
+.Drawer-Platinum.Drawer-Expanded .Drawer-Title:active {
+    background-color: #bbb;
+}
+
+.Drawer-Platinum.Drawer-Expanded .Drawer-Title:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: solid 1px red;
+    pointer-events: none;
+    border-radius: 4px 4px 0 0;
+    border-top-color: #fff;
+    border-left-color: #fff;
+    border-bottom-color: #999;
+    border-right-color: #999;
 }
 
 .Drawer-NeXT .Drawer-Title {
@@ -78,9 +107,18 @@
     height: 50vh;
     width: 80vw;
     pointer-events: auto;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
+}
+
+.Drawer-Contents-Platinum {
+    background: transparent;
+    border-radius: 0;
+    border-image: url(../Images/PlatinumDrawerFrame.png);
+    border-image-width: 6px 5px 0 4px;
+    border-image-slice: 6 5 0 4 fill;
+    border-width: 6px 5px 0 4px;
+    image-rendering: pixelated;
 }
 
 .Drawer-NeXT .Drawer-Contents {
@@ -104,8 +142,24 @@
 }
 
 .Drawer-Platinum .Drawer-Header {
-    background: #ddd;
-    border-bottom: solid 1px #a5a5a5;
+    background: #e7e7e7;
+    border-bottom: solid 1px #000;
+    position: relative;
+}
+
+.Drawer-Platinum .Drawer-Header:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    border: solid 1px;
+    border-top-color: #fff;
+    border-left-color: #fff;
+    border-right-color: #c0c0c0;
+    border-bottom-color: #c0c0c0;
+    pointer-events: none;
 }
 
 .Drawer-NeXT .Drawer-Header {
@@ -136,6 +190,8 @@
 }
 
 .Drawer-List-Category h3 {
+    position: sticky;
+    top: 0;
     margin: 8px 0;
     background: linear-gradient(to right, #ddd, #fff);
     padding: 1px 8px;
