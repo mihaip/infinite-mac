@@ -1,0 +1,19 @@
+.Group {
+    padding: 8px;
+}
+
+.Group.Group-Classic {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #7f7f7f;
+}
+
+.Group.Group-Platinum {
+    border-style: groove;
+    border-width: 2px;
+    border-color: #fff;
+}
+
+.Group legend {
+    font-size: 13px;
+}

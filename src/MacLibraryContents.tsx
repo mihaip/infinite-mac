@@ -25,6 +25,7 @@ import {Button} from "./controls/Button";
 import {MacLibraryHeader} from "./MacLibrary";
 import {MacLibraryScreenshots} from "./MacLibraryScreenshots";
 import {BevelButton} from "./controls/BevelButton";
+import {Group} from "./controls/Group";
 
 export default function MacLibraryContents({
     onRun,
@@ -39,7 +40,7 @@ export default function MacLibraryContents({
     >();
 
     return (
-        <DrawerContents appearance={appearance}>
+        <DrawerContents appearance={appearance} tall>
             {detailsItem ? (
                 <MacLibraryItemDetails
                     item={detailsItem}
@@ -236,29 +237,38 @@ function MacLibraryItemDetails({
                     "Mac-Library-Item-Details",
                     `Mac-Library-Item-Details-${appearance}`
                 )}>
-                <div className="Mac-Library-Item-Details-Columns">
+                <div className="Mac-Library-Item-Details-Column">
                     {details.screenshots.length > 0 && (
-                        <MacLibraryScreenshots
-                            item={item}
-                            details={details}
-                            appearance={appearance}
-                        />
+                        <Group appearance={appearance} label="Screenshots">
+                            <MacLibraryScreenshots
+                                item={item}
+                                details={details}
+                                appearance={appearance}
+                            />
+                        </Group>
                     )}
-                    <table className="Mac-Library-Item-Details-Table">
-                        <tbody>{detailRows}</tbody>
-                    </table>
                     <MacLibraryItemDownloads
+                        appearance={appearance}
                         item={item}
                         details={details}
                         onRun={onRun}
                     />
                 </div>
-                {details.description && (
-                    <div
-                        className="Mac-Library-Item-Details-Description"
-                        ref={setDescription}
-                    />
-                )}
+                <div className="Mac-Library-Item-Details-Column">
+                    <Group appearance={appearance} label="Info">
+                        <table className="Mac-Library-Item-Details-Table">
+                            <tbody>{detailRows}</tbody>
+                        </table>
+                    </Group>
+                    {details.description && (
+                        <Group appearance={appearance} label="Description">
+                            <div
+                                className="Mac-Library-Item-Details-Description"
+                                ref={setDescription}
+                            />
+                        </Group>
+                    )}
+                </div>
             </div>
         );
     } else {
@@ -285,17 +295,21 @@ function MacLibraryItemDetails({
 }
 
 function MacLibraryItemDownloads({
+    appearance,
     item,
     details,
     onRun,
 }: {
+    appearance: Appearance;
     item: LibraryIndexItem;
     details: LibraryDetailsItem;
     onRun: OnRunFn;
 }) {
     return (
-        <fieldset className="Mac-Library-Item-Details-Downloads">
-            <legend>Downloads</legend>
+        <Group
+            label="Downloads"
+            appearance={appearance}
+            className="Mac-Library-Item-Details-Downloads">
             <ol>
                 {Object.entries(details.files).map(([file, size]) => {
                     const url = downloadUrl(file, item.type);
@@ -316,7 +330,7 @@ function MacLibraryItemDownloads({
                     );
                 })}
             </ol>
-        </fieldset>
+        </Group>
     );
 }
 

@@ -98,7 +98,10 @@ export default function Mac({
         0, 0,
     ]);
     const [emulatorFileLoadingProgress, setEmulatorFileLoadingProgress] =
-        useState<{fraction: number; name: string}>({name: "", fraction: 1.0});
+        useState<{fraction: number; name: string; linger?: boolean}>({
+            name: "",
+            fraction: 1.0,
+        });
     const [emulatorLoadingDiskChunk, setEmulatorLoadingDiskChunk] =
         useState(false);
     const [emulatorErrorText, setEmulatorErrorText] =
@@ -402,17 +405,27 @@ export default function Mac({
     }
     if (
         emulatorFileLoadingProgress &&
-        emulatorFileLoadingProgress.fraction < 1.0
+        (emulatorFileLoadingProgress.fraction < 1.0 ||
+            emulatorFileLoadingProgress.linger)
     ) {
         progress = (
             <div
                 className={classNames("Mac-Loading", {
                     "Mac-Loading-Non-Modal": emulatorLoaded,
                 })}>
-                Loading {emulatorFileLoadingProgress.name}…
-                <span className="Mac-Loading-Fraction">
-                    {(emulatorFileLoadingProgress.fraction * 100).toFixed(0)}%
-                </span>
+                {emulatorFileLoadingProgress.fraction < 1.0 ? (
+                    <>
+                        Loading {emulatorFileLoadingProgress.name}…
+                        <span className="Mac-Loading-Fraction">
+                            {(
+                                emulatorFileLoadingProgress.fraction * 100
+                            ).toFixed(0)}
+                            %
+                        </span>
+                    </>
+                ) : (
+                    <>Loaded {emulatorFileLoadingProgress.name}</>
+                )}
             </div>
         );
     }
@@ -717,7 +730,20 @@ export default function Mac({
                                 onRun={file => {
                                     const emulator = emulatorRef.current;
                                     if (emulator) {
+                                        setEmulatorFileLoadingProgress({
+                                            name: file.name,
+                                            fraction: 1.0,
+                                            linger: true,
+                                        });
                                         uploadFiles(emulator, [file]);
+                                        setTimeout(
+                                            () =>
+                                                setEmulatorFileLoadingProgress({
+                                                    name: file.name,
+                                                    fraction: 1.0,
+                                                }),
+                                            1000
+                                        );
                                     }
                                 }}
                             />
