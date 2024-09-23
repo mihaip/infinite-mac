@@ -75,12 +75,16 @@ export function Drawer({
 export function DrawerContents({
     children,
     appearance,
-}: PropsWithChildren<{appearance: Appearance}>) {
+    tall,
+}: PropsWithChildren<{appearance: Appearance; tall?: boolean}>) {
     return (
         <div
             className={classNames(
                 "Drawer-Contents",
-                `Drawer-Contents-${appearance}`
+                `Drawer-Contents-${appearance}`,
+                {
+                    "Drawer-Contents-Tall": tall,
+                }
             )}>
             {children}
         </div>

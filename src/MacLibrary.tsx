@@ -107,7 +107,7 @@ const MacLibraryContents = React.lazy(() => import("./MacLibraryContents"));
 
 function MacLibraryContentsFallback({appearance}: {appearance: Appearance}) {
     return (
-        <DrawerContents appearance={appearance}>
+        <DrawerContents appearance={appearance} tall>
             <MacLibraryHeader appearance={appearance} />
             <DrawerLoading />
         </DrawerContents>

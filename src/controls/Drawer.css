@@ -111,6 +111,10 @@
     flex-direction: column;
 }
 
+.Drawer-Contents.Drawer-Contents-Tall {
+    height: 70vh;
+}
+
 .Drawer-Contents-Platinum {
     background: transparent;
     border-radius: 0;

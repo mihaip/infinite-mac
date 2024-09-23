@@ -2,6 +2,7 @@
     flex-shrink: 0;
     position: relative;
     width: 320px;
+    max-height: 320px;
     display: flex;
     flex-direction: column;
     gap: 8px;

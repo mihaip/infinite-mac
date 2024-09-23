@@ -106,27 +106,36 @@
 .Mac-Library-Item-Details {
     padding: 8px;
     overflow: auto;
-}
-
-.Mac-Library-Item-Details fieldset {
-    padding: 8px;
-}
-
-.Mac-Library-Item-Details-Classic fieldset {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #7f7f7f;
-}
-
-.Mac-Library-Item-Details-Classic legend {
-    font-family: Geneva, Helvetica, sans-serif;
-    font-size: 13px;
-}
-
-.Mac-Library-Item-Details-Columns {
     display: flex;
     align-items: start;
     gap: 8px;
+    min-height: 100%;
+}
+
+@media (max-width: 640px) {
+    .Mac-Library-Item-Details {
+        flex-direction: column;
+    }
+
+    .Mac-Library-Item-Details-Column {
+        width: 100%;
+        max-width: none !important;
+    }
+}
+
+.Mac-Library-Item-Details-Platinum {
+    background: #eee;
+}
+
+.Mac-Library-Item-Details-Column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.Mac-Library-Item-Details-Column:first-child {
+    max-width: 342px;
+    flex-shrink: 0;
 }
 
 .Mac-Library-Item-Details-Title {
@@ -134,8 +143,30 @@
     font-size: 18px;
 }
 
-.Mac-Library-Item-Details-Description div {
+.Mac-Library-Item-Details-Description div,
+.Mac-Library-Item-Details-Description blockquote {
     margin: 0;
+}
+
+.Mac-Library-Item-Details-Description blockquote {
+    border-left: solid 2px #999;
+    padding-left: 8px;
+}
+
+.Mac-Library-Item-Details-Description blockquote br:first-child {
+    display: none;
+}
+
+.Mac-Library-Item-Details-Description p:empty {
+    display: none;
+}
+
+.Mac-Library-Item-Details-Description p:first-child {
+    margin-top: 0;
+}
+
+.Mac-Library-Item-Details-Description p:last-child {
+    margin-bottom: 0;
 }
 
 .Mac-Library-Item-Details-Table th {
@@ -147,13 +178,18 @@
     vertical-align: top;
 }
 
-.Mac-Library-Item-Details-Downloads {
-    float: right;
-}
-
 .Mac-Library-Item-Details-Downloads ol {
     margin: 0;
     padding-left: 20px;
+}
+
+.Mac-Library-Item-Details-Downloads ol li {
+    margin-bottom: 4px;
+}
+
+.Mac-Library-Item-Details-Downloads ol li::marker {
+    content: "#" counter(list-item) " ";
+    color: #666;
 }
 
 .Mac-Library-Item-Details-Downloads .size {

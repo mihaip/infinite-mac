@@ -189,6 +189,7 @@ function extractItemIndex(item: LibraryIndexItem): string[] {
         ...item.authors,
         ...item.publishers,
         ...item.categories.map(c => CATEGORIES_INDEX[c]),
+        ...(item.year ? [item.year.toString()] : []),
     ].map(s => s.toLowerCase());
 }
 
