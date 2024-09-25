@@ -735,7 +735,12 @@ export default function Mac({
                                             fraction: 1.0,
                                             linger: true,
                                         });
-                                        uploadFiles(emulator, [file]);
+                                        uploadFiles(
+                                            emulator,
+                                            [file],
+                                            undefined,
+                                            true
+                                        );
                                         setTimeout(
                                             () =>
                                                 setEmulatorFileLoadingProgress({
@@ -823,7 +828,12 @@ function uploadDirectory(
     readDirectory(directoryEntry, [directoryEntry.name]);
 }
 
-function uploadFiles(emulator: Emulator, files: File[], names: string[] = []) {
+function uploadFiles(
+    emulator: Emulator,
+    files: File[],
+    names: string[] = [],
+    fromLibrary?: boolean
+) {
     let fileCount = 0;
     let diskImageCount = 0;
     for (const file of files) {
@@ -842,6 +852,7 @@ function uploadFiles(emulator: Emulator, files: File[], names: string[] = []) {
         "emulator_uploads:files": fileCount,
         "emulator_uploads:disks": diskImageCount,
         "emulator_uploads:resource_forks": resourceForkCount,
+        "emulator_uploads:library": fromLibrary ? files.length : 0,
     });
 }
 
