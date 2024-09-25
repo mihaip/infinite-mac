@@ -28,6 +28,7 @@ export function MacCDROMs({
     appearance: Appearance;
     platform?: MachinePlatform;
 }) {
+    const [search, setSearch] = useState("");
     return (
         <Drawer
             title="CD-ROMs"
@@ -35,6 +36,8 @@ export function MacCDROMs({
             appearance={appearance}
             contents={collapse => (
                 <MacCDROMsContents
+                    search={search}
+                    setSearch={setSearch}
                     onRun={cdrom => {
                         collapse();
                         onRun(cdrom);
@@ -48,15 +51,18 @@ export function MacCDROMs({
 }
 
 function MacCDROMsContents({
+    search,
+    setSearch,
     onRun,
     appearance,
     platform = "Macintosh",
 }: {
+    search: string;
+    setSearch: (search: string) => void;
     onRun: (cdrom: EmulatorCDROM) => void;
     appearance: Appearance;
     platform?: MachinePlatform;
 }) {
-    const [search, setSearch] = useState("");
     const cdroms = cdromLibrary;
     const folderPaths = Array.from(Object.keys(cdroms)).sort();
     const cdromsByCategory: {[category: string]: EmulatorCDROM[]} = {};

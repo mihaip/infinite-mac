@@ -18,9 +18,10 @@ import {
     SYSTEM_INDEX,
     useLibraryItemDetails,
     type LibraryIndexItem,
+    proxyUrl,
 } from "./library";
 import "./MacLibraryContents.css";
-import {memo, type ReactNode, useCallback, useMemo, useState} from "react";
+import {memo, type ReactNode, useCallback, useMemo} from "react";
 import {Button} from "./controls/Button";
 import {MacLibraryHeader} from "./MacLibrary";
 import {MacLibraryScreenshots} from "./MacLibraryScreenshots";
@@ -28,17 +29,20 @@ import {BevelButton} from "./controls/BevelButton";
 import {Group} from "./controls/Group";
 
 export default function MacLibraryContents({
+    search,
+    setSearch,
+    detailsItem,
+    setDetailsItem,
     onRun,
     appearance,
 }: {
+    search: string;
+    setSearch: (search: string) => void;
+    detailsItem: LibraryIndexItem | undefined;
+    setDetailsItem: (item: LibraryIndexItem | undefined) => void;
     onRun: OnRunFn;
     appearance: Appearance;
 }) {
-    const [search, setSearch] = useState("");
-    const [detailsItem, setDetailsItem] = useState<
-        LibraryIndexItem | undefined
-    >();
-
     return (
         <DrawerContents appearance={appearance} tall>
             {detailsItem ? (
@@ -313,6 +317,7 @@ function MacLibraryItemDownloads({
             <ol>
                 {Object.entries(details.files).map(([file, size]) => {
                     const url = downloadUrl(file, item.type);
+                    const runUrl = proxyUrl(url);
                     return (
                         <li key={file}>
                             <a
@@ -320,7 +325,7 @@ function MacLibraryItemDownloads({
                                 onClick={e => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    onRun(url, item.title, file, size);
+                                    onRun(runUrl, item.title, file, size);
                                 }}
                                 target="_blank">
                                 {file}
