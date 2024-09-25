@@ -77,7 +77,7 @@ addEventListener("message", async event => {
     }
 });
 
-addEventListener("unhandledrejection", event => {
+addEventListener("unhandledrejection", (event: PromiseRejectionEvent) => {
     const reasonString = event.reason.toString();
     if (reasonString.toLowerCase().includes("out of memory")) {
         postMessage({type: "emulator_did_run_out_memory"});
