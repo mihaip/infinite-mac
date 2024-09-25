@@ -240,7 +240,7 @@ async function fetchItemDetails(
 
 const itemDetailsCache = new Map<string, LibraryDetailsItem>();
 
-function proxyUrl(url: string): string {
+export function proxyUrl(url: string): string {
     return `/Library/proxy?url=${encodeURIComponent(url)}`;
 }
 
@@ -257,7 +257,5 @@ export function screenshotUrl(screenshot: string): string {
 }
 
 export function downloadUrl(file: string, type: ItemType): string {
-    return proxyUrl(
-        `https://macintoshgarden.org/sites/macintoshgarden.org/files/${type}/${file}`
-    );
+    return `https://macintoshgarden.org/sites/macintoshgarden.org/files/${type}/${file}`;
 }

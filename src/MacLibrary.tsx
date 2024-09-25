@@ -1,4 +1,4 @@
-import React, {Suspense} from "react";
+import React, {Suspense, useState} from "react";
 import {type Appearance} from "./controls/Appearance";
 import {
     Drawer,
@@ -11,6 +11,7 @@ import macintoshGardenIcon from "./Images/Macintosh-Garden.png";
 import {Input} from "./controls/Input";
 import {useDebouncedCallback} from "use-debounce";
 import classNames from "classnames";
+import {type LibraryIndexItem} from "./library";
 
 export function MacLibrary({
     onRun,
@@ -21,6 +22,11 @@ export function MacLibrary({
     onLoadProgress: (name: string, fraction: number) => void;
     appearance: Appearance;
 }) {
+    const [search, setSearch] = useState("");
+    const [detailsItem, setDetailsItem] = useState<
+        LibraryIndexItem | undefined
+    >();
+
     return (
         <Drawer
             title="Macintosh Garden"
@@ -33,6 +39,10 @@ export function MacLibrary({
                         <MacLibraryContentsFallback appearance={appearance} />
                     }>
                     <MacLibraryContents
+                        search={search}
+                        setSearch={setSearch}
+                        detailsItem={detailsItem}
+                        setDetailsItem={setDetailsItem}
                         onRun={async (
                             url,
                             name = "Untitled",
