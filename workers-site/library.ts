@@ -1,6 +1,6 @@
 import {isValidSrcUrl} from "./cd-rom";
 import libraryDetails from "./Library-details.json";
-import {type RequestInit as CloudflareWorkerRequestInit} from "@cloudflare/workers-types";
+import {type RequestInit as CloudflareWorkerRequestInit} from "@cloudflare/workers-types/2021-11-03";
 
 export async function handleRequest(request: Request) {
     if (request.method !== "GET") {

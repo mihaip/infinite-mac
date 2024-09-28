@@ -15,6 +15,7 @@
         "use-debounce": "^10.0.3"
     },
     "devDependencies": {
+        "@cloudflare/workers-types": "^4.20240925.0",
         "@types/audioworklet": "^0.0.46",
         "@types/dom-view-transitions": "^1.0.4",
         "@types/emscripten": "^1.39.7",
