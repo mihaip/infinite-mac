@@ -1,5 +1,4 @@
 import {isValidSrcUrl} from "./cd-rom";
-import libraryDetails from "./Library-details.json";
 import {type RequestInit as CloudflareWorkerRequestInit} from "@cloudflare/workers-types/2021-11-03";
 
 export async function handleRequest(request: Request) {
@@ -29,7 +28,8 @@ async function handleDetails(url: URL) {
     }
 
     if (!details) {
-        details = loadLibraryDetails();
+        // eslint-disable-next-line require-atomic-updates
+        details = await loadLibraryDetails();
     }
 
     return new Response(JSON.stringify(details[type][id]), {
@@ -43,13 +43,22 @@ let details: {[type: string]: {[id: string]: LibraryDetailsItem}};
 
 type LibraryDetailsItem = {[key: string]: any};
 
-function loadLibraryDetails() {
-    return Object.fromEntries(
+async function loadLibraryDetails() {
+    console.time("Load library details");
+    const {default: libraryDetailsExport} = (await import(
+        "./Library-details.json"
+    )) as {default: string | object};
+    const libraryDetails = typeof libraryDetailsExport === "object" ?
+        libraryDetailsExport :
+        JSON.parse(libraryDetailsExport);
+    const unpacked = Object.fromEntries(
         Object.entries(libraryDetails).map(([type, items]) => [
             type,
             unpackDetailsItems(items as any[]),
         ])
     );
+    console.timeEnd("Load library details");
+    return unpacked;
 }
 
 function unpackDetailsItems(detailsItems: any[]) {
