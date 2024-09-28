@@ -5,6 +5,8 @@
         "lib": ["ES2020"],
         "types": ["@cloudflare/workers-types"],
         "strict": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "incremental": true
     }
 }

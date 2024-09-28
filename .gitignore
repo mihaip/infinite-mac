@@ -15,8 +15,10 @@
 .env.development.local
 .env.test.local
 .env.production.local
-
 npm-debug.log*
+
+# TypeScript cached build info
+*.tsbuildinfo
 
 # generated source map with local paths
 public/*.wasm.map
