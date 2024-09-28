@@ -49,7 +49,7 @@
         "build": "vite build",
         "preview": "vite preview --host",
         "worker-dev": "wrangler dev --port=3128",
-        "worker-deploy": "wrangler deploy --env production",
+        "worker-deploy": "wrangler deploy --env production --minify",
         "sync-disks": "scripts/sync-disks.sh",
         "prettier": "prettier --write src workers-site",
         "lint": "eslint --fix src workers-site",
