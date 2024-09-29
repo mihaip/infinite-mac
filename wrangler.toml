@@ -47,3 +47,7 @@ rules = [
         "**/Library-details.json",
     ], fallthrough = true },
 ]
+
+[observability]
+enabled = true
+head_sampling_rate = 0.1
