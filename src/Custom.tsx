@@ -65,6 +65,7 @@ export function Custom({
                   includeInfiniteHD: true,
                   includeSavedHD: canSaveDisks(),
                   includeLibrary: false,
+                  libraryDownloadURLs: [],
                   isCustom: true,
                   diskFiles: [],
               }

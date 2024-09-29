@@ -26,6 +26,7 @@ export type RunDef = {
     includeInfiniteHD: boolean;
     includeSavedHD: boolean;
     includeLibrary: boolean;
+    libraryDownloadURLs: string[];
     ethernetProvider?: EmulatorEthernetProvider;
     // Force non-SharedArrayBuffer mode for debugging
     debugFallback?: boolean;
@@ -57,6 +58,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     let includeInfiniteHD;
     let includeSavedHD;
     const includeLibrary = searchParams.get("library") === "true"; // TODO: default to being on once launched
+    const libraryDownloadURLs = [...searchParams.getAll("library_url")];
     const disks: SystemDiskDef[] = [];
     const yearDiskDef = diskFromYearPath(url.pathname);
     if (yearDiskDef) {
@@ -148,6 +150,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         includeInfiniteHD,
         includeSavedHD,
         includeLibrary,
+        libraryDownloadURLs,
         machine,
         ramSize,
         screenSize,
@@ -193,6 +196,9 @@ export function runDefToUrl(runDef: RunDef): string {
     }
     if (runDef.includeLibrary) {
         url.searchParams.set("library", "true");
+    }
+    for (const libraryURL of runDef.libraryDownloadURLs) {
+        url.searchParams.append("library_url", libraryURL);
     }
     for (const cdromURL of runDef.cdromURLs) {
         url.searchParams.append("cdrom", cdromURL);

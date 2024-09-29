@@ -289,6 +289,7 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
             includeInfiniteHD: true,
             includeSavedHD: canSaveDisks(),
             includeLibrary: false,
+            libraryDownloadURLs: [],
             machine: disk.machines[0],
             cdromURLs: [],
             diskFiles: [],

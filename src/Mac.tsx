@@ -47,13 +47,14 @@ import {
 import {type ScreenSize} from "./run-def";
 import {viewTransitionNameForDisk} from "./view-transitions";
 import {DrawersContainer} from "./controls/Drawer";
-import {MacLibrary} from "./MacLibrary";
+import {handleLibraryURL, MacLibrary} from "./MacLibrary";
 
 export type MacProps = {
     disks: SystemDiskDef[];
     includeInfiniteHD: boolean;
     includeSavedHD: boolean;
     includeLibrary: boolean;
+    libraryDownloadURLs: string[];
     diskFiles: DiskFile[];
     cdroms: EmulatorCDROM[];
     initialErrorText?: string;
@@ -75,6 +76,7 @@ export default function Mac({
     includeInfiniteHD,
     includeSavedHD,
     includeLibrary,
+    libraryDownloadURLs,
     diskFiles,
     cdroms,
     initialErrorText,
@@ -138,6 +140,35 @@ export default function Mac({
 
     const hasSavedHD = includeSavedHD && canSaveDisks();
 
+    const handleMacLibraryProgress = useCallback(
+        (name: string, fraction: number) => {
+            setEmulatorFileLoadingProgress({
+                name,
+                fraction,
+            });
+        },
+        []
+    );
+    const handleMacLibraryRun = useCallback((file: File) => {
+        const emulator = emulatorRef.current;
+        if (emulator) {
+            setEmulatorFileLoadingProgress({
+                name: file.name,
+                fraction: 1.0,
+                linger: true,
+            });
+            uploadFiles(emulator, [file], undefined, true);
+            setTimeout(
+                () =>
+                    setEmulatorFileLoadingProgress({
+                        name: file.name,
+                        fraction: 1.0,
+                    }),
+                1000
+            );
+        }
+    }, []);
+
     useEffect(() => {
         const emulatorDisks: EmulatorDiskDef[] = [...disks];
         const delayedDisks: EmulatorDiskDef[] = [];
@@ -199,6 +230,15 @@ export default function Mac({
                 emulatorDidFinishLoading(emulator: Emulator) {
                     setEmulatorLoaded(true);
                     emulator.refreshSettings();
+                    if (emulatorSupportsDownloadsFolder(machine.emulatorType)) {
+                        libraryDownloadURLs.forEach(url =>
+                            handleLibraryURL(
+                                url,
+                                handleMacLibraryRun,
+                                handleMacLibraryProgress
+                            )
+                        );
+                    }
                 },
                 emulatorDidMakeLoadingProgress(
                     emulator: Emulator,
@@ -721,36 +761,8 @@ export default function Mac({
                         ) && (
                             <MacLibrary
                                 appearance={appearance}
-                                onLoadProgress={(name, fraction) => {
-                                    setEmulatorFileLoadingProgress({
-                                        name,
-                                        fraction,
-                                    });
-                                }}
-                                onRun={file => {
-                                    const emulator = emulatorRef.current;
-                                    if (emulator) {
-                                        setEmulatorFileLoadingProgress({
-                                            name: file.name,
-                                            fraction: 1.0,
-                                            linger: true,
-                                        });
-                                        uploadFiles(
-                                            emulator,
-                                            [file],
-                                            undefined,
-                                            true
-                                        );
-                                        setTimeout(
-                                            () =>
-                                                setEmulatorFileLoadingProgress({
-                                                    name: file.name,
-                                                    fraction: 1.0,
-                                                }),
-                                            1000
-                                        );
-                                    }
-                                }}
+                                onLoadProgress={handleMacLibraryProgress}
+                                onRun={handleMacLibraryRun}
                             />
                         )}
                 </DrawersContainer>
