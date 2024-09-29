@@ -143,7 +143,7 @@ function unpackIndexItems(
     indexItems: any[],
     type: LibraryItemType
 ): LibraryIndexItem[] {
-    return indexItems.map((indexItem, i) => {
+    const items: LibraryIndexItem[] = indexItems.map((indexItem, i) => {
         const [
             title,
             authors,
@@ -167,6 +167,26 @@ function unpackIndexItems(
             perspectives: perspectives ?? [],
         };
     });
+
+    // Build search index in the background, so that it's ready when the user
+    // starts typing in the search box.
+    const itemsToSearchIndex = items.slice();
+    const searchIndexMoreItems = () => {
+        const startTime = performance.now();
+        while (performance.now() - startTime < 8) {
+            const item = itemsToSearchIndex.pop();
+            if (!item) {
+                return;
+            }
+            if (!item.index) {
+                item.index = extractItemIndex(item);
+            }
+        }
+        setTimeout(searchIndexMoreItems, 100);
+    };
+    setTimeout(searchIndexMoreItems, 100);
+
+    return items;
 }
 
 export function createSearchPredicate(
