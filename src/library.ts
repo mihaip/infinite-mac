@@ -6,7 +6,7 @@ export const GAMES_INDEX = unpackIndexItems(libraryIndex.games, "games");
 
 export type LibraryIndexItem = {
     id: number;
-    type: ItemType;
+    type: LibraryItemType;
     title: string;
     authors: string[];
     year?: number;
@@ -20,7 +20,7 @@ export type LibraryIndexItem = {
     index?: string[];
 };
 
-type ItemType = "apps" | "games";
+export type LibraryItemType = "apps" | "games";
 
 const enum System {
     SYSTEM_1 = 1,
@@ -141,7 +141,7 @@ export const PERSPECTIVE_INDEX = [
 
 function unpackIndexItems(
     indexItems: any[],
-    type: ItemType
+    type: LibraryItemType
 ): LibraryIndexItem[] {
     return indexItems.map((indexItem, i) => {
         const [
@@ -239,23 +239,3 @@ async function fetchItemDetails(
 }
 
 const itemDetailsCache = new Map<string, LibraryDetailsItem>();
-
-export function proxyUrl(url: string): string {
-    return `/Library/proxy?url=${encodeURIComponent(url)}`;
-}
-
-export function screenshotThumbnailUrl(screenshot: string): string {
-    return proxyUrl(
-        `https://macintoshgarden.org/sites/macintoshgarden.org/files/imagecache/thumbnail/screenshots/${screenshot}`
-    );
-}
-
-export function screenshotUrl(screenshot: string): string {
-    return proxyUrl(
-        `https://macintoshgarden.org/sites/macintoshgarden.org/files/screenshots/${screenshot}`
-    );
-}
-
-export function downloadUrl(file: string, type: ItemType): string {
-    return `https://macintoshgarden.org/sites/macintoshgarden.org/files/${type}/${file}`;
-}

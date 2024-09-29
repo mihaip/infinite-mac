@@ -12,6 +12,7 @@ import {Input} from "./controls/Input";
 import {useDebouncedCallback} from "use-debounce";
 import classNames from "classnames";
 import {type LibraryIndexItem} from "./library";
+import {proxyUrl} from "./library-urls";
 
 export function MacLibrary({
     onRun,
@@ -49,19 +50,15 @@ export function MacLibrary({
                             fileName,
                             size
                         ) => {
-                            const progressName = fileName
-                                ? `${name} (${fileName}}`
-                                : name;
                             collapse();
-                            const blob = await fetchWithProgress(
+                            handleLibraryURL(
                                 url,
-                                (loadedBytes, totalBytes) =>
-                                    onLoadProgress(
-                                        progressName,
-                                        loadedBytes / (size ?? totalBytes)
-                                    )
+                                onRun,
+                                onLoadProgress,
+                                name,
+                                fileName,
+                                size
                             );
-                            onRun(new File([blob], fileName ?? "Untitled"));
                         }}
                         appearance={appearance}
                     />
@@ -69,6 +66,25 @@ export function MacLibrary({
             )}
         />
     );
+}
+
+export async function handleLibraryURL(
+    url: string,
+    onRun: (file: File) => void,
+    onLoadProgress: (name: string, fraction: number) => void,
+    name?: string,
+    fileName?: string,
+    size?: number
+) {
+    if (!fileName) {
+        fileName = new URL(url).pathname.split("/").at(-1) ?? "Untitled";
+    }
+    const progressName = name ? `${name} (${fileName})` : fileName;
+    const fetchURL = proxyUrl(url);
+    const blob = await fetchWithProgress(fetchURL, (loadedBytes, totalBytes) =>
+        onLoadProgress(progressName, loadedBytes / (size ?? totalBytes))
+    );
+    onRun(new File([blob], fileName));
 }
 
 export function MacLibraryHeader({

@@ -1,11 +1,7 @@
 import "./MacLibraryScreenshots.css";
 import {useRef, useState} from "react";
-import {
-    screenshotThumbnailUrl,
-    screenshotUrl,
-    type LibraryDetailsItem,
-    type LibraryIndexItem,
-} from "./library";
+import {type LibraryDetailsItem, type LibraryIndexItem} from "./library";
+import {screenshotThumbnailUrl, screenshotUrl} from "./library-urls";
 import classNames from "classnames";
 import {type Appearance} from "./controls/Appearance";
 import {Button} from "./controls/Button";

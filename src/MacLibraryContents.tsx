@@ -11,15 +11,14 @@ import {
     ARCHITECTURE_INDEX,
     CATEGORIES_INDEX,
     createSearchPredicate,
-    downloadUrl,
     GAMES_INDEX,
     type LibraryDetailsItem,
     PERSPECTIVE_INDEX,
     SYSTEM_INDEX,
     useLibraryItemDetails,
     type LibraryIndexItem,
-    proxyUrl,
 } from "./library";
+import {downloadUrl} from "./library-urls";
 import "./MacLibraryContents.css";
 import {memo, type ReactNode, useCallback, useMemo} from "react";
 import {Button} from "./controls/Button";
@@ -317,7 +316,6 @@ function MacLibraryItemDownloads({
             <ol>
                 {Object.entries(details.files).map(([file, size]) => {
                     const url = downloadUrl(file, item.type);
-                    const runUrl = proxyUrl(url);
                     return (
                         <li key={file}>
                             <a
@@ -325,7 +323,7 @@ function MacLibraryItemDownloads({
                                 onClick={e => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    onRun(runUrl, item.title, file, size);
+                                    onRun(url, item.title, file, size);
                                 }}
                                 target="_blank">
                                 {file}
