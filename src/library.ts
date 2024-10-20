@@ -243,7 +243,7 @@ async function fetchItemDetails(
     item: LibraryIndexItem,
     setDetailsItem: (item: LibraryDetailsItem | undefined) => void
 ) {
-    const url = `/Library/details?type=${item.type}&id=${item.id}`;
+    const url = `/Library/details?type=${item.type}&id=${item.id}&h=${libraryIndex.hash}`;
     const cached = itemDetailsCache.get(url);
     if (cached) {
         setDetailsItem(cached);
