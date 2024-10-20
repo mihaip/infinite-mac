@@ -354,6 +354,9 @@ export default function Mac({
         hasSavedHD,
         ramSize,
         onDone,
+        libraryDownloadURLs,
+        handleMacLibraryRun,
+        handleMacLibraryProgress,
     ]);
     const {appearance = "Classic"} = disks[0] ?? {};
 
@@ -763,6 +766,7 @@ export default function Mac({
                                 appearance={appearance}
                                 onLoadProgress={handleMacLibraryProgress}
                                 onRun={handleMacLibraryRun}
+                                onRunCDROM={loadCDROM}
                             />
                         )}
                 </DrawersContainer>
