@@ -13,13 +13,17 @@ import {useDebouncedCallback} from "use-debounce";
 import classNames from "classnames";
 import {type LibraryIndexItem} from "./library";
 import {proxyUrl} from "./library-urls";
+import {type EmulatorCDROM} from "./emulator/emulator-common";
+import {getCDROMInfo} from "./cdroms";
 
 export function MacLibrary({
     onRun,
+    onRunCDROM,
     onLoadProgress,
     appearance,
 }: {
     onRun: (file: File) => void;
+    onRunCDROM: (cdrom: EmulatorCDROM) => void;
     onLoadProgress: (name: string, fraction: number) => void;
     appearance: Appearance;
 }) {
@@ -51,6 +55,15 @@ export function MacLibrary({
                             size
                         ) => {
                             collapse();
+                            if (fileName?.toLowerCase().endsWith(".iso")) {
+                                try {
+                                    const cdrom = await getCDROMInfo(url);
+                                    onRunCDROM(cdrom);
+                                    return;
+                                } catch (err) {
+                                    // Fallthrough, try loading it as a regular file
+                                }
+                            }
                             handleLibraryURL(
                                 url,
                                 onRun,
