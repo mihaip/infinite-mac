@@ -1,7 +1,11 @@
 type VarData = {[key: string]: number};
-// For now just store everything in one key, since we don't expect to have a lot
-// of distinct keys.
-const VARZ_KEY = "varz";
+
+const VARZ_PREFIX = "varz:";
+
+// We used to store everything in one key, but doesn't play well with frequent
+// updates to the minimum TTL of 1 minute. We now store each varz separately,
+// but we read from the legacy value to migrate on-demand.
+const LEGACY_VARZ_KEY = "varz";
 
 export async function handleRequest(request: Request, namespace: KVNamespace) {
     if (request.method === "POST") {
@@ -12,35 +16,76 @@ export async function handleRequest(request: Request, namespace: KVNamespace) {
     if (request.method !== "GET") {
         return new Response("Unsupported method", {status: 405});
     }
-    const varzs =
-        (await namespace.get<VarData>(VARZ_KEY, {
+
+    const varzSortFn = (a: [string, number], b: [string, number]) =>
+        a[0] < b[0] ? -1 : 1;
+
+    const {keys} = await namespace.list({prefix: VARZ_PREFIX});
+    const varzs = await Promise.all(
+        keys
+            .map(key => key.name)
+            // Ignore keys from when we were tracking unique CD-ROMs, it was too
+            // noisy.
+            .filter(name => !name.startsWith(VARZ_PREFIX + "emulator_cdrom:"))
+            .map(async key => {
+                const value = await namespace.get<number>(key, {type: "json"});
+                return [key.slice(VARZ_PREFIX.length), value] as [
+                    string,
+                    number
+                ];
+            })
+    );
+    const varzsSorted = Object.fromEntries(varzs.sort(varzSortFn));
+
+    const legacyVarzs =
+        (await namespace.get<VarData>(LEGACY_VARZ_KEY, {
             type: "json",
             cacheTtl: 60,
         })) ?? {};
-    const varzsSorted = Object.fromEntries(
-        Object.entries(varzs).sort((a, b) => (a[0] < b[0] ? -1 : 1))
+    const legacyVarzsSorted = Object.fromEntries(
+        Object.entries(legacyVarzs).sort(varzSortFn)
     );
-    return new Response(JSON.stringify(varzsSorted, undefined, 4), {
-        status: 200,
-        headers: {
-            "Content-Type": "text/plain",
-            "Cache-Control": "no-store",
-        },
-    });
+    return new Response(
+        JSON.stringify(
+            {"modern": varzsSorted, legacy: legacyVarzsSorted},
+            undefined,
+            4
+        ),
+        {
+            status: 200,
+            headers: {
+                "Content-Type": "text/plain",
+                "Cache-Control": "no-store",
+            },
+        }
+    );
 }
 
 async function incrementVarz(namespace: KVNamespace, changes: VarData) {
-    // Use a low TTL since we do a read-modify-write. A durable object may
-    // be preferable if we need to do a lot of writes.
-    const varzs =
-        (await namespace.get<VarData>(VARZ_KEY, {
-            type: "json",
-            cacheTtl: 60,
-        })) ?? {};
-    for (const [key, delta] of Object.entries(changes)) {
-        varzs[key] = (varzs[key] ?? 0) + delta;
+    let legacyVarzs: VarData | undefined;
+
+    for (const [name, delta] of Object.entries(changes)) {
+        const key = VARZ_PREFIX + name;
+        let value = await namespace.get<number>(key, {type: "json"});
+        if (value === null) {
+            if (!legacyVarzs) {
+                legacyVarzs =
+                    (await namespace.get<VarData>(LEGACY_VARZ_KEY, {
+                        type: "json",
+                        cacheTtl: 60,
+                    })) ?? {};
+            }
+            value = (legacyVarzs[name] ?? 0) + delta;
+            legacyVarzs[name] = value;
+        } else {
+            value += delta;
+        }
+        await namespace.put(key, JSON.stringify(value));
     }
-    await namespace.put(VARZ_KEY, JSON.stringify(varzs));
+
+    if (legacyVarzs) {
+        await namespace.put(LEGACY_VARZ_KEY, JSON.stringify(legacyVarzs));
+    }
 }
 
 type ErrorzData = {[key: string]: string[]};

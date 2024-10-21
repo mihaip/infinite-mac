@@ -562,10 +562,7 @@ export default function Mac({
     }
 
     function loadCDROM(cdrom: EmulatorCDROM) {
-        varz.incrementMulti({
-            "emulator_cdroms": 1,
-            [`emulator_cdrom:${cdrom.name}`]: 1,
-        });
+        varz.increment("emulator_cdroms", 1);
         emulatorRef.current?.loadCDROM(cdrom);
     }
 
