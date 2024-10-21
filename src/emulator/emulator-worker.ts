@@ -531,6 +531,8 @@ class EmulatorWorkerApi {
 
 export class EmulatorFallbackEndpoint {
     #commandQueue: EmulatorFallbackCommand[] = [];
+    #fetchFailures = 0;
+    #loggedMaxFetchFailures = false;
 
     idleWait(timeout: number) {
         this.#fetchSync(`./worker-idlewait?timeout=${timeout}&t=${Date.now()}`);
@@ -602,6 +604,18 @@ export class EmulatorFallbackEndpoint {
     }
 
     #fetchSync(url: string): any | undefined {
+        // Don't keep trying to fetch if it's failing. That likely means that
+        // the service worker was not registered or activated, and these
+        // requests are hitting the server directly, which we don't want.
+        if (this.#fetchFailures > 100) {
+            if (!this.#loggedMaxFetchFailures) {
+                console.error(
+                    "Too many fetch failures, disabling fallback endpoint"
+                );
+                this.#loggedMaxFetchFailures = true;
+            }
+            return undefined;
+        }
         const xhr = new XMLHttpRequest();
         xhr.open("GET", url, false);
         xhr.send(null);
@@ -612,12 +626,16 @@ export class EmulatorFallbackEndpoint {
                 xhr.status,
                 xhr.statusText
             );
+            this.#fetchFailures++;
             return undefined;
         }
         try {
-            return JSON.parse(xhr.responseText);
+            const value = JSON.parse(xhr.responseText);
+            this.#fetchFailures = 0;
+            return value;
         } catch (err) {
             console.warn("Could not parse JSON", err, xhr.responseText);
+            this.#fetchFailures++;
         }
     }
 }
