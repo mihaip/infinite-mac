@@ -37,28 +37,13 @@ export async function handleRequest(request: Request, namespace: KVNamespace) {
     );
     const varzsSorted = Object.fromEntries(varzs.sort(varzSortFn));
 
-    const legacyVarzs =
-        (await namespace.get<VarData>(LEGACY_VARZ_KEY, {
-            type: "json",
-            cacheTtl: 60,
-        })) ?? {};
-    const legacyVarzsSorted = Object.fromEntries(
-        Object.entries(legacyVarzs).sort(varzSortFn)
-    );
-    return new Response(
-        JSON.stringify(
-            {"modern": varzsSorted, legacy: legacyVarzsSorted},
-            undefined,
-            4
-        ),
-        {
-            status: 200,
-            headers: {
-                "Content-Type": "text/plain",
-                "Cache-Control": "no-store",
-            },
-        }
-    );
+    return new Response(JSON.stringify(varzsSorted, undefined, 4), {
+        status: 200,
+        headers: {
+            "Content-Type": "text/plain",
+            "Cache-Control": "no-store",
+        },
+    });
 }
 
 async function incrementVarz(namespace: KVNamespace, changes: VarData) {
