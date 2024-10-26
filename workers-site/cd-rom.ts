@@ -179,6 +179,10 @@ async function fetchChunk(
             "User-Agent": "Infinite Mac (+https://infinitemac.org)",
             "Range": `bytes=${chunkStart}-${chunkEnd}`,
         },
+        cf: {
+            cacheEverything: true,
+            cacheTtl: 30 * 24 * 60 * 60,
+        },
         signal: AbortSignal.timeout(2000),
     });
 
