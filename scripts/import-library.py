@@ -198,6 +198,7 @@ ARCHITECTURE_MAP = {
     'PPC': 1,
     'PPC (Carbonized)': 2,
     'x86 (Intel:Mac)': 3,
+    'x64 (Intel:Mac)': 3,
     'x86 (Intel)': 4,
     'x86 (Windows)': 5,
 }
