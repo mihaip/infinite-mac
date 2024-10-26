@@ -61,6 +61,10 @@
     border-bottom: double 3px #000;
 }
 
+.Mac-Library-Table-Classic:not(:first-child) th {
+    border-top: solid 1px #000;
+}
+
 .Mac-Library-Table-Classic th.selected {
     text-decoration: underline;
 }

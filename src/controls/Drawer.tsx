@@ -95,8 +95,19 @@ export function DrawerHeader({children}: PropsWithChildren) {
     return <div className="Drawer-Header">{children}</div>;
 }
 
-export function DrawerList({children}: PropsWithChildren) {
-    return <div className="Drawer-List">{children}</div>;
+export function DrawerList({
+    children,
+    appearance,
+    tall,
+}: PropsWithChildren<{appearance: Appearance; tall?: boolean}>) {
+    return (
+        <div
+            className={classNames("Drawer-List", `Drawer-List-${appearance}`, {
+                "Drawer-List-Tall": tall,
+            })}>
+            {children}
+        </div>
+    );
 }
 
 export function DrawerListCategory({

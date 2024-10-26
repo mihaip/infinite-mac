@@ -92,7 +92,7 @@ function MacLibraryBrowser({
                 setSearch={setSearch}
                 appearance={appearance}
             />
-            <DrawerList>
+            <DrawerList appearance={appearance} tall>
                 {games.length > 0 && (
                     <MacLibraryTable
                         title="Game"

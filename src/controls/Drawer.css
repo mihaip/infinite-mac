@@ -189,6 +189,11 @@
     overscroll-behavior: contain;
 }
 
+.Drawer-List.Drawer-List-Platinum.Drawer-List-Tall {
+    min-height: 100%;
+    background: #e7e7e7;
+}
+
 .Drawer-List-Category {
     margin: 8px 0;
 }
