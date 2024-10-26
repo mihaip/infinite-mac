@@ -113,6 +113,7 @@ export function MacLibraryHeader({
         setSearch ?? (() => {}),
         100
     );
+    const [searchFocused, setSearchFocused] = useState(false);
 
     return (
         <div
@@ -121,14 +122,24 @@ export function MacLibraryHeader({
                 `Mac-Library-Header-${appearance}`
             )}>
             <DrawerHeader>
-                <div>
-                    <a href="https://macintoshgarden.org/">
-                        The Macintosh Garden
-                    </a>
-                    's mission is to preserve software for the Macintosh
-                    platform. You can browse its library and directly load files
-                    into the “Downloads” folder of “The Outside World”.
-                </div>
+                {searchFocused ? (
+                    <div>
+                        Supported search operators include <code>year:</code>,{" "}
+                        <code>title:</code>, <code>author:</code>,{" "}
+                        <code>category:</code>, <code>system:</code>, and{" "}
+                        <code>architecture:</code>.
+                    </div>
+                ) : (
+                    <div>
+                        <a href="https://macintoshgarden.org/">
+                            The Macintosh Garden
+                        </a>
+                        's mission is to preserve software for the Macintosh
+                        platform. You can browse its library and directly load
+                        files into the “Downloads” folder of “The Outside
+                        World”.
+                    </div>
+                )}
                 <Input
                     appearance={appearance}
                     type="search"
@@ -136,6 +147,9 @@ export function MacLibraryHeader({
                     defaultValue={search}
                     disabled={setSearch === undefined}
                     onChange={e => setSearchDebounced(e.target.value)}
+                    size={searchFocused ? 40 : 20}
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => setSearchFocused(false)}
                 />
             </DrawerHeader>
         </div>
