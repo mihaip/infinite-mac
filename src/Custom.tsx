@@ -64,7 +64,7 @@ export function Custom({
                   cdromURLs: [],
                   includeInfiniteHD: true,
                   includeSavedHD: canSaveDisks(),
-                  includeLibrary: false,
+                  includeLibrary: true,
                   libraryDownloadURLs: [],
                   isCustom: true,
                   diskFiles: [],
