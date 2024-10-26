@@ -57,7 +57,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     let isCustom = searchParams.has("edit");
     let includeInfiniteHD;
     let includeSavedHD;
-    const includeLibrary = searchParams.get("library") === "true"; // TODO: default to being on once launched
+    const includeLibrary = searchParams.get("library") !== "false";
     const libraryDownloadURLs = [...searchParams.getAll("library_url")];
     const disks: SystemDiskDef[] = [];
     const yearDiskDef = diskFromYearPath(url.pathname);
@@ -194,8 +194,8 @@ export function runDefToUrl(runDef: RunDef): string {
             url.searchParams.set("saved_hd", "true");
         }
     }
-    if (runDef.includeLibrary) {
-        url.searchParams.set("library", "true");
+    if (!runDef.includeLibrary) {
+        url.searchParams.set("library", "false");
     }
     for (const libraryURL of runDef.libraryDownloadURLs) {
         url.searchParams.append("library_url", libraryURL);
