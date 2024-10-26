@@ -144,7 +144,7 @@ function MacCDROMsContents({
                     />
                 </div>
             </DrawerHeader>
-            <DrawerList>
+            <DrawerList appearance={appearance}>
                 {Object.entries(sortedCdromsByCategory).map(
                     ([category, cdroms]) => (
                         <DrawerListCategory key={category} title={category}>
