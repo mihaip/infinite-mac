@@ -189,17 +189,99 @@ function unpackIndexItems(
     return items;
 }
 
+function parseSearchQuery(query: string): Term[] {
+    const terms: Term[] = [];
+    const regex = /(\w+):"([^"]+)"|(\w+):(\S+)|"([^"]+)"|(\S+)/g;
+    let match;
+
+    query = query.toLowerCase();
+
+    // Ensure we close any unclosed quotes, to be more resilient when we have a
+    // partial query that the user is in the middle of typing.
+    const quoteCount = (query.match(/"/g) ?? []).length;
+    if (quoteCount % 2 !== 0) {
+        query += '"';
+    }
+
+    while ((match = regex.exec(query)) !== null) {
+        if (match[1] && match[2]) {
+            terms.push({operator: match[1], value: match[2]}); // operator with quoted value
+        } else if (match[3] && match[4]) {
+            terms.push({operator: match[3], value: match[4]}); // operator with unquoted value
+        } else if (match[5]) {
+            terms.push({value: match[5]}); //quoted value without operator
+        } else if (match[6]) {
+            terms.push({value: match[6]}); //bare word without operator
+        }
+    }
+
+    return terms;
+}
+
+type Term = {
+    operator?: string; // missing if there's no operator
+    value: string;
+};
+
+function termMatches(
+    term: Term,
+    item: LibraryIndexItem,
+    index: string[]
+): boolean {
+    if (!term.operator) {
+        return index.some(i => i.includes(term.value));
+    }
+
+    function matchesIndex(
+        value: number[],
+        index: {[key: number]: string}
+    ): boolean {
+        return value.some(v => index[v].toLowerCase().includes(term.value));
+    }
+
+    switch (term.operator) {
+        case "year":
+            // Allow prefix matches for years, so that you can search for things
+            // from the 80s/90s/2000s
+            return item.year?.toString().includes(term.value) === true;
+        case "title":
+            return item.title.toLowerCase().includes(term.value);
+        case "author":
+            return (
+                item.authors.some(a => a.toLowerCase().includes(term.value)) ||
+                item.publishers.some(p => p.toLowerCase().includes(term.value))
+            );
+        case "category":
+            return (
+                matchesIndex(item.categories, CATEGORIES_INDEX) ||
+                matchesIndex(item.perspectives, PERSPECTIVE_INDEX)
+            );
+        case "system":
+        case "os":
+            return matchesIndex(item.systems, SYSTEM_INDEX);
+        case "architecture":
+        case "arch":
+            // Support this alias
+            if (term.value === "ppc") {
+                term.value = "powerpc";
+            }
+            return matchesIndex(item.architectures, ARCHITECTURE_INDEX);
+    }
+
+    return false;
+}
+
 export function createSearchPredicate(
     search: string
 ): (item: LibraryIndexItem) => boolean {
-    const terms = search.toLowerCase().split(/\s+/);
+    const terms = parseSearchQuery(search);
 
     return item => {
         let {index} = item;
         if (!index) {
             index = item.index = extractItemIndex(item);
         }
-        return terms.every(term => index.some(i => i.includes(term)));
+        return terms.every(term => termMatches(term, item, index));
     };
 }
 
