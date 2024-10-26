@@ -789,10 +789,30 @@ export class Emulator {
         return modifiers;
     }
 
-    #handleBeforeUnload = () => {
-        // Mostly necessary for the fallback mode, otherwise the page can hang
-        // during reload because the worker is not yielding.
-        this.stop();
+    #handleBeforeUnload = (event: Event) => {
+        // On macOS hosts it's too easy to accidentally close the tab due to
+        // muscle memory for Command-W, so we'll ask for confirmation if the
+        // navigation away is due a command+key combination.
+        if (
+            navigator.platform.startsWith("Mac") &&
+            Array.from(this.#downKeyCodes).some(code => code.startsWith("Meta"))
+        ) {
+            event.preventDefault();
+
+            // We'll never get a keyup event for the command key, so we'll
+            // need to synthesize one to avoid the guest ending up with it
+            // stuck on.
+            for (const code of this.#downKeyCodes) {
+                const adbKeyCode = this.#getAdbKeyCode(code);
+                if (adbKeyCode !== undefined) {
+                    this.#input.handleInput({
+                        type: "keyup",
+                        keyCode: adbKeyCode,
+                    });
+                }
+            }
+            this.#downKeyCodes.clear();
+        }
     };
 
     #handleWorkerMessage = (e: MessageEvent) => {
