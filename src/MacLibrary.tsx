@@ -13,7 +13,7 @@ import {useDebouncedCallback} from "use-debounce";
 import classNames from "classnames";
 import {type LibraryIndexItem} from "./library";
 import {proxyUrl} from "./library-urls";
-import {type EmulatorCDROM} from "./emulator/emulator-common";
+import {isDiskImageFile, type EmulatorCDROM} from "./emulator/emulator-common";
 import {getCDROMInfo} from "./cdroms";
 
 export function MacLibrary({
@@ -55,7 +55,12 @@ export function MacLibrary({
                             size
                         ) => {
                             collapse();
-                            if (fileName?.toLowerCase().endsWith(".iso")) {
+                            if (
+                                fileName &&
+                                isDiskImageFile(fileName) &&
+                                size &&
+                                size > 10000000
+                            ) {
                                 try {
                                     const cdrom = await getCDROMInfo(url);
                                     onRunCDROM(cdrom);
