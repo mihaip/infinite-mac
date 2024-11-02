@@ -18,7 +18,7 @@ import {
     useLibraryItemDetails,
     type LibraryIndexItem,
 } from "./library";
-import {downloadUrl} from "./library-urls";
+import {downloadUrl, manualUrl} from "./library-urls";
 import "./MacLibraryContents.css";
 import {memo, type ReactNode, useCallback, useMemo} from "react";
 import {Button} from "./controls/Button";
@@ -213,6 +213,24 @@ function MacLibraryItemDetails({
             addDetailRow(
                 "Architectures",
                 item.architectures.map(a => ARCHITECTURE_INDEX[a]).join(" ")
+            );
+        }
+        if (Object.keys(details.manuals).length) {
+            addDetailRow(
+                "Manuals",
+                <>
+                    {Object.entries(details.manuals).map(([file, size]) => (
+                        <div key={file}>
+                            <a
+                                key={file}
+                                href={manualUrl(file)}
+                                target="_blank">
+                                {file}
+                            </a>{" "}
+                            <span className="size">({formatSize(size)})</span>
+                        </div>
+                    ))}
+                </>
             );
         }
         addDetailRow(

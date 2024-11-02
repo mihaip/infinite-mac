@@ -17,5 +17,9 @@ export function screenshotUrl(screenshot: string): string {
 }
 
 export function downloadUrl(file: string, type: LibraryItemType): string {
-    return `https://macintoshgarden.org/sites/macintoshgarden.org/files/${type}/${file}`;
+    return `https://download.macintoshgarden.org/${type}/${file}`;
+}
+
+export function manualUrl(file: string): string {
+    return `https://download.macintoshgarden.org/manuals/${file}`;
 }
