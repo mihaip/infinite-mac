@@ -1,5 +1,5 @@
 import React, {Suspense, useState} from "react";
-import {type Appearance} from "./controls/Appearance";
+import {useAppearance} from "./controls/Appearance";
 import {
     Drawer,
     DrawerContents,
@@ -20,12 +20,10 @@ export function MacLibrary({
     onRun,
     onRunCDROM,
     onLoadProgress,
-    appearance,
 }: {
     onRun: (file: File) => void;
     onRunCDROM: (cdrom: EmulatorCDROM) => void;
     onLoadProgress: (name: string, fraction: number) => void;
-    appearance: Appearance;
 }) {
     const [search, setSearch] = useState("");
     const [detailsItem, setDetailsItem] = useState<
@@ -37,12 +35,8 @@ export function MacLibrary({
             title="Macintosh Garden"
             titleIconUrl={macintoshGardenIcon}
             titleIconSmoothScale
-            appearance={appearance}
             contents={collapse => (
-                <Suspense
-                    fallback={
-                        <MacLibraryContentsFallback appearance={appearance} />
-                    }>
+                <Suspense fallback={<MacLibraryContentsFallback />}>
                     <MacLibraryContents
                         search={search}
                         setSearch={setSearch}
@@ -78,7 +72,6 @@ export function MacLibrary({
                                 size
                             );
                         }}
-                        appearance={appearance}
                     />
                 </Suspense>
             )}
@@ -108,12 +101,11 @@ export async function handleLibraryURL(
 export function MacLibraryHeader({
     search,
     setSearch,
-    appearance,
 }: {
     search?: string;
     setSearch?: (search: string) => void;
-    appearance: Appearance;
 }) {
+    const appearance = useAppearance();
     const setSearchDebounced = useDebouncedCallback(
         setSearch ?? (() => {}),
         100
@@ -146,7 +138,6 @@ export function MacLibraryHeader({
                     </div>
                 )}
                 <Input
-                    appearance={appearance}
                     type="search"
                     placeholder="Filter…"
                     defaultValue={search}
@@ -163,10 +154,10 @@ export function MacLibraryHeader({
 
 const MacLibraryContents = React.lazy(() => import("./MacLibraryContents"));
 
-function MacLibraryContentsFallback({appearance}: {appearance: Appearance}) {
+function MacLibraryContentsFallback() {
     return (
-        <DrawerContents appearance={appearance} tall>
-            <MacLibraryHeader appearance={appearance} />
+        <DrawerContents tall>
+            <MacLibraryHeader />
             <DrawerLoading />
         </DrawerContents>
     );

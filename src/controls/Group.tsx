@@ -1,17 +1,16 @@
 import classNames from "classnames";
 import "./Group.css";
-import {appearanceSystemFont, type Appearance} from "./Appearance";
+import {appearanceSystemFont, useAppearance} from "./Appearance";
 
 export function Group({
-    appearance,
     label,
     className,
     children,
 }: React.PropsWithChildren<{
-    appearance: Appearance;
     className?: string;
     label: string;
 }>) {
+    const appearance = useAppearance();
     return (
         <fieldset
             className={classNames("Group", `Group-${appearance}`, className)}>

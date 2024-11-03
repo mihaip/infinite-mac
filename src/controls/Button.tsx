@@ -1,15 +1,13 @@
 import classNames from "classnames";
 import "./Button.css";
-import {appearanceSystemFont, type Appearance} from "./Appearance";
+import {appearanceSystemFont, useAppearance} from "./Appearance";
 
 export function Button({
-    appearance,
     className,
     children,
     ...buttonProps
-}: {
-    appearance: Appearance;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+    const appearance = useAppearance();
     const buttonClassName = classNames(
         "Button",
         `Button-${appearance}`,

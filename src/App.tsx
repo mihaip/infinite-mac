@@ -6,6 +6,7 @@ import {type RunDef, runDefFromUrl, runDefToUrl} from "./run-def";
 import {flushSync} from "react-dom";
 import {startViewTransition} from "./view-transitions";
 import {type RunDefMacProps} from "./RunDefMac";
+import {AppearanceProvider} from "./controls/Appearance";
 
 function App() {
     const [initialRunDef, editInitialRunDef] = useMemo(() => {
@@ -55,7 +56,10 @@ function App() {
         };
         contents = (
             <Suspense fallback={<div />}>
-                <RunDefMac runDef={runDef} onDone={handleDone} />
+                <AppearanceProvider
+                    appearance={runDef.disks[0]?.appearance ?? "Classic"}>
+                    <RunDefMac runDef={runDef} onDone={handleDone} />
+                </AppearanceProvider>
             </Suspense>
         );
         footer = (

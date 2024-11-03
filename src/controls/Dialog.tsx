@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import {Button} from "./Button";
 import "./Dialog.css";
 import classNames from "classnames";
-import {appearanceSystemFont, type Appearance} from "./Appearance";
+import {appearanceSystemFont, useAppearance} from "./Appearance";
 
 export function Dialog({
     title,
@@ -14,7 +14,6 @@ export function Dialog({
     onOther,
     otherLabel,
     onCancel,
-    appearance = "Classic",
     className,
 }: {
     title: string;
@@ -25,9 +24,9 @@ export function Dialog({
     onOther?: (e: React.MouseEvent) => void;
     otherLabel?: string;
     onCancel?: () => void;
-    appearance?: Appearance;
     className?: string;
 }) {
+    const appearance = useAppearance();
     const dialog = (
         <div className="Dialog-Backdrop">
             <div
@@ -35,8 +34,7 @@ export function Dialog({
                     "Dialog",
                     `Dialog-${appearance}`,
                     className
-                )}
-            >
+                )}>
                 <h1 className={appearanceSystemFont(appearance)}>{title}</h1>
 
                 <div className="Dialog-Content">{children}</div>
@@ -45,35 +43,29 @@ export function Dialog({
                     {onCancel && (
                         <Button
                             className="Dialog-Normal-Button"
-                            appearance={appearance}
                             onClick={e => {
                                 e.preventDefault();
                                 onCancel();
-                            }}
-                        >
+                            }}>
                             Cancel
                         </Button>
                     )}
                     {onOther && (
                         <Button
                             className="Dialog-Normal-Button"
-                            appearance={appearance}
                             onClick={e => {
                                 e.preventDefault();
                                 onOther(e);
-                            }}
-                        >
+                            }}>
                             {otherLabel}
                         </Button>
                     )}
                     <Button
                         disabled={!doneEnabled}
-                        appearance={appearance}
                         onClick={e => {
                             e.preventDefault();
                             onDone(e);
-                        }}
-                    >
+                        }}>
                         {doneLabel}
                     </Button>
                 </footer>
