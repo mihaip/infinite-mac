@@ -1,3 +1,7 @@
+export async function get(name: string): Promise<number> {
+    return (await fetch(`/varz?name=${name}`)).json() as Promise<number>;
+}
+
 export async function increment(name: string, delta: number = 1) {
     return incrementMulti({[name]: delta});
 }

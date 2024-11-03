@@ -5,12 +5,6 @@ import * as varz from "./varz";
 import {appearanceSystemFont} from "./controls/Appearance";
 
 export function About({onDone}: {onDone: () => void}) {
-    const email = [
-        109, 105, 104, 97, 105, 64, 112, 101, 114, 115, 105, 115, 116, 101, 110,
-        116, 46, 105, 110, 102, 111,
-    ]
-        .map(c => String.fromCharCode(c))
-        .join("");
     const [donateVisible, setDonateVisible] = useState(false);
     useEffect(() => {
         varz.increment("about_shown");
@@ -20,7 +14,6 @@ export function About({onDone}: {onDone: () => void}) {
 
     useEffect(() => {
         const aboutContainerDom = aboutContainerRef.current;
-        console.log(aboutContainerDom);
         if (!aboutContainerDom) {
             return;
         }
@@ -28,18 +21,33 @@ export function About({onDone}: {onDone: () => void}) {
             headings.classList.add(appearanceSystemFont("Classic"));
         }
 
+        const email = [
+            109, 105, 104, 97, 105, 64, 112, 101, 114, 115, 105, 115, 116, 101,
+            110, 116, 46, 105, 110, 102, 111,
+        ]
+            .map(c => String.fromCharCode(c))
+            .join("");
+
         const emailLink =
             aboutContainerDom.querySelector<HTMLAnchorElement>(".email");
         if (emailLink) {
             emailLink.href = `mailto:${email}`;
         }
+
+        const counterDom = aboutContainerDom.querySelector(".counter");
+        if (counterDom) {
+            varz.get("emulator_starts").then(
+                count => (counterDom.textContent = count.toLocaleString())
+            );
+        }
+
         const donateLink = aboutContainerDom.querySelector(".donate");
         if (donateLink) {
             const showDonate = () => setDonateVisible(true);
             donateLink.addEventListener("click", showDonate);
             return () => donateLink.removeEventListener("click", showDonate);
         }
-    });
+    }, []);
 
     if (donateVisible) {
         return <Donate onDone={onDone} />;
