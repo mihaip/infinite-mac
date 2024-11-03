@@ -19,7 +19,7 @@ export function viteDevMiddleware(
 
     const url = new URL(req.url, "http://localhost:3127");
     if (url.pathname === "/varz" || url.pathname === "/errorz") {
-        handleVarz(req, res);
+        handleVarz(req, url, res);
         return true;
     } else if (url.pathname.startsWith("/CD-ROM/")) {
         handleWorkerResponse(
@@ -43,7 +43,17 @@ export function viteDevMiddleware(
 }
 
 // Varz stub
-function handleVarz(req: http.IncomingMessage, res: http.ServerResponse) {
+function handleVarz(
+    req: http.IncomingMessage,
+    url: URL,
+    res: http.ServerResponse
+) {
+    if (req.method === "GET" && url.searchParams.has("name")) {
+        res.writeHead(200).end(
+            Math.round(Math.random() * (1 << 20)).toString()
+        );
+        return;
+    }
     res.writeHead(
         req.method === "GET" || req.method === "POST" ? 204 : 405
     ).end();

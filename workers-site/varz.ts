@@ -17,6 +17,22 @@ export async function handleRequest(request: Request, namespace: KVNamespace) {
         return new Response("Unsupported method", {status: 405});
     }
 
+    const name = new URL(request.url).searchParams.get("name");
+    if (name) {
+        const key = VARZ_PREFIX + name;
+        const value = await namespace.get<number>(key, {type: "json"});
+        if (value === null) {
+            return new Response("Not found", {status: 404});
+        }
+        return new Response(JSON.stringify(value), {
+            status: 200,
+            headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": "no-store",
+            },
+        });
+    }
+
     const varzSortFn = (a: [string, number], b: [string, number]) =>
         a[0] < b[0] ? -1 : 1;
 
