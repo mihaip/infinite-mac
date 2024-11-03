@@ -6,7 +6,6 @@ import classNames from "classnames";
 import {Dialog} from "./controls/Dialog";
 import {cdromLibrary, getCDROMInfo, systemCDROMCompare} from "./cdroms";
 import {Input} from "./controls/Input";
-import {type Appearance} from "./controls/Appearance";
 import {type MachinePlatform} from "./machines";
 import defaultCDROMImage from "./Images/DefaultCDROM.png";
 import defaultCDROMNeXTImage from "./Images/DefaultCDROM-NeXT.png";
@@ -21,11 +20,9 @@ import {
 
 export function MacCDROMs({
     onRun,
-    appearance,
     platform,
 }: {
     onRun: (cdrom: EmulatorCDROM) => void;
-    appearance: Appearance;
     platform?: MachinePlatform;
 }) {
     const [search, setSearch] = useState("");
@@ -33,7 +30,6 @@ export function MacCDROMs({
         <Drawer
             title="CD-ROMs"
             titleIconUrl={cdromsIcon}
-            appearance={appearance}
             contents={collapse => (
                 <MacCDROMsContents
                     search={search}
@@ -42,7 +38,6 @@ export function MacCDROMs({
                         collapse();
                         onRun(cdrom);
                     }}
-                    appearance={appearance}
                     platform={platform}
                 />
             )}
@@ -54,13 +49,11 @@ function MacCDROMsContents({
     search,
     setSearch,
     onRun,
-    appearance,
     platform = "Macintosh",
 }: {
     search: string;
     setSearch: (search: string) => void;
     onRun: (cdrom: EmulatorCDROM) => void;
-    appearance: Appearance;
     platform?: MachinePlatform;
 }) {
     const cdroms = cdromLibrary;
@@ -116,12 +109,11 @@ function MacCDROMsContents({
     const [customCDROMVisible, setCustomCDROMVisible] = useState(false);
 
     return (
-        <DrawerContents appearance={appearance}>
+        <DrawerContents>
             {customCDROMVisible && (
                 <MacCustomCDROM
                     onRun={onRun}
                     onDone={() => setCustomCDROMVisible(false)}
-                    appearance={appearance}
                 />
             )}
             <DrawerHeader>
@@ -130,13 +122,10 @@ function MacCDROMsContents({
                     that is too large to pre-install on Infinite HD.
                 </div>
                 <div className="Mac-CDROMs-Controls">
-                    <Button
-                        appearance={appearance}
-                        onClick={() => setCustomCDROMVisible(true)}>
+                    <Button onClick={() => setCustomCDROMVisible(true)}>
                         Load from URL…
                     </Button>
                     <Input
-                        appearance={appearance}
                         type="search"
                         placeholder="Filter…"
                         value={search}
@@ -144,7 +133,7 @@ function MacCDROMsContents({
                     />
                 </div>
             </DrawerHeader>
-            <DrawerList appearance={appearance}>
+            <DrawerList>
                 {Object.entries(sortedCdromsByCategory).map(
                     ([category, cdroms]) => (
                         <DrawerListCategory key={category} title={category}>
@@ -168,11 +157,9 @@ function MacCDROMsContents({
 function MacCustomCDROM({
     onRun,
     onDone,
-    appearance,
 }: {
     onRun: (cdrom: EmulatorCDROM) => void;
     onDone: () => void;
-    appearance: Appearance;
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
     const [url, setUrl] = useState("");
@@ -196,8 +183,7 @@ function MacCustomCDROM({
             onDone={handleLoad}
             doneLabel="Run"
             doneEnabled={url !== "" && inputRef.current?.validity.valid}
-            onCancel={onDone}
-            appearance={appearance}>
+            onCancel={onDone}>
             <p>
                 Infinite Mac supports loading of CD-ROM images from URLs. Be
                 aware of the following caveats:
@@ -221,7 +207,6 @@ function MacCustomCDROM({
             </ul>
             <p>
                 <Input
-                    appearance={appearance}
                     className="Mac-Custom-CDROM-URL"
                     type="url"
                     value={url}

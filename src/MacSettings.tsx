@@ -11,7 +11,6 @@ import {
     emulatorSupportsMouseDeltas,
 } from "./emulator/emulator-common-emulators";
 import {Dialog} from "./controls/Dialog";
-import {type Appearance} from "./controls/Appearance";
 import {Select} from "./controls/Select";
 import {Checkbox} from "./controls/Checkbox";
 import {Button} from "./controls/Button";
@@ -20,7 +19,6 @@ import "./MacSettings.css";
 export function MacSettings({
     emulatorType,
     emulatorSettings,
-    appearance,
     setEmulatorSettings,
     onStorageReset,
     onStorageExport,
@@ -31,7 +29,6 @@ export function MacSettings({
 }: {
     emulatorType: EmulatorType;
     emulatorSettings: EmulatorSettings;
-    appearance: Appearance;
     setEmulatorSettings: (settings: EmulatorSettings) => void;
     hasSavedHD: boolean;
     onStorageReset: () => void;
@@ -71,10 +68,9 @@ export function MacSettings({
     const {screenScaling = "auto"} = emulatorSettings;
 
     return (
-        <Dialog title="Settings" onDone={onDone} appearance={appearance}>
+        <Dialog title="Settings" onDone={onDone}>
             <label>
                 <Checkbox
-                    appearance={appearance}
                     checked={emulatorSettings.swapControlAndCommand}
                     onChange={() =>
                         setEmulatorSettings({
@@ -95,7 +91,6 @@ export function MacSettings({
                 !emulatorSettings.trackpadMode && (
                     <label>
                         <Checkbox
-                            appearance={appearance}
                             checked={emulatorSettings.useMouseDeltas}
                             onChange={() =>
                                 setEmulatorSettings({
@@ -117,7 +112,6 @@ export function MacSettings({
                 <label>
                     Speed:
                     <Select
-                        appearance={appearance}
                         value={emulatorSettings.speed}
                         onChange={event =>
                             setEmulatorSettings({
@@ -145,7 +139,6 @@ export function MacSettings({
             <div className="MacSettings-Row">
                 <div className="MacSettings-Row-Label">Scaling:</div>
                 <Select
-                    appearance={appearance}
                     value={screenScaling}
                     onChange={e => {
                         const screenScaling = e.target
@@ -169,13 +162,10 @@ export function MacSettings({
                     <h2>Saved HD</h2>
                     <div className="MacSettings-Row">
                         <div className="MacSettings-Row-Label">Contents:</div>
-                        <Button
-                            appearance={appearance}
-                            onClick={() => setStorageExportVisible(true)}>
+                        <Button onClick={() => setStorageExportVisible(true)}>
                             Export…
                         </Button>
                         <StorageConfirmDialog
-                            appearance={appearance}
                             visible={storageExportVisible}
                             setVisible={setStorageExportVisible}
                             title="Export Disk"
@@ -185,13 +175,10 @@ export function MacSettings({
                                 onDone();
                             }}
                         />{" "}
-                        <Button
-                            appearance={appearance}
-                            onClick={() => setStorageImportVisible(true)}>
+                        <Button onClick={() => setStorageImportVisible(true)}>
                             Import…
                         </Button>
                         <StorageConfirmDialog
-                            appearance={appearance}
                             visible={storageImportVisible}
                             setVisible={setStorageImportVisible}
                             title="Import Disk"
@@ -201,13 +188,10 @@ export function MacSettings({
                                 onDone();
                             }}
                         />{" "}
-                        <Button
-                            appearance={appearance}
-                            onClick={() => setStorageResetVisible(true)}>
+                        <Button onClick={() => setStorageResetVisible(true)}>
                             Reset
                         </Button>
                         <StorageConfirmDialog
-                            appearance={appearance}
                             visible={storageResetVisible}
                             setVisible={setStorageResetVisible}
                             title="Reset Disk"
@@ -226,13 +210,10 @@ export function MacSettings({
                     </div>
                     <div className="MacSettings-Row">
                         <div className="MacSettings-Row-Label" />
-                        <Button
-                            appearance={appearance}
-                            onClick={() => setSaveImageVisible(true)}>
+                        <Button onClick={() => setSaveImageVisible(true)}>
                             Save Disk Image…
                         </Button>
                         <StorageConfirmDialog
-                            appearance={appearance}
                             visible={saveImageVisible}
                             setVisible={setSaveImageVisible}
                             title="Save Image"
@@ -261,9 +242,7 @@ export function MacSettings({
                         {storagePersistenceStatus !== "persistent" && (
                             <>
                                 {" "}
-                                <Button
-                                    appearance={appearance}
-                                    onClick={handleRequestPersistence}>
+                                <Button onClick={handleRequestPersistence}>
                                     Request Persistence
                                 </Button>
                             </>
@@ -293,7 +272,6 @@ function StorageConfirmDialog({
     onAccept,
     onOther,
     otherLabel,
-    appearance,
 }: {
     visible: boolean;
     setVisible: (visible: boolean) => void;
@@ -302,7 +280,6 @@ function StorageConfirmDialog({
     onAccept: () => void;
     onOther?: () => void;
     otherLabel?: string;
-    appearance: Appearance;
 }) {
     if (!visible) {
         return null;
@@ -317,8 +294,7 @@ function StorageConfirmDialog({
             doneLabel={title}
             onOther={onOther}
             otherLabel={otherLabel}
-            onCancel={() => setVisible(false)}
-            appearance={appearance}>
+            onCancel={() => setVisible(false)}>
             <div style={{maxWidth: 400}}>{body}</div>
         </Dialog>
     );

@@ -1,14 +1,13 @@
 import classNames from "classnames";
 import "./Input.css";
 import {forwardRef} from "react";
-import {type Appearance} from "./Appearance";
+import {useAppearance} from "./Appearance";
 
 export const Input = forwardRef<
     HTMLInputElement,
-    {
-        appearance: Appearance;
-    } & React.InputHTMLAttributes<HTMLInputElement>
->(function Input({appearance, className, ...inputProps}, ref) {
+    React.InputHTMLAttributes<HTMLInputElement>
+>(function Input({className, ...inputProps}, ref) {
+    const appearance = useAppearance();
     const inputClassName = classNames(
         "Input",
         `Input-${appearance}`,

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import {appearanceSystemFont, type Appearance} from "./controls/Appearance";
+import {appearanceSystemFont, useAppearance} from "./controls/Appearance";
 import {
     DrawerContents,
     DrawerHeader,
@@ -33,30 +33,26 @@ export default function MacLibraryContents({
     detailsItem,
     setDetailsItem,
     onRun,
-    appearance,
 }: {
     search: string;
     setSearch: (search: string) => void;
     detailsItem: LibraryIndexItem | undefined;
     setDetailsItem: (item: LibraryIndexItem | undefined) => void;
     onRun: OnRunFn;
-    appearance: Appearance;
 }) {
     return (
-        <DrawerContents appearance={appearance} tall>
+        <DrawerContents tall>
             {detailsItem ? (
                 <MacLibraryItemDetails
                     item={detailsItem}
                     onRun={onRun}
                     onBack={() => setDetailsItem(undefined)}
-                    appearance={appearance}
                 />
             ) : (
                 <MacLibraryBrowser
                     search={search}
                     setSearch={setSearch}
                     onSelectItem={setDetailsItem}
-                    appearance={appearance}
                 />
             )}
         </DrawerContents>
@@ -67,12 +63,10 @@ function MacLibraryBrowser({
     search,
     setSearch,
     onSelectItem,
-    appearance,
 }: {
     search: string;
     setSearch: (search: string) => void;
     onSelectItem: OnSelectItemFn;
-    appearance: Appearance;
 }) {
     const [games, apps] = useMemo(() => {
         if (!search) {
@@ -87,18 +81,13 @@ function MacLibraryBrowser({
 
     return (
         <>
-            <MacLibraryHeader
-                search={search}
-                setSearch={setSearch}
-                appearance={appearance}
-            />
-            <DrawerList appearance={appearance} tall>
+            <MacLibraryHeader search={search} setSearch={setSearch} />
+            <DrawerList tall>
                 {games.length > 0 && (
                     <MacLibraryTable
                         title="Game"
                         items={games}
                         onSelectItem={onSelectItem}
-                        appearance={appearance}
                     />
                 )}
                 {apps.length > 0 && (
@@ -106,7 +95,6 @@ function MacLibraryBrowser({
                         title="Application"
                         items={apps}
                         onSelectItem={onSelectItem}
-                        appearance={appearance}
                     />
                 )}
                 {apps.length === 0 && games.length === 0 && (
@@ -121,13 +109,12 @@ function MacLibraryItemDetails({
     item,
     onRun,
     onBack,
-    appearance,
 }: {
     item: LibraryIndexItem;
     onRun: OnRunFn;
     onBack: () => void;
-    appearance: Appearance;
 }) {
+    const appearance = useAppearance();
     const details = useLibraryItemDetails(item);
     const setDescription = useCallback(
         (node: HTMLDivElement | null) => {
@@ -260,29 +247,27 @@ function MacLibraryItemDetails({
                 )}>
                 <div className="Mac-Library-Item-Details-Column">
                     {details.screenshots.length > 0 && (
-                        <Group appearance={appearance} label="Screenshots">
+                        <Group label="Screenshots">
                             <MacLibraryScreenshots
                                 item={item}
                                 details={details}
-                                appearance={appearance}
                             />
                         </Group>
                     )}
                     <MacLibraryItemDownloads
-                        appearance={appearance}
                         item={item}
                         details={details}
                         onRun={onRun}
                     />
                 </div>
                 <div className="Mac-Library-Item-Details-Column">
-                    <Group appearance={appearance} label="Info">
+                    <Group label="Info">
                         <table className="Mac-Library-Item-Details-Table">
                             <tbody>{detailRows}</tbody>
                         </table>
                     </Group>
                     {details.description && (
-                        <Group appearance={appearance} label="Description">
+                        <Group label="Description">
                             <div
                                 className="Mac-Library-Item-Details-Description"
                                 ref={setDescription}
@@ -299,9 +284,7 @@ function MacLibraryItemDetails({
     return (
         <>
             <DrawerHeader>
-                <Button onClick={onBack} appearance={appearance}>
-                    ‹ Back
-                </Button>
+                <Button onClick={onBack}>‹ Back</Button>
                 <div
                     className={classNames(
                         appearanceSystemFont(appearance),
@@ -316,21 +299,16 @@ function MacLibraryItemDetails({
 }
 
 function MacLibraryItemDownloads({
-    appearance,
     item,
     details,
     onRun,
 }: {
-    appearance: Appearance;
     item: LibraryIndexItem;
     details: LibraryDetailsItem;
     onRun: OnRunFn;
 }) {
     return (
-        <Group
-            label="Downloads"
-            appearance={appearance}
-            className="Mac-Library-Item-Details-Downloads">
+        <Group label="Downloads" className="Mac-Library-Item-Details-Downloads">
             <ol>
                 {Object.entries(details.files).map(([file, size]) => {
                     const url = downloadUrl(file, item.type);
@@ -367,13 +345,12 @@ const MacLibraryTable = memo(function ({
     title,
     items,
     onSelectItem,
-    appearance,
 }: {
     title: string;
     items: LibraryIndexItem[];
     onSelectItem: OnSelectItemFn;
-    appearance: Appearance;
 }) {
+    const appearance = useAppearance();
     let truncationCount = 0;
     if (items.length > 1000) {
         truncationCount = items.length - 1000;
@@ -390,10 +367,7 @@ const MacLibraryTable = memo(function ({
     ) => {
         const content =
             appearance === "Platinum" ? (
-                <BevelButton
-                    appearance={appearance}
-                    selected={selected}
-                    centered={false}>
+                <BevelButton selected={selected} centered={false}>
                     {label}
                 </BevelButton>
             ) : (

@@ -6,7 +6,7 @@ import {
     useContext,
     useState,
 } from "react";
-import {type Appearance} from "./Appearance";
+import {useAppearance} from "./Appearance";
 import classNames from "classnames";
 import "./Drawer.css";
 
@@ -29,13 +29,11 @@ export function Drawer({
     title,
     titleIconUrl,
     titleIconSmoothScale,
-    appearance,
     contents,
 }: {
     title: string;
     titleIconUrl: string;
     titleIconSmoothScale?: boolean;
-    appearance: Appearance;
     contents: (collapse: () => void) => ReactNode;
 }) {
     const {anyDrawerExpanded, setAnyDrawerExpanded} = useContext(
@@ -51,6 +49,7 @@ export function Drawer({
         setAnyDrawerExpanded(false);
     }, [setAnyDrawerExpanded]);
 
+    const appearance = useAppearance();
     const className = classNames("Drawer", `Drawer-${appearance}`, {
         "Drawer-Expanded": expanded,
     });
@@ -74,9 +73,9 @@ export function Drawer({
 
 export function DrawerContents({
     children,
-    appearance,
     tall,
-}: PropsWithChildren<{appearance: Appearance; tall?: boolean}>) {
+}: PropsWithChildren<{tall?: boolean}>) {
+    const appearance = useAppearance();
     return (
         <div
             className={classNames(
@@ -97,9 +96,9 @@ export function DrawerHeader({children}: PropsWithChildren) {
 
 export function DrawerList({
     children,
-    appearance,
     tall,
-}: PropsWithChildren<{appearance: Appearance; tall?: boolean}>) {
+}: PropsWithChildren<{tall?: boolean}>) {
+    const appearance = useAppearance();
     return (
         <div
             className={classNames("Drawer-List", `Drawer-List-${appearance}`, {

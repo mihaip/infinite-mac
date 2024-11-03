@@ -24,6 +24,7 @@ import classNames from "classnames";
 import {canSaveDisks} from "./canSaveDisks";
 import {usePersistentState} from "./usePersistentState";
 import {viewTransitionNameForDisk} from "./view-transitions";
+import {AppearanceProvider} from "./controls/Appearance";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -63,7 +64,9 @@ export function Browser({
                 <div className="Year">
                     <h2>{new Date().getFullYear()}</h2>
                     <div className="Disks">
-                        <CustomDisk onRun={onRun} />
+                        <AppearanceProvider appearance="Platinum">
+                            <CustomDisk onRun={onRun} />
+                        </AppearanceProvider>
                     </div>
                 </div>
             </div>
@@ -302,33 +305,32 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
     const {appearance = "Classic"} = disk;
 
     return (
-        <div
-            className={classNames(
-                "DiskContents",
-                `DiskContents-${bezelStyle}`
-            )}>
-            <DiskHeader disk={disk} />
-            <div className="Row DiskDescription">{disk.description}</div>
-            <div className="Row Buttons">
-                <Button
-                    appearance={appearance}
-                    className="CustomizeButton"
-                    onClick={() => setCustomVisible(true)}>
-                    Customize…
-                </Button>
-                <Button appearance={appearance} onClick={run}>
-                    Run
-                </Button>
-            </div>
+        <AppearanceProvider appearance={appearance}>
+            <div
+                className={classNames(
+                    "DiskContents",
+                    `DiskContents-${bezelStyle}`
+                )}>
+                <DiskHeader disk={disk} />
+                <div className="Row DiskDescription">{disk.description}</div>
+                <div className="Row Buttons">
+                    <Button
+                        className="CustomizeButton"
+                        onClick={() => setCustomVisible(true)}>
+                        Customize…
+                    </Button>
+                    <Button onClick={run}>Run</Button>
+                </div>
 
-            {customVisible && (
-                <Custom
-                    defaultDisk={disk}
-                    onRun={onRun}
-                    onDone={() => setCustomVisible(false)}
-                />
-            )}
-        </div>
+                {customVisible && (
+                    <Custom
+                        defaultDisk={disk}
+                        onRun={onRun}
+                        onDone={() => setCustomVisible(false)}
+                    />
+                )}
+            </div>
+        </AppearanceProvider>
     );
 }
 
@@ -374,9 +376,7 @@ function CustomDisk({onRun}: {onRun: BrowserRunFn}) {
                         machine and disk images.
                     </div>
                     <div className="Row Buttons">
-                        <Button
-                            appearance="Platinum"
-                            onClick={() => setCustomVisible(true)}>
+                        <Button onClick={() => setCustomVisible(true)}>
                             Run…
                         </Button>
                     </div>

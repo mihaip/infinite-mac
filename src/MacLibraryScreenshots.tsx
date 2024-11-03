@@ -3,17 +3,14 @@ import {useRef, useState} from "react";
 import {type LibraryDetailsItem, type LibraryIndexItem} from "./library";
 import {screenshotThumbnailUrl, screenshotUrl} from "./library-urls";
 import classNames from "classnames";
-import {type Appearance} from "./controls/Appearance";
 import {Button} from "./controls/Button";
 
 export function MacLibraryScreenshots({
     item,
     details,
-    appearance,
 }: {
     item: LibraryIndexItem;
     details: LibraryDetailsItem;
-    appearance: Appearance;
 }) {
     const {screenshots} = details;
     const carouselRef = useRef<HTMLDivElement>(null);
@@ -66,7 +63,6 @@ export function MacLibraryScreenshots({
             {screenshots.length > 1 && (
                 <div className="controls">
                     <Button
-                        appearance={appearance}
                         onClick={prevImage}
                         aria-label="Previous screenshot">
                         ‹
@@ -83,10 +79,7 @@ export function MacLibraryScreenshots({
                             />
                         ))}
                     </div>
-                    <Button
-                        appearance={appearance}
-                        onClick={nextImage}
-                        aria-label="Next screenshot">
+                    <Button onClick={nextImage} aria-label="Next screenshot">
                         ›
                     </Button>
                 </div>

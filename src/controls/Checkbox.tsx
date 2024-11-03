@@ -1,15 +1,13 @@
 import classNames from "classnames";
 import "./Checkbox.css";
-import {type Appearance} from "./Appearance";
+import {useAppearance} from "./Appearance";
 
 export function Checkbox({
-    appearance,
     className,
     children,
     ...inputProps
-}: {
-    appearance: Appearance;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">) {
+}: Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">) {
+    const appearance = useAppearance();
     const selectClassName = classNames(
         "Checkbox",
         `Checkbox-${appearance}`,

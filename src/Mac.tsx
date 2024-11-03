@@ -38,7 +38,6 @@ import {
     resetDiskSaver,
     saveDiskSaverImage,
 } from "./emulator/emulator-ui-disk-saver";
-import {type Appearance} from "./controls/Appearance";
 import {
     emulatorNeedsMouseDeltas,
     emulatorSupportsCDROMs,
@@ -358,7 +357,6 @@ export default function Mac({
         handleMacLibraryRun,
         handleMacLibraryProgress,
     ]);
-    const {appearance = "Classic"} = disks[0] ?? {};
 
     const handleFullScreenClick = () => {
         // Make the entire page go fullscreen (instead of just the screen
@@ -708,7 +706,6 @@ export default function Mac({
                     <MacSettings
                         emulatorType={machine.emulatorType}
                         emulatorSettings={emulatorSettings}
-                        appearance={appearance}
                         setEmulatorSettings={setEmulatorSettings}
                         hasSavedHD={hasSavedHD}
                         onStorageReset={() => {
@@ -740,7 +737,6 @@ export default function Mac({
                 )}
                 {emulatorErrorText && (
                     <MacError
-                        appearance={appearance}
                         text={emulatorErrorText}
                         onDone={() => setEmulatorErrorText("")}
                     />
@@ -751,7 +747,6 @@ export default function Mac({
                     {emulatorSupportsCDROMs(machine.emulatorType) && (
                         <MacCDROMs
                             onRun={loadCDROM}
-                            appearance={appearance}
                             platform={machine.platform}
                         />
                     )}
@@ -760,7 +755,6 @@ export default function Mac({
                             machine.emulatorType
                         ) && (
                             <MacLibrary
-                                appearance={appearance}
                                 onLoadProgress={handleMacLibraryProgress}
                                 onRun={handleMacLibraryRun}
                                 onRunCDROM={loadCDROM}
@@ -970,21 +964,9 @@ function MacEthernetStatus({
     );
 }
 
-function MacError({
-    appearance,
-    text,
-    onDone,
-}: {
-    appearance: Appearance;
-    text: string;
-    onDone: () => void;
-}) {
+function MacError({text, onDone}: {text: string; onDone: () => void}) {
     return (
-        <Dialog
-            appearance={appearance}
-            title="Emulator Error"
-            onDone={onDone}
-            doneLabel="Bummer">
+        <Dialog title="Emulator Error" onDone={onDone} doneLabel="Bummer">
             <p style={{whiteSpace: "pre-line"}}>{text}</p>
         </Dialog>
     );
