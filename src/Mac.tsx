@@ -46,7 +46,11 @@ import {
 import {type ScreenSize} from "./run-def";
 import {viewTransitionNameForDisk} from "./view-transitions";
 import {DrawersContainer} from "./controls/Drawer";
-import {handleLibraryURL, MacLibrary} from "./MacLibrary";
+import {
+    handleLibraryURL,
+    MacLibrary,
+    preloadMacLibraryContents,
+} from "./MacLibrary";
 
 export type MacProps = {
     disks: SystemDiskDef[];
@@ -258,6 +262,11 @@ export default function Mac({
                         window.setTimeout(() => {
                             setEmulatorLoadingDiskChunk(false);
                         }, 200);
+                },
+                emulatorDidBecomeQuiescent(emulator: Emulator) {
+                    // Preload the library once we know it won't compete with
+                    // the emulator boot for network resources.
+                    preloadMacLibraryContents();
                 },
                 emulatorEthernetPeersDidChange(emulator, peers) {
                     if (ethernetProvider) {
