@@ -152,7 +152,13 @@ export function MacLibraryHeader({
     );
 }
 
-const MacLibraryContents = React.lazy(() => import("./MacLibraryContents"));
+// Lazy-load to avoid the bundle size hit, but allow preloading so that it's
+// usually ready by the time the drawer is opened.
+const contentsLoader = () => import("./MacLibraryContents");
+const MacLibraryContents = React.lazy(contentsLoader);
+export function preloadMacLibraryContents() {
+    contentsLoader();
+}
 
 function MacLibraryContentsFallback() {
     return (

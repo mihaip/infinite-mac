@@ -127,6 +127,7 @@ export interface EmulatorDelegate {
     emulatorDidFinishLoading?(emulator: Emulator): void;
     emulatorDidStartToLoadDiskChunk?(emulator: Emulator): void;
     emulatorDidFinishLoadingDiskChunk?(emulator: Emulator): void;
+    emulatorDidBecomeQuiescent?(emulator: Emulator): void;
     emulatorEthernetPeersDidChange?(
         emulator: Emulator,
         peers: readonly EmulatorEthernetPeer[]
@@ -852,6 +853,7 @@ export class Emulator {
             handleDirectoryExtraction(e.data.extraction);
         } else if (e.data.type === "emulator_quiescent") {
             console.timeEnd("Emulator quiescent");
+            this.#delegate?.emulatorDidBecomeQuiescent?.(this);
         } else if (e.data.type === "emulator_stopped") {
             this.#handleEmulatorStopped(e.data.isExit);
         } else if (e.data.type === "emulator_ethernet_init") {
