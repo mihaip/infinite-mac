@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2024-11-03: Added a Macintosh Garden software library drawer. See https://blog.persistent.info/2024/11/infinite-mac-macintosh-garden-library.html for more details.
+
 2024-03-25: Added all major NeXTSTEP releases. See https://blog.persistent.info/2024/03/infinite-mac-nextstep.html for more details.
 
 2024-02-19: Added option to use relative mouse movement in Basilisk II and SheepShaver-based machines, which improves compatibility with some games.
