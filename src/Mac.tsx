@@ -135,7 +135,7 @@ export default function Mac({
         machine.fixedScreenSize ??
         (typeof screenSizeProp === "object"
             ? screenSizeProp
-            : SCREEN_SIZES[screenSizeProp]);
+            : SCREEN_SIZES[screenSizeProp](machine));
     const {width: initialScreenWidth, height: initialScreenHeight} =
         initialScreenSize;
     const [screenSize, setScreenSize] = useState(initialScreenSize);
@@ -875,29 +875,34 @@ function uploadFiles(
 const SMALL_BEZEL_THRESHOLD = 80;
 const MEDIUM_BEZEL_THRESHOLD = 168;
 
-const SCREEN_SIZES = {
-    "auto": (() => {
+const SCREEN_SIZES: {
+    [id: string]: (machine: MachineDef) => {width: number; height: number};
+} = {
+    "auto": machine => {
         const availableWidth = window.innerWidth - MEDIUM_BEZEL_THRESHOLD;
         const availableHeight = window.innerHeight - MEDIUM_BEZEL_THRESHOLD;
-        for (const [width, height] of [
-            [1600, 1200],
-            [1280, 1024],
-            [1152, 870],
-            [1024, 768],
-            [800, 600],
-            [640, 480],
-        ]) {
+        const {
+            supportedScreenSizes = [
+                {width: 1600, height: 1200},
+                {width: 1280, height: 1024},
+                {width: 1152, height: 870},
+                {width: 1024, height: 768},
+                {width: 800, height: 600},
+                {width: 640, height: 480},
+            ],
+        } = machine;
+        for (const {width, height} of supportedScreenSizes) {
             if (width <= availableWidth && height <= availableHeight) {
                 return {width, height};
             }
         }
         return {width: 640, height: 480};
-    })(),
-    "window": {width: window.innerWidth, height: window.innerHeight},
-    "fullscreen": {
+    },
+    "window": () => ({width: window.innerWidth, height: window.innerHeight}),
+    "fullscreen": () => ({
         width: window.screen.width,
         height: window.screen.availHeight,
-    },
+    }),
 };
 
 // Assume that mobile devices that can't do hover events also need an explicit
