@@ -67,6 +67,7 @@ import {
     POWER_MACINTOSH_7500,
     POWER_MACINTOSH_6100,
     POWER_MACINTOSH_G3_BEIGE,
+    POWER_MACINTOSH_G3_BW_DPPC,
 } from "../machines";
 import {type EmulatorDiskDef} from "../disks";
 import deviceImageHeaderPath from "../Data/Device Image Header (All Drivers).hda";
@@ -317,7 +318,9 @@ export class Emulator {
 
         const emulatorWasmPath = getEmulatorWasmPath(this.#config.machine);
 
-        let extraMachineFiles: {[fileName: string]: string} = {};
+        let extraMachineFiles: {[fileName: string]: string} = {
+            ...this.#config.machine.extraFiles,
+        };
         for (const disk of [
             ...this.#config.disks,
             ...(this.#config.delayedDisks ?? []),
@@ -1162,6 +1165,10 @@ function configToDingusPPCArgs(
     switch (config.machine.gestaltID) {
         case POWER_MACINTOSH_7500.gestaltID:
             args.push("--machine", "pm7500");
+            break;
+        case POWER_MACINTOSH_G3_BW_DPPC.gestaltID:
+            args.push("--machine", "pmg3nw");
+            args.push("--pci_J12", "AtiMach64Gx");
             break;
     }
 
