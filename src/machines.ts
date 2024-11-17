@@ -28,6 +28,11 @@ export type MachineDef = EmulatorDef & {
     gestaltID: number;
     prefsPath: string;
     fixedScreenSize?: {width: number; height: number};
+    supportedScreenSizes?: {
+        width: number;
+        height: number;
+        monitorId?: string; // Mostly for DingusPPC
+    }[];
     mfsOnly?: boolean;
     bezelStyle: "Beige" | "Platinum" | "Pinstripes" | "NeXT";
     ramSizes: MachineDefRAMSize[]; // First value is the default
@@ -133,7 +138,11 @@ export const POWER_MACINTOSH_6100: MachineDef = {
     gestaltID: 67,
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
-    fixedScreenSize: {width: 640, height: 480},
+    supportedScreenSizes: [
+        {width: 832, height: 624, monitorId: "Multiscan17in"},
+        {width: 640, height: 870, monitorId: "MacRGB15in"},
+        {width: 640, height: 480, monitorId: "Multiscan15in"},
+    ],
     bezelStyle: "Platinum",
     // The 6100 has 8MB of RAM soldered to the motherboard, these are sizes with
     // with pairs of 64, 32, 16, 8, 4, and 2MB and 0MB SIMMs installed.
@@ -159,7 +168,12 @@ export const POWER_MACINTOSH_7500: MachineDef = {
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
     bezelStyle: "Platinum",
-    fixedScreenSize: {width: 640, height: 480},
+    supportedScreenSizes: [
+        {width: 1152, height: 870, monitorId: "Multiscan20in"},
+        {width: 832, height: 624, monitorId: "Multiscan17in"},
+        {width: 640, height: 870, monitorId: "MacRGB15in"},
+        {width: 640, height: 480, monitorId: "Multiscan15in"},
+    ],
     ramSizes: ["16M", "32M", "64M", "128M", "256M"],
 };
 

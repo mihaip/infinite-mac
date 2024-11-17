@@ -230,6 +230,16 @@ export function Custom({
                             {runDef.machine.fixedScreenSize.width} x{" "}
                             {runDef.machine.fixedScreenSize.height}
                         </>
+                    ) : runDef.machine.supportedScreenSizes ? (
+                        <ScreenSizePickerConstrained
+                            supportedScreenSizes={
+                                runDef.machine.supportedScreenSizes
+                            }
+                            value={runDef.screenSize}
+                            onChange={screenSize =>
+                                setRunDef({...runDef, screenSize})
+                            }
+                        />
                     ) : (
                         <ScreenSizePicker
                             value={runDef.screenSize}
@@ -756,6 +766,59 @@ function ScreenSizePicker({
                     />
                 </>
             )}
+        </div>
+    );
+}
+
+function ScreenSizePickerConstrained({
+    supportedScreenSizes,
+    value,
+    onChange,
+}: {
+    supportedScreenSizes: {width: number; height: number}[];
+    value: ScreenSize;
+    onChange: (value: ScreenSize) => void;
+}) {
+    const options = [
+        <option key="auto" value={JSON.stringify("auto")}>
+            Automatic
+        </option>,
+    ];
+
+    for (const size of supportedScreenSizes) {
+        options.push(
+            <option key={JSON.stringify(size)} value={JSON.stringify(size)}>
+                {size.width} × {size.height}
+            </option>
+        );
+    }
+
+    // Make sure that we have a valid option selected
+    useEffect(() => {
+        if (value === "auto") {
+            return;
+        }
+        if (typeof value === "string") {
+            onChange("auto");
+            return;
+        }
+        for (const size of supportedScreenSizes) {
+            if (size.width === value.width && size.height === value.height) {
+                return;
+            }
+        }
+        onChange("auto");
+    }, [onChange, supportedScreenSizes, value]);
+
+    return (
+        <div className="Custom-Dialog-ScreenSize">
+            <Select
+                value={JSON.stringify(value)}
+                onChange={e =>
+                    onChange(JSON.parse(e.target.value) as ScreenSize)
+                }>
+                {options}
+            </Select>
         </div>
     );
 }

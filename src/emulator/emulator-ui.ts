@@ -1164,6 +1164,21 @@ function configToDingusPPCArgs(
             args.push("--machine", "pm7500");
             break;
     }
+
+    // Map screen sizes to the a monitor ID
+    if (config.machine.supportedScreenSizes) {
+        for (const size of config.machine.supportedScreenSizes) {
+            if (
+                size.width === config.screenWidth &&
+                size.height === config.screenHeight &&
+                size.monitorId
+            ) {
+                args.push("--mon_id", size.monitorId);
+                break;
+            }
+        }
+    }
+
     return args;
 }
 
