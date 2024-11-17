@@ -9,6 +9,8 @@ import powerMacintosh6100RomPath from "./Data/Power-Macintosh-6100.rom";
 import powerMacintosh7500RomPath from "./Data/Power-Macintosh-7500.rom";
 import powerMacintosh9500RomPath from "./Data/Power-Macintosh-9500.rom";
 import powerMacintoshG3RomPath from "./Data/Power-Macintosh-G3.rom";
+import atiMach64RomPath from "./Data/ATI-Mach64.rom";
+import powerMacintoshG3BWBootRomPath from "./Data/Power-Macintosh-G3-BW-Boot.rom";
 import nextRev10V41RomPath from "./Data/NeXT-Rev_1.0_v41.rom";
 import nextRev25V66RomPath from "./Data/NeXT-Rev_2.5_v66.rom";
 import nextRev33V74RomPath from "./Data/NeXT-Rev_3.3_v74.rom";
@@ -37,6 +39,9 @@ export type MachineDef = EmulatorDef & {
     bezelStyle: "Beige" | "Platinum" | "Pinstripes" | "NeXT";
     ramSizes: MachineDefRAMSize[]; // First value is the default
     platform?: MachinePlatform;
+    // Optional map from file name to URL with extra files to include in the
+    // Emscripten filesystem when starting this machine.
+    extraFiles?: {[fileName: string]: string};
 };
 
 export type MachineDefRAMSize = `${number}M` | `${number}K`;
@@ -189,6 +194,21 @@ export const POWER_MACINTOSH_G3_BEIGE: MachineDef = {
     ramSizes: ["256M", "128M", "64M", "32M"],
 };
 
+export const POWER_MACINTOSH_G3_BW_DPPC: MachineDef = {
+    name: "Power Macintosh G3 (Blue & White) - Experimental",
+    cpu: "G3",
+    romPath: powerMacintoshG3BWBootRomPath,
+    gestaltID: 406,
+    emulatorType: "DingusPPC",
+    prefsPath: emptyPrefsPath,
+    bezelStyle: "Pinstripes",
+    fixedScreenSize: {width: 1024, height: 768},
+    ramSizes: ["256M", "128M", "64M", "32M"],
+    extraFiles: {
+        "113-32900-004_Apple_MACH64.bin": atiMach64RomPath,
+    },
+};
+
 export const POWER_MACINTOSH_G3_BW: MachineDef = {
     name: "Power Macintosh G3 (Blue & White)",
     cpu: "G3",
@@ -268,6 +288,7 @@ export const ALL_MACHINES = [
     POWER_MACINTOSH_7500,
     POWER_MACINTOSH_9500,
     POWER_MACINTOSH_G3_BEIGE,
+    POWER_MACINTOSH_G3_BW_DPPC,
     POWER_MACINTOSH_G3_BW,
     NEXT_COMPUTER,
     NEXT_CUBE,
