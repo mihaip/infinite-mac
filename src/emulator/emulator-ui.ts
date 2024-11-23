@@ -1134,7 +1134,10 @@ function configToDingusPPCArgs(
     }
     if (hardDisks.length > 0) {
         // TODO: support more than one hard disk on IDE-based machines
-        if (config.machine.gestaltID !== POWER_MACINTOSH_G3_BEIGE.gestaltID) {
+        if (
+            config.machine.gestaltID !== POWER_MACINTOSH_G3_BEIGE.gestaltID &&
+            config.machine.gestaltID !== POWER_MACINTOSH_G3_BW_DPPC.gestaltID
+        ) {
             args.push("--hdd_img", hardDisks.join(":"));
         } else {
             args.push("--hdd_img", hardDisks[0]);
@@ -1165,6 +1168,9 @@ function configToDingusPPCArgs(
     switch (config.machine.gestaltID) {
         case POWER_MACINTOSH_7500.gestaltID:
             args.push("--machine", "pm7500");
+            break;
+        case POWER_MACINTOSH_G3_BEIGE.gestaltID:
+            args.push("--gfxmem_size", "6");
             break;
         case POWER_MACINTOSH_G3_BW_DPPC.gestaltID:
             args.push("--machine", "pmg3nw");

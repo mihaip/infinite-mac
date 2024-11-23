@@ -190,7 +190,12 @@ export const POWER_MACINTOSH_G3_BEIGE: MachineDef = {
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
     bezelStyle: "Platinum",
-    fixedScreenSize: {width: 1024, height: 768},
+    supportedScreenSizes: [
+        {width: 1152, height: 870, monitorId: "MacColor21in"},
+        {width: 1024, height: 768, monitorId: "Multiscan17in"},
+        {width: 832, height: 624, monitorId: "Multiscan15in"},
+        {width: 640, height: 480, monitorId: "HiRes12-14in"},
+    ],
     ramSizes: ["256M", "128M", "64M", "32M"],
 };
 
@@ -202,7 +207,12 @@ export const POWER_MACINTOSH_G3_BW_DPPC: MachineDef = {
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
     bezelStyle: "Pinstripes",
-    fixedScreenSize: {width: 1024, height: 768},
+    supportedScreenSizes: [
+        {width: 1152, height: 870, monitorId: "MacColor21in"},
+        {width: 1024, height: 768, monitorId: "Multiscan17in"},
+        {width: 832, height: 624, monitorId: "Multiscan15in"},
+        {width: 640, height: 480, monitorId: "HiRes12-14in"},
+    ],
     ramSizes: ["256M", "128M", "64M", "32M"],
     extraFiles: {
         "113-32900-004_Apple_MACH64.bin": atiMach64RomPath,
