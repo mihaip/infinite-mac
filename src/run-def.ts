@@ -87,7 +87,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         isCustom = true;
     }
     if (!machine && disks.length > 0) {
-        machine = disks[0].machines[0];
+        machine = disks[0].preferredMachine;
     }
     if (!machine) {
         return undefined;
@@ -204,7 +204,7 @@ export function runDefToUrl(runDef: RunDef): string {
         url.searchParams.append("cdrom", cdromURL);
     }
 
-    if (disks.length !== 1 || machine !== disks[0].machines[0]) {
+    if (disks.length !== 1 || machine !== disks[0].preferredMachine) {
         url.searchParams.set("machine", machine.name);
     }
     if (runDef.ramSize && runDef.ramSize !== machine.ramSizes[0]) {

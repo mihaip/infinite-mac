@@ -13,7 +13,6 @@ import {
     QUADRA_650,
     POWER_MACINTOSH_6100,
     NEXT_COMPUTER,
-    NEXT_CUBE,
     NEXT_STATION,
     NEXT_STATION_TURBO_COLOR,
     POWER_MACINTOSH_G3_BEIGE,
@@ -52,7 +51,7 @@ export type SystemDiskDef = EmulatorDiskDef & {
     displaySubtitle?: string;
     releaseDate: [year: number, month: number, date: number];
     description: string;
-    machines: MachineDef[];
+    preferredMachine: MachineDef;
     appleTalkSupported?: boolean;
     infiniteHdSubset?: "mfs" | "system6";
     delayAdditionalDiskMount?: boolean;
@@ -73,7 +72,7 @@ export type PlaceholderDiskDef = {
     displaySubtitle?: string;
     releaseDate: [year: number, month: number, date: number];
     description: string;
-    machines: MachineDef[];
+    preferredMachine: MachineDef;
     appearance?: Appearance;
 };
 
@@ -93,7 +92,7 @@ const SYSTEM_1_0: SystemDiskDef = {
     description: "Initial system software release, shipped with the Mac 128K.",
     releaseDate: [1984, 1, 24],
     prefetchChunks: [0, 1],
-    machines: [MAC_128K],
+    preferredMachine: MAC_128K,
     infiniteHdSubset: "mfs",
     // Loading the Infinite HD disk as part of the initial set of images does
     // appear to work in System 1.0 under Mini vMac, but if we delay it until
@@ -108,7 +107,7 @@ const SYSTEM_1_0_ORIGINAL: SystemDiskDef = {
     description: "Initial system software release, shipped with the Mac 128K.",
     releaseDate: [1984, 1, 24],
     prefetchChunks: [0, 1],
-    machines: [MAC_128K],
+    preferredMachine: MAC_128K,
     infiniteHdSubset: "mfs",
     delayAdditionalDiskMount: true,
     generatedSpec: () => import("./Data/System 1.0 (Original).dsk.json"),
@@ -121,7 +120,7 @@ const SYSTEM_1_1: SystemDiskDef = {
         "Maintenance release that improved disk copying speeds and added the “Set Startup” command and the Finder about box.",
     releaseDate: [1984, 5, 5],
     prefetchChunks: [0, 1],
-    machines: [MAC_128K],
+    preferredMachine: MAC_128K,
     infiniteHdSubset: "mfs",
     generatedSpec: () => import("./Data/System 1.1.dsk.json"),
 };
@@ -132,7 +131,7 @@ const SYSTEM_2_0: SystemDiskDef = {
         "Introduced the ”New Folder” and ”Shut Down” commands, the MiniFinder, and the Choose Printer DA. Also added icons to list view and the Command-Shift-3 screenshot FKEY.",
     releaseDate: [1985, 4, 8],
     prefetchChunks: [0, 1],
-    machines: [MAC_128K],
+    preferredMachine: MAC_128K,
     infiniteHdSubset: "mfs",
     generatedSpec: () => import("./Data/System 2.0.dsk.json"),
     notable: true,
@@ -145,7 +144,7 @@ const SYSTEM_2_1: SystemDiskDef = {
     releaseDate: [1985, 9, 17],
     prefetchChunks: [0, 1, 2],
     // The Mac 128K is supported, but HFS is not loaded in that case.
-    machines: [MAC_512KE, MAC_128K],
+    preferredMachine: MAC_512KE,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 2.1.dsk.json"),
     notable: true,
@@ -157,7 +156,7 @@ const SYSTEM_3_0: SystemDiskDef = {
         "Added more complete support for HFS, a RAM disk cache, zoom boxes for windows and a redesigned control panel. Introduced with the Mac Plus.",
     releaseDate: [1986, 1, 16],
     prefetchChunks: [0, 1, 2],
-    machines: [MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_PLUS,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 3.0.dsk.json"),
     notable: true,
@@ -169,7 +168,7 @@ const SYSTEM_3_1: PlaceholderDiskDef = {
     releaseDate: [1986, 2, 14], // Precise date is not known
     description:
         "Caused data corruption and was superseded by 3.2 shortly after release.",
-    machines: [MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_PLUS,
 };
 
 const SYSTEM_3_2: SystemDiskDef = {
@@ -178,7 +177,7 @@ const SYSTEM_3_2: SystemDiskDef = {
         "Includes redesigned Calculator and Chooser desktop accessories.",
     releaseDate: [1986, 6, 2],
     prefetchChunks: [0, 1, 2],
-    machines: [MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_PLUS,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 3.2.dsk.json"),
 };
@@ -189,7 +188,7 @@ const SYSTEM_3_3: SystemDiskDef = {
         "Enhanced AppleShare file serving support. The Trash can icon now bulges when it's not empty.",
     releaseDate: [1987, 1, 12],
     prefetchChunks: [0, 1, 2],
-    machines: [MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_PLUS,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 3.3.dsk.json"),
 };
@@ -200,7 +199,7 @@ const SYSTEM_4_0: SystemDiskDef = {
         "Added the Find File desktop accessory and the Restart command. Features a redesigned control panel. Released with the Mac SE.",
     releaseDate: [1987, 3, 2],
     prefetchChunks: [0, 1, 2],
-    machines: [MAC_SE],
+    preferredMachine: MAC_SE,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 4.0.dsk.json"),
 };
@@ -211,7 +210,7 @@ const SYSTEM_4_1: SystemDiskDef = {
         "Added Easy Access accessibility features. Improved compatibility with larger hard drives. Released with the Mac II.",
     releaseDate: [1987, 4, 14],
     prefetchChunks: [0, 1, 2],
-    machines: [MAC_II, MAC_SE, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_II,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 4.1.dsk.json"),
 };
@@ -222,7 +221,7 @@ const SYSTEM_5_0: SystemDiskDef = {
         "Introduced the MultiFinder, revised the Finder about box, and improved printing support.",
     releaseDate: [1987, 10, 8],
     prefetchChunks: [0, 1, 2],
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_SE,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 5.0 HD.dsk.json"),
     notable: true,
@@ -233,7 +232,7 @@ const SYSTEM_5_1: SystemDiskDef = {
     description: "Updated the LaserWriter Driver and Apple HD SC Setup.",
     releaseDate: [1987, 12, 1],
     prefetchChunks: [0, 1, 2],
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_SE,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 5.1 HD.dsk.json"),
 };
@@ -243,7 +242,7 @@ const SYSTEM_6_0: SystemDiskDef = {
     description: "Added MacroMaker, Map and CloseView utilities.",
     releaseDate: [1988, 4, 30],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_SE,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0 HD.dsk.json"),
     notable: true,
@@ -254,7 +253,7 @@ const SYSTEM_6_0_1: PlaceholderDiskDef = {
     displayName: "System 6.0.1",
     description: "Released with the Mac IIx, buggy and short-lived.",
     releaseDate: [1988, 9, 19],
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_SE,
 };
 
 const SYSTEM_6_0_2: SystemDiskDef = {
@@ -262,7 +261,7 @@ const SYSTEM_6_0_2: SystemDiskDef = {
     description: "Updated LaserWriter and other printing-related utilites.",
     releaseDate: [1988, 9, 19],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_SE,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.2 HD.dsk.json"),
 };
@@ -272,7 +271,7 @@ const SYSTEM_6_0_3: SystemDiskDef = {
     description: "Added support for the Mac IIcx and SE/30.",
     releaseDate: [1989, 3, 7],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_SE,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.3 HD.dsk.json"),
 };
@@ -283,7 +282,7 @@ const SYSTEM_6_0_4: SystemDiskDef = {
         "Added support for the Mac IIci and Portable. Improved the installer. Holding down the option key when double-clicking in the Finder closes the parent window.",
     releaseDate: [1989, 9, 20],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_SE,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.4 HD.dsk.json"),
 };
@@ -294,7 +293,7 @@ const SYSTEM_6_0_5: SystemDiskDef = {
         "Bundled 32-bit QuickDraw (previously a separate package). Added support for the Mac IIfx.",
     releaseDate: [1990, 3, 19],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_SE,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.5 HD.dsk.json"),
     notable: true,
@@ -305,7 +304,7 @@ const SYSTEM_6_0_6: PlaceholderDiskDef = {
     displayName: "System 6.0.6.",
     releaseDate: [1990, 10, 15], // Official release date is not known.
     description: "Never officially released due to an AppleTalk bug.",
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_SE,
 };
 
 const SYSTEM_6_0_7: SystemDiskDef = {
@@ -314,7 +313,7 @@ const SYSTEM_6_0_7: SystemDiskDef = {
         "First release to ship on 1440K disks. Added support for the Classic, LC and IIsi.",
     releaseDate: [1990, 10, 15],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_SE,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.7 HD.dsk.json"),
 };
@@ -325,7 +324,7 @@ const SYSTEM_6_0_8: SystemDiskDef = {
         "Final release of System 6, updated printing software to match the printing software of System 7.",
     releaseDate: [1991, 4, 17],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    machines: [MAC_SE, MAC_II, MAC_PLUS, MAC_512KE],
+    preferredMachine: MAC_SE,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("./Data/System 6.0.8 HD.dsk.json"),
 };
@@ -338,7 +337,7 @@ const SYSTEM_7_0: SystemDiskDef = {
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     ],
-    machines: [MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    preferredMachine: MAC_IIFX,
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.0 HD.dsk.json"),
     notable: true,
@@ -353,7 +352,7 @@ const SYSTEM_7_1: SystemDiskDef = {
         0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22,
         25, 26,
     ],
-    machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    preferredMachine: QUADRA_650,
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.1 HD.dsk.json"),
 };
@@ -368,7 +367,7 @@ const SYSTEM_7_1_1: SystemDiskDef = {
         24, 25, 26, 27, 28, 29, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
         44,
     ],
-    machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    preferredMachine: QUADRA_650,
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.1.1 HD.dsk.json"),
 };
@@ -379,7 +378,7 @@ const SYSTEM_7_1_2: SystemDiskDef = {
         "Initial system software for the first Power Macintosh computers.",
     releaseDate: [1994, 3, 14],
     prefetchChunks: [0, 1, 2],
-    machines: [POWER_MACINTOSH_6100],
+    preferredMachine: POWER_MACINTOSH_6100,
     isUnstable: true,
     generatedSpec: () => import("./Data/System 7.1.2 HD.dsk.json"),
 };
@@ -390,7 +389,7 @@ const SYSTEM_7_1_2_DISK_TOOLS: SystemDiskDef = {
         "Disk Tools startup disk from the floppy disk version of System 7.1.2.",
     releaseDate: [1994, 3, 14],
     prefetchChunks: [0],
-    machines: [POWER_MACINTOSH_6100],
+    preferredMachine: POWER_MACINTOSH_6100,
     generatedSpec: () => import("./Data/System 7.1.2 Disk Tools FD.dsk.json"),
     isFloppy: true,
 };
@@ -405,7 +404,7 @@ const SYSTEM_7_5: SystemDiskDef = {
         26, 27, 28, 33, 39, 40, 41, 43, 44, 45, 46, 47, 48, 50, 51, 54, 55, 56,
         57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 70, 71, 72,
     ],
-    machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    preferredMachine: QUADRA_650,
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.5 HD.dsk.json"),
     notable: true,
@@ -417,7 +416,7 @@ const SYSTEM_7_5_DISK_TOOLS: SystemDiskDef = {
         "Disk Tools startup disk from the floppy disk version of System 7.5.",
     releaseDate: [1994, 9, 12],
     prefetchChunks: [0],
-    machines: [POWER_MACINTOSH_6100],
+    preferredMachine: POWER_MACINTOSH_6100,
     generatedSpec: () => import("./Data/System 7.5 Disk Tools FD.dsk.json"),
     isFloppy: true,
 };
@@ -433,7 +432,7 @@ const SYSTEM_7_5_1: SystemDiskDef = {
         64, 65, 66, 67, 68, 69, 70, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
         90, 91, 92, 93, 94,
     ],
-    machines: [QUADRA_650, MAC_IIFX, MAC_PLUS, MAC_SE, MAC_II],
+    preferredMachine: QUADRA_650,
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.5.1 HD.dsk.json"),
 };
@@ -449,7 +448,7 @@ const SYSTEM_7_5_2: SystemDiskDef = {
         64, 65, 66, 67, 68, 69, 70, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
         90, 91, 92, 93, 94,
     ],
-    machines: [POWER_MACINTOSH_7500, POWER_MACINTOSH_9500],
+    preferredMachine: POWER_MACINTOSH_7500,
     appleTalkSupported: true,
     isUnstable: true,
     generatedSpec: () => import("./Data/System 7.5.2 HD.dsk.json"),
@@ -467,7 +466,7 @@ const SYSTEM_7_5_3: SystemDiskDef = {
         94, 96, 98, 99, 100, 102, 103, 104, 106, 107, 108, 109, 110, 111, 113,
         114, 116, 117, 166,
     ],
-    machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
+    preferredMachine: QUADRA_650,
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.5.3 HD.dsk.json"),
     notable: true,
@@ -488,7 +487,7 @@ const SYSTEM_7_5_3_PPC: SystemDiskDef = {
         121, 122, 123, 124, 125, 129, 130, 131, 133, 134, 135, 136, 137, 139,
         140, 141, 142, 143, 144, 145, 146, 147, 148, 152, 153, 155,
     ],
-    machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_7500],
+    preferredMachine: POWER_MACINTOSH_9500,
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.5.3 (PPC) HD.dsk.json"),
 };
@@ -505,7 +504,7 @@ const KANJITALK_7_5_3: SystemDiskDef = {
         172, 174, 175, 176, 177, 179, 180, 181, 182, 183, 185, 186, 187, 189,
         190, 191, 192, 193, 194, 195, 196, 197, 399,
     ],
-    machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
+    preferredMachine: QUADRA_650,
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/KanjiTalk 7.5.3 HD.dsk.json"),
     notable: true,
@@ -517,7 +516,7 @@ const SYSTEM_7_5_4: PlaceholderDiskDef = {
     description:
         "Withdrawn from release at the last minute due a showstopper bug.",
     releaseDate: [1996, 9, 18],
-    machines: [QUADRA_650, MAC_PLUS, MAC_SE, MAC_II, MAC_IIFX],
+    preferredMachine: QUADRA_650,
 };
 
 const SYSTEM_7_5_5: SystemDiskDef = {
@@ -532,15 +531,7 @@ const SYSTEM_7_5_5: SystemDiskDef = {
         163, 164, 165, 168, 170, 171, 172, 180, 181, 182, 183, 184, 185, 186,
         187, 188, 189, 190,
     ],
-    machines: [
-        QUADRA_650,
-        MAC_PLUS,
-        MAC_SE,
-        MAC_II,
-        MAC_IIFX,
-        POWER_MACINTOSH_9500,
-        POWER_MACINTOSH_7500,
-    ],
+    preferredMachine: QUADRA_650,
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.5.5 HD.dsk.json"),
 };
@@ -559,12 +550,7 @@ const MAC_OS_7_6: SystemDiskDef = {
         153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166,
         167, 168, 169, 170, 171,
     ],
-    machines: [
-        QUADRA_650,
-        MAC_IIFX,
-        POWER_MACINTOSH_9500,
-        POWER_MACINTOSH_7500,
-    ],
+    preferredMachine: QUADRA_650,
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/Mac OS 7.6 HD.dsk.json"),
     notable: true,
@@ -586,7 +572,7 @@ const MAC_OS_8_0: SystemDiskDef = {
         189, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204,
         205, 206, 208,
     ],
-    machines: [QUADRA_650, POWER_MACINTOSH_9500, POWER_MACINTOSH_7500],
+    preferredMachine: QUADRA_650,
     appleTalkSupported: true,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 8.0 HD.dsk.json"),
@@ -607,7 +593,7 @@ const MAC_OS_8_1: SystemDiskDef = {
         155, 158, 159, 160, 161, 162, 163, 169, 170, 171, 172, 175, 176, 177,
         179, 181,
     ],
-    machines: [QUADRA_650, POWER_MACINTOSH_9500, POWER_MACINTOSH_7500],
+    preferredMachine: QUADRA_650,
     appleTalkSupported: true,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 8.1 HD.dsk.json"),
@@ -620,7 +606,7 @@ const MAC_OS_8_1_DISK_TOOLS_68K: SystemDiskDef = {
         "Disk Tools startup disk from the floppy disk version of Mac OS 8.1.",
     releaseDate: [1998, 1, 19],
     prefetchChunks: [0],
-    machines: [QUADRA_650],
+    preferredMachine: QUADRA_650,
     generatedSpec: () => import("./Data/Mac OS 8.1 Disk Tools 68K FD.dsk.json"),
     isFloppy: true,
 };
@@ -631,7 +617,7 @@ const MAC_OS_8_1_DISK_TOOLS_PPC: SystemDiskDef = {
         "Disk Tools startup disk from the floppy disk version of Mac OS 8.1.",
     releaseDate: [1998, 1, 19],
     prefetchChunks: [0],
-    machines: [POWER_MACINTOSH_9500],
+    preferredMachine: POWER_MACINTOSH_9500,
     generatedSpec: () => import("./Data/Mac OS 8.1 Disk Tools PPC FD.dsk.json"),
     isFloppy: true,
 };
@@ -657,7 +643,7 @@ const MAC_OS_8_5: SystemDiskDef = {
         351, 352, 353, 354, 363, 364, 414, 415, 416, 421, 422, 423, 425, 426,
         427, 428, 432, 453, 454, 458,
     ],
-    machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3_BW],
+    preferredMachine: POWER_MACINTOSH_9500,
     appleTalkSupported: true,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 8.5 HD.dsk.json"),
@@ -686,7 +672,7 @@ const MAC_OS_8_6: SystemDiskDef = {
         379, 380, 381, 382, 383, 384, 391, 392, 393, 399, 400, 401, 447, 448,
         449, 456, 457, 458, 483, 488,
     ],
-    machines: [POWER_MACINTOSH_9500, POWER_MACINTOSH_G3_BW],
+    preferredMachine: POWER_MACINTOSH_9500,
     appleTalkSupported: true,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 8.6 HD.dsk.json"),
@@ -716,7 +702,7 @@ const MAC_OS_9_0: SystemDiskDef = {
         433, 441, 446, 492, 494, 499, 500, 501, 502, 503, 506, 507, 508, 511,
         512, 515, 554, 559, 560, 562, 563, 564, 565, 566, 567, 568,
     ],
-    machines: [POWER_MACINTOSH_G3_BW, POWER_MACINTOSH_9500],
+    preferredMachine: POWER_MACINTOSH_G3_BW,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.0 HD.dsk.json"),
     notable: true,
@@ -727,7 +713,7 @@ const MAC_OS_9_0_1: PlaceholderDiskDef = {
     displayName: "Mac OS 9.0.1",
     description: "Under development but never released.",
     releaseDate: [2000, 1, 1], // Planned release date unknown
-    machines: [POWER_MACINTOSH_G3_BW, POWER_MACINTOSH_9500],
+    preferredMachine: POWER_MACINTOSH_G3_BW,
 };
 
 const MAC_OS_9_0_2: PlaceholderDiskDef = {
@@ -735,7 +721,7 @@ const MAC_OS_9_0_2: PlaceholderDiskDef = {
     displayName: "Mac OS 9.0.2",
     description: "Released with the PowerBook G3 (FireWire) only.",
     releaseDate: [2000, 2, 16],
-    machines: [POWER_MACINTOSH_G3_BW, POWER_MACINTOSH_9500],
+    preferredMachine: POWER_MACINTOSH_G3_BW,
 };
 
 const MAC_OS_9_0_3: PlaceholderDiskDef = {
@@ -743,7 +729,7 @@ const MAC_OS_9_0_3: PlaceholderDiskDef = {
     displayName: "Mac OS 9.0.3",
     description: "Released with iMacs only.",
     releaseDate: [2000, 3, 1], // Exact date unknown
-    machines: [POWER_MACINTOSH_G3_BW, POWER_MACINTOSH_9500],
+    preferredMachine: POWER_MACINTOSH_G3_BW,
 };
 
 const MAC_OS_9_0_4: SystemDiskDef = {
@@ -772,7 +758,7 @@ const MAC_OS_9_0_4: SystemDiskDef = {
         575, 577, 579, 580, 583, 586, 587, 588, 589, 591, 593, 595, 596, 597,
         598,
     ],
-    machines: [POWER_MACINTOSH_G3_BW, POWER_MACINTOSH_9500],
+    preferredMachine: POWER_MACINTOSH_G3_BW,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.0.4 HD.dsk.json"),
 };
@@ -807,7 +793,7 @@ const MAC_OS_9_1: SystemDiskDef = {
         967, 968, 969, 970, 971, 972, 973, 974, 977, 978, 979, 980, 984, 985,
         986, 987, 988, 989, 990,
     ],
-    machines: [POWER_MACINTOSH_G3_BEIGE],
+    preferredMachine: POWER_MACINTOSH_G3_BEIGE,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.1 HD.dsk.json"),
     notable: true,
@@ -820,7 +806,7 @@ const MAC_OS_9_2: PlaceholderDiskDef = {
     description:
         "Improved performance. Only distributed with mid-2001 G4 (QuickSilver) Power Macs.",
     releaseDate: [2001, 7, 18],
-    machines: [POWER_MACINTOSH_G3_BEIGE],
+    preferredMachine: POWER_MACINTOSH_G3_BEIGE,
 };
 
 const MAC_OS_9_2_1: PlaceholderDiskDef = {
@@ -828,7 +814,7 @@ const MAC_OS_9_2_1: PlaceholderDiskDef = {
     displayName: "Mac OS 9.2.1",
     description: "Improved Classic application compatibility under Mac OS X.",
     releaseDate: [2001, 8, 21],
-    machines: [POWER_MACINTOSH_G3_BEIGE],
+    preferredMachine: POWER_MACINTOSH_G3_BEIGE,
 };
 
 const MAC_OS_9_2_2: SystemDiskDef = {
@@ -864,7 +850,7 @@ const MAC_OS_9_2_2: SystemDiskDef = {
         1176, 1177, 1178, 1179, 1180, 1181, 1182, 1183, 1185, 1186, 1187, 1197,
         1198, 1199,
     ],
-    machines: [POWER_MACINTOSH_G3_BEIGE],
+    preferredMachine: POWER_MACINTOSH_G3_BEIGE,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.2.2 HD.dsk.json"),
     notable: true,
@@ -948,7 +934,7 @@ const MAC_OS_X_10_2_8: SystemDiskDef = {
         7779, 7780, 8085, 8086, 8089, 8090, 8091, 8092, 8093, 8094, 8108, 8109,
         8740, 16383,
     ],
-    machines: [POWER_MACINTOSH_G3_BEIGE],
+    preferredMachine: POWER_MACINTOSH_G3_BEIGE,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS X 10.2.8 HD.dsk.json"),
     extraMachineFiles: new Map([
@@ -989,7 +975,7 @@ const NEXTSTEP_0_8: SystemDiskDef = {
         3753, 3784, 3786, 3787, 3823, 3824, 3825, 3826, 3827, 3828, 3833, 3834,
         3846, 3863, 3871, 3877, 3903, 3911, 3912,
     ],
-    machines: [NEXT_COMPUTER],
+    preferredMachine: NEXT_COMPUTER,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTStep 0.8 HD.dsk.json"),
     notable: true,
@@ -1019,7 +1005,7 @@ const NEXTSTEP_0_9: SystemDiskDef = {
         3081, 3082, 3087, 3088, 3089, 3093, 3094, 3095, 3098, 3099, 3100, 3233,
         3234, 3241, 3807,
     ],
-    machines: [NEXT_COMPUTER],
+    preferredMachine: NEXT_COMPUTER,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTStep 0.9 HD.dsk.json"),
 };
@@ -1047,7 +1033,7 @@ const NEXTSTEP_1_0: SystemDiskDef = {
         1878, 1884, 1885, 1886, 1892, 1893, 1895, 1900, 1907, 1908, 1915, 1916,
         1928, 1954, 1955, 2481, 2482, 2483, 2489, 2490, 3318, 3319, 3807,
     ],
-    machines: [NEXT_COMPUTER],
+    preferredMachine: NEXT_COMPUTER,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTStep 1.0 HD.dsk.json"),
     notable: true,
@@ -1074,7 +1060,7 @@ const NEXTSTEP_1_0a: SystemDiskDef = {
         1903, 1907, 1908, 1915, 1916, 1923, 1924, 1935, 1963, 2489, 2490, 2496,
         2497, 2498, 2504, 2505, 3807,
     ],
-    machines: [NEXT_COMPUTER],
+    preferredMachine: NEXT_COMPUTER,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTStep 1.0a HD.dsk.json"),
 };
@@ -1100,7 +1086,7 @@ const NEXTSTEP_2_0: SystemDiskDef = {
         3856, 3872, 3888, 3937, 3984, 3985, 4001, 4032, 4033, 4624, 5825, 5873,
         7665,
     ],
-    machines: [NEXT_STATION, NEXT_COMPUTER, NEXT_CUBE],
+    preferredMachine: NEXT_STATION,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTStep 2.0 HD.dsk.json"),
     notable: true,
@@ -1130,7 +1116,7 @@ const NEXTSTEP_2_1: SystemDiskDef = {
         5282, 5312, 5313, 5536, 5537, 5538, 5761, 7618, 7620, 7649, 7650, 7654,
         7657,
     ],
-    machines: [NEXT_STATION, NEXT_COMPUTER, NEXT_CUBE],
+    preferredMachine: NEXT_STATION,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTStep 2.1 HD.dsk.json"),
 };
@@ -1158,12 +1144,7 @@ const NEXTSTEP_2_2: SystemDiskDef = {
         6498, 6562, 6563, 6944, 6945, 7200, 7201, 7202, 7232, 7233, 7234, 7392,
         7393, 7520, 7521, 7522, 7650,
     ],
-    machines: [
-        NEXT_STATION_TURBO_COLOR,
-        NEXT_COMPUTER,
-        NEXT_CUBE,
-        NEXT_STATION,
-    ],
+    preferredMachine: NEXT_STATION_TURBO_COLOR,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTStep 2.2 HD.dsk.json"),
 };
@@ -1201,12 +1182,7 @@ const NEXTSTEP_3_0: SystemDiskDef = {
         7057, 7152, 7153, 7280, 7281, 7296, 7440, 7441, 7520, 7521, 7536, 7537,
         7539, 7552, 7553, 7554, 7555, 7568, 7569, 7570, 7665,
     ],
-    machines: [
-        NEXT_STATION_TURBO_COLOR,
-        NEXT_STATION,
-        NEXT_CUBE,
-        NEXT_COMPUTER,
-    ],
+    preferredMachine: NEXT_STATION_TURBO_COLOR,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTSTEP 3.0 HD.dsk.json"),
     notable: true,
@@ -1244,12 +1220,7 @@ const NEXTSTEP_3_1: SystemDiskDef = {
         6832, 6833, 6912, 6913, 7088, 7089, 7104, 7105, 7264, 7265, 7280, 7281,
         7376, 7377, 7504, 7505, 7506, 7520, 7521, 7665,
     ],
-    machines: [
-        NEXT_STATION_TURBO_COLOR,
-        NEXT_STATION,
-        NEXT_CUBE,
-        NEXT_COMPUTER,
-    ],
+    preferredMachine: NEXT_STATION_TURBO_COLOR,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTSTEP 3.1 HD.dsk.json"),
 };
@@ -1286,12 +1257,7 @@ const NEXTSTEP_3_2: SystemDiskDef = {
         6976, 6977, 7008, 7009, 7024, 7025, 7104, 7105, 7184, 7185, 7376, 7377,
         7568, 7569, 7664, 7665,
     ],
-    machines: [
-        NEXT_STATION_TURBO_COLOR,
-        NEXT_STATION,
-        NEXT_CUBE,
-        NEXT_COMPUTER,
-    ],
+    preferredMachine: NEXT_STATION_TURBO_COLOR,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTSTEP 3.2 HD.dsk.json"),
 };
@@ -1329,12 +1295,7 @@ const NEXTSTEP_3_3: SystemDiskDef = {
         3244, 3248, 3252, 3264, 3268, 3273, 3276, 3480, 3481, 3484, 3492, 3500,
         3504, 4092,
     ],
-    machines: [
-        NEXT_STATION_TURBO_COLOR,
-        NEXT_STATION,
-        NEXT_CUBE,
-        NEXT_COMPUTER,
-    ],
+    preferredMachine: NEXT_STATION_TURBO_COLOR,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTSTEP 3.3 HD.dsk.json"),
 };
@@ -1369,12 +1330,7 @@ const NEXTSTEP_4_0: SystemDiskDef = {
         2600, 2604, 3492, 3496, 3516, 4012, 4013, 4014, 4015, 4016, 4018, 4019,
         4020, 4048, 4056, 4064, 4076, 4092,
     ],
-    machines: [
-        NEXT_STATION_TURBO_COLOR,
-        NEXT_STATION,
-        NEXT_CUBE,
-        NEXT_COMPUTER,
-    ],
+    preferredMachine: NEXT_STATION_TURBO_COLOR,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/NeXTSTEP 4.0 HD.dsk.json"),
     notable: true,
@@ -1426,12 +1382,7 @@ const OPENSTEP_4_0: SystemDiskDef = {
         7392, 7393, 7424, 7472, 7473, 7520, 7521, 7552, 7553, 7601, 7632, 7633,
         7665,
     ],
-    machines: [
-        NEXT_STATION_TURBO_COLOR,
-        NEXT_STATION,
-        NEXT_CUBE,
-        NEXT_COMPUTER,
-    ],
+    preferredMachine: NEXT_STATION_TURBO_COLOR,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/OPENSTEP 4.0 HD.dsk.json"),
     notable: true,
@@ -1442,12 +1393,7 @@ const OPENSTEP_4_1: PlaceholderDiskDef = {
     displayName: "OPENSTEP 4.1",
     releaseDate: [1996, 10, 23],
     description: "Bug fix release.",
-    machines: [
-        NEXT_STATION_TURBO_COLOR,
-        NEXT_STATION,
-        NEXT_CUBE,
-        NEXT_COMPUTER,
-    ],
+    preferredMachine: NEXT_STATION_TURBO_COLOR,
     appearance: "NeXT",
 };
 
@@ -1498,12 +1444,7 @@ const OPENSTEP_4_2: SystemDiskDef = {
         7152, 7153, 7232, 7233, 7248, 7249, 7265, 7266, 7280, 7281, 7377, 7378,
         7392, 7393, 7584, 7585, 7665,
     ],
-    machines: [
-        NEXT_STATION_TURBO_COLOR,
-        NEXT_STATION,
-        NEXT_CUBE,
-        NEXT_COMPUTER,
-    ],
+    preferredMachine: NEXT_STATION_TURBO_COLOR,
     appearance: "NeXT",
     generatedSpec: () => import("./Data/OPENSTEP 4.2 HD.dsk.json"),
 };
@@ -1631,7 +1572,7 @@ ALL_DISKS.forEach(disk => {
         }
         NOTABLE_DISKS_BY_YEAR[year].push(disk);
     }
-    if (disk.machines.some(m => m.platform === "NeXT")) {
+    if (disk.preferredMachine.platform === "NeXT") {
         NEXT_DISKS.push(disk);
         if (!NEXT_DISKS_BY_YEAR[year]) {
             NEXT_DISKS_BY_YEAR[year] = [];
