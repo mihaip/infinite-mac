@@ -222,12 +222,12 @@ type DiskProps = {
 };
 
 function Disk({disk, onRun}: DiskProps) {
-    let {bezelStyle} = disk.machines[0];
+    let {bezelStyle} = disk.preferredMachine;
     // This is wrong, but it makes the 9.1 and 9.2 images that run the
     // DingusPPC-powered Beige G3 fit in with the B&W one used for
     // SheepShaver-based 8.5-9.0.4 ones.
     if (
-        disk.machines[0].emulatorType === "DingusPPC" &&
+        disk.preferredMachine.emulatorType === "DingusPPC" &&
         disk.displayName.startsWith("Mac OS 9")
     ) {
         bezelStyle = "Pinstripes";
@@ -283,7 +283,7 @@ type DiskContentsProps = {
 };
 
 function DiskContents({disk, onRun}: DiskContentsProps) {
-    const {bezelStyle} = disk.machines[0];
+    const {bezelStyle} = disk.preferredMachine;
     const [customVisible, setCustomVisible] = useState(false);
     const run = (event: React.MouseEvent) => {
         const runDef = {
@@ -293,7 +293,7 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
             includeSavedHD: canSaveDisks(),
             includeLibrary: true,
             libraryDownloadURLs: [],
-            machine: disk.machines[0],
+            machine: disk.preferredMachine,
             cdromURLs: [],
             diskFiles: [],
         } satisfies RunDef;

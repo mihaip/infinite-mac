@@ -6,7 +6,6 @@ import {type ScreenSize, type RunDef} from "./run-def";
 import {
     ALL_MACHINES,
     MACHINES_BY_NAME,
-    QUADRA_650,
     type MachineDefRAMSize,
     isExperimentalMachine,
     type MachineDef,
@@ -57,7 +56,7 @@ export function Custom({
                 ? initialRunDef
                 : {...initialRunDef, isCustom: true}
             : {
-                  machine: defaultDisk.machines[0] ?? QUADRA_650,
+                  machine: defaultDisk.preferredMachine,
                   ramSize: undefined,
                   screenSize: "auto",
                   disks: [defaultDisk],
@@ -550,7 +549,7 @@ function DiskOption({
     const macOSXDisks = [];
     const nextDisks = [];
     for (const disk of Object.values(SYSTEM_DISKS_BY_NAME)) {
-        if (disk.machines[0].platform === "NeXT") {
+        if (disk.preferredMachine.platform === "NeXT") {
             nextDisks.push(disk);
         } else if (disk.displayName.startsWith("Mac OS X")) {
             macOSXDisks.push(disk);
