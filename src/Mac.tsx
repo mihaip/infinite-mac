@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, useCallback} from "react";
+import React, {useEffect, useState, useRef, useCallback, useMemo} from "react";
 import "./Mac.css";
 import {
     type EmulatorEthernetProvider,
@@ -131,11 +131,14 @@ export default function Mac({
     const emulatorSettingsRef = useRef(emulatorSettings);
     emulatorSettingsRef.current = emulatorSettings;
 
-    const initialScreenSize =
-        machine.fixedScreenSize ??
-        (typeof screenSizeProp === "object"
-            ? screenSizeProp
-            : SCREEN_SIZES[screenSizeProp](machine));
+    const initialScreenSize = useMemo(
+        () =>
+            machine.fixedScreenSize ??
+            (typeof screenSizeProp === "object"
+                ? screenSizeProp
+                : SCREEN_SIZES[screenSizeProp](machine)),
+        [machine, screenSizeProp]
+    );
     const {width: initialScreenWidth, height: initialScreenHeight} =
         initialScreenSize;
     const [screenSize, setScreenSize] = useState(initialScreenSize);
