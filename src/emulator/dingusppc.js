@@ -658,32 +658,32 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  154048: ($0) => { workerApi.setAbortError(UTF8ToString($0)); },  
- 154095: () => { return workerApi.acquireInputLock(); },  
- 154136: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 154225: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr); },  
- 154315: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 154405: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 154489: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 154573: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
- 154660: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
- 154747: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 154832: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 154912: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 154993: () => { workerApi.releaseInputLock(); },  
- 155027: () => { workerApi.sleep(0); },  
- 155051: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
- 155095: () => { return workerApi.audioBufferSize(); },  
- 155135: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
- 155171: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 155207: ($0, $1) => { workerApi.blit($0, $1); },  
- 155235: ($0, $1) => { workerApi.blit($0, $1); },  
- 155263: () => { workerApi.blit(0, 0); },  
- 155289: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 155340: ($0) => { workerApi.disks.close($0); },  
- 155371: ($0) => { return workerApi.disks.size($0); },  
- 155408: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 155457: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
+  154112: ($0) => { workerApi.setAbortError(UTF8ToString($0)); },  
+ 154159: () => { return workerApi.acquireInputLock(); },  
+ 154200: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 154289: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr); },  
+ 154379: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 154469: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 154553: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 154637: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
+ 154724: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
+ 154811: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 154896: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 154976: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 155057: () => { workerApi.releaseInputLock(); },  
+ 155091: () => { workerApi.sleep(0); },  
+ 155115: ($0, $1, $2, $3) => { workerApi.didOpenAudio($0, $1, $2, $3); },  
+ 155159: () => { return workerApi.audioBufferSize(); },  
+ 155199: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 155235: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 155271: ($0, $1) => { workerApi.blit($0, $1); },  
+ 155299: ($0, $1) => { workerApi.blit($0, $1); },  
+ 155327: () => { workerApi.blit(0, 0); },  
+ 155353: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 155404: ($0) => { workerApi.disks.close($0); },  
+ 155435: ($0) => { return workerApi.disks.size($0); },  
+ 155472: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 155521: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
 };
 
 
@@ -5679,6 +5679,8 @@ var wasmImports = {
   /** @export */
   invoke_v: invoke_v,
   /** @export */
+  invoke_vi: invoke_vi,
+  /** @export */
   proc_exit: _proc_exit,
   /** @export */
   strftime_l: _strftime_l
@@ -5721,6 +5723,17 @@ function invoke_iii(index,a1,a2) {
   var sp = stackSave();
   try {
     return getWasmTableEntry(index)(a1,a2);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_vi(index,a1) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
