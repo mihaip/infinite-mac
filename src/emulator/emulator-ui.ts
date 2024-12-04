@@ -64,8 +64,9 @@ import {
 import {
     type MachineDefRAMSize,
     type MachineDef,
-    POWER_MACINTOSH_7500,
     POWER_MACINTOSH_6100,
+    POWER_MACINTOSH_7200,
+    POWER_MACINTOSH_7500,
     POWER_MACINTOSH_G3_BEIGE,
     POWER_MACINTOSH_G3_BW_DPPC,
 } from "../machines";
@@ -1166,6 +1167,10 @@ function configToDingusPPCArgs(
     // cases the same ROM was used for multiple machines and we need to give it
     // an explicit hint.
     switch (config.machine.gestaltID) {
+        case POWER_MACINTOSH_7200.gestaltID:
+            args.push("--machine", "pm7200");
+            args.push("--gfxmem_size", "4");
+            break;
         case POWER_MACINTOSH_7500.gestaltID:
             args.push("--machine", "pm7500");
             break;

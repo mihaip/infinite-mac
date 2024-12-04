@@ -165,6 +165,23 @@ export const POWER_MACINTOSH_9500: MachineDef = {
     ramSizes: ["256M", "128M", "64M", "32M", "16M"],
 };
 
+export const POWER_MACINTOSH_7200: MachineDef = {
+    name: "Power Macintosh 7200",
+    cpu: "601",
+    romPath: powerMacintosh7500RomPath,
+    gestaltID: 108,
+    emulatorType: "DingusPPC",
+    prefsPath: emptyPrefsPath,
+    bezelStyle: "Platinum",
+    supportedScreenSizes: [
+        {width: 1152, height: 870, monitorId: "Multiscan20in"},
+        {width: 832, height: 624, monitorId: "Multiscan17in"},
+        {width: 640, height: 870, monitorId: "MacRGB15in"},
+        {width: 640, height: 480, monitorId: "Multiscan15in"},
+    ],
+    ramSizes: ["16M", "32M", "64M", "128M", "256M"],
+};
+
 export const POWER_MACINTOSH_7500: MachineDef = {
     name: "Power Macintosh 7500",
     cpu: "601",
@@ -295,6 +312,7 @@ export const ALL_MACHINES = [
     MAC_IIFX,
     QUADRA_650,
     POWER_MACINTOSH_6100,
+    POWER_MACINTOSH_7200,
     POWER_MACINTOSH_7500,
     POWER_MACINTOSH_9500,
     POWER_MACINTOSH_G3_BEIGE,
