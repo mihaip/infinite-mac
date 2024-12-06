@@ -2,11 +2,6 @@ type VarData = {[key: string]: number};
 
 const VARZ_PREFIX = "varz:";
 
-// We used to store everything in one key, but doesn't play well with frequent
-// updates to the minimum TTL of 1 minute. We now store each varz separately,
-// but we read from the legacy value to migrate on-demand.
-const LEGACY_VARZ_KEY = "varz";
-
 export async function handleRequest(request: Request, namespace: KVNamespace) {
     if (request.method === "POST") {
         const body = await request.json();
@@ -63,29 +58,18 @@ export async function handleRequest(request: Request, namespace: KVNamespace) {
 }
 
 async function incrementVarz(namespace: KVNamespace, changes: VarData) {
-    let legacyVarzs: VarData | undefined;
-
     for (const [name, delta] of Object.entries(changes)) {
+        if (!delta) {
+            continue;
+        }
         const key = VARZ_PREFIX + name;
         let value = await namespace.get<number>(key, {type: "json"});
         if (value === null) {
-            if (!legacyVarzs) {
-                legacyVarzs =
-                    (await namespace.get<VarData>(LEGACY_VARZ_KEY, {
-                        type: "json",
-                        cacheTtl: 60,
-                    })) ?? {};
-            }
-            value = (legacyVarzs[name] ?? 0) + delta;
-            legacyVarzs[name] = value;
+            value = delta;
         } else {
             value += delta;
         }
         await namespace.put(key, JSON.stringify(value));
-    }
-
-    if (legacyVarzs) {
-        await namespace.put(LEGACY_VARZ_KEY, JSON.stringify(legacyVarzs));
     }
 }
 
