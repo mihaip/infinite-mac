@@ -95,6 +95,7 @@
         "*.def": "cpp",
         "stddef.h": "c",
         "host.h": "c",
-        "nextbus.hpp": "c"
+        "nextbus.hpp": "c",
+        "*.inc": "cpp"
     }
 }
