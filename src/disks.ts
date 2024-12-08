@@ -17,6 +17,7 @@ import {
     NEXT_STATION_TURBO_COLOR,
     POWER_MACINTOSH_G3_BEIGE,
     POWER_MACINTOSH_7500,
+    POWER_MACINTOSH_G3_BW_DPPC,
 } from "./machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -859,6 +860,8 @@ const MAC_OS_9_2_2: SystemDiskDef = {
 
 import powerMacintoshG3NvramPath from "./Data/Power-Macintosh-G3-nvram.bin?url";
 import powerMacintoshG3PramPath from "./Data/Power-Macintosh-G3-pram.bin?url";
+import powerMacintoshG3BWNvramPath from "./Data/Power-Macintosh-G3-BW-nvram.bin?url";
+import powerMacintoshG3BWPramPath from "./Data/Power-Macintosh-G3-BW-pram.bin?url";
 
 const MAC_OS_X_10_2_8: SystemDiskDef = {
     displayName: "Mac OS X 10.2",
@@ -943,6 +946,13 @@ const MAC_OS_X_10_2_8: SystemDiskDef = {
             {
                 "nvram.bin": powerMacintoshG3NvramPath,
                 "pram.bin": powerMacintoshG3PramPath,
+            },
+        ],
+        [
+            POWER_MACINTOSH_G3_BW_DPPC,
+            {
+                "nvram.bin": powerMacintoshG3BWNvramPath,
+                "pram.bin": powerMacintoshG3BWPramPath,
             },
         ],
     ]),
