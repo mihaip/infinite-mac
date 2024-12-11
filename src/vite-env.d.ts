@@ -12,29 +12,6 @@ declare module "*.hda" {
     export default path;
 }
 
-declare namespace FS {
-    function analyzePath(path: string): {
-        exists: boolean;
-        name: string;
-        object: FS.FSNode;
-        parentPath: string;
-        parentObject: FS.FSNode;
-    };
-
-    interface FSNode {
-        id: number;
-        mode: number;
-        // Internals useful in implementing lazy files
-        contents: Uint8Array;
-        usedBytes: number;
-        stream_ops: {[name: string]: (...args: any[]) => any};
-    }
-
-    interface FSStream {
-        node: FSNode;
-    }
-}
-
 interface Document {
     webkitFullscreenEnabled?: boolean;
     webkitFullscreenElement?: HTMLElement;

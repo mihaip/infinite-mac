@@ -35,9 +35,9 @@ import {
 import {
     type EmulatorWorkerFiles,
     FallbackEmulatorWorkerFiles,
+    getUploadData,
     SharedMemoryEmulatorWorkerFiles,
 } from "./emulator-worker-files";
-import {createLazyFile} from "./emulator-worker-lazy-file";
 import {
     handleExtractionRequests,
     initializeExtractor,
@@ -430,7 +430,15 @@ class EmulatorWorkerApi {
             parent += pathPieces.slice(0, pathPieces.length - 1).join("/");
             name = pathPieces[pathPieces.length - 1];
         }
-        createLazyFile(parent, name, upload.url, upload.size, true, true);
+        const contents = getUploadData(upload);
+        FS.createDataFile(
+            parent,
+            name,
+            contents,
+            true, // canRead
+            true, // canWrite
+            true // canOwn - no need for another copy
+        );
     }
 
     #handleStop(isExit = false) {
