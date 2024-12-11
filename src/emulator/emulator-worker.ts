@@ -647,12 +647,9 @@ async function startEmulator(config: EmulatorWorkerConfig) {
         arguments: config.arguments,
 
         instantiateWasm(imports, successCallback) {
-            // @types/emscripten is not right about the type, this is correct
-            // in practice.
-            const wasmImports = imports as unknown as WebAssembly.Imports;
             const {dateOffset} = config;
             if (dateOffset) {
-                for (const moduleImports of Object.values(wasmImports)) {
+                for (const moduleImports of Object.values(imports)) {
                     const dateFn = moduleImports["emscripten_date_now"];
                     if (dateFn) {
                         moduleImports["emscripten_date_now"] = () => {
@@ -665,9 +662,9 @@ async function startEmulator(config: EmulatorWorkerConfig) {
                 new Response(config.wasm, {
                     headers: {"Content-Type": "application/wasm"},
                 }),
-                wasmImports
+                imports
             ).then(output => successCallback(output.instance));
-            return [];
+            return {};
         },
 
         preRun: [

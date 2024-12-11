@@ -1,7 +1,7 @@
 import {getUploadData} from "./emulator-worker-files";
 
 export function createLazyFile(
-    parent: string | FS.FSNode,
+    parent: string,
     name: string,
     url: string,
     size: number,
@@ -9,7 +9,7 @@ export function createLazyFile(
     canWrite: boolean
 ): FS.FSNode {
     const contents = new Uint8Array(size);
-    const file = FS.createDataFile(
+    FS.createDataFile(
         parent,
         name,
         contents,
@@ -19,6 +19,7 @@ export function createLazyFile(
         // it later when loading the contents on demand.
         true
     );
+    const file = FS.lookupPath(parent + name, {}).node;
     const defaultStreamOps = file.stream_ops;
     file.stream_ops = {
         ...defaultStreamOps,
