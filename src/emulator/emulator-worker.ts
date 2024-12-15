@@ -16,6 +16,7 @@ import {
     isDiskImageFile,
     ethernetMacAddressFromString,
     InputBufferAddresses,
+    isCDROMBinFile,
 } from "./emulator-common";
 import {
     type EmulatorWorkerAudio,
@@ -55,9 +56,15 @@ import {
     FallbackEmulatorWorkerClipboard,
     SharedMemoryEmulatorWorkerClipboard,
 } from "./emulator-worker-clipboard";
-import {EmulatorWorkerDisksApi} from "./emulator-worker-disks";
+import {
+    type EmulatorWorkerDisk,
+    EmulatorWorkerDisksApi,
+} from "./emulator-worker-disks";
 import {EmulatorWorkerUploadDisk} from "./emulator-worker-upload-disk";
-import {createEmulatorWorkerCDROMDisk} from "./emulator-worker-cdrom-disk";
+import {
+    createEmulatorWorkerCDROMDisk,
+    EmulatorWorkerMode1SectorDisk,
+} from "./emulator-worker-cdrom-disk";
 import {
     importEmulator,
     importEmulatorFallback,
@@ -404,9 +411,16 @@ class EmulatorWorkerApi {
     #handleFileRequests() {
         const {uploads, cdroms} = this.#files.consumeRequests();
         for (const upload of uploads) {
-            const isDiskImage = isDiskImageFile(upload.name);
+            const isDiskImage = isDiskImageFile(upload);
             if (isDiskImage) {
-                this.disks.addDisk(new EmulatorWorkerUploadDisk(upload, this));
+                let disk: EmulatorWorkerDisk = new EmulatorWorkerUploadDisk(
+                    upload,
+                    this
+                );
+                if (isCDROMBinFile(upload)) {
+                    disk = new EmulatorWorkerMode1SectorDisk(disk);
+                }
+                this.disks.addDisk(disk);
             } else {
                 this.#handleFileUpload(upload);
             }

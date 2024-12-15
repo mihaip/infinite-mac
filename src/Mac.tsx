@@ -856,7 +856,7 @@ function uploadFiles(
     let fileCount = 0;
     let diskImageCount = 0;
     for (const file of files) {
-        if (isDiskImageFile(file.name)) {
+        if (isDiskImageFile(file)) {
             diskImageCount++;
         } else {
             fileCount++;
