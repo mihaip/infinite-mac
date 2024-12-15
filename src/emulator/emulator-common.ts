@@ -443,9 +443,20 @@ export const diskImageExtensions = [
     ".smi",
 ];
 
-export function isDiskImageFile(name: string): boolean {
-    name = name.toLowerCase();
-    return diskImageExtensions.some(ext => name.endsWith(ext));
+type File = {name: string; size: number};
+
+export function isDiskImageFile(file: File): boolean {
+    const name = file.name.toLowerCase();
+    return (
+        isCDROMBinFile(file) ||
+        diskImageExtensions.some(ext => name.endsWith(ext))
+    );
+}
+
+export function isCDROMBinFile({name, size}: File): boolean {
+    // Assume that if it's a large .bin file we're dealing with a CD-ROM image
+    // from a .bin/.cue pair.
+    return name.toLowerCase().endsWith(".bin") && size > 100_000_000;
 }
 
 export function ethernetMacAddressToString(mac: Uint8Array) {

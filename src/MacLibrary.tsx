@@ -51,7 +51,10 @@ export function MacLibrary({
                             collapse();
                             if (
                                 fileName &&
-                                isDiskImageFile(fileName) &&
+                                isDiskImageFile({
+                                    name: fileName,
+                                    size: size ?? 0,
+                                }) &&
                                 size &&
                                 size > 10000000
                             ) {
