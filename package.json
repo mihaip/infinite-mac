@@ -24,8 +24,8 @@
         "@types/react-dom": "^18.2.4",
         "@typescript-eslint/eslint-plugin": "^7.9.0",
         "@typescript-eslint/parser": "^7.9.0",
-        "@vitejs/plugin-basic-ssl": "1.1.0",
-        "@vitejs/plugin-react-swc": "^3.6.0",
+        "@vitejs/plugin-basic-ssl": "^1.2.0",
+        "@vitejs/plugin-react-swc": "^3.7.2",
         "clang-format": "^1.8.0",
         "csstype": "^3.1.3",
         "eslint": "^8.48.0",
@@ -34,9 +34,9 @@
         "husky": "^6.0.0",
         "lint-staged": "^11.0.0",
         "prettier": "^2.8.8",
-        "vite": "5.2.11",
-        "vite-plugin-svgr": "4.2.0",
-        "wrangler": "^3.56.0"
+        "vite": "^6.0.6",
+        "vite-plugin-svgr": "^4.3.0",
+        "wrangler": "^3.99.0"
     },
     "scripts": {
         "import-emulator": "scripts/import-emulator.sh",
