@@ -6,6 +6,7 @@ import MinivMacSEJsPath from "./minivmac-SE.js?url";
 import BasiliskIIJsPath from "./BasiliskII.js?url";
 import SheepShaverJsPath from "./SheepShaver.js?url";
 import DingusPPCJsPath from "./dingusppc.js?url";
+import PearPCJsPath from "./ppc.js?url";
 import PreviousJsPath from "./previous.js?url";
 import {type EmulatorDef} from "./emulator-common-emulators";
 
@@ -28,6 +29,8 @@ export function importEmulator(def: EmulatorDef): Promise<{default: any}> {
             }[def.emulatorSubtype];
         case "DingusPPC":
             return import("./dingusppc");
+        case "PearPC":
+            return import("./ppc");
         case "Previous":
             return import("./previous");
     }
@@ -79,6 +82,8 @@ export function getEmulatorJsPath(def: EmulatorDef) {
             }[def.emulatorSubtype];
         case "DingusPPC":
             return DingusPPCJsPath;
+        case "PearPC":
+            return PearPCJsPath;
         case "Previous":
             return PreviousJsPath;
     }
