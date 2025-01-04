@@ -65,6 +65,7 @@ docker run --rm -it \
     -v `realpath minivmac`:/minivmac \
     -v `realpath dingusppc`:/dingusppc \
     -v `realpath previous`:/previous \
+    -v `realpath pearpc`:/pearpc \
     --entrypoint bash macemu_emsdk
 ```
 
@@ -139,3 +140,15 @@ make previous -j8
 ```
 
 Once it has built, use `npm run import-emulator previous` from the host to update the files in `src/emulator`.
+
+### PearPC
+
+```sh
+cd /pearpc
+# Configure for building for WASM
+./_emconfigure.sh
+# Actually compile PearPC targeting WASM
+make -j8
+```
+
+Once it has built, use `npm run import-emulator pearpc` from the host to update the files in `src/emulator`.

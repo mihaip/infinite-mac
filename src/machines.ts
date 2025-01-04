@@ -247,6 +247,17 @@ export const POWER_MACINTOSH_G3_BW: MachineDef = {
     ramSizes: ["256M", "128M", "64M"],
 };
 
+export const POWER_MACINTOSH_G4_PEARPC: MachineDef = {
+    name: "Power Macintosh G4 (PCI Graphics)",
+    cpu: "G3",
+    romPath: powerMacintoshG3BWBootRomPath,
+    gestaltID: 406,
+    emulatorType: "PearPC",
+    prefsPath: emptyPrefsPath,
+    bezelStyle: "Pinstripes",
+    ramSizes: ["256M", "128M", "64M", "32M"],
+};
+
 export const NEXT_COMPUTER: MachineDef = {
     name: "NeXT Computer",
     cpu: "68030",
@@ -318,6 +329,7 @@ export const ALL_MACHINES = [
     POWER_MACINTOSH_G3_BEIGE,
     POWER_MACINTOSH_G3_BW_DPPC,
     POWER_MACINTOSH_G3_BW,
+    POWER_MACINTOSH_G4_PEARPC,
     NEXT_COMPUTER,
     NEXT_CUBE,
     NEXT_STATION,
@@ -329,5 +341,8 @@ export const MACHINES_BY_NAME = Object.fromEntries(
 );
 
 export function isExperimentalMachine(machine: MachineDef): boolean {
-    return machine.emulatorType === "DingusPPC";
+    return (
+        machine.emulatorType === "DingusPPC" ||
+        machine.emulatorType === "PearPC"
+    );
 }

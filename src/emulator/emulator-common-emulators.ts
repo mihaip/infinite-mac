@@ -3,7 +3,8 @@ export type EmulatorType =
     | "SheepShaver"
     | "Mini vMac"
     | "DingusPPC"
-    | "Previous";
+    | "Previous"
+    | "PearPC";
 
 export type EmulatorMinivMacSubtypes = "128K" | "512Ke" | "Plus" | "SE" | "II";
 
