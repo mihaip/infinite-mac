@@ -717,7 +717,15 @@ async function startEmulator(config: EmulatorWorkerConfig) {
                     headers: {"Content-Type": "application/wasm"},
                 }),
                 imports
-            ).then(output => successCallback(output.instance));
+            )
+                .then(output => successCallback(output.instance))
+                .catch(error => {
+                    console.error(error);
+                    postMessage({
+                        type: "emulator_did_have_error",
+                        error: `Cannot instantiate WebAssembly: ${error.toString()}`,
+                    });
+                });
             return {};
         },
 
