@@ -1,0 +1,160 @@
+## PearPC Configuration File
+
+##
+## Start Resolution
+##
+## (clients that use video.x can change the resolution at runtime,
+##  so this would be used only for starting up)
+##
+##	format:  "(width)x(height)x(depth)"
+##	    or   "(width)x(height)x(depth)@(frequency)"
+##
+##	depth can only be 15 or 32
+##
+##	default: "800x600x15"
+##
+
+ppc_start_resolution = "{SCREEN_WIDTH}x{SCREEN_HEIGHT}x32"
+
+##
+## Set this to non-zero for turning on fullscreen mode on startup.
+##
+
+ppc_start_full_screen = 0
+
+##
+## Redraw interval (in ms)
+## must be between 10 and 500
+##
+## If you set this higher, PearPC will spend less time doing redraws
+## (and so run faster) but feel less responsive. You should adjust
+## this to your computer speed and personal preference.
+##
+
+redraw_interval_msec = 50
+
+##
+## Key codes
+##
+
+key_compose_dialog = "F11"
+key_change_cd_0 = "none"
+key_toggle_mouse_grab = "F12"
+key_toggle_full_screen = "Alt+Return"
+
+
+##
+## Loader
+##
+
+##
+##	Boot method
+##	  this can be
+##	  1. "auto", prom will boot the first bootable partition found (default)
+##	  2. "select", prom will show you a list of bootable partitions
+##	  3. "force" [ADVANCED USERS ONLY], prom will load and boot the
+##           local file prom_loadfile
+##
+
+prom_bootmethod = "auto"
+
+## Example of how to use "force":
+
+#prom_bootmethod = "force"
+#prom_loadfile = "test/yaboot"
+#prom_env_bootpath = "disk"
+
+##
+##	bootargs: don't change unless you know what you are doing
+##	machargs: set to "-v" to get a verbose startup
+##
+
+#prom_env_bootargs = ""
+prom_env_machargs = "{MACH_ARGS}"
+
+##
+##	This is needed if you want to boot Mac OS X
+##
+prom_driver_graphic = "video.x"
+
+## This will adjust the position of the initial page table (don't change)
+
+#page_table_pa = 104857600
+
+##
+## CPU Config
+##
+##	Processor Version Register
+##	Defaults to 0x00088302 (G3)
+##	Set to 0x000c0000 to enable G4 emulation
+##	Only change if you know want you are doing
+##
+
+#cpu_pvr = 0x00088302
+#cpu_pvr = 0x000c0000
+
+
+##
+## Main memory (default 128 MiB)
+## must be >= 64 MiB
+##
+
+memory_size={MEMORY_SIZE}
+
+##
+## IO Devices
+##
+
+##
+##	PCI IDE Config
+##
+##	Drive type will be set according to file extension:
+##		.img: Harddisk (filesize must be multiple of 516096)
+##		.iso: CD-Rom
+##	Or you can override this by specifying the type via
+##	pci_ide0_master_type / pci_ide0_slave_type
+##
+##	Valid drive types are:
+##		hd:		A hdd image should be specified
+##				e.g. "test/imgs/linux.img"
+##		cdrom:		A cdrom image should be specified
+##				For Linux or BeOS a cdrom device can be specified as well
+##				e.g. "/dev/cdrom"
+##		nativecdrom:	Platform dependant
+##			Win (SPTI): drive letter, e.g. "d:\"
+##			Win (ASPI): SCSI host adapter,target,lun e.g. "2,0,1"
+##			BeOS (ATAPI): device path, e.g. "/dev/disk/ide/atapi/0/master/0/raw"
+
+pci_ide0_master_installed = {PCI_IDE0_MASTER_INSTALLED}
+pci_ide0_master_image = "{PCI_IDE0_MASTER_IMAGE}"
+pci_ide0_master_type = "{PCI_IDE0_MASTER_TYPE}"
+
+pci_ide0_slave_installed = {PCI_IDE0_SLAVE_INSTALLED}
+pci_ide0_slave_image = "{PCI_IDE0_SLAVE_IMAGE}"
+pci_ide0_slave_type = "{PCI_IDE0_SLAVE_TYPE}"
+
+##
+##	Network
+##
+##	Choose one of the cards
+
+pci_3c90x_installed = 0
+pci_3c90x_mac = "de:ad:ca:fe:12:34"
+
+pci_rtl8139_installed = 0
+pci_rtl8139_mac = "de:ad:ca:fe:12:35"
+
+##
+##	USB
+##
+pci_usb_installed = 1
+
+##
+##	Serial Port (internal use)
+##
+pci_serial_installed = 0
+
+##
+##	NVRAM
+##
+nvram_file = "nvram"

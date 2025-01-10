@@ -8,9 +8,6 @@ import {
 } from "./emulator-common";
 import {
     type EmulatorSpeed,
-    EMULATOR_REMOVABLE_DISK_COUNT,
-    emulatorCpuId,
-    emulatorModelId,
     emulatorUsesPlaceholderDisks,
     emulatorNeedsMouseDeltas,
     type EmulatorDef,
@@ -61,19 +58,18 @@ import {
     FallbackEmulatorClipboard,
     SharedMemoryEmulatorClipboard,
 } from "./emulator-ui-clipboard";
-import {
-    type MachineDefRAMSize,
-    type MachineDef,
-    POWER_MACINTOSH_6100,
-    POWER_MACINTOSH_7200,
-    POWER_MACINTOSH_7500,
-    POWER_MACINTOSH_G3_BEIGE,
-    POWER_MACINTOSH_G3_BW_DPPC,
-} from "../machines";
+import {type MachineDefRAMSize, type MachineDef} from "../machines";
 import {type EmulatorDiskDef} from "../disks";
 import deviceImageHeaderPath from "../Data/Device Image Header (All Drivers).hda";
 import {fetchCDROM} from "./emulator-ui-cdrom";
 import {EmulatorTrackpadController} from "./emulator-ui-trackpad";
+import {
+    configToDingusPPCArgs,
+    configToPreviousConfig,
+    configToMacemuPrefs,
+    configToPearPCConfig,
+} from "./emulator-ui-config";
+import {stringToArrayBuffer} from "../strings";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -366,46 +362,65 @@ export class Emulator {
             ? await loadDisks(this.#config.delayedDisks)
             : undefined;
 
-        const autoloadFiles: {[name: string]: ArrayBuffer} = {};
+        const autoloadFiles: {[name: string]: ArrayBufferLike} = {};
         Object.keys(extraMachineFiles).forEach((fileName, i) => {
             autoloadFiles[fileName] = extraMachineFileContents[i];
         });
 
         let args: string[] = [];
         let configDebugStr;
-        const {emulatorType} = this.#config.machine;
-        if (emulatorType === "DingusPPC") {
-            args = configToDingusPPCArgs(this.#config, {disks, romFileName});
-            configDebugStr = args.join(" ");
-        } else if (emulatorType === "Previous") {
-            const config = configToPreviousConfig(this.#config, {
-                baseConfig: basePrefs,
-                disks,
-                romFileName,
-            });
-            autoloadFiles["previous.cfg"] = new TextEncoder().encode(
-                config
-            ).buffer;
-            // Previous expects to find all of the disk files on the filesystem,
-            // create some dummy files.
-            for (const disk of [
-                ...disks,
-                ...(delayedDisks ?? []),
-                ...this.#config.cdroms,
-                ...this.#config.diskFiles,
-            ]) {
-                autoloadFiles[disk.name] = new ArrayBuffer(0);
+        const {emulatorType, emulatorSubtype} = this.#config.machine;
+        switch (emulatorType) {
+            case "DingusPPC":
+                args = configToDingusPPCArgs(this.#config, {
+                    disks,
+                    romFileName,
+                });
+                configDebugStr = args.join(" ");
+                break;
+            case "Previous": {
+                const config = configToPreviousConfig(this.#config, {
+                    baseConfig: basePrefs,
+                    disks,
+                    romFileName,
+                });
+                autoloadFiles["previous.cfg"] = stringToArrayBuffer(config);
+                // Previous expects to find all of the disk files on the filesystem,
+                // create some dummy files.
+                for (const disk of [
+                    ...disks,
+                    ...(delayedDisks ?? []),
+                    ...this.#config.cdroms,
+                    ...this.#config.diskFiles,
+                ]) {
+                    autoloadFiles[disk.name] = new ArrayBuffer(0);
+                }
+                configDebugStr = config;
+                break;
             }
-            configDebugStr = config;
-        } else {
-            const prefs = configToEmulatorPrefs(this.#config, {
-                basePrefs,
-                disks,
-                romFileName,
-            });
-            args = ["--config", "prefs"];
-            autoloadFiles["prefs"] = new TextEncoder().encode(prefs).buffer;
-            configDebugStr = prefs;
+            case "BasiliskII":
+            case "SheepShaver":
+            case "Mini vMac": {
+                const prefs = configToMacemuPrefs(this.#config, {
+                    basePrefs,
+                    disks,
+                    romFileName,
+                });
+                args = ["--config", "prefs"];
+                autoloadFiles["prefs"] = stringToArrayBuffer(prefs);
+                configDebugStr = prefs;
+                break;
+            }
+            case "PearPC": {
+                const config = configToPearPCConfig(this.#config, {
+                    baseConfig: basePrefs,
+                    disks,
+                });
+                autoloadFiles["PearPC.cfg"] = stringToArrayBuffer(config);
+                args = ["PearPC.cfg"];
+                configDebugStr = config;
+                break;
+            }
         }
         console.groupCollapsed(
             "%cGenerated emulator config",
@@ -420,8 +435,8 @@ export class Emulator {
 
         const config: EmulatorWorkerConfig = {
             ...({
-                emulatorType: this.#config.machine.emulatorType,
-                emulatorSubtype: this.#config.machine.emulatorSubtype,
+                emulatorType,
+                emulatorSubtype,
             } as EmulatorDef),
             wasm,
             disks,
@@ -1030,285 +1045,6 @@ async function loadDisks(
         isFloppy: d.isFloppy,
         hasDeviceImageHeader: d.hasDeviceImageHeader,
     }));
-}
-
-function configToEmulatorPrefs(
-    config: EmulatorConfig,
-    {
-        basePrefs,
-        romFileName,
-        disks,
-    }: {
-        basePrefs: ArrayBuffer;
-        romFileName: string;
-        disks: EmulatorChunkedFileSpec[];
-    }
-): string {
-    const {machine} = config;
-    let prefsStr = new TextDecoder().decode(basePrefs);
-    prefsStr += `rom ${romFileName}\n`;
-    const cpuId = emulatorCpuId(machine.emulatorType, machine.cpu);
-    if (cpuId !== undefined) {
-        prefsStr += `cpu ${cpuId}\n`;
-    }
-    const modelId = emulatorModelId(machine.emulatorType, machine.gestaltID);
-    if (modelId !== undefined) {
-        prefsStr += `modelid ${modelId}\n`;
-    }
-    const ramSizeString = config.ramSize ?? machine.ramSizes[0];
-    let ramSize = parseInt(ramSizeString);
-    if (ramSizeString.endsWith("M")) {
-        ramSize *= 1024 * 1024;
-    } else if (ramSizeString.endsWith("K")) {
-        ramSize *= 1024;
-    }
-    prefsStr += `ramsize ${ramSize}\n`;
-    prefsStr += `screen win/${config.screenWidth}/${config.screenHeight}\n`;
-    for (const spec of disks) {
-        prefsStr += `disk ${spec.name}\n`;
-    }
-    for (const cdrom of config.cdroms) {
-        prefsStr += `disk ${cdrom.mountReadWrite ? "" : "*"}${cdrom.name}\n`;
-    }
-    for (const diskFile of config.diskFiles) {
-        if (diskFile.isCDROM) {
-            prefsStr += `cdrom ${diskFile.name}\n`;
-        } else {
-            prefsStr += `disk ${diskFile.name}\n`;
-        }
-    }
-    if (emulatorUsesPlaceholderDisks(machine.emulatorType)) {
-        for (let i = 0; i < EMULATOR_REMOVABLE_DISK_COUNT; i++) {
-            prefsStr += `disk */placeholder/${i}\n`;
-        }
-    }
-    if (config.ethernetProvider) {
-        prefsStr += "appletalk true\n";
-    }
-    // The fallback path does not support high-frequency calls to reading
-    // the input (we end up making so many service worker network requests
-    // that overall emulation latency suffers).
-    prefsStr += `jsfrequentreadinput ${config.useSharedMemory}\n`;
-    return prefsStr;
-}
-
-function configToDingusPPCArgs(
-    config: EmulatorConfig,
-    {
-        romFileName,
-        disks,
-    }: {
-        romFileName: string;
-        disks: EmulatorChunkedFileSpec[];
-    }
-): string[] {
-    const args = ["--realtime", "--bootrom", romFileName];
-    if (config.debugLog) {
-        args.push("--log-to-stderr", "--log-no-uptime", "--log-verbosity=5");
-    }
-    const floppies = [];
-    const hardDisks = [];
-    const cdroms = [];
-    for (const spec of disks) {
-        if (spec.isFloppy) {
-            floppies.push(spec.name);
-        } else {
-            hardDisks.push(spec.name);
-        }
-    }
-    for (const spec of config.cdroms) {
-        cdroms.push(spec.name);
-    }
-    for (const diskFile of config.diskFiles) {
-        if (diskFile.isCDROM) {
-            cdroms.push(diskFile.name);
-        } else {
-            hardDisks.push(diskFile.name);
-        }
-    }
-    if (floppies.length > 0) {
-        // TODO: support more than one floppy
-        args.push("--fdd_img", floppies[0]);
-        // Disks are not actually writable, and by disabling writing we avoid
-        // a system beep that causes the emulator to abort.
-        args.push("--fdd_wr_prot=1");
-    }
-    if (hardDisks.length > 0) {
-        // TODO: support more than one hard disk on IDE-based machines
-        if (
-            config.machine.gestaltID !== POWER_MACINTOSH_G3_BEIGE.gestaltID &&
-            config.machine.gestaltID !== POWER_MACINTOSH_G3_BW_DPPC.gestaltID
-        ) {
-            args.push("--hdd_img", hardDisks.join(":"));
-        } else {
-            args.push("--hdd_img", hardDisks[0]);
-        }
-    }
-    if (cdroms.length > 0) {
-        // TODO: support more than one CD-ROM
-        args.push("--cdr_img", cdroms[0]);
-    }
-    const ramSize = config.ramSize ?? config.machine.ramSizes[0];
-    switch (config.machine.gestaltID) {
-        case POWER_MACINTOSH_6100.gestaltID: {
-            // The passed in RAM size is the total, convert it to installed SIMMs
-            // that are needed on top of the built-in 8 MB.
-            const simmSize = Math.floor((parseInt(ramSize) - 8) / 2).toString();
-            args.push("--rambank1_size", simmSize);
-            args.push("--rambank2_size", simmSize);
-            break;
-        }
-        default:
-            args.push("--rambank1_size", ramSize.slice(0, -1));
-            break;
-    }
-
-    // DingusPPC normally auto-detects the machine based on the ROM, but in some
-    // cases the same ROM was used for multiple machines and we need to give it
-    // an explicit hint.
-    switch (config.machine.gestaltID) {
-        case POWER_MACINTOSH_7200.gestaltID:
-            args.push("--machine", "pm7200");
-            args.push("--gfxmem_size", "4");
-            break;
-        case POWER_MACINTOSH_7500.gestaltID:
-            args.push("--machine", "pm7500");
-            break;
-        case POWER_MACINTOSH_G3_BEIGE.gestaltID:
-            args.push("--gfxmem_size", "6");
-            break;
-        case POWER_MACINTOSH_G3_BW_DPPC.gestaltID:
-            args.push("--machine", "pmg3nw");
-            args.push("--pci_J12", "AtiMach64Gx");
-            break;
-    }
-
-    // Map screen sizes to the a monitor ID
-    if (config.machine.supportedScreenSizes) {
-        for (const size of config.machine.supportedScreenSizes) {
-            if (
-                size.width === config.screenWidth &&
-                size.height === config.screenHeight &&
-                size.monitorId
-            ) {
-                args.push("--mon_id", size.monitorId);
-                break;
-            }
-        }
-    }
-
-    return args;
-}
-
-function configToPreviousConfig(
-    config: EmulatorConfig,
-    {
-        baseConfig,
-        romFileName,
-        disks,
-    }: {
-        baseConfig: ArrayBuffer;
-        romFileName: string;
-        disks: EmulatorChunkedFileSpec[];
-    }
-): string {
-    const floppyStrs: string[] = [];
-    const diskStrs: string[] = [];
-    function addDisk(
-        strs: string[],
-        name: string,
-        isCDROM: boolean,
-        isInserted: boolean = true
-    ) {
-        const i = strs.length;
-        strs.push(`
-szImageName${i} = ${name}
-nDeviceType${i} = ${isCDROM ? 2 : 1}
-bDiskInserted${i} = ${isInserted ? "TRUE" : "FALSE"}
-bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
-`);
-    }
-    for (const disk of disks) {
-        addDisk(disk.isFloppy ? floppyStrs : diskStrs, disk.name, false);
-    }
-    for (const diskFile of config.diskFiles) {
-        addDisk(diskStrs, diskFile.name, diskFile.isCDROM);
-    }
-    for (const spec of config.cdroms) {
-        // If all we have is a CD-ROM, assume it's actually a hard drive image
-        // (since read-only media can't be booted from).
-        const isCDROM = diskStrs.length > 0;
-        addDisk(diskStrs, spec.name, isCDROM);
-    }
-
-    // Placeholder used to handle CD-ROMs being inserted after boot.
-    addDisk(diskStrs, "/", true, false);
-
-    // Possible values come from the BOOT_DEVICE enum in Previous's
-    // configuration.h.
-    let bootDevice = 1; // BOOT_SCSI
-    if (
-        config.cdroms.length + config.disks.length + config.diskFiles.length ===
-        0
-    ) {
-        bootDevice = 0; // BOOT_ROM
-    } else if (disks.length === 1 && disks[0].isFloppy) {
-        bootDevice = 4; // BOOT_FLOPPY
-    }
-
-    const {machine} = config;
-    const turbo = machine.emulatorSubtype === "NeXTstation Turbo Color";
-
-    // Based on Configuration_SetSystemDefaults for the different machines
-    const replacements: {[key: string]: number | string | boolean} = {
-        "MACHINE_TYPE": machine.gestaltID,
-        "ROM_PATH": romFileName,
-        "FLOPPIES": floppyStrs.join("\n"),
-        "DISKS": diskStrs.join("\n"),
-        "DEBUG_LOG": config.debugLog ?? false,
-        "BOOT_DEVICE": bootDevice,
-        "TURBO": turbo,
-        "COLOR": turbo,
-        "CPU_LEVEL": machine.cpu === "68040" ? 4 : 3,
-        "CPU_FREQ":
-            // Technically the Turbo only had a 33 MHz 68040, but simulate it being
-            // upgraded with a Nitro card to get a bit more pep.
-            turbo ? 40 : 25,
-        "FPU_TYPE": machine.cpu === "68040" ? "68040" : "68882",
-        "DSP_TYPE": 2, // DSP_TYPE_EMU
-        "DSP_MEMORY_EXPANSION": machine.emulatorSubtype !== "NeXT Computer",
-        "SCSI_CHIP": machine.emulatorSubtype !== "NeXT Computer",
-        "RTC_CHIP": turbo,
-        "NBIC":
-            machine.emulatorSubtype === "NeXT Computer" ||
-            machine.emulatorSubtype === "NeXTcube",
-    };
-
-    const ramSize = config.ramSize ?? config.machine.ramSizes[0];
-    // Replicate valid combinations from defmemsize in Previous's dlgAdvanced.c.
-    const RAM_BANKS: {[size: MachineDefRAMSize]: number[]} = {
-        "128M": [32, 32, 32, 32],
-        "64M": turbo ? [32, 32, 0, 0] : [16, 16, 16, 16],
-        "32M": turbo ? [8, 8, 8, 8] : [16, 16, 0, 0],
-        "16M": turbo ? [8, 8, 0, 0] : [16, 0, 0, 0],
-    };
-    const ramBankSizes =
-        ramSize in RAM_BANKS ? RAM_BANKS[ramSize] : RAM_BANKS["128M"];
-    ramBankSizes.forEach(
-        (size, i) => (replacements[`RAM_BANK_SIZE${i}`] = size)
-    );
-
-    let configStr = new TextDecoder().decode(baseConfig);
-    for (const [key, value] of Object.entries(replacements)) {
-        const replacement =
-            typeof value === "boolean"
-                ? value
-                    ? "TRUE"
-                    : "FALSE"
-                : value.toString();
-        configStr = configStr.replaceAll(`{${key}}`, replacement);
-    }
-    return configStr;
 }
 
 const HAS_HOVER_EVENTS =

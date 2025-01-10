@@ -62,7 +62,7 @@ export function emulatorSupportsCDROMs(type: EmulatorType): boolean {
 }
 
 export function emulatorNeedsDeviceImage(type: EmulatorType): boolean {
-    return type === "DingusPPC";
+    return type === "DingusPPC" || type === "PearPC";
 }
 
 export function emulatorCpuId(
