@@ -140,7 +140,7 @@ export type EmulatorWorkerConfig = EmulatorDef & {
     deviceImageHeader: ArrayBuffer;
     cdroms: EmulatorCDROM[];
     usePlaceholderDisks: boolean;
-    autoloadFiles: {[name: string]: ArrayBuffer};
+    autoloadFiles: {[name: string]: ArrayBufferLike};
     arguments: string[];
     video: EmulatorWorkerVideoConfig;
     input: EmulatorWorkerInputConfig;

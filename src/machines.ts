@@ -17,6 +17,8 @@ import nextRev33V74RomPath from "./Data/NeXT-Rev_3.3_v74.rom";
 import basiliskPrefsPath from "./Data/BasiliskIIPrefs.txt";
 import sheepShaverPrefsPath from "./Data/SheepShaverPrefs.txt";
 import emptyPrefsPath from "./Data/EmptyPrefs.txt";
+import pearPCConfigPath from "./Data/PearPCConfig.txt";
+import pearpcVideoXPath from "./Data/PearPC-video-x.rom";
 import previousConfigPath from "./Data/PreviousConfig.txt";
 import {
     type EmulatorDef,
@@ -253,9 +255,12 @@ export const POWER_MACINTOSH_G4_PEARPC: MachineDef = {
     romPath: powerMacintoshG3BWBootRomPath,
     gestaltID: 406,
     emulatorType: "PearPC",
-    prefsPath: emptyPrefsPath,
+    prefsPath: pearPCConfigPath,
     bezelStyle: "Pinstripes",
     ramSizes: ["256M", "128M", "64M", "32M"],
+    extraFiles: {
+        "video.x": pearpcVideoXPath,
+    },
 };
 
 export const NEXT_COMPUTER: MachineDef = {
