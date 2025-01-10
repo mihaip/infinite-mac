@@ -65,6 +65,7 @@ export type SystemDiskDef = EmulatorDiskDef & {
 export type DiskFile = {
     file: File;
     treatAsCDROM: boolean;
+    hasDeviceImageHeader?: boolean;
 };
 
 export type PlaceholderDiskDef = {

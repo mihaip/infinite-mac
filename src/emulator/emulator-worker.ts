@@ -213,7 +213,11 @@ class EmulatorWorkerApi {
                 }),
                 ...diskFiles.map(spec => {
                     const disk = new EmulatorWorkerUploadDisk(spec, this);
-                    if (needsDeviceImage && !spec.isCDROM) {
+                    if (
+                        needsDeviceImage &&
+                        !spec.isCDROM &&
+                        !spec.hasDeviceImageHeader
+                    ) {
                         return new EmulatorWorkerDeviceImageDisk(
                             disk,
                             config.deviceImageHeader

@@ -97,6 +97,8 @@ export function Custom({
                                     file.name.endsWith(".iso") ||
                                     file.name.endsWith(".toast") ||
                                     file.name.endsWith(".cdr"),
+                                hasDeviceImageHeader:
+                                    file.name.endsWith(".hda"),
                             },
                             ...runDef.diskFiles.slice(i + 1),
                         ],
