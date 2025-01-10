@@ -217,6 +217,7 @@ export default function Mac({
                     url: URL.createObjectURL(df.file),
                     size: df.file.size,
                     isCDROM: df.treatAsCDROM,
+                    hasDeviceImageHeader: df.hasDeviceImageHeader,
                 })),
                 delayedDisks,
                 cdroms,

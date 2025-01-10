@@ -274,6 +274,7 @@ export type EmulatorFileUpload = {name: string; url: string; size: number};
 
 export type EmulatorDiskFile = EmulatorFileUpload & {
     isCDROM: boolean;
+    hasDeviceImageHeader?: boolean;
 };
 
 export type EmulatorFallbackCommand =
