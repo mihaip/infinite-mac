@@ -539,16 +539,29 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  76888: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 76924: () => { workerApi.blit(0, 0); },  
- 76950: ($0, $1) => { workerApi.blit($0, $1); },  
- 76978: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 77014: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 77065: ($0) => { workerApi.disks.close($0); },  
- 77096: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 77145: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
- 77195: ($0) => { return workerApi.disks.size($0); },  
- 77232: () => { workerApi.sleep(1); }
+  77592: () => { return workerApi.acquireInputLock(); },  
+ 77633: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 77722: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr); },  
+ 77812: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 77902: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 77986: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 78070: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
+ 78157: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
+ 78244: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 78329: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 78409: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 78490: () => { workerApi.releaseInputLock(); },  
+ 78524: () => { workerApi.sleep(0); },  
+ 78548: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 78584: () => { workerApi.blit(0, 0); },  
+ 78610: ($0, $1) => { workerApi.blit($0, $1); },  
+ 78638: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 78674: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 78725: ($0) => { workerApi.disks.close($0); },  
+ 78756: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 78805: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
+ 78855: ($0) => { return workerApi.disks.size($0); },  
+ 78892: () => { workerApi.sleep(1); }
 };
 
 // end include: preamble.js
