@@ -58,7 +58,7 @@ export function emulatorSupportsDownloadsFolder(type: EmulatorType): boolean {
 }
 
 export function emulatorSupportsCDROMs(type: EmulatorType): boolean {
-    return type !== "DingusPPC";
+    return type !== "DingusPPC" && type !== "PearPC";
 }
 
 export function emulatorNeedsDeviceImage(type: EmulatorType): boolean {
