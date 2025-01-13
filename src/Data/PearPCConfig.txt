@@ -37,10 +37,9 @@ redraw_interval_msec = 50
 ## Key codes
 ##
 
-key_compose_dialog = "F11"
-key_change_cd_0 = "none"
-key_toggle_mouse_grab = "F12"
-key_toggle_full_screen = "Alt+Return"
+key_compose_dialog = "none"
+key_toggle_mouse_grab = "none"
+key_toggle_full_screen = "none"
 
 
 ##
