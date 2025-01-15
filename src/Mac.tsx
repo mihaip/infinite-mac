@@ -306,7 +306,10 @@ export default function Mac({
                             );
                         }
                     } else {
-                        varz.incrementError("emulator_error:other", errorRaw);
+                        varz.incrementError(
+                            `emulator_error:${machine.emulatorType}:other`,
+                            errorRaw
+                        );
                     }
                     setEmulatorErrorText(
                         `The emulator encountered an error:\n\n${error}`
