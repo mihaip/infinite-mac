@@ -723,7 +723,9 @@ async function startEmulator(config: EmulatorWorkerConfig) {
                     console.error(error);
                     postMessage({
                         type: "emulator_did_have_error",
-                        error: `Cannot instantiate WebAssembly: ${error.toString()}`,
+                        error: `Cannot instantiate WebAssembly: ${error.toString()}\n${
+                            error.stack
+                        }`,
                     });
                 });
             return {};
