@@ -27,7 +27,13 @@ export class SharedMemoryEmulatorVideo implements EmulatorVideo {
 
     constructor(config: EmulatorConfig) {
         this.#config = config;
-        const screenBufferSize = config.screenWidth * config.screenHeight * 4; // 32bpp
+        // Allocate the maximum screen size we're likely to need, so that we
+        // don't need to support resizing the SharedArrayBuffer if the
+        // resolution is increased after machine startup.
+        const screenBufferSize =
+            Math.max(config.screenWidth, 1600) *
+            Math.max(config.screenHeight, 1200) *
+            4; // 32bpp
         this.#screenBuffer = new SharedArrayBuffer(screenBufferSize);
         this.#screenBufferView = new Uint8Array(this.#screenBuffer);
     }
