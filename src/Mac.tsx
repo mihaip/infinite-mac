@@ -25,6 +25,7 @@ import {
     SAVED_HD,
     INFINITE_HD6,
     type DiskFile,
+    INFINITE_HDX,
 } from "./disks";
 import {type MachineDefRAMSize, type MachineDef} from "./machines";
 import classNames from "classnames";
@@ -189,6 +190,8 @@ export default function Mac({
                 infiniteHd = INFINITE_HD_MFS;
             } else if (disks[0]?.infiniteHdSubset === "system6") {
                 infiniteHd = INFINITE_HD6;
+            } else if (disks[0]?.infiniteHdSubset === "macosx") {
+                infiniteHd = INFINITE_HDX;
             } else {
                 infiniteHd = INFINITE_HD;
             }
