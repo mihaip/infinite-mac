@@ -24,33 +24,38 @@ import stickies
 import time
 import unicodedata
 import urls
+import xattr
 
 CHUNK_SIZE = 256 * 1024
 
 ImportFolders = typing.Tuple[
     typing.Dict[str, machfs.Folder], # Universal folders
     typing.Dict[str, machfs.Folder], # Folders that need System 7
+    typing.Dict[str, machfs.Folder], # Folders that need Mac OS X
 ]
 
 def get_import_folders() -> ImportFolders:
     import_folders = {}
     import_folders7 = {}
+    import_foldersX = {}
 
-    manifest_folders, manifest_folders7 = import_manifests()
+    manifest_folders, manifest_folders7, manifest_foldersX = import_manifests()
     import_folders.update(manifest_folders)
     import_folders7.update(manifest_folders7)
+    import_foldersX.update(manifest_foldersX)
 
     zip_folders, zip_folder7 = import_zips()
     import_folders.update(zip_folders)
     import_folders7.update(zip_folder7)
 
-    return import_folders, import_folders7
+    return import_folders, import_folders7, import_foldersX
 
 
 def import_manifests() -> ImportFolders:
     sys.stderr.write("Importing other images\n")
     import_folders = {}
     import_folders7 = {}
+    import_foldersX = {}
     debug_filter = os.getenv("DEBUG_LIBRARY_FILTER")
 
     for manifest_path in glob.iglob(os.path.join(paths.LIBRARY_DIR, "**",
@@ -76,15 +81,22 @@ def import_manifests() -> ImportFolders:
                                  "(build it with npm run build-xadmaster)\n")
                 continue
             folder = import_archive(manifest_json)
+        elif src_ext in [".dmg"]:
+            if not os.path.exists(paths.HDIUTIL_PATH):
+                sys.stderr.write("    Skipping .dmg import, hdiutil not found\n")
+                continue
+            folder = import_dmg(manifest_json)
         else:
             assert False, "Unexpected manifest URL extension: %s" % src_ext
 
-        if manifest_json.get("needs_system_7"):
+        if manifest_json.get("needs_mac_os_x"):
+            import_foldersX[folder_path] = folder
+        elif manifest_json.get("needs_system_7"):
             import_folders7[folder_path] = folder
         else:
             import_folders[folder_path] = folder
 
-    return import_folders, import_folders7
+    return import_folders, import_folders7, import_foldersX
 
 
 def import_disk_image(
@@ -318,6 +330,96 @@ def update_file_or_folder_from_lsar_entry(
     if "XADCreationDate" in entry:
         file_or_folder.crdate = convert_date(entry["XADCreationDate"])
 
+
+def import_dmg(
+        manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:
+    src_url = manifest_json["src_url"]
+    archive_path = urls.read_url_to_path(src_url)
+    root_folder = machfs.Folder()
+
+    def normalize(name: str) -> str:
+        # Normalizes accented characters to their combined form, since only
+        # those have an equivalent in the MacRoman encoding that HFS ends up
+        # using.
+        return unicodedata.normalize("NFC", name)
+
+    with tempfile.TemporaryDirectory() as tmp_dir_path:
+        hdiutil_code = subprocess.call([
+            paths.HDIUTIL_PATH, "attach", archive_path, "-mountpoint",
+            tmp_dir_path
+        ],
+                                    stdout=subprocess.DEVNULL)
+        if hdiutil_code != 0:
+            assert False, "Could not mount .dmg: %s (cached at %s):" % (
+                src_url, archive_path)
+        try:
+            # TODO: allow selection of a child folder
+            root_dir_path = tmp_dir_path
+
+            if "src_folder" in manifest_json:
+                src_folder_name = manifest_json["src_folder"]
+                root_dir_path = os.path.join(root_dir_path, src_folder_name)
+                update_folder_from_xattr(root_folder, root_dir_path)
+                clear_folder_window_position(root_folder)
+
+            for dir_path, dir_names, file_names in os.walk(root_dir_path):
+                folder = root_folder
+                dir_rel_path = os.path.relpath(dir_path, root_dir_path)
+                if dir_rel_path != ".":
+                    folder_path_pieces = []
+                    for folder_name in dir_rel_path.split(os.path.sep):
+                        folder_path_pieces.append(folder_name)
+                        folder_name = normalize(folder_name)
+                        if folder_name not in folder:
+                            new_folder = folder[folder_name] = machfs.Folder()
+                            update_folder_from_xattr(new_folder, os.path.join(root_dir_path,
+                                             *folder_path_pieces))
+                        folder = folder[folder_name]
+                for file_name in file_names:
+                    file_path = os.path.join(dir_path, file_name)
+                    file = machfs.File()
+                    with open(file_path, "rb") as f:
+                        file.data = f.read()
+                    resource_fork_path = os.path.join(file_path, "..namedfork",
+                                                    "rsrc")
+                    if os.path.exists(resource_fork_path):
+                        with open(resource_fork_path, "rb") as f:
+                            file.rsrc = f.read()
+
+                    update_file_from_xattr(file, file_path)
+
+                    folder[normalize(file_name)] = file
+        finally:
+            hdiutil_code = subprocess.call([
+                paths.HDIUTIL_PATH, "detach", tmp_dir_path])
+            if hdiutil_code != 0:
+                assert False, "Could not unmount .dmg: %s (cached at %s):" % (
+                    src_url, archive_path)
+
+    return root_folder
+
+
+def update_file_from_xattr(file: machfs.File, file_path: str) -> None:
+    attr_name = "com.apple.FinderInfo"
+    xattrs = xattr.listxattr(file_path)
+    if attr_name not in xattrs:
+        return
+    finder_info = xattr.getxattr(file_path, attr_name)
+    (file.type, file.creator, file.flags, file.y, file.x, _, file.fndrInfo) = struct.unpack(
+        '>4s4sHhhH16s', finder_info)
+    if file.x == 0 and file.y == 0:
+        file.flags &= ~machfs.main.FinderFlags.kHasBeenInited
+
+
+def update_folder_from_xattr(folder: machfs.Folder, folder_path: str) -> None:
+    attr_name = "com.apple.FinderInfo"
+    xattrs = xattr.listxattr(folder_path)
+    if attr_name not in xattrs:
+        return
+    # Get creator and type code
+    finder_info = xattr.getxattr(folder_path, attr_name)
+    folder.usrInfo = finder_info[0:16]
+    folder.fndrInfo = finder_info[16:]
 
 SYSTEM7_ZIP_PATHS = {
     "Games/Bungie/Marathon Infinity",
@@ -555,8 +657,8 @@ def build_system_image(
     return write_image_def(image_data, disk.name, dest_dir)
 
 
-def build_library_images(dest_dir: str) -> typing.Tuple[ImageDef, ImageDef]:
-    import_folders, import_folders7 = get_import_folders()
+def build_library_images(dest_dir: str) -> typing.Tuple[ImageDef, ImageDef, ImageDef]:
+    import_folders, import_folders7, import_foldersX = get_import_folders()
 
     v = machfs.Volume()
     with open(os.path.join(paths.IMAGES_DIR, "Infinite HD.dsk"), "rb") as base:
@@ -593,7 +695,22 @@ def build_library_images(dest_dir: str) -> typing.Tuple[ImageDef, ImageDef]:
     )
     image_def = write_image_def(image, "Infinite HD.dsk", dest_dir)
 
-    return image6_def, image_def
+    # Not much point in including Classic software for the Mac OS X image, so
+    # we start with a fresh volume.
+    v = machfs.Volume()
+    with open(os.path.join(paths.IMAGES_DIR, "Infinite HD.dsk"), "rb") as base:
+        v.read(base.read())
+    v.name = "Infinite HD"
+    add_folders(import_foldersX)
+    imageX = v.write(
+        size=2000 * 1024 * 1024,
+        align=512,
+        desktopdb=False,
+        bootable=False,
+    )
+    imageX_def = write_image_def(imageX, "Infinite HDX.dsk", dest_dir)
+
+    return image6_def, image_def, imageX_def
 
 
 def build_passthrough_image(base_name: str, dest_dir: str, compressed: bool = False) -> ImageDef:
@@ -738,12 +855,13 @@ if __name__ == "__main__":
                     continue
                 images.append(build_system_image(disk, temp_dir))
         if not system_filter:
-            infinite_hd6_image, infinite_hd_image = build_library_images(temp_dir)
+            infinite_hd6_image, infinite_hd_image, infinite_hdX_image = build_library_images(temp_dir)
             images.append(infinite_hd6_image)
             images.append(infinite_hd_image)
+            images.append(infinite_hdX_image)
             if not library_filter:
                 build_desktop_db6([infinite_hd6_image])
-                build_desktop_db([infinite_hd_image])
+                build_desktop_db([infinite_hd_image, infinite_hdX_image])
 
             images.append(
                 build_passthrough_image("Infinite HD (MFS).dsk",

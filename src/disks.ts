@@ -54,7 +54,7 @@ export type SystemDiskDef = EmulatorDiskDef & {
     description: string;
     preferredMachine: MachineDef;
     appleTalkSupported?: boolean;
-    infiniteHdSubset?: "mfs" | "system6";
+    infiniteHdSubset?: "mfs" | "system6" | "macosx";
     delayAdditionalDiskMount?: boolean;
     appearance?: Appearance;
     isUnstable?: boolean;
@@ -958,6 +958,7 @@ const MAC_OS_X_10_2_8: SystemDiskDef = {
         ],
     ]),
     notable: true,
+    infiniteHdSubset: "macosx",
     isUnstable: true,
     hasDeviceImageHeader: true,
     hiddenInBrowser: true,
@@ -1600,6 +1601,11 @@ export const INFINITE_HD: EmulatorDiskDef = {
 export const INFINITE_HD6: EmulatorDiskDef = {
     prefetchChunks: [0, 2271, 2274, 2275],
     generatedSpec: () => import("./Data/Infinite HD6.dsk.json"),
+};
+
+export const INFINITE_HDX: EmulatorDiskDef = {
+    prefetchChunks: [0, 17, 7999],
+    generatedSpec: () => import("./Data/Infinite HDX.dsk.json"),
 };
 
 export const INFINITE_HD_MFS: EmulatorDiskDef = {
