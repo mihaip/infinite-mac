@@ -61,13 +61,16 @@ def import_manifests() -> ImportFolders:
     for manifest_path in glob.iglob(os.path.join(paths.LIBRARY_DIR, "**",
                                                  "*.json"),
                                     recursive=True):
-        if debug_filter and debug_filter not in manifest_path:
+        if debug_filter and debug_filter != "X" and debug_filter not in manifest_path:
             continue
         folder_path, _ = os.path.splitext(
             os.path.relpath(manifest_path, paths.LIBRARY_DIR))
-        sys.stderr.write("  Importing %s\n" % folder_path)
         with open(manifest_path, "r") as manifest:
             manifest_json = json.load(manifest)
+        if debug_filter == "X" and not manifest_json.get("needs_mac_os_x"):
+            continue
+
+        sys.stderr.write("  Importing %s\n" % folder_path)
         src_url = manifest_json["src_url"]
         src_ext = manifest_json.get("src_ext")
         if not src_ext:
@@ -135,7 +138,10 @@ def import_archive(
         # Normalizes accented characters to their combined form, since only
         # those have an equivalent in the MacRoman encoding that HFS ends up
         # using.
-        return unicodedata.normalize("NFC", name.replace(":", "/"))
+        name = unicodedata.normalize("NFC", name.replace(":", "/"))
+        if len(name) > 31:
+            name = name[:31]
+        return name
 
     src_url = manifest_json["src_url"]
     archive_path = urls.read_url_to_path(src_url)
@@ -178,7 +184,8 @@ def import_archive(
         tmp_dir_contents = os.listdir(tmp_dir_path)
         if len(tmp_dir_contents) == 1:
             single_item_path = os.path.join(tmp_dir_path, tmp_dir_contents[0])
-            if os.path.isdir(single_item_path):
+            # Don't unpack .app bundles, we still want the containing folder.
+            if os.path.isdir(single_item_path) and not single_item_path.endswith(".app"):
                 root_dir_path = single_item_path
                 update_folder_from_lsar_entry(root_folder,
                                               get_lsar_entry(root_dir_path))
@@ -341,7 +348,10 @@ def import_dmg(
         # Normalizes accented characters to their combined form, since only
         # those have an equivalent in the MacRoman encoding that HFS ends up
         # using.
-        return unicodedata.normalize("NFC", name)
+        name = unicodedata.normalize("NFC", name)
+        if len(name) > 31:
+            name = name[:31]
+        return name
 
     with tempfile.TemporaryDirectory() as tmp_dir_path:
         hdiutil_code = subprocess.call([
@@ -428,6 +438,9 @@ SYSTEM7_ZIP_PATHS = {
     "Graphics/Infini-D",
 }
 
+MAC_OS_X_ZIP_PATHS = {
+}
+
 def import_zips() -> ImportFolders:
     sys.stderr.write("Importing .zips\n")
     import_folders = {}
@@ -436,10 +449,14 @@ def import_zips() -> ImportFolders:
 
     for zip_path in glob.iglob(os.path.join(paths.LIBRARY_DIR, "**", "*.zip"),
                                recursive=True):
-        if debug_filter and debug_filter not in zip_path:
+        if debug_filter and debug_filter != "X" and debug_filter not in zip_path:
             continue
         folder_path, _ = os.path.splitext(
             os.path.relpath(zip_path, paths.LIBRARY_DIR))
+
+        if debug_filter == "X" and folder_path not in MAC_OS_X_ZIP_PATHS:
+            continue
+
         sys.stderr.write("  Importing %s\n" % folder_path)
 
         folder = machfs.Folder()
