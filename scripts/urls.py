@@ -20,12 +20,20 @@ def read_url_headers(url: str) -> dict:
 
 
 def read_url_to_path(url: str, headers: bool = False) -> str:
-    if not os.path.exists(paths.CACHE_DIR):
-        os.makedirs(paths.CACHE_DIR)
+    os.makedirs(paths.CACHE_DIR, exist_ok=True)
     cache_key = hashlib.sha256(url.encode()).hexdigest()
     if headers:
         cache_key += "-headers"
     cache_path = os.path.join(paths.CACHE_DIR, cache_key)
+
+    # Preserve the filename in the cached version for .gzip, otherwise unar
+    # will name the extracted file after the cache key.
+    if url.endswith(".gz"):
+        filename = url.split("/")[-1]
+        cache_dir = cache_path + "-dir"
+        os.makedirs(cache_dir, exist_ok=True)
+        cache_path = os.path.join(cache_dir, filename)
+
     if not os.path.exists(cache_path):
         if url.startswith("https://macgui.com/downloads/"):
             contents = fetch_macgui_url(url, headers)
@@ -33,6 +41,7 @@ def read_url_to_path(url: str, headers: bool = False) -> str:
             contents = fetch_url(url, headers)
         with open(cache_path, "wb+") as f:
             f.write(contents)
+
     return cache_path
 
 

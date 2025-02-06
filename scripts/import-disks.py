@@ -205,14 +205,8 @@ def import_archive(
                 raise
 
         if "src_dmg" in manifest_json:
-            try:
-                dmg_path = os.path.join(tmp_dir_path, manifest_json["src_dmg"])
-                import_dmg_folder(manifest_json, dmg_path, root_folder)
-            except FileNotFoundError:
-                sys.stderr.write("Directory contents:\n")
-                for f in os.listdir(tmp_dir_path):
-                    sys.stderr.write("  %s\n" % f)
-                raise
+            dmg_path = os.path.join(tmp_dir_path, manifest_json["src_dmg"])
+            import_dmg_folder(manifest_json, dmg_path, root_folder)
             return root_folder
 
         if "src_images" in manifest_json:
