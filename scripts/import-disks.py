@@ -44,9 +44,10 @@ def get_import_folders() -> ImportFolders:
     import_folders7.update(manifest_folders7)
     import_foldersX.update(manifest_foldersX)
 
-    zip_folders, zip_folder7 = import_zips()
+    zip_folders, zip_folders7, zip_foldersX = import_zips()
     import_folders.update(zip_folders)
-    import_folders7.update(zip_folder7)
+    import_folders7.update(zip_folders7)
+    import_foldersX.update(zip_foldersX)
 
     return import_folders, import_folders7, import_foldersX
 
@@ -78,7 +79,7 @@ def import_manifests() -> ImportFolders:
 
         if src_ext in [".img", ".dsk", ".iso"]:
             folder = import_disk_image(manifest_json)
-        elif src_ext in [".hqx", ".sit", ".bin", ".zip"]:
+        elif src_ext in [".hqx", ".sit", ".bin", ".zip", ".gz"]:
             if not os.path.exists(paths.LSAR_PATH):
                 sys.stderr.write("    Skipping archive import, lsar not found "
                                  "(build it with npm run build-xadmaster)\n")
@@ -202,6 +203,17 @@ def import_archive(
                 for f in os.listdir(tmp_dir_path):
                     sys.stderr.write("  %s\n" % f)
                 raise
+
+        if "src_dmg" in manifest_json:
+            try:
+                dmg_path = os.path.join(tmp_dir_path, manifest_json["src_dmg"])
+                import_dmg_folder(manifest_json, dmg_path, root_folder)
+            except FileNotFoundError:
+                sys.stderr.write("Directory contents:\n")
+                for f in os.listdir(tmp_dir_path):
+                    sys.stderr.write("  %s\n" % f)
+                raise
+            return root_folder
 
         if "src_images" in manifest_json:
             folder = machfs.Folder()
@@ -343,6 +355,11 @@ def import_dmg(
     src_url = manifest_json["src_url"]
     archive_path = urls.read_url_to_path(src_url)
     root_folder = machfs.Folder()
+    import_dmg_folder(manifest_json, archive_path, root_folder)
+    return root_folder
+
+def import_dmg_folder(manifest_json: typing.Dict[str, typing.Any], archive_path: str, root_folder: machfs.Folder) -> None:
+    src_url = manifest_json["src_url"]
 
     def normalize(name: str) -> str:
         # Normalizes accented characters to their combined form, since only
@@ -354,16 +371,18 @@ def import_dmg(
         return name
 
     with tempfile.TemporaryDirectory() as tmp_dir_path:
-        hdiutil_code = subprocess.call([
-            paths.HDIUTIL_PATH, "attach", archive_path, "-mountpoint",
-            tmp_dir_path
-        ],
-                                    stdout=subprocess.DEVNULL)
+        hdiutil_code = subprocess.run([
+                paths.HDIUTIL_PATH, "attach", archive_path, "-mountpoint",
+                tmp_dir_path
+            ],
+            # Pipe in a "y" to accept the license agreement (if any).
+            input=b"y\n",
+            stdout=subprocess.DEVNULL,
+        ).returncode
         if hdiutil_code != 0:
             assert False, "Could not mount .dmg: %s (cached at %s):" % (
                 src_url, archive_path)
         try:
-            # TODO: allow selection of a child folder
             root_dir_path = tmp_dir_path
 
             if "src_folder" in manifest_json:
@@ -382,8 +401,8 @@ def import_dmg(
                         folder_name = normalize(folder_name)
                         if folder_name not in folder:
                             new_folder = folder[folder_name] = machfs.Folder()
-                            update_folder_from_xattr(new_folder, os.path.join(root_dir_path,
-                                             *folder_path_pieces))
+                            folder_path = os.path.join(root_dir_path, *folder_path_pieces)
+                            update_folder_from_xattr(new_folder, folder_path)
                         folder = folder[folder_name]
                 for file_name in file_names:
                     file_path = os.path.join(dir_path, file_name)
@@ -405,8 +424,6 @@ def import_dmg(
             if hdiutil_code != 0:
                 assert False, "Could not unmount .dmg: %s (cached at %s):" % (
                     src_url, archive_path)
-
-    return root_folder
 
 
 def update_file_from_xattr(file: machfs.File, file_path: str) -> None:
@@ -439,12 +456,14 @@ SYSTEM7_ZIP_PATHS = {
 }
 
 MAC_OS_X_ZIP_PATHS = {
+    "Networking/NetNewsWire Lite 1.0.2",
 }
 
 def import_zips() -> ImportFolders:
     sys.stderr.write("Importing .zips\n")
     import_folders = {}
     import_folders7 = {}
+    import_foldersX = {}
     debug_filter = os.getenv("DEBUG_LIBRARY_FILTER")
 
     for zip_path in glob.iglob(os.path.join(paths.LIBRARY_DIR, "**", "*.zip"),
@@ -508,10 +527,12 @@ def import_zips() -> ImportFolders:
 
         if folder_path in SYSTEM7_ZIP_PATHS:
             import_folders7[folder_path] = folder
+        elif folder_path in MAC_OS_X_ZIP_PATHS:
+            import_foldersX[folder_path] = folder
         else:
             import_folders[folder_path] = folder
 
-    return import_folders, import_folders7
+    return import_folders, import_folders7, import_foldersX
 
 
 def traverse_folders(parent: machfs.Folder, folder_path: str) -> machfs.Folder:
