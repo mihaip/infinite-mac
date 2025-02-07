@@ -82,7 +82,7 @@ def import_manifests() -> ImportFolders:
         elif src_ext in [".hqx", ".sit", ".bin", ".zip", ".gz"]:
             if not os.path.exists(paths.LSAR_PATH):
                 sys.stderr.write("    Skipping archive import, lsar not found "
-                                 "(build it with npm run build-xadmaster)\n")
+                                 "(build it with npm run build-tools)\n")
                 continue
             folder = import_archive(manifest_json)
         elif src_ext in [".dmg"]:
@@ -105,15 +105,17 @@ def import_manifests() -> ImportFolders:
 
 def import_disk_image(
         manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:
-    return import_disk_image_data(urls.read_url(manifest_json["src_url"]),
+    return import_disk_image_data(urls.read_url_to_path(manifest_json["src_url"]),
                                   manifest_json)
 
 
 def import_disk_image_data(
-        data: bytes, manifest_json: typing.Dict[str,
+        image_path: str, manifest_json: typing.Dict[str,
                                                 typing.Any]) -> machfs.Folder:
     v = machfs.Volume()
-    v.read(data)
+    with open(image_path, "rb") as f:
+        v.read(f.read())
+
     if "src_folder" in manifest_json:
         folder = v[manifest_json["src_folder"]]
         clear_folder_window_position(folder)
@@ -194,10 +196,8 @@ def import_archive(
 
         if "src_image" in manifest_json:
             try:
-                with open(
-                        os.path.join(tmp_dir_path, manifest_json["src_image"]),
-                        "rb") as f:
-                    return import_disk_image_data(f.read(), manifest_json)
+                image_path = os.path.join(tmp_dir_path, manifest_json["src_image"])
+                return import_disk_image_data(image_path, manifest_json)
             except FileNotFoundError:
                 sys.stderr.write("Directory contents:\n")
                 for f in os.listdir(tmp_dir_path):
@@ -213,11 +213,10 @@ def import_archive(
             folder = machfs.Folder()
             for src_image in manifest_json["src_images"]:
                 try:
-                    with open(os.path.join(tmp_dir_path, src_image),
-                              "rb") as f:
-                        image_folder = import_disk_image_data(
-                            f.read(), manifest_json)
-                        folder[src_image] = image_folder
+                    image_path = os.path.join(tmp_dir_path, src_image)
+                    image_folder = import_disk_image_data(
+                        image_path, manifest_json)
+                    folder[src_image] = image_folder
                 except FileNotFoundError:
                     sys.stderr.write("Directory contents:\n")
                     for f in os.listdir(tmp_dir_path):
@@ -353,6 +352,29 @@ def import_dmg(
     return root_folder
 
 def import_dmg_folder(manifest_json: typing.Dict[str, typing.Any], archive_path: str, root_folder: machfs.Folder) -> None:
+    if manifest_json.get("needs_dmg2img"):
+        with tempfile.TemporaryDirectory() as tmp_dir_path:
+            img_path = os.path.join(tmp_dir_path, "image.img")
+            dmg2img_code = subprocess.call([
+                paths.DMG2IMG_PATH, "-silent",
+                "-i", archive_path, "-o", img_path
+            ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+            if dmg2img_code != 0:
+                assert False, "Could not convert .dmg to .img: %s (cached at %s):" % (
+                    src_url, archive_path)
+            dmg_path = os.path.join(tmp_dir_path, "image.dmg")
+            hdiutil_code = subprocess.call([
+                    paths.HDIUTIL_PATH, "convert", img_path, "-format", "UFBI",
+                    "-o", dmg_path,
+                ], stdout=subprocess.DEVNULL)
+            if hdiutil_code != 0:
+                assert False, "Could not convert .img: %s (cached at %s):" % (
+                    src_url, img_path)
+            manifest_json_clone = copy.deepcopy(manifest_json)
+            del manifest_json_clone["needs_dmg2img"]
+            return import_dmg_folder(manifest_json_clone, dmg_path, root_folder)
+
     src_url = manifest_json["src_url"]
 
     def normalize(name: str) -> str:
@@ -400,6 +422,8 @@ def import_dmg_folder(manifest_json: typing.Dict[str, typing.Any], archive_path:
                         folder = folder[folder_name]
                 for file_name in file_names:
                     file_path = os.path.join(dir_path, file_name)
+                    if os.path.islink(file_path):
+                        continue
                     file = machfs.File()
                     with open(file_path, "rb") as f:
                         file.data = f.read()
@@ -411,10 +435,17 @@ def import_dmg_folder(manifest_json: typing.Dict[str, typing.Any], archive_path:
 
                     update_file_from_xattr(file, file_path)
 
+                    try:
+                        normalize(file_name).encode("macroman")
+                    except UnicodeEncodeError:
+                        # Skip over files that can't be encoded in MacRoman.
+                        continue
+
                     folder[normalize(file_name)] = file
         finally:
             hdiutil_code = subprocess.call([
-                paths.HDIUTIL_PATH, "detach", tmp_dir_path])
+                paths.HDIUTIL_PATH, "detach", tmp_dir_path],
+                stdout=subprocess.DEVNULL)
             if hdiutil_code != 0:
                 assert False, "Could not unmount .dmg: %s (cached at %s):" % (
                     src_url, archive_path)
@@ -450,7 +481,6 @@ SYSTEM7_ZIP_PATHS = {
 }
 
 MAC_OS_X_ZIP_PATHS = {
-    "Networking/NetNewsWire Lite 1.0.2",
 }
 
 def import_zips() -> ImportFolders:
