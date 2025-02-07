@@ -8,6 +8,7 @@
 /build
 /dist
 /XADMaster-build
+/dmg2img
 
 # misc
 .DS_Store

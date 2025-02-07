@@ -36,7 +36,7 @@ Dependencies can be installed with:
 ```
 npm install
 pip3 install -r requirements.txt
-npm run build-xadmaster
+npm run build-tools
 sudo -v ; curl https://rclone.org/install.sh | sudo bash
 ```
 

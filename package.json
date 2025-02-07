@@ -44,7 +44,7 @@
         "import-cd-roms": "scripts/import-cd-roms.py",
         "import-library": "scripts/import-library.py",
         "load-placeholder-stickies-file": "scripts/load-placeholder-stickies-file.py",
-        "build-xadmaster": "scripts/build-xadmaster.sh",
+        "build-tools": "scripts/build-tools.sh",
         "start": "vite",
         "build": "vite build",
         "preview": "vite preview --host",

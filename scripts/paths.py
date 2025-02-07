@@ -13,4 +13,5 @@ CACHE_DIR = os.path.expanduser(os.path.join("~", ".infinite-mac-cache"))
 XADMASTER_PATH = os.path.join(ROOT_DIR, "XADMaster-build", "Release")
 UNAR_PATH = os.path.join(XADMASTER_PATH, "unar")
 LSAR_PATH = os.path.join(XADMASTER_PATH, "lsar")
+DMG2IMG_PATH = os.path.join(ROOT_DIR, "dmg2img", "dmg2img")
 HDIUTIL_PATH = "/usr/bin/hdiutil"
