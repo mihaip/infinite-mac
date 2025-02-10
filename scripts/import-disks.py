@@ -205,9 +205,15 @@ def import_archive(
                 raise
 
         if "src_dmg" in manifest_json:
-            dmg_path = os.path.join(tmp_dir_path, manifest_json["src_dmg"])
-            import_dmg_folder(manifest_json, dmg_path, root_folder)
-            return root_folder
+            try:
+                dmg_path = os.path.join(tmp_dir_path, manifest_json["src_dmg"])
+                import_dmg_folder(manifest_json, dmg_path, root_folder)
+                return root_folder
+            except Exception:
+                sys.stderr.write("Directory contents:\n")
+                for f in os.listdir(tmp_dir_path):
+                    sys.stderr.write("  %s\n" % f)
+                raise
 
         if "src_images" in manifest_json:
             folder = machfs.Folder()
@@ -378,10 +384,11 @@ def import_dmg_folder(manifest_json: typing.Dict[str, typing.Any], archive_path:
     src_url = manifest_json["src_url"]
 
     def normalize(name: str) -> str:
+        # Replaces : with /, to undo escaping done by hdiutil.
         # Normalizes accented characters to their combined form, since only
         # those have an equivalent in the MacRoman encoding that HFS ends up
         # using.
-        name = unicodedata.normalize("NFC", name)
+        name = unicodedata.normalize("NFC", name.replace(":", "/"))
         if len(name) > 31:
             name = name[:31]
         return name
