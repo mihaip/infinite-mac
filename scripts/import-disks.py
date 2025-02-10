@@ -142,8 +142,11 @@ def import_archive(
         # those have an equivalent in the MacRoman encoding that HFS ends up
         # using.
         name = unicodedata.normalize("NFC", name.replace(":", "/"))
-        if len(name) > 31:
-            name = name[:31]
+        # Avoid file names longer than 31 characters in HFS.
+        pieces = name.split("/")
+        if len(pieces[-1]) > 31:
+            pieces[-1] = pieces[-1][:31]
+            name = "/".join(pieces)
         return name
 
     src_url = manifest_json["src_url"]
