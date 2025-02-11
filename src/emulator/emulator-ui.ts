@@ -178,7 +178,6 @@ export class Emulator {
     #mouseX = 0;
     #mouseY = 0;
     #trackpadController: EmulatorTrackpadController;
-    #requestedPointerLock = false;
 
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
         console.time("Emulator first blit");
@@ -298,10 +297,6 @@ export class Emulator {
         document.addEventListener(
             "visibilitychange",
             this.#handleVisibilityChange
-        );
-        document.addEventListener(
-            "pointerlockchange",
-            this.#handlePointerLockChange
         );
 
         await this.#startWorker();
@@ -509,10 +504,6 @@ export class Emulator {
             "visibilitychange",
             this.#handleVisibilityChange
         );
-        document.addEventListener(
-            "pointerlockchange",
-            this.#handlePointerLockChange
-        );
 
         this.#input.handleInput({type: "stop"});
         this.#ethernetPinger.stop();
@@ -661,17 +652,10 @@ export class Emulator {
             });
             setTimeout(handleMouseDown, 16);
         }
-        if (this.#useMouseDeltas() && !this.#requestedPointerLock) {
+        if (this.#useMouseDeltas() && !document.pointerLockElement) {
             this.#config.screenCanvas.requestPointerLock({
                 unadjustedMovement: false,
             });
-            this.#requestedPointerLock = true;
-        }
-    };
-
-    #handlePointerLockChange = (event: Event): void => {
-        if (!document.pointerLockElement) {
-            this.#requestedPointerLock = false;
         }
     };
 
