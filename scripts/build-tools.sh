@@ -2,19 +2,25 @@
 
 set -e
 
-# Build the lsar and uaar tools from the XADMaster
-# Assumes that the https://github.com/mihaip/XADMAster and
-# https://github.com/MacPaw/universal-detector submodules have been fetched.
-
-echo "Building lsar and unar tools from XADMaster..."
 ROOT_DIR="`dirname "${BASH_SOURCE[0]}"`/.."
-XADMASTER_PROJECT="${ROOT_DIR}/XADMaster/XADMaster.xcodeproj"
-XADMASTER_DESTINATION_DIR="${ROOT_DIR}/XADMaster-build"
 
-mkdir -p "${XADMASTER_DESTINATION_DIR}"
-XADMASTER_DESTINATION_DIR=`realpath "${XADMASTER_DESTINATION_DIR}"`
-xcodebuild -scheme lsar -project "${XADMASTER_PROJECT}" -configuration Release SYMROOT="${XADMASTER_DESTINATION_DIR}"
-xcodebuild -scheme unar -project "${XADMASTER_PROJECT}" -configuration Release SYMROOT="${XADMASTER_DESTINATION_DIR}"
+# Check if xcodebuild is available
+if ! command -v xcodebuild &> /dev/null; then
+    echo "Warning: xcodebuild is not installed or not in the PATH. Skipping build of lsar and unar tools."
+else
+    # Build the lsar and unar tools from the XADMaster
+    # Assumes that the https://github.com/mihaip/XADMAster and
+    # https://github.com/MacPaw/universal-detector submodules have been fetched.
+
+    echo "Building lsar and unar tools from XADMaster..."
+    XADMASTER_PROJECT="${ROOT_DIR}/XADMaster/XADMaster.xcodeproj"
+    XADMASTER_DESTINATION_DIR="${ROOT_DIR}/XADMaster-build"
+
+    mkdir -p "${XADMASTER_DESTINATION_DIR}"
+    XADMASTER_DESTINATION_DIR=`realpath "${XADMASTER_DESTINATION_DIR}"`
+    xcodebuild -scheme lsar -project "${XADMASTER_PROJECT}" -configuration Release SYMROOT="${XADMASTER_DESTINATION_DIR}"
+    xcodebuild -scheme unar -project "${XADMASTER_PROJECT}" -configuration Release SYMROOT="${XADMASTER_DESTINATION_DIR}"
+fi
 
 # Build the dmg2img tool. This has no modifications so we can just use
 # the upstream version.

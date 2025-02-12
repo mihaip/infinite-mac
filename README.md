@@ -10,7 +10,7 @@ This project uses submodules, use `git clone --recursive https://github.com/miha
 
 Common development tasks, all done via `npm run`:
 
--   `start`: Run local dev server (will be running at http://localhost:3127). Depends on [dependencies](#dependencies) being installed and built.
+-   `start`: Run local dev server (will be running at http://localhost:3127). Requires [dependencies](#dependencies) being installed and built.
 -   `import-emulator <emulator>`: Copy generated WebAssembly from an emulator submodule (only necessary if modifying the emulator cores, see [below](#building-the-emulators) for how to rebuild them). The following emulators are supported:
     -   `basiliskii`: Basilisk II from https://github.com/mihaip/macemu
     -   `sheepshaver`: SheepShaver from https://github.com/mihaip/macemu
@@ -40,11 +40,24 @@ npm run build-tools
 sudo -v ; curl https://rclone.org/install.sh | sudo bash
 ```
 
-Supporting data files need to be generated with:
+Supporting data files need to be generated.
+
+Build the system boot disks and Infinite HD disk image:
 
 ```
 npm run import-disks
+```
+
+Load metadata for the CD-ROM library:
+
+```
 npm run import-cd-roms
+```
+
+Load metadata for the [Macintosh Garden](https://macintoshgarden.org/) library. If you do not have a local copy of the library dump, you can use `placeholder` as the path to to generate a placeholder instead:
+
+```
+npm run import-library path/to/library/dump
 ```
 
 ### Building the emulators

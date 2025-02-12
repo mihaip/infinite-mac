@@ -83,15 +83,9 @@ class Item(typing.NamedTuple):
             Field.EXTERNAL_DOWNLOAD_URL: self.external_download_url,
         })
 
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: %s <directory>" % sys.argv[0], file=sys.stderr)
-        return 1
-    import_dir = sys.argv[1]
-
+def load_library(import_dir: str) -> tuple[list[Item], list[Item]]:
     app_items = []
     game_items = []
-    hash = hashlib.sha256()
 
     for item_path in glob.iglob(os.path.join(import_dir, "**", "*.json"), recursive=True):
         with open(item_path, "r") as item_file:
@@ -156,6 +150,18 @@ def main():
         )
 
         items.append(item)
+    return app_items, game_items
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: %s <directory>" % sys.argv[0], file=sys.stderr)
+        return 1
+    import_dir = sys.argv[1]
+
+    if import_dir != "placeholder":
+        app_items, game_items = load_library(import_dir)
+    else:
+        app_items, game_items = [], []
 
     # The URL slug has been normalized to remove punctuation and other
     # characters. We ignore the first path component since a few games were
@@ -164,6 +170,7 @@ def main():
     app_items = list(sorted(app_items, key=item_sort_key))
     game_items = list(sorted(game_items, key=item_sort_key))
 
+    hash = hashlib.sha256()
     for item in app_items + game_items:
         hash.update(item.url.encode("utf-8"))
 
