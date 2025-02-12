@@ -89,6 +89,9 @@ def import_manifests() -> ImportFolders:
             if not os.path.exists(paths.HDIUTIL_PATH):
                 sys.stderr.write("    Skipping .dmg import, hdiutil not found\n")
                 continue
+            if manifest_json.get("needs_dmg2img") and not os.path.exists(paths.DMG2IMG_PATH):
+                sys.stderr.write("    Skipping .dmg import, dmg2img not found\n")
+                continue
             folder = import_dmg(manifest_json)
         else:
             assert False, "Unexpected manifest URL extension: %s" % src_ext
@@ -643,12 +646,15 @@ def write_chunked_image(image: ImageDef) -> None:
         with open(chunk_path, "wb+") as chunk_file:
             chunk_file.write(chunk)
 
-    sys.stderr.write(
-        "Chunked %s: %d%% unique chunks, %d%% zero chunks\n" % (
-            image.name,
-            round(len(chunk_signatures) / len(chunks) * 100),
-            round(zero_chunk_count / len(chunks) * 100),
-        ))
+    if len(chunks) > 0:
+        sys.stderr.write(
+            "Chunked %s: %d%% unique chunks, %d%% zero chunks\n" % (
+                image.name,
+                round(len(chunk_signatures) / len(chunks) * 100),
+                round(zero_chunk_count / len(chunks) * 100),
+            ))
+    else:
+        sys.stderr.write("Chunked %s: 0 chunks\n" % image.name)
 
     manifest_path = os.path.join(paths.DATA_DIR, f"{image.name}.json")
     with open(manifest_path, "w+") as manifest_file:
@@ -670,7 +676,10 @@ def build_system_image(
     sys.stderr.write("Building system image %s\n" % (disk.name, ))
 
     input_path = disk.path()
-    if disk.compressed:
+    if not os.path.exists(input_path):
+        logging.warning("File for disk image %s (%s) does not exist, using placeholder", disk.name, input_path)
+        image_data = bytes()
+    elif disk.compressed:
         with zipfile.ZipFile(input_path, "r") as zip:
             image_data = zip.read(disk.name)
     else:
