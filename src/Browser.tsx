@@ -223,12 +223,13 @@ type DiskProps = {
 
 function Disk({disk, onRun}: DiskProps) {
     let {bezelStyle} = disk.preferredMachine;
-    // This is wrong, but it makes the 9.1 and 9.2 images that run the
+    // This is wrong, but it makes the later images that run the
     // DingusPPC-powered Beige G3 fit in with the B&W one used for
     // SheepShaver-based 8.5-9.0.4 ones.
     if (
         disk.preferredMachine.emulatorType === "DingusPPC" &&
-        disk.displayName.startsWith("Mac OS 9")
+        (disk.displayName.startsWith("Mac OS 9") ||
+            disk.displayName.startsWith("Mac OS X"))
     ) {
         bezelStyle = "Pinstripes";
     }
