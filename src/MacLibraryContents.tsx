@@ -230,7 +230,7 @@ function MacLibraryItemDetails({
                 </a>
                 {details.externalDownloadUrl && (
                     <>
-                        {" "}
+                        {" · "}
                         <a href={details.externalDownloadUrl} target="_blank">
                             External Download
                         </a>
@@ -312,10 +312,13 @@ function MacLibraryItemDownloads({
             <ol>
                 {Object.entries(details.files).map(([file, size]) => {
                     const url = downloadUrl(file, item.type);
+                    let shareUrl = window.location.href;
+                    shareUrl += window.location.search ? "&" : "?";
+                    shareUrl += `library_url=${encodeURIComponent(url)}`;
                     return (
                         <li key={file}>
                             <a
-                                href={url}
+                                href={shareUrl}
                                 onClick={e => {
                                     e.preventDefault();
                                     e.stopPropagation();
