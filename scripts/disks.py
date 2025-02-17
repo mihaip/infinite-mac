@@ -142,9 +142,15 @@ MAC_OS_91 = Disk(name="Mac OS 9.1 HD.dsk")
 
 MAC_OS_922 = Disk(name="Mac OS 9.2.2 HD.dsk")
 
-MAC_OS_X_10_2_8 = Disk(
-    name="Mac OS X 10.2.8 HD.dsk",
-    compressed=True)
+MAC_OS_X_10_0_4 = Disk(name="Mac OS X 10.0.4 HD.dsk", compressed=True)
+
+MAC_OS_X_10_1_5 = Disk(name="Mac OS X 10.1.5 HD.dsk", compressed=True)
+
+MAC_OS_X_10_2_8 = Disk(name="Mac OS X 10.2.8 HD.dsk", compressed=True)
+
+MAC_OS_X_10_3_9 = Disk(name="Mac OS X 10.3.9 HD.dsk", compressed=True)
+
+MAC_OS_X_10_4_11 = Disk(name="Mac OS X 10.4.11 HD.dsk", compressed=True)
 
 JAPANESE_WELCOME_STICKY = stickies.Sticky(
     top=56,
@@ -301,7 +307,11 @@ ALL_DISKS = [
     MAC_OS_91,
     MAC_OS_922,
 
+    MAC_OS_X_10_0_4,
+    MAC_OS_X_10_1_5,
     MAC_OS_X_10_2_8,
+    MAC_OS_X_10_3_9,
+    MAC_OS_X_10_4_11,
 
     NEXTSTEP_08,
     NEXTSTEP_09,
