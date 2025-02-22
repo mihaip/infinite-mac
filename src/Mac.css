@@ -33,6 +33,15 @@ body.fullscreen {
     border-radius: 10px;
 }
 
+.Mac-Loading-Slow {
+    white-space: nowrap;
+    display: block;
+}
+
+.Mac-Loading-Dismiss {
+    margin-right: 8px;
+}
+
 .Mac-Loading-Fraction {
     opacity: 0.5;
     padding-left: 0.5em;
