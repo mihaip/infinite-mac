@@ -1968,6 +1968,7 @@ export function systemDiskName(disk: SystemDiskDef) {
 
 export const NOTABLE_DISKS: SystemDiskDef[] = [];
 export const NEXT_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
+export const MAC_OS_X_DISKS: SystemDiskDef[] = [];
 
 export const DISKS_BY_YEAR: {
     [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
@@ -1977,6 +1978,9 @@ export const NOTABLE_DISKS_BY_YEAR: {
 } = {};
 export const NEXT_DISKS_BY_YEAR: {
     [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
+} = {};
+export const MAC_OS_X_DISKS_BY_YEAR: {
+    [year: number]: SystemDiskDef[];
 } = {};
 
 ALL_DISKS.forEach(disk => {
@@ -2001,6 +2005,13 @@ ALL_DISKS.forEach(disk => {
             NEXT_DISKS_BY_YEAR[year] = [];
         }
         NEXT_DISKS_BY_YEAR[year].push(disk);
+    }
+    if ("infiniteHdSubset" in disk && disk.infiniteHdSubset === "macosx") {
+        MAC_OS_X_DISKS.push(disk);
+        if (!MAC_OS_X_DISKS_BY_YEAR[year]) {
+            MAC_OS_X_DISKS_BY_YEAR[year] = [];
+        }
+        MAC_OS_X_DISKS_BY_YEAR[year].push(disk);
     }
 });
 
