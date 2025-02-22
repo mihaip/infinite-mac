@@ -8,6 +8,8 @@ import {
     ALL_DISKS,
     NEXT_DISKS,
     NEXT_DISKS_BY_YEAR,
+    MAC_OS_X_DISKS,
+    MAC_OS_X_DISKS_BY_YEAR,
 } from "./disks";
 import {type MachineDef} from "./machines";
 import {ScreenFrame} from "./ScreenFrame";
@@ -25,6 +27,7 @@ import {canSaveDisks} from "./canSaveDisks";
 import {usePersistentState} from "./usePersistentState";
 import {viewTransitionNameForDisk} from "./view-transitions";
 import {AppearanceProvider} from "./controls/Appearance";
+import {isMacOSXLaunched} from "./flags";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -93,18 +96,30 @@ function Description({
             <p>
                 Infinite Mac is a collection of classic Macintosh and NeXT
                 system releases and software, all easily accessible from the
-                comfort of a (modern) web browser.
+                comfort of a web browser.
             </p>
             <p>
-                Pick any version of System Software/Mac OS or NeXTStep/OPENSTEP
-                from the 1980s or 1990s and run it (and major software of that
-                era) within a virtual machine. You can also{" "}
+                {isMacOSXLaunched ? (
+                    <>
+                        Pick any version of System Software, Mac OS, Mac OS X or
+                        NeXTStep from the 1980s, 1990s or early 2000s and run it
+                        within a virtual machine.
+                    </>
+                ) : (
+                    <>
+                        Pick any version of System Software, Mac OS or NeXTStep
+                        from the 1980s or 1990s and run it within a virtual
+                        machine.
+                    </>
+                )}{" "}
+                An “Infinite HD” disk with representative software from that era
+                is also available. You can also{" "}
                 <span onClick={() => setCustomVisible(true)}>
                     run a custom version
                 </span>{" "}
-                with your choice of machine and virtual disks. Files can be
-                imported and exported using drag and drop, and System 7 and
-                onward have more advanced integrations as well – refer to the
+                with your choice of machine and disks. On some operating systems
+                files and disk images can be imported and exported using drag
+                and drop and virtual CD-ROMs can be mounted – refer to the
                 welcome screen in each machine for more details.
                 {customVisible && (
                     <Custom
@@ -144,6 +159,11 @@ const disks = {
         byYear: NOTABLE_DISKS_BY_YEAR,
     },
     "next": {label: "NeXT", all: NEXT_DISKS, byYear: NEXT_DISKS_BY_YEAR},
+    "macosx": {
+        label: "Mac OS X",
+        all: MAC_OS_X_DISKS,
+        byYear: MAC_OS_X_DISKS_BY_YEAR,
+    },
 };
 type DiskFilter = keyof typeof disks;
 
@@ -201,6 +221,9 @@ function DiskFiltersButton({
     label: string;
     count: number;
 }) {
+    if (label === "Mac OS X" && !isMacOSXLaunched) {
+        return null;
+    }
     return (
         <button
             onClick={onClick}

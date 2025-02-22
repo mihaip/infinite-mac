@@ -82,6 +82,10 @@
     .Disk {
         margin: 10px;
     }
+
+    .Disk.ScreenFrame-Bezel-Pinstripes {
+        margin: 14px 10px;
+    }
 }
 
 .DiskContents {
@@ -203,6 +207,12 @@
 .Disk-Filters-Label,
 .Disk-Filters .count {
     color: #ccc;
+}
+
+@media (max-width: 440px) {
+    .Disk-Filters .count {
+        display: none;
+    }
 }
 
 .Disk-Filters-Button {
