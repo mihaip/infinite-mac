@@ -490,6 +490,26 @@ export default function Mac({
         );
     }
 
+    const {showMacOSXSlowNotification, clearMacOSXSlowNotification} =
+        useMacOSXSlowNotification(
+            !progress &&
+                emulatorLoaded &&
+                disks[0]?.infiniteHdSubset === "macosx"
+        );
+    if (showMacOSXSlowNotification) {
+        progress = (
+            <div className="Mac-Loading Mac-Loading-Non-Modal Mac-Loading-Slow">
+                <span
+                    className="Mac-Loading-Dismiss"
+                    onClick={clearMacOSXSlowNotification}>
+                    ⓧ
+                </span>
+                Mac OS X may take a minute or two to start up, please be
+                patient.
+            </div>
+        );
+    }
+
     function handleDragStart(event: React.DragEvent) {
         // Don't allow the screen to be dragged off when using a touchpad on
         // the iPad.
@@ -994,4 +1014,29 @@ function MacError({text, onDone}: {text: string; onDone: () => void}) {
             <p style={{whiteSpace: "pre-line"}}>{text}</p>
         </Dialog>
     );
+}
+
+function useMacOSXSlowNotification(emulatorReady: boolean) {
+    const [count, setCount] = usePersistentState(
+        10,
+        "mac-os-x-slow-notification-count"
+    );
+    const [hide, setHide] = useState(false);
+    const shouldShow = count > 0 && emulatorReady;
+
+    useEffect(() => {
+        if (shouldShow) {
+            setCount(v => v - 1);
+        }
+        setTimeout(() => setHide(true), 10_000);
+    }, [setCount, shouldShow]);
+
+    const clearMacOSXSlowNotification = useCallback(
+        () => setCount(0),
+        [setCount]
+    );
+    return {
+        showMacOSXSlowNotification: shouldShow && !hide,
+        clearMacOSXSlowNotification,
+    };
 }
