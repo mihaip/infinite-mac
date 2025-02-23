@@ -3,21 +3,37 @@ import "./Appearance.css";
 
 export type Appearance = "Classic" | "Platinum" | "NeXT";
 
+export type AppearanceVariant = "System7";
+
 const AppearanceContext = createContext<Appearance>("Classic");
+
+const AppearanceVariantContext = createContext<AppearanceVariant | undefined>(
+    undefined
+);
 
 export function AppearanceProvider({
     appearance,
+    variant,
     children,
-}: PropsWithChildren<{appearance: Appearance}>) {
+}: PropsWithChildren<{
+    appearance: Appearance;
+    variant?: AppearanceVariant;
+}>) {
     return (
         <AppearanceContext.Provider value={appearance}>
-            {children}
+            <AppearanceVariantContext.Provider value={variant}>
+                {children}
+            </AppearanceVariantContext.Provider>
         </AppearanceContext.Provider>
     );
 }
 
-export function useAppearance() {
+export function useAppearance(): Appearance {
     return useContext(AppearanceContext);
+}
+
+export function useAppearanceVariant(): AppearanceVariant | undefined {
+    return useContext(AppearanceVariantContext);
 }
 
 export function appearanceSystemFont(appearance: Appearance) {

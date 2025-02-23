@@ -3,7 +3,11 @@ import ReactDOM from "react-dom";
 import {Button} from "./Button";
 import "./Dialog.css";
 import classNames from "classnames";
-import {appearanceSystemFont, useAppearance} from "./Appearance";
+import {
+    appearanceSystemFont,
+    useAppearance,
+    useAppearanceVariant,
+} from "./Appearance";
 
 export function Dialog({
     title,
@@ -27,12 +31,16 @@ export function Dialog({
     className?: string;
 }) {
     const appearance = useAppearance();
+    const appearanceVariant = useAppearanceVariant();
     const dialog = (
         <div className="Dialog-Backdrop">
             <div
                 className={classNames(
                     "Dialog",
                     `Dialog-${appearance}`,
+                    {
+                        "Dialog-System7": appearanceVariant === "System7",
+                    },
                     className
                 )}>
                 <h1 className={appearanceSystemFont(appearance)}>{title}</h1>

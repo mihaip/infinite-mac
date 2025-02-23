@@ -144,7 +144,7 @@ export function Custom({
         // Need AppleTalk to be configured if enabled.
         (!appleTalkSupported || !appleTalkEnabled || appleTalkZoneName !== "");
 
-    const {appearance = "Classic"} = runDef.disks[0] ?? {};
+    const {appearance = "Classic", appearanceVariant} = runDef.disks[0] ?? {};
     const macMachines = [];
     const nextMachines = [];
     const experimentalMachines = [];
@@ -165,7 +165,7 @@ export function Custom({
         ));
 
     return (
-        <AppearanceProvider appearance={appearance}>
+        <AppearanceProvider appearance={appearance} variant={appearanceVariant}>
             <Dialog
                 title="Run A Custom Configuration"
                 onDone={handleRun}
