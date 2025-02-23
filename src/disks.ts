@@ -1,4 +1,4 @@
-import {type Appearance} from "./controls/Appearance";
+import {type AppearanceVariant, type Appearance} from "./controls/Appearance";
 import {type EmulatorChunkedFileSpec} from "./emulator/emulator-common";
 import {
     type MachineDef,
@@ -58,6 +58,7 @@ export type SystemDiskDef = EmulatorDiskDef & {
     infiniteHdSubset?: "mfs" | "system6" | "macosx";
     delayAdditionalDiskMount?: boolean;
     appearance?: Appearance;
+    appearanceVariant?: AppearanceVariant;
     isUnstable?: boolean;
     notable?: boolean;
     hiddenInBrowser?: boolean;
@@ -342,6 +343,7 @@ const SYSTEM_7_0: SystemDiskDef = {
     ],
     preferredMachine: MAC_IIFX,
     appleTalkSupported: true,
+    appearanceVariant: "System7",
     generatedSpec: () => import("./Data/System 7.0 HD.dsk.json"),
     notable: true,
 };
@@ -357,6 +359,7 @@ const SYSTEM_7_1: SystemDiskDef = {
     ],
     preferredMachine: QUADRA_650,
     appleTalkSupported: true,
+    appearanceVariant: "System7",
     generatedSpec: () => import("./Data/System 7.1 HD.dsk.json"),
 };
 
@@ -372,6 +375,7 @@ const SYSTEM_7_1_1: SystemDiskDef = {
     ],
     preferredMachine: QUADRA_650,
     appleTalkSupported: true,
+    appearanceVariant: "System7",
     generatedSpec: () => import("./Data/System 7.1.1 HD.dsk.json"),
 };
 
@@ -382,6 +386,7 @@ const SYSTEM_7_1_2: SystemDiskDef = {
     releaseDate: [1994, 3, 14],
     prefetchChunks: [0, 1, 2],
     preferredMachine: POWER_MACINTOSH_6100,
+    appearanceVariant: "System7",
     isUnstable: true,
     generatedSpec: () => import("./Data/System 7.1.2 HD.dsk.json"),
 };
@@ -393,6 +398,7 @@ const SYSTEM_7_1_2_DISK_TOOLS: SystemDiskDef = {
     releaseDate: [1994, 3, 14],
     prefetchChunks: [0],
     preferredMachine: POWER_MACINTOSH_6100,
+    appearanceVariant: "System7",
     generatedSpec: () => import("./Data/System 7.1.2 Disk Tools FD.dsk.json"),
     isFloppy: true,
 };
@@ -409,6 +415,7 @@ const SYSTEM_7_5: SystemDiskDef = {
     ],
     preferredMachine: QUADRA_650,
     appleTalkSupported: true,
+    appearanceVariant: "System7",
     generatedSpec: () => import("./Data/System 7.5 HD.dsk.json"),
     notable: true,
 };
@@ -420,6 +427,7 @@ const SYSTEM_7_5_DISK_TOOLS: SystemDiskDef = {
     releaseDate: [1994, 9, 12],
     prefetchChunks: [0],
     preferredMachine: POWER_MACINTOSH_6100,
+    appearanceVariant: "System7",
     generatedSpec: () => import("./Data/System 7.5 Disk Tools FD.dsk.json"),
     isFloppy: true,
 };
@@ -437,6 +445,7 @@ const SYSTEM_7_5_1: SystemDiskDef = {
     ],
     preferredMachine: QUADRA_650,
     appleTalkSupported: true,
+    appearanceVariant: "System7",
     generatedSpec: () => import("./Data/System 7.5.1 HD.dsk.json"),
 };
 
@@ -453,6 +462,7 @@ const SYSTEM_7_5_2: SystemDiskDef = {
     ],
     preferredMachine: POWER_MACINTOSH_7500,
     appleTalkSupported: true,
+    appearanceVariant: "System7",
     isUnstable: true,
     generatedSpec: () => import("./Data/System 7.5.2 HD.dsk.json"),
 };
@@ -470,6 +480,7 @@ const SYSTEM_7_5_3: SystemDiskDef = {
         114, 116, 117, 166,
     ],
     preferredMachine: QUADRA_650,
+    appearanceVariant: "System7",
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.5.3 HD.dsk.json"),
     notable: true,
@@ -491,6 +502,7 @@ const SYSTEM_7_5_3_PPC: SystemDiskDef = {
         140, 141, 142, 143, 144, 145, 146, 147, 148, 152, 153, 155,
     ],
     preferredMachine: POWER_MACINTOSH_9500,
+    appearanceVariant: "System7",
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/System 7.5.3 (PPC) HD.dsk.json"),
 };
@@ -508,6 +520,7 @@ const KANJITALK_7_5_3: SystemDiskDef = {
         190, 191, 192, 193, 194, 195, 196, 197, 399,
     ],
     preferredMachine: QUADRA_650,
+    appearanceVariant: "System7",
     appleTalkSupported: true,
     generatedSpec: () => import("./Data/KanjiTalk 7.5.3 HD.dsk.json"),
     notable: true,
@@ -536,6 +549,7 @@ const SYSTEM_7_5_5: SystemDiskDef = {
     ],
     preferredMachine: QUADRA_650,
     appleTalkSupported: true,
+    appearanceVariant: "System7",
     generatedSpec: () => import("./Data/System 7.5.5 HD.dsk.json"),
 };
 
@@ -555,6 +569,7 @@ const MAC_OS_7_6: SystemDiskDef = {
     ],
     preferredMachine: QUADRA_650,
     appleTalkSupported: true,
+    appearanceVariant: "System7",
     generatedSpec: () => import("./Data/Mac OS 7.6 HD.dsk.json"),
     notable: true,
 };

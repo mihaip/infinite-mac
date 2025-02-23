@@ -42,6 +42,10 @@
 }
 
 .Dialog.Dialog-Classic {
+    border-image-source: url(../Images/ClassicDialogFrame.png);
+}
+
+.Dialog.Dialog-Classic.Dialog-System7 {
     border-image-source: url(../Images/System7DialogFrame.png);
 }
 

@@ -57,7 +57,8 @@ function App() {
         contents = (
             <Suspense fallback={<div />}>
                 <AppearanceProvider
-                    appearance={runDef.disks[0]?.appearance ?? "Classic"}>
+                    appearance={runDef.disks[0]?.appearance ?? "Classic"}
+                    variant={runDef.disks[0]?.appearanceVariant}>
                     <RunDefMac runDef={runDef} onDone={handleDone} />
                 </AppearanceProvider>
             </Suspense>
