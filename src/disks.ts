@@ -1012,7 +1012,6 @@ const MAC_OS_X_10_1_5: SystemDiskDef = {
     extraMachineFiles: dppcExtraMachineFiles,
     notable: true,
     infiniteHdSubset: "macosx",
-    isUnstable: true,
     hasDeviceImageHeader: true,
     hiddenInBrowser: !isMacOSXLaunched,
 };
@@ -1234,7 +1233,6 @@ const MAC_OS_X_10_3_9: SystemDiskDef = {
     generatedSpec: () => import("./Data/Mac OS X 10.3.9 HD.dsk.json"),
     notable: true,
     infiniteHdSubset: "macosx",
-    isUnstable: true,
     hasDeviceImageHeader: true,
     hiddenInBrowser: !isMacOSXLaunched,
 };
