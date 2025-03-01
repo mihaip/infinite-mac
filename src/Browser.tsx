@@ -333,7 +333,8 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
             <div
                 className={classNames(
                     "DiskContents",
-                    `DiskContents-${bezelStyle}`
+                    `DiskContents-${bezelStyle}`,
+                    `DiskContents-Appearance-${appearance}`
                 )}>
                 <DiskHeader disk={disk} />
                 <div className="Row DiskDescription">{disk.description}</div>

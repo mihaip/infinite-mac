@@ -51,6 +51,19 @@
     outline-color: red;
 }
 
+.Input.Input-Aqua {
+    border-image-source: url(../Images/AquaInput.png);
+}
+
+.Input.Input-Aqua:focus-visible {
+    outline-color: #8bb4e9cc;
+    outline-offset: 0;
+}
+
+.Input.Input-Aqua:invalid {
+    outline-color: red;
+}
+
 .Input.Input-NeXT {
     border-image-source: url(../Images/NeXTInput.png);
 }

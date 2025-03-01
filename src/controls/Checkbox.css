@@ -61,6 +61,30 @@
     background-image: url(../Images/PlatinumCheckbox-CheckedActive.png);
 }
 
+.Checkbox-Aqua {
+    width: 18px;
+    height: 18px;
+}
+
+.Checkbox-Aqua::before {
+    background-image: url(../Images/AquaCheckbox.png);
+    width: 18px;
+    height: 18px;
+    background-size: 18px 18px;
+}
+
+.Checkbox-Aqua:active::before {
+    background-image: url(../Images/AquaCheckbox-Active.png);
+}
+
+.Checkbox-Aqua:checked::before {
+    background-image: url(../Images/AquaCheckbox-Checked.png);
+}
+
+.Checkbox-Aqua:checked:active::before {
+    background-image: url(../Images/AquaCheckbox-CheckedActive.png);
+}
+
 .Checkbox-NeXT {
     width: 15px;
     height: 15px;
