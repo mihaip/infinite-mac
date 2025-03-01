@@ -276,6 +276,7 @@
     --screen-outer-corner-radius: 28px;
 }
 
+.ScreenFrame-Bezel-Pinstripes.ScreenFrame-Bezel-Small,
 .ScreenFrame-Bezel-Pinstripes.ScreenFrame-Bezel-Small-ish {
     --screen-outer-chamfer-size: 8px;
     border-image-slice: 30;
