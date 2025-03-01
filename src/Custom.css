@@ -2,7 +2,7 @@
     margin-bottom: 16px !important;
 }
 
-.Custom-Dialog-Row .Button {
+.Custom-Dialog-Row .Button:not(.Button-Aqua) {
     height: 20px;
     font-weight: normal;
     font-size: 12px;
@@ -61,13 +61,29 @@
     max-width: calc(100% - 100px - 80px); /* Label + buttons */
 }
 
-.Custom-Dialog-Repeated .Button.AddRemove {
+.Custom-Dialog-Repeated .Button.AddRemove:not(.Button-Aqua) {
     margin-left: 4px;
     width: 20px;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.Custom-Dialog-Repeated .Button.AddRemove.Button-Aqua {
+    border-image-source: none;
+    background-image: url(./Images/AquaRoundButton.png);
+    background-repeat: no-repeat;
+    background-position: center center;
+    border: 0;
+    width: 32px;
+    height: 31px;
+    font-weight: bold !important;
+    padding-bottom: 4px;
+}
+
+.Custom-Dialog-Repeated .Button.AddRemove.Button-Aqua:active {
+    background-image: url(./Images/AquaRoundButton-Active.png);
 }
 
 .Custom-Dialog-Repeated-Disk {
@@ -78,8 +94,16 @@
 }
 
 .Custom-Dialog-CDROMs {
+    color: transparent; /* In case the label text peeks through */
     width: 20px;
     margin-left: 4px;
+}
+
+.Custom-Dialog-CDROMs.Select.Select-Aqua {
+    width: 20px;
+    border-left-width: 0;
+    border-image-width: 12px 24px 12px 0;
+    margin-left: -1px;
 }
 
 .Custom-Dialog-ScreenSize {

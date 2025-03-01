@@ -53,6 +53,18 @@
     border-image-source: url(../Images/PlatinumDialogFrame.png);
 }
 
+.Dialog.Dialog-Aqua {
+    border-image-source: url(../Images/AquaDialogFrame.png);
+    border-image-slice: 21 30 29 28 fill;
+    border-image-width: 21px 30px 29px 28px;
+    border-image-repeat: repeat;
+    padding: 24px 32px 32px;
+}
+
+.Dialog-Backdrop-Aqua {
+    background: rgba(0, 0, 0, 0.25);
+}
+
 .Dialog.Dialog-NeXT {
     border-image-source: url(../Images/NeXTDialogFrame.png);
 }

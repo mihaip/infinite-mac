@@ -900,7 +900,7 @@ const dppcExtraMachineFiles = new Map([
 const MAC_OS_X_10_0_4: SystemDiskDef = {
     displayName: "Mac OS X 10.0",
     description:
-        "Successor to classic Mac OS based on NeXTSTEP and FreeBSD. Featured the Aqua interface, Quartz graphics system, the Dock, access to the UNIX command line, Mail and other built-in applications.",
+        "Successor to classic Mac OS based on NeXTSTEP. Featured the Aqua interface, Quartz graphics system, the Dock, access to the UNIX command line, Mail and other built-in applications.",
     releaseDate: [2001, 3, 24],
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 21, 22, 23, 24, 25, 26, 27, 28, 29, 32, 34, 35, 36,
@@ -927,7 +927,7 @@ const MAC_OS_X_10_0_4: SystemDiskDef = {
         6279, 6283, 6779, 9146, 9147, 9148, 9149, 16383,
     ],
     preferredMachine: POWER_MACINTOSH_G3_BEIGE,
-    appearance: "Platinum",
+    appearance: "Aqua",
     generatedSpec: () => import("./Data/Mac OS X 10.0.4 HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
     notable: true,
@@ -1007,7 +1007,7 @@ const MAC_OS_X_10_1_5: SystemDiskDef = {
         8961, 8964, 8969, 8988, 9296, 9604, 9605, 9606, 9607, 9912, 9913, 9914,
     ],
     preferredMachine: POWER_MACINTOSH_G3_BEIGE,
-    appearance: "Platinum",
+    appearance: "Aqua",
     generatedSpec: () => import("./Data/Mac OS X 10.1.5 HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
     notable: true,
@@ -1094,7 +1094,7 @@ const MAC_OS_X_10_2_8: SystemDiskDef = {
     preferredMachine: isMacOSXLaunched
         ? POWER_MACINTOSH_G4_PEARPC
         : POWER_MACINTOSH_G3_BEIGE,
-    appearance: "Platinum",
+    appearance: "Aqua",
     generatedSpec: () => import("./Data/Mac OS X 10.2.8 HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
     notable: true,
@@ -1230,7 +1230,7 @@ const MAC_OS_X_10_3_9: SystemDiskDef = {
         11732, 11764, 1638,
     ],
     preferredMachine: POWER_MACINTOSH_G4_PEARPC,
-    appearance: "Platinum",
+    appearance: "Aqua",
     generatedSpec: () => import("./Data/Mac OS X 10.3.9 HD.dsk.json"),
     notable: true,
     infiniteHdSubset: "macosx",
@@ -1377,7 +1377,7 @@ const MAC_OS_X_10_4_11: SystemDiskDef = {
         21899, 22786, 23414, 23415, 24575,
     ],
     preferredMachine: POWER_MACINTOSH_G4_PEARPC,
-    appearance: "Platinum",
+    appearance: "Aqua",
     generatedSpec: () => import("./Data/Mac OS X 10.4.11 HD.dsk.json"),
     notable: true,
     infiniteHdSubset: "macosx",

@@ -101,6 +101,11 @@
     font-family: Helvetica, Arial, sans-serif;
 }
 
+.DiskContents-Appearance-Aqua {
+    background: url(./Images/AquaPinstripes.png);
+    image-rendering: pixelated;
+}
+
 .DiskContents-NeXT {
     background: #aaa;
     border-radius: 0;

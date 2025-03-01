@@ -1,7 +1,7 @@
 import {createContext, type PropsWithChildren, useContext} from "react";
 import "./Appearance.css";
 
-export type Appearance = "Classic" | "Platinum" | "NeXT";
+export type Appearance = "Classic" | "Platinum" | "Aqua" | "NeXT";
 
 export type AppearanceVariant = "System7";
 

@@ -17,6 +17,15 @@ https://tinkerdifferent.com/resources/collection-of-classic-apple-fonts-for-your
     font-style: normal;
 }
 
+/* Lucida Grande downloaded from https://online-fonts.com/fonts/lucida-grande/download */
+@font-face {
+    font-family: "LucidaGrande";
+    src: url(../Fonts/LucidaGrande.woff2);
+    font-display: swap;
+    font-weight: 400;
+    font-style: normal;
+}
+
 .AppearanceSystemFont-Classic {
     font-family: "ChicagoFLF", "Helvetica", "Arial", sans-serif;
     font-weight: normal !important;
@@ -24,6 +33,15 @@ https://tinkerdifferent.com/resources/collection-of-classic-apple-fonts-for-your
 
 .AppearanceSystemFont-Platinum {
     font-family: "Charcoal", "Helvetica", "Arial", sans-serif;
+    font-weight: normal !important;
+}
+
+.AppearanceSystemFont-Aqua {
+    /* Prefer the locally installed Lucida Grande on macOS hosts, but then fall back on our version. */
+    font-family: "Lucida Grande", "LucidaGrande", "Helvetica", "Arial",
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     font-weight: normal !important;
 }
 

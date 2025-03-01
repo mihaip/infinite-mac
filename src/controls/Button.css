@@ -52,6 +52,29 @@
     outline-color: #6666c5;
 }
 
+.Button.Button-Aqua {
+    border-image-source: url(../Images/AquaButton.png);
+    border-image-slice: 15 20 fill;
+    border-image-width: 15px 20px;
+    border-width: 6px 12px 9px;
+    image-rendering: pixelated;
+    padding: 1px 8px;
+    font-size: 13px;
+    line-height: 15px;
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.5);
+}
+
+.Button.Button-Aqua:active {
+    border-image-source: url(../Images/AquaButton-Active.png);
+    color: #000;
+}
+
+.Button.Button-Aqua:focus-visible {
+    outline-color: #8bb4e9cc;
+    outline-offset: -3px;
+    border-radius: 3px;
+}
+
 .Button.Button-NeXT {
     border-image-source: url(../Images/NeXTButton.png);
 }

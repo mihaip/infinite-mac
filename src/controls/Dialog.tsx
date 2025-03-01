@@ -33,7 +33,11 @@ export function Dialog({
     const appearance = useAppearance();
     const appearanceVariant = useAppearanceVariant();
     const dialog = (
-        <div className="Dialog-Backdrop">
+        <div
+            className={classNames(
+                "Dialog-Backdrop",
+                `Dialog-Backdrop-${appearance}`
+            )}>
             <div
                 className={classNames(
                     "Dialog",

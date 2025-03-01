@@ -57,6 +57,26 @@
     outline-color: #6666c5;
 }
 
+.Select.Select-Aqua {
+    border-image-source: url(../Images/AquaSelect.png);
+    border-image-slice: 12 24 12 9 fill;
+    border-image-width: 12px 24px 12px 9px;
+    border-image-repeat: stretch stretch;
+    border-width: 2px 24px 4px 4px;
+    height: 26px;
+    font-size: 13px;
+}
+
+.Select.Select-Aqua:active {
+    border-image-source: url(../Images/AquaSelect-Active.png);
+}
+
+.Select.Select-Aqua:focus-visible {
+    outline-color: #8bb4e9cc;
+    outline-offset: -2px;
+    border-radius: 3px;
+}
+
 .Select.Select-NeXT {
     border-image-source: url(../Images/NeXTSelect.png);
 }
