@@ -142,6 +142,8 @@ MAC_OS_91 = Disk(name="Mac OS 9.1 HD.dsk")
 
 MAC_OS_922 = Disk(name="Mac OS 9.2.2 HD.dsk")
 
+MAC_OS_X_10_0_PUBLIC_BETA = Disk(name="Mac OS X 10.0 (Public Beta) HD.dsk", compressed=True)
+
 MAC_OS_X_10_0_4 = Disk(name="Mac OS X 10.0.4 HD.dsk", compressed=True)
 
 MAC_OS_X_10_1_5 = Disk(name="Mac OS X 10.1.5 HD.dsk", compressed=True)
@@ -307,6 +309,7 @@ ALL_DISKS = [
     MAC_OS_91,
     MAC_OS_922,
 
+    MAC_OS_X_10_0_PUBLIC_BETA,
     MAC_OS_X_10_0_4,
     MAC_OS_X_10_1_5,
     MAC_OS_X_10_2_8,

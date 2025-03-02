@@ -52,6 +52,7 @@ export type SystemDiskDef = EmulatorDiskDef & {
     displayName: string;
     displaySubtitle?: string;
     releaseDate: [year: number, month: number, date: number];
+    customDate?: Date;
     description: string;
     preferredMachine: MachineDef;
     appleTalkSupported?: boolean;
@@ -896,6 +897,30 @@ const dppcExtraMachineFiles = new Map([
         },
     ],
 ]);
+
+const MAC_OS_X_10_0_PUBLIC_BETA: SystemDiskDef = {
+    displayName: "Mac OS X 10.0",
+    displaySubtitle: "Public Beta",
+    description:
+        "First public release of Mac OS X, allowing software developers and early adopters to test a preview of the upcoming next-generation operating system.",
+    releaseDate: [2000, 9, 13],
+    customDate: new Date(2000, 8, 13), // Avoid time-bomb
+    prefetchChunks: [
+        0, 2, 3, 4, 17, 18, 19, 20, 21, 22, 24, 28, 29, 45, 46, 800, 801, 802,
+        803, 804, 805, 806, 807, 808, 809, 810, 811, 812, 813, 814, 815, 816,
+        818,
+    ],
+    preferredMachine: POWER_MACINTOSH_G3_BEIGE,
+    appearance: "Aqua",
+    generatedSpec: () =>
+        import("./Data/Mac OS X 10.0 (Public Beta) HD.dsk.json"),
+    extraMachineFiles: dppcExtraMachineFiles,
+    notable: true,
+    infiniteHdSubset: "macosx",
+    isUnstable: true,
+    hasDeviceImageHeader: true,
+    hiddenInBrowser: !isMacOSXLaunched,
+};
 
 const MAC_OS_X_10_0_4: SystemDiskDef = {
     displayName: "Mac OS X 10.0",
@@ -1930,6 +1955,7 @@ export const ALL_DISKS = [
     MAC_OS_9_2_1,
     MAC_OS_9_2_2,
 
+    MAC_OS_X_10_0_PUBLIC_BETA,
     MAC_OS_X_10_0_4,
     MAC_OS_X_10_1_5,
     MAC_OS_X_10_2_8,
