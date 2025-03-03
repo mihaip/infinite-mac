@@ -22,7 +22,10 @@ import {Input} from "./controls/Input";
 import {AppearanceProvider} from "./controls/Appearance";
 import {Select} from "./controls/Select";
 import {Checkbox} from "./controls/Checkbox";
-import {emulatorSupportsAppleTalk} from "./emulator/emulator-common-emulators";
+import {
+    emulatorSupportsAppleTalk,
+    emulatorSupportsDebugLog,
+} from "./emulator/emulator-common-emulators";
 import {CloudflareWorkerEthernetProvider} from "./CloudflareWorkerEthernetProvider";
 import classNames from "classnames";
 import {canSaveDisks} from "./canSaveDisks";
@@ -73,6 +76,10 @@ export function Custom({
         runDef.disks.length > 0 &&
         runDef.disks[0].appleTalkSupported === true &&
         emulatorSupportsAppleTalk(runDef.machine.emulatorType);
+    const debugLogSupported = emulatorSupportsDebugLog(
+        runDef.machine.emulatorType
+    );
+
     const [appleTalkEnabled, setAppleTalkEnabled] = useState(false);
     const [appleTalkZoneName, setAppleTalkZoneName] = useState("");
     const [customDateEnabled, setCustomDateEnabled] = useState(
@@ -406,7 +413,7 @@ export function Custom({
                 </div>
 
                 <div className="Custom-Dialog-Row">
-                    <span className="Custom-Dialog-Label">Extras:</span>
+                    <span className="Custom-Dialog-Label">Built-in Disks:</span>
                     <label>
                         <Checkbox
                             checked={runDef.includeInfiniteHD}
@@ -452,7 +459,7 @@ export function Custom({
                 </div>
 
                 <div className="Custom-Dialog-Row Custom-Dialog-InputCompensate">
-                    <span className="Custom-Dialog-Label" />
+                    <span className="Custom-Dialog-Label">Advanced:</span>
                     <label>
                         <Checkbox
                             checked={customDateEnabled}
@@ -492,7 +499,6 @@ export function Custom({
 
                 {appleTalkSupported && (
                     <div className="Custom-Dialog-Row Custom-Dialog-InputCompensate">
-                        <span className="Custom-Dialog-Label" />
                         <label>
                             <Checkbox
                                 checked={appleTalkEnabled}
@@ -517,6 +523,30 @@ export function Custom({
                         <div className="Custom-Dialog-Description Dialog-Description">
                             Allow local networking between emulated machines in
                             the same zone.
+                        </div>
+                    </div>
+                )}
+
+                {debugLogSupported && (
+                    <div className="Custom-Dialog-Row">
+                        <span className="Custom-Dialog-Label" />
+                        <label>
+                            <Checkbox
+                                checked={runDef.debugLog ?? false}
+                                onChange={e =>
+                                    setRunDef({
+                                        ...runDef,
+                                        debugLog: e.target.checked
+                                            ? true
+                                            : undefined,
+                                    })
+                                }
+                            />
+                            Debug Mode
+                        </label>
+                        <div className="Custom-Dialog-Description Dialog-Description">
+                            Include extra debug information in the console, and
+                            do a verbose boot if possible.
                         </div>
                     </div>
                 )}
