@@ -44,6 +44,9 @@ export type MachineDef = EmulatorDef & {
     // Optional map from file name to URL with extra files to include in the
     // Emscripten filesystem when starting this machine.
     extraFiles?: {[fileName: string]: string};
+    // If requesting debug logs, OpenFirmware variables to set to also enable a
+    // verbose boot.
+    verboseBootEnvVars?: {[name: string]: string};
 };
 
 export type MachineDefRAMSize = `${number}M` | `${number}K`;
@@ -216,6 +219,9 @@ export const POWER_MACINTOSH_G3_BEIGE: MachineDef = {
         {width: 640, height: 480, monitorId: "HiRes12-14in"},
     ],
     ramSizes: ["256M", "128M", "64M", "32M"],
+    verboseBootEnvVars: {
+        "boot-command": "0 bootr -v",
+    },
 };
 
 export const POWER_MACINTOSH_G3_BW_DPPC: MachineDef = {
@@ -235,6 +241,9 @@ export const POWER_MACINTOSH_G3_BW_DPPC: MachineDef = {
     ramSizes: ["256M", "128M", "64M", "32M"],
     extraFiles: {
         "113-32900-004_Apple_MACH64.bin": atiMach64RomPath,
+    },
+    verboseBootEnvVars: {
+        "boot-args": "-v",
     },
 };
 

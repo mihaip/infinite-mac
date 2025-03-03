@@ -81,7 +81,13 @@ export function configToDingusPPCArgs(
 ): string[] {
     const args = ["--realtime", "--bootrom", romFileName];
     if (config.debugLog) {
-        args.push("--log-to-stderr", "--log-no-uptime", "--log-verbosity=5");
+        args.push("--log-to-stderr", "--log-no-uptime");
+        const {verboseBootEnvVars} = config.machine;
+        if (verboseBootEnvVars) {
+            for (const [key, value] of Object.entries(verboseBootEnvVars)) {
+                args.push("--setenv", `${key}=${value}`);
+            }
+        }
     }
     const floppies = [];
     const hardDisks = [];

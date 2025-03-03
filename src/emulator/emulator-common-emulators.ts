@@ -65,6 +65,10 @@ export function emulatorNeedsDeviceImage(type: EmulatorType): boolean {
     return type === "DingusPPC" || type === "PearPC";
 }
 
+export function emulatorSupportsDebugLog(type: EmulatorType): boolean {
+    return type === "DingusPPC" || type === "Previous" || type === "PearPC";
+}
+
 export function emulatorCpuId(
     type: EmulatorType,
     cpu: EmulatorCpu
