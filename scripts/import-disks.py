@@ -79,13 +79,7 @@ def import_manifests() -> ImportFolders:
 
         if src_ext in [".img", ".dsk", ".iso"]:
             folder = import_disk_image(manifest_json)
-        elif src_ext in [".hqx", ".sit", ".bin", ".zip", ".gz"]:
-            if not os.path.exists(paths.LSAR_PATH):
-                sys.stderr.write("    Skipping archive import, lsar not found "
-                                 "(build it with npm run build-tools)\n")
-                continue
-            folder = import_archive(manifest_json)
-        elif src_ext in [".dmg"]:
+        elif src_ext in [".dmg"] or manifest_json.get("force_dmg"):
             if not os.path.exists(paths.HDIUTIL_PATH):
                 sys.stderr.write("    Skipping .dmg import, hdiutil not found\n")
                 continue
@@ -93,6 +87,12 @@ def import_manifests() -> ImportFolders:
                 sys.stderr.write("    Skipping .dmg import, dmg2img not found\n")
                 continue
             folder = import_dmg(manifest_json)
+        elif src_ext in [".hqx", ".sit", ".bin", ".zip", ".gz"]:
+            if not os.path.exists(paths.LSAR_PATH):
+                sys.stderr.write("    Skipping archive import, lsar not found "
+                                 "(build it with npm run build-tools)\n")
+                continue
+            folder = import_archive(manifest_json)
         else:
             assert False, "Unexpected manifest URL extension: %s" % src_ext
 
@@ -374,7 +374,7 @@ def import_dmg_folder(manifest_json: typing.Dict[str, typing.Any], archive_path:
 
             if dmg2img_code != 0:
                 assert False, "Could not convert .dmg to .img: %s (cached at %s):" % (
-                    src_url, archive_path)
+                    archive_path, archive_path)
             dmg_path = os.path.join(tmp_dir_path, "image.dmg")
             hdiutil_code = subprocess.call([
                     paths.HDIUTIL_PATH, "convert", img_path, "-format", "UFBI",
