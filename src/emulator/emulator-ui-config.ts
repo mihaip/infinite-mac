@@ -117,15 +117,7 @@ export function configToDingusPPCArgs(
         args.push("--fdd_wr_prot=1");
     }
     if (hardDisks.length > 0) {
-        // TODO: support more than one hard disk on IDE-based machines
-        if (
-            config.machine.gestaltID !== POWER_MACINTOSH_G3_BEIGE.gestaltID &&
-            config.machine.gestaltID !== POWER_MACINTOSH_G3_BW_DPPC.gestaltID
-        ) {
-            args.push("--hdd_img", hardDisks.join(":"));
-        } else {
-            args.push("--hdd_img", hardDisks[0]);
-        }
+        args.push("--hdd_img", hardDisks.join(":"));
     }
     if (cdroms.length > 0) {
         // TODO: support more than one CD-ROM
