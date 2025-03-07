@@ -96,7 +96,10 @@ def import_manifests() -> ImportFolders:
         else:
             assert False, "Unexpected manifest URL extension: %s" % src_ext
 
-        if manifest_json.get("needs_mac_os_x"):
+        if manifest_json.get("carbonized"):
+            import_foldersX[folder_path] = folder
+            import_folders7[folder_path] = folder
+        elif manifest_json.get("needs_mac_os_x"):
             import_foldersX[folder_path] = folder
         elif manifest_json.get("needs_system_7"):
             import_folders7[folder_path] = folder
@@ -456,12 +459,15 @@ def import_dmg_folder(manifest_json: typing.Dict[str, typing.Any], archive_path:
 
                     folder[normalize(file_name)] = file
 
+                # Skip over directories that can't be encoded in MacRoman.
+                invalid_dir_names = []
                 for dir_name in dir_names:
                     try:
                         normalize(dir_name).encode("macroman")
                     except UnicodeEncodeError:
-                        # Skip over directories that can't be encoded in MacRoman.
-                        dir_names.remove(dir_name)
+                        invalid_dir_names.append(dir_name)
+                for dir_name in invalid_dir_names:
+                    dir_names.remove(dir_name)
         finally:
             hdiutil_code = subprocess.call([
                 paths.HDIUTIL_PATH, "detach", tmp_dir_path],
