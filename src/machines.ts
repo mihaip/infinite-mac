@@ -20,6 +20,7 @@ import emptyPrefsPath from "./Data/EmptyPrefs.txt";
 import pearPCConfigPath from "./Data/PearPCConfig.txt";
 import pearpcVideoXPath from "./Data/PearPC-video-x.rom";
 import previousConfigPath from "./Data/PreviousConfig.txt";
+import deviceImageHeaderPath from "./Data/Device Image Header (All Drivers).hda";
 import {
     type EmulatorDef,
     type EmulatorCpu,
@@ -219,6 +220,9 @@ export const POWER_MACINTOSH_G3_BEIGE: MachineDef = {
         {width: 640, height: 480, monitorId: "HiRes12-14in"},
     ],
     ramSizes: ["256M", "128M", "64M", "32M"],
+    extraFiles: {
+        "apm_all_drivers.bin": deviceImageHeaderPath,
+    },
     verboseBootEnvVars: {
         "boot-command": "0 bootr -v",
     },
@@ -241,6 +245,7 @@ export const POWER_MACINTOSH_G3_BW_DPPC: MachineDef = {
     ramSizes: ["256M", "128M", "64M", "32M"],
     extraFiles: {
         "113-32900-004_Apple_MACH64.bin": atiMach64RomPath,
+        "apm_all_drivers.bin": deviceImageHeaderPath,
     },
     verboseBootEnvVars: {
         "boot-args": "-v",
