@@ -28,7 +28,7 @@ def read_url_to_path(url: str, headers: bool = False) -> str:
 
     # Preserve the filename in the cached version for .gzip, otherwise unar
     # will name the extracted file after the cache key.
-    if url.endswith(".gz"):
+    if url.endswith(".gz") or url.endswith(".tgz"):
         filename = url.split("/")[-1]
         cache_dir = cache_path + "-dir"
         os.makedirs(cache_dir, exist_ok=True)
