@@ -87,7 +87,7 @@ def import_manifests() -> ImportFolders:
                 sys.stderr.write("    Skipping .dmg import, dmg2img not found\n")
                 continue
             folder = import_dmg(manifest_json)
-        elif src_ext in [".hqx", ".sit", ".bin", ".zip", ".gz"]:
+        elif src_ext in [".hqx", ".sit", ".bin", ".zip", ".gz", ".tgz", ".bz2"]:
             if not os.path.exists(paths.LSAR_PATH):
                 sys.stderr.write("    Skipping archive import, lsar not found "
                                  "(build it with npm run build-tools)\n")
