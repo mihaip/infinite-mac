@@ -26,10 +26,11 @@ export default function RunDefMac({runDef, onDone}: RunDefMacProps) {
                 });
         }
     }, [runDef.cdromURLs]);
-    runDef.disks.forEach(disk => disk.generatedSpec()); // Prefetch the disk definition
+    const disks = Array.from(new Set(runDef.disks));
+    disks.forEach(disk => disk.generatedSpec()); // Prefetch the disk definition
     return cdroms ? (
         <Mac
-            disks={runDef.disks}
+            disks={disks}
             includeInfiniteHD={runDef.includeInfiniteHD}
             includeSavedHD={runDef.includeSavedHD}
             includeLibrary={runDef.includeLibrary}
