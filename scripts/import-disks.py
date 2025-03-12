@@ -797,7 +797,7 @@ def build_library_images(dest_dir: str) -> typing.Tuple[ImageDef, ImageDef, Imag
     v.name = "Infinite HD"
     add_folders(import_foldersX)
     imageX = v.write(
-        size=2000 * 1024 * 1024,
+        size=2500 * 1024 * 1024,
         align=512,
         desktopdb=False,
         bootable=False,
