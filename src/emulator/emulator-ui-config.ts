@@ -295,7 +295,7 @@ export function configToPearPCConfig(
     let primaryType = "hd";
     let secondaryInstalled = false;
     let secondaryPath = "";
-    let secondaryType = "cdrom";
+    const secondaryType = "cdrom";
 
     const diskPaths: string[] = [];
     const cdromPaths: string[] = [];
@@ -315,13 +315,7 @@ export function configToPearPCConfig(
 
     if (diskPaths.length) {
         primaryInstalled = true;
-        primaryPath = diskPaths.shift()!;
-
-        if (diskPaths.length && cdromPaths.length === 0) {
-            secondaryInstalled = true;
-            secondaryPath = diskPaths.shift()!;
-            secondaryType = "hd";
-        }
+        primaryPath = diskPaths.join(":");
     }
 
     if (cdromPaths.length && !primaryInstalled) {
@@ -332,9 +326,6 @@ export function configToPearPCConfig(
     if (cdromPaths.length && !secondaryInstalled) {
         secondaryInstalled = true;
         secondaryPath = cdromPaths.shift()!;
-    }
-    if (diskPaths.length) {
-        console.warn("Not mounting additional disks", diskPaths);
     }
     if (cdromPaths.length) {
         console.warn("Not mounting additional CD-ROMs", cdromPaths.length);
