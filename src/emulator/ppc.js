@@ -539,30 +539,30 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  122904: () => { return workerApi.acquireInputLock(); },  
- 122945: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 123034: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr); },  
- 123124: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 123214: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 123298: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 123382: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
- 123469: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
- 123556: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 123641: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 123721: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 123802: () => { workerApi.releaseInputLock(); },  
- 123836: () => { workerApi.sleep(0); },  
- 123860: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 123896: () => { workerApi.blit(0, 0); },  
- 123922: ($0, $1) => { workerApi.blit($0, $1); },  
- 123950: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 123986: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 124037: ($0) => { workerApi.disks.close($0); },  
- 124068: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 124117: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
- 124167: ($0) => { return workerApi.disks.size($0); },  
- 124204: () => { workerApi.sleep(1); },  
- 124228: () => { return performance.now(); }
+  138432: () => { return workerApi.acquireInputLock(); },  
+ 138473: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 138562: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr); },  
+ 138652: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 138742: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 138826: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 138910: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
+ 138997: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
+ 139084: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 139169: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 139249: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 139330: () => { workerApi.releaseInputLock(); },  
+ 139364: () => { workerApi.sleep(0); },  
+ 139388: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 139424: () => { workerApi.blit(0, 0); },  
+ 139450: ($0, $1) => { workerApi.blit($0, $1); },  
+ 139478: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 139514: () => { workerApi.sleep(1); },  
+ 139538: () => { return performance.now(); },  
+ 139568: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 139619: ($0) => { workerApi.disks.close($0); },  
+ 139650: ($0) => { return workerApi.disks.size($0); },  
+ 139687: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 139736: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); }
 };
 
 // end include: preamble.js
@@ -3641,6 +3641,68 @@ var ASM_CONSTS = {
       abortOnCannotGrowMemory(requestedSize);
     };
 
+  var ENV = {
+  };
+  
+  var getExecutableName = () => thisProgram || './this.program';
+  var getEnvStrings = () => {
+      if (!getEnvStrings.strings) {
+        // Default values.
+        // Browser language detection #8751
+        var lang = ((typeof navigator == 'object' && navigator.languages && navigator.languages[0]) || 'C').replace('-', '_') + '.UTF-8';
+        var env = {
+          'USER': 'web_user',
+          'LOGNAME': 'web_user',
+          'PATH': '/',
+          'PWD': '/',
+          'HOME': '/home/web_user',
+          'LANG': lang,
+          '_': getExecutableName()
+        };
+        // Apply the user-provided values, if any.
+        for (var x in ENV) {
+          // x is a key in ENV; if ENV[x] is undefined, that means it was
+          // explicitly set to be so. We allow user code to do that to
+          // force variables with default values to remain unset.
+          if (ENV[x] === undefined) delete env[x];
+          else env[x] = ENV[x];
+        }
+        var strings = [];
+        for (var x in env) {
+          strings.push(`${x}=${env[x]}`);
+        }
+        getEnvStrings.strings = strings;
+      }
+      return getEnvStrings.strings;
+    };
+  
+  var stringToAscii = (str, buffer) => {
+      for (var i = 0; i < str.length; ++i) {
+        HEAP8[buffer++] = str.charCodeAt(i);
+      }
+      // Null-terminate the string
+      HEAP8[buffer] = 0;
+    };
+  var _environ_get = (__environ, environ_buf) => {
+      var bufSize = 0;
+      getEnvStrings().forEach((string, i) => {
+        var ptr = environ_buf + bufSize;
+        HEAPU32[(((__environ)+(i*4))>>2)] = ptr;
+        stringToAscii(string, ptr);
+        bufSize += string.length + 1;
+      });
+      return 0;
+    };
+
+  var _environ_sizes_get = (penviron_count, penviron_buf_size) => {
+      var strings = getEnvStrings();
+      HEAPU32[((penviron_count)>>2)] = strings.length;
+      var bufSize = 0;
+      strings.forEach((string) => bufSize += string.length + 1);
+      HEAPU32[((penviron_buf_size)>>2)] = bufSize;
+      return 0;
+    };
+
 
   function _fd_close(fd) {
   try {
@@ -3804,6 +3866,10 @@ var wasmImports = {
   /** @export */
   emscripten_resize_heap: _emscripten_resize_heap,
   /** @export */
+  environ_get: _environ_get,
+  /** @export */
+  environ_sizes_get: _environ_sizes_get,
+  /** @export */
   exit: _exit,
   /** @export */
   fd_close: _fd_close,
@@ -3829,7 +3895,12 @@ var ___cxa_increment_exception_refcount = (a0) => (___cxa_increment_exception_re
 var dynCall_vij = Module['dynCall_vij'] = (a0, a1, a2, a3) => (dynCall_vij = Module['dynCall_vij'] = wasmExports['dynCall_vij'])(a0, a1, a2, a3);
 var dynCall_ji = Module['dynCall_ji'] = (a0, a1) => (dynCall_ji = Module['dynCall_ji'] = wasmExports['dynCall_ji'])(a0, a1);
 var dynCall_iij = Module['dynCall_iij'] = (a0, a1, a2, a3) => (dynCall_iij = Module['dynCall_iij'] = wasmExports['dynCall_iij'])(a0, a1, a2, a3);
+var dynCall_jiijj = Module['dynCall_jiijj'] = (a0, a1, a2, a3, a4, a5, a6) => (dynCall_jiijj = Module['dynCall_jiijj'] = wasmExports['dynCall_jiijj'])(a0, a1, a2, a3, a4, a5, a6);
 var dynCall_jiji = Module['dynCall_jiji'] = (a0, a1, a2, a3, a4) => (dynCall_jiji = Module['dynCall_jiji'] = wasmExports['dynCall_jiji'])(a0, a1, a2, a3, a4);
+var dynCall_viijii = Module['dynCall_viijii'] = (a0, a1, a2, a3, a4, a5, a6) => (dynCall_viijii = Module['dynCall_viijii'] = wasmExports['dynCall_viijii'])(a0, a1, a2, a3, a4, a5, a6);
+var dynCall_iiiiij = Module['dynCall_iiiiij'] = (a0, a1, a2, a3, a4, a5, a6) => (dynCall_iiiiij = Module['dynCall_iiiiij'] = wasmExports['dynCall_iiiiij'])(a0, a1, a2, a3, a4, a5, a6);
+var dynCall_iiiiijj = Module['dynCall_iiiiijj'] = (a0, a1, a2, a3, a4, a5, a6, a7, a8) => (dynCall_iiiiijj = Module['dynCall_iiiiijj'] = wasmExports['dynCall_iiiiijj'])(a0, a1, a2, a3, a4, a5, a6, a7, a8);
+var dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) => (dynCall_iiiiiijj = Module['dynCall_iiiiiijj'] = wasmExports['dynCall_iiiiiijj'])(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);
 
 
 // include: postamble.js
