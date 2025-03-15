@@ -839,7 +839,7 @@ const MAC_OS_9_2_1: PlaceholderDiskDef = {
 const MAC_OS_9_2_2: SystemDiskDef = {
     displayName: "Mac OS 9.2.2",
     description:
-        "Bug fixes relating to Classic Environment. Final Mac OS 9 release.",
+        "Final Mac OS 9 release. Bug fixes for the Classic environment under Mac OS X.",
     releaseDate: [2001, 12, 5],
     prefetchChunks: [
         0, 4, 5, 6, 8, 9, 10, 15, 16, 17, 18, 19, 20, 29, 31, 32, 34, 36, 37,
@@ -1267,7 +1267,7 @@ const MAC_OS_X_10_4_11: SystemDiskDef = {
     displayName: "Mac OS X 10.4",
     displaySubtitle: "Tiger",
     description:
-        "Introduced Spotlight, Dashboard, a “unified” appearance, Safari RSS, Automator, VoiceOver, QuickTime 7 and an update Mail application.",
+        "Introduced Spotlight, Dashboard, a “unified” appearance, Safari RSS, Automator, VoiceOver, QuickTime 7 and an updated Mail application.",
     releaseDate: [2005, 4, 29],
     prefetchChunks: [
         0, 1, 2, 3, 515, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527,

@@ -58,7 +58,7 @@ export function Browser({
                     <div className="Year" key={year}>
                         <h2>{year}</h2>
                         <div className="Disks">
-                            {disks.map((disk, i) => (
+                            {sortedDisksByYear(disks).map((disk, i) => (
                                 <Disk disk={disk} onRun={onRun} key={i} />
                             ))}
                         </div>
@@ -67,14 +67,18 @@ export function Browser({
                 <div className="Year">
                     <h2>{new Date().getFullYear()}</h2>
                     <div className="Disks">
-                        <AppearanceProvider appearance="Platinum">
-                            <CustomDisk onRun={onRun} />
-                        </AppearanceProvider>
+                        <CustomDisk onRun={onRun} />
                     </div>
                 </div>
             </div>
         </div>
     );
+}
+
+function sortedDisksByYear(disks: (SystemDiskDef | PlaceholderDiskDef)[]) {
+    return Array.from(disks).sort((a, b) => {
+        return a.releaseDate[1] - b.releaseDate[1];
+    });
 }
 
 function Description({
@@ -377,7 +381,7 @@ function CustomDisk({onRun}: {onRun: BrowserRunFn}) {
     const today = new Date();
     return (
         <DiskFrame
-            bezelStyle="Pinstripes"
+            bezelStyle="Platinum"
             screen={
                 <div className="DiskContents">
                     {customVisible && (
