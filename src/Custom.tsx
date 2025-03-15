@@ -499,6 +499,7 @@ export function Custom({
 
                 {appleTalkSupported && (
                     <div className="Custom-Dialog-Row Custom-Dialog-InputCompensate">
+                        <span className="Custom-Dialog-Label" />
                         <label>
                             <Checkbox
                                 checked={appleTalkEnabled}
