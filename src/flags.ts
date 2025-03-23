@@ -1,1 +1,1 @@
-export const isMacOSXLaunched = document.cookie.includes("macosx=true");
+export const isMacOSXLaunched = true;
