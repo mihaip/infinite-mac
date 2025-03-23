@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2025-03-24: Added early Mac OS X releases (10.0 to 10.4). See https://blog.persistent.info/2025/03/infinite-mac-os-x.html for more details.
+
 2024-11-03: Added a Macintosh Garden software library drawer. See https://blog.persistent.info/2024/11/infinite-mac-macintosh-garden-library.html for more details.
 
 2024-03-25: Added all major NeXTSTEP releases. See https://blog.persistent.info/2024/03/infinite-mac-nextstep.html for more details.
