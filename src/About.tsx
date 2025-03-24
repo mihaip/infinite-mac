@@ -3,7 +3,6 @@ import {Dialog} from "./controls/Dialog";
 import {Donate} from "./Donate";
 import * as varz from "./varz";
 import {appearanceSystemFont} from "./controls/Appearance";
-import {isMacOSXLaunched} from "./flags";
 
 export function About({onDone}: {onDone: () => void}) {
     const [donateVisible, setDonateVisible] = useState(false);
@@ -40,20 +39,6 @@ export function About({onDone}: {onDone: () => void}) {
             varz.get("emulator_starts").then(
                 count => (counterDom.textContent = count.toLocaleString())
             );
-        }
-
-        if (isMacOSXLaunched) {
-            const macosxQuestion =
-                aboutContainerDom.querySelector(".macosx-faq");
-            if (macosxQuestion) {
-                while (
-                    macosxQuestion.nextSibling &&
-                    macosxQuestion.nextSibling.nodeName !== "H3"
-                ) {
-                    macosxQuestion.nextSibling.remove();
-                }
-                macosxQuestion.remove();
-            }
         }
 
         const donateLink = aboutContainerDom.querySelector(".donate");

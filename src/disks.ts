@@ -815,7 +815,6 @@ const MAC_OS_9_1: SystemDiskDef = {
     preferredMachine: POWER_MACINTOSH_G3_BEIGE,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.1 HD.dsk.json"),
-    notable: !isMacOSXLaunched,
     isUnstable: true,
 };
 
@@ -872,7 +871,6 @@ const MAC_OS_9_2_2: SystemDiskDef = {
     preferredMachine: POWER_MACINTOSH_G3_BEIGE,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.2.2 HD.dsk.json"),
-    notable: !isMacOSXLaunched,
     isUnstable: true,
 };
 
@@ -880,7 +878,6 @@ import powerMacintoshG3NvramPath from "./Data/Power-Macintosh-G3-nvram.bin?url";
 import powerMacintoshG3PramPath from "./Data/Power-Macintosh-G3-pram.bin?url";
 import powerMacintoshG3BWNvramPath from "./Data/Power-Macintosh-G3-BW-nvram.bin?url";
 import powerMacintoshG3BWPramPath from "./Data/Power-Macintosh-G3-BW-pram.bin?url";
-import {isMacOSXLaunched} from "./flags";
 const dppcExtraMachineFiles = new Map([
     [
         POWER_MACINTOSH_G3_BEIGE,
@@ -919,7 +916,6 @@ const MAC_OS_X_10_0_PUBLIC_BETA: SystemDiskDef = {
     infiniteHdSubset: "macosx",
     isUnstable: true,
     hasDeviceImageHeader: true,
-    hiddenInBrowser: !isMacOSXLaunched,
 };
 
 const MAC_OS_X_10_0_4: SystemDiskDef = {
@@ -959,7 +955,6 @@ const MAC_OS_X_10_0_4: SystemDiskDef = {
     infiniteHdSubset: "macosx",
     isUnstable: true,
     hasDeviceImageHeader: true,
-    hiddenInBrowser: !isMacOSXLaunched,
 };
 
 const MAC_OS_X_10_1_5: SystemDiskDef = {
@@ -1038,7 +1033,6 @@ const MAC_OS_X_10_1_5: SystemDiskDef = {
     notable: true,
     infiniteHdSubset: "macosx",
     hasDeviceImageHeader: true,
-    hiddenInBrowser: !isMacOSXLaunched,
 };
 
 const MAC_OS_X_10_2_8: SystemDiskDef = {
@@ -1115,9 +1109,7 @@ const MAC_OS_X_10_2_8: SystemDiskDef = {
         7779, 7780, 8085, 8086, 8089, 8090, 8091, 8092, 8093, 8094, 8108, 8109,
         8740, 16383,
     ],
-    preferredMachine: isMacOSXLaunched
-        ? POWER_MACINTOSH_G4_PEARPC
-        : POWER_MACINTOSH_G3_BEIGE,
+    preferredMachine: POWER_MACINTOSH_G4_PEARPC,
     appearance: "Aqua",
     generatedSpec: () => import("./Data/Mac OS X 10.2.8 HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
@@ -1125,7 +1117,6 @@ const MAC_OS_X_10_2_8: SystemDiskDef = {
     infiniteHdSubset: "macosx",
     isUnstable: true,
     hasDeviceImageHeader: true,
-    hiddenInBrowser: !isMacOSXLaunched,
 };
 
 const MAC_OS_X_10_3_9: SystemDiskDef = {
@@ -1260,7 +1251,6 @@ const MAC_OS_X_10_3_9: SystemDiskDef = {
     notable: true,
     infiniteHdSubset: "macosx",
     hasDeviceImageHeader: true,
-    hiddenInBrowser: !isMacOSXLaunched,
 };
 
 const MAC_OS_X_10_4_11: SystemDiskDef = {
@@ -1408,7 +1398,6 @@ const MAC_OS_X_10_4_11: SystemDiskDef = {
     infiniteHdSubset: "macosx",
     isUnstable: true,
     hasDeviceImageHeader: true,
-    hiddenInBrowser: !isMacOSXLaunched,
 };
 
 const NEXTSTEP_0_8: SystemDiskDef = {
