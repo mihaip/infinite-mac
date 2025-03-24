@@ -27,7 +27,6 @@ import {canSaveDisks} from "./canSaveDisks";
 import {usePersistentState} from "./usePersistentState";
 import {viewTransitionNameForDisk} from "./view-transitions";
 import {AppearanceProvider} from "./controls/Appearance";
-import {isMacOSXLaunched} from "./flags";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -103,21 +102,10 @@ function Description({
                 comfort of a web browser.
             </p>
             <p>
-                {isMacOSXLaunched ? (
-                    <>
-                        Pick any version of System Software, Mac OS, Mac OS X or
-                        NeXTStep from the 1980s, 1990s or early 2000s and run it
-                        within a virtual machine.
-                    </>
-                ) : (
-                    <>
-                        Pick any version of System Software, Mac OS or NeXTStep
-                        from the 1980s or 1990s and run it within a virtual
-                        machine.
-                    </>
-                )}{" "}
-                An “Infinite HD” disk with representative software from that era
-                is also available. You can also{" "}
+                Pick any version of System Software, Mac OS, Mac OS X or
+                NeXTStep from the 1980s, 1990s or early 2000s and run it within
+                a virtual machine. An “Infinite HD” disk with representative
+                software from that era is also available. You can also{" "}
                 <span onClick={() => setCustomVisible(true)}>
                     run a custom version
                 </span>{" "}
@@ -225,9 +213,6 @@ function DiskFiltersButton({
     label: string;
     count: number;
 }) {
-    if (label === "Mac OS X" && !isMacOSXLaunched) {
-        return null;
-    }
     return (
         <button
             onClick={onClick}
