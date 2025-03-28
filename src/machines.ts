@@ -127,7 +127,7 @@ export const MAC_IIFX: MachineDef = {
     gestaltID: 13,
     emulatorType: "BasiliskII",
     prefsPath: basiliskPrefsPath,
-    bezelStyle: "Platinum",
+    bezelStyle: "Pinstripes",
     ramSizes: ["128M", "64M", "32M", "16M", "8M", "4M"],
 };
 
