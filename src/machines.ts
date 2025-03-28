@@ -116,7 +116,7 @@ export const MAC_II: MachineDef = {
     emulatorSubtype: "II",
     prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 640, height: 480},
-    bezelStyle: "Platinum",
+    bezelStyle: "Pinstripes",
     ramSizes: ["8M"],
 };
 
