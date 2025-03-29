@@ -49,6 +49,8 @@ const enum Architecture {
     X86_INTEL_MAC = 3,
     X86_INTEL = 4,
     X86_WINDOWS = 5,
+    X64_WINDOWS = 6,
+    APPLE_SILICON = 7,
 }
 
 export const ARCHITECTURE_INDEX = {
@@ -58,6 +60,8 @@ export const ARCHITECTURE_INDEX = {
     [Architecture.X86_INTEL_MAC]: "x86",
     [Architecture.X86_INTEL]: "x86",
     [Architecture.X86_WINDOWS]: "x86 (Windows)",
+    [Architecture.X64_WINDOWS]: "x64 (Windows)",
+    [Architecture.APPLE_SILICON]: "Apple Silicon",
 };
 
 type CategoryIndex = number;

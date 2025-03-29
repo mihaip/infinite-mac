@@ -208,6 +208,8 @@ ARCHITECTURE_MAP = {
     'x64 (Intel:Mac)': 3,
     'x86 (Intel)': 4,
     'x86 (Windows)': 5,
+    'x64 (Windows)': 6,
+    'ARM (Apple Silicon)': 7,
 }
 
 CATEGORY_MAP = {
