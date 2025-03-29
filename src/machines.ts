@@ -11,6 +11,7 @@ import powerMacintosh9500RomPath from "./Data/Power-Macintosh-9500.rom";
 import powerMacintoshG3RomPath from "./Data/Power-Macintosh-G3.rom";
 import atiMach64RomPath from "./Data/ATI-Mach64.rom";
 import powerMacintoshG3BWBootRomPath from "./Data/Power-Macintosh-G3-BW-Boot.rom";
+import iMacG3233BootRomPath from "./Data/iMac-G3-233-Boot.rom";
 import nextRev10V41RomPath from "./Data/NeXT-Rev_1.0_v41.rom";
 import nextRev25V66RomPath from "./Data/NeXT-Rev_2.5_v66.rom";
 import nextRev33V74RomPath from "./Data/NeXT-Rev_3.3_v74.rom";
@@ -252,6 +253,30 @@ export const POWER_MACINTOSH_G3_BW_DPPC: MachineDef = {
     },
 };
 
+export const IMAC_G3: MachineDef = {
+    name: "iMac G3 (233 Mhz)",
+    cpu: "G3",
+    romPath: iMacG3233BootRomPath,
+    gestaltID: 406,
+    emulatorType: "DingusPPC",
+    prefsPath: emptyPrefsPath,
+    bezelStyle: "Pinstripes",
+    supportedScreenSizes: [
+        {width: 1152, height: 870, monitorId: "MacColor21in"},
+        {width: 1024, height: 768, monitorId: "Multiscan17in"},
+        {width: 832, height: 624, monitorId: "Multiscan15in"},
+        {width: 640, height: 480, monitorId: "HiRes12-14in"},
+    ],
+    ramSizes: ["128M", "64M", "32M"],
+    extraFiles: {
+        "113-32900-004_Apple_MACH64.bin": atiMach64RomPath,
+        "apm_all_drivers.bin": deviceImageHeaderPath,
+    },
+    verboseBootEnvVars: {
+        "boot-args": "-v",
+    },
+};
+
 export const POWER_MACINTOSH_G3_BW: MachineDef = {
     name: "Power Macintosh G3 (Blue & White)",
     cpu: "G3",
@@ -349,6 +374,7 @@ export const ALL_MACHINES = [
     POWER_MACINTOSH_G3_BEIGE,
     POWER_MACINTOSH_G3_BW_DPPC,
     POWER_MACINTOSH_G3_BW,
+    IMAC_G3,
     POWER_MACINTOSH_G4_PEARPC,
     NEXT_COMPUTER,
     NEXT_CUBE,

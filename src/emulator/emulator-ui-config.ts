@@ -5,6 +5,7 @@ import {
     POWER_MACINTOSH_7200,
     POWER_MACINTOSH_7500,
     type MachineDefRAMSize,
+    IMAC_G3,
 } from "../machines";
 import {arrayBufferToString, replacePlaceholders} from "../strings";
 import {type EmulatorChunkedFileSpec} from "./emulator-common";
@@ -141,20 +142,23 @@ export function configToDingusPPCArgs(
     // DingusPPC normally auto-detects the machine based on the ROM, but in some
     // cases the same ROM was used for multiple machines and we need to give it
     // an explicit hint.
-    switch (config.machine.gestaltID) {
-        case POWER_MACINTOSH_7200.gestaltID:
+    switch (config.machine) {
+        case POWER_MACINTOSH_7200:
             args.push("--machine", "pm7200");
             args.push("--gfxmem_size", "4");
             break;
-        case POWER_MACINTOSH_7500.gestaltID:
+        case POWER_MACINTOSH_7500:
             args.push("--machine", "pm7500");
             break;
-        case POWER_MACINTOSH_G3_BEIGE.gestaltID:
+        case POWER_MACINTOSH_G3_BEIGE:
             args.push("--gfxmem_size", "6");
             break;
-        case POWER_MACINTOSH_G3_BW_DPPC.gestaltID:
+        case POWER_MACINTOSH_G3_BW_DPPC:
             args.push("--machine", "pmg3nw");
             args.push("--pci_J12", "AtiMach64Gx");
+            break;
+        case IMAC_G3:
+            args.push("--machine", "imacg3");
             break;
     }
 
