@@ -19,6 +19,7 @@ import {
     POWER_MACINTOSH_7500,
     POWER_MACINTOSH_G3_BW_DPPC,
     POWER_MACINTOSH_G4_PEARPC,
+    IMAC_G3,
 } from "./machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -878,6 +879,8 @@ import powerMacintoshG3NvramPath from "./Data/Power-Macintosh-G3-nvram.bin?url";
 import powerMacintoshG3PramPath from "./Data/Power-Macintosh-G3-pram.bin?url";
 import powerMacintoshG3BWNvramPath from "./Data/Power-Macintosh-G3-BW-nvram.bin?url";
 import powerMacintoshG3BWPramPath from "./Data/Power-Macintosh-G3-BW-pram.bin?url";
+import imacG3233NvramPath from "./Data/iMac-G3-233-nvram.bin?url";
+import imacG3233PramPath from "./Data/iMac-G3-233-pram.bin?url";
 const dppcExtraMachineFiles = new Map([
     [
         POWER_MACINTOSH_G3_BEIGE,
@@ -891,6 +894,13 @@ const dppcExtraMachineFiles = new Map([
         {
             "nvram.bin": powerMacintoshG3BWNvramPath,
             "pram.bin": powerMacintoshG3BWPramPath,
+        },
+    ],
+    [
+        IMAC_G3,
+        {
+            "nvram.bin": imacG3233NvramPath,
+            "pram.bin": imacG3233PramPath,
         },
     ],
 ]);
