@@ -74,13 +74,7 @@ docker build -t macemu_emsdk .
 Open a shell into the Docker container:
 
 ```sh
-docker run --rm -it \
-    -v `realpath macemu`:/macemu \
-    -v `realpath minivmac`:/minivmac \
-    -v `realpath dingusppc`:/dingusppc \
-    -v `realpath previous`:/previous \
-    -v `realpath pearpc`:/pearpc \
-    --entrypoint bash macemu_emsdk
+scripts/docker-shell.sh
 ```
 
 Once in that container, you can use a couple of helper scripts to build them:
