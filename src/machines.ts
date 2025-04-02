@@ -49,6 +49,7 @@ export type MachineDef = EmulatorDef & {
     // If requesting debug logs, OpenFirmware variables to set to also enable a
     // verbose boot.
     verboseBootEnvVars?: {[name: string]: string};
+    isHidden?: boolean;
 };
 
 export type MachineDefRAMSize = `${number}M` | `${number}K`;
@@ -251,6 +252,7 @@ export const POWER_MACINTOSH_G3_BW_DPPC: MachineDef = {
     verboseBootEnvVars: {
         "boot-args": "-v",
     },
+    isHidden: true, // Not materially interesting (vs the other DingusPPC machines)
 };
 
 export const IMAC_G3: MachineDef = {
@@ -372,9 +374,9 @@ export const ALL_MACHINES = [
     POWER_MACINTOSH_7500,
     POWER_MACINTOSH_9500,
     POWER_MACINTOSH_G3_BEIGE,
+    IMAC_G3,
     POWER_MACINTOSH_G3_BW_DPPC,
     POWER_MACINTOSH_G3_BW,
-    IMAC_G3,
     POWER_MACINTOSH_G4_PEARPC,
     NEXT_COMPUTER,
     NEXT_CUBE,
@@ -385,10 +387,3 @@ export const ALL_MACHINES = [
 export const MACHINES_BY_NAME = Object.fromEntries(
     ALL_MACHINES.map(machine => [machine.name, machine])
 );
-
-export function isExperimentalMachine(machine: MachineDef): boolean {
-    return (
-        machine.emulatorType === "DingusPPC" ||
-        machine.emulatorType === "PearPC"
-    );
-}
