@@ -464,7 +464,6 @@ const SYSTEM_7_5_2: SystemDiskDef = {
     preferredMachine: POWER_MACINTOSH_7500,
     appleTalkSupported: true,
     appearanceVariant: "System7",
-    isUnstable: true,
     generatedSpec: () => import("./Data/System 7.5.2 HD.dsk.json"),
 };
 
@@ -815,7 +814,6 @@ const MAC_OS_9_1: SystemDiskDef = {
     preferredMachine: POWER_MACINTOSH_G3_BEIGE,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.1 HD.dsk.json"),
-    isUnstable: true,
 };
 
 const MAC_OS_9_2: PlaceholderDiskDef = {
@@ -871,7 +869,6 @@ const MAC_OS_9_2_2: SystemDiskDef = {
     preferredMachine: POWER_MACINTOSH_G3_BEIGE,
     appearance: "Platinum",
     generatedSpec: () => import("./Data/Mac OS 9.2.2 HD.dsk.json"),
-    isUnstable: true,
 };
 
 import powerMacintoshG3NvramPath from "./Data/Power-Macintosh-G3-nvram.bin?url";

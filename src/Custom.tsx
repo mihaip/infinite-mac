@@ -7,7 +7,6 @@ import {
     ALL_MACHINES,
     MACHINES_BY_NAME,
     type MachineDefRAMSize,
-    isExperimentalMachine,
     type MachineDef,
 } from "./machines";
 import {
@@ -152,25 +151,23 @@ export function Custom({
         (!appleTalkSupported || !appleTalkEnabled || appleTalkZoneName !== "");
 
     const {appearance = "Classic", appearanceVariant} = runDef.disks[0] ?? {};
-    const macMachines = [];
-    const nextMachines = [];
-    const experimentalMachines = [];
+    const groupedMachines: {[group: string]: MachineDef[]} = {
+        "68K": [],
+        "PowerPC": [],
+        "NeXT": [],
+    };
     for (const machine of ALL_MACHINES) {
-        if (isExperimentalMachine(machine)) {
-            experimentalMachines.push(machine);
-        } else if (machine.platform === "NeXT") {
-            nextMachines.push(machine);
+        if (machine.isHidden) {
+            continue;
+        }
+        if (machine.platform === "NeXT") {
+            groupedMachines["NeXT"].push(machine);
+        } else if (machine.cpu.startsWith("68")) {
+            groupedMachines["68K"].push(machine);
         } else {
-            macMachines.push(machine);
+            groupedMachines["PowerPC"].push(machine);
         }
     }
-    const machineOptions = (machines: MachineDef[]) =>
-        machines.map(m => (
-            <option key={m.name} value={m.name}>
-                {m.name}
-            </option>
-        ));
-
     return (
         <AppearanceProvider appearance={appearance} variant={appearanceVariant}>
             <Dialog
@@ -199,12 +196,18 @@ export function Custom({
                             }
                             setRunDef({...runDef, ...update});
                         }}>
-                        <option disabled>Macs</option>
-                        {machineOptions(macMachines)}
-                        <option disabled>Experimental</option>
-                        {machineOptions(experimentalMachines)}
-                        <option disabled>NeXT</option>
-                        {machineOptions(nextMachines)}
+                        {Object.entries(groupedMachines).map(
+                            ([group, machines]) => (
+                                <Fragment key={group}>
+                                    <option disabled>{group}</option>
+                                    {machines.map(m => (
+                                        <option key={m.name} value={m.name}>
+                                            {m.name}
+                                        </option>
+                                    ))}
+                                </Fragment>
+                            )
+                        )}
                     </Select>
                     <div className="Custom-Dialog-Description Dialog-Description">
                         Emulator: {runDef.machine.emulatorType}
