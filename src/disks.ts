@@ -389,7 +389,6 @@ const SYSTEM_7_1_2: SystemDiskDef = {
     prefetchChunks: [0, 1, 2],
     preferredMachine: POWER_MACINTOSH_6100,
     appearanceVariant: "System7",
-    isUnstable: true,
     generatedSpec: () => import("./Data/System 7.1.2 HD.dsk.json"),
 };
 
