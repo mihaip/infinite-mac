@@ -692,7 +692,7 @@ export class Emulator {
             // to the emulator so that it can be used when executing the paste.
             // Ideally we would watch for a clipboardchange event, but that's not
             // supported broadly (see https://crbug.com/933608).
-            if (code === "KeyV" && event.metaKey) {
+            if (code === "KeyV" && (event.metaKey || event.ctrlKey)) {
                 navigator.clipboard.readText().then(
                     text => this.#clipboard.setClipboardText(text),
                     error => console.error("Could not read clipboard", error)
