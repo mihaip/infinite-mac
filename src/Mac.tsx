@@ -65,6 +65,7 @@ export type MacProps = {
     machine: MachineDef;
     ramSize?: MachineDefRAMSize;
     screenSize: ScreenSize;
+    screenScale?: number;
     ethernetProvider?: EmulatorEthernetProvider;
     customDate?: Date;
     debugFallback?: boolean;
@@ -87,6 +88,7 @@ export default function Mac({
     machine,
     ramSize,
     screenSize: screenSizeProp,
+    screenScale: screenScaleProp,
     ethernetProvider,
     customDate,
     debugFallback,
@@ -98,7 +100,7 @@ export default function Mac({
 }: MacProps) {
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
-    const [scale, setScale] = useState<number | undefined>(undefined);
+    const [scale, setScale] = useState<number | undefined>(screenScaleProp);
     const [fullscreen, setFullscreen] = useState(false);
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
         0, 0,
@@ -134,11 +136,8 @@ export default function Mac({
 
     const initialScreenSize = useMemo(
         () =>
-            machine.fixedScreenSize ??
-            (typeof screenSizeProp === "object"
-                ? screenSizeProp
-                : SCREEN_SIZES[screenSizeProp](machine)),
-        [machine, screenSizeProp]
+            computeInitialScreenSize(machine, screenSizeProp, screenScaleProp),
+        [machine, screenSizeProp, screenScaleProp]
     );
     const {width: initialScreenWidth, height: initialScreenHeight} =
         initialScreenSize;
@@ -204,8 +203,13 @@ export default function Mac({
         if (hasSavedHD) {
             emulatorDisks.push(SAVED_HD);
         }
-        const useSharedMemory =
-            typeof SharedArrayBuffer !== "undefined" && !debugFallback;
+        const hasSharedArrayBuffer = typeof SharedArrayBuffer !== "undefined";
+        if (!hasSharedArrayBuffer) {
+            console.warn(
+                "SharedArrayBuffer is not available, fallback more will be used. Performance may be degraded."
+            );
+        }
+        const useSharedMemory = hasSharedArrayBuffer && !debugFallback;
         const emulator = new Emulator(
             {
                 machine,
@@ -376,6 +380,10 @@ export default function Mac({
         handleMacLibraryRun,
         handleMacLibraryProgress,
     ]);
+
+    useEffect(() => {
+        document.body.classList.toggle("embed", screenSizeProp === "embed");
+    }, [screenSizeProp]);
 
     const handleFullScreenClick = () => {
         // Make the entire page go fullscreen (instead of just the screen
@@ -688,7 +696,8 @@ export default function Mac({
                     fullscreen ||
                     // These screen sizes always want fullscreen-like bezels
                     screenSizeProp === "fullscreen" ||
-                    screenSizeProp === "window"
+                    screenSizeProp === "window" ||
+                    screenSizeProp === "embed"
                 }
                 led={
                     (!emulatorLoaded && !debugPaused) ||
@@ -781,14 +790,15 @@ export default function Mac({
                     />
                 )}
             </ScreenFrame>
-            {!fullscreen && disks[0]?.infiniteHdSubset !== "mfs" && (
+            {!fullscreen && screenSizeProp !== "embed" && (
                 <DrawersContainer>
-                    {emulatorSupportsCDROMs(machine.emulatorType) && (
-                        <MacCDROMs
-                            onRun={loadCDROM}
-                            platform={machine.platform}
-                        />
-                    )}
+                    {emulatorSupportsCDROMs(machine.emulatorType) &&
+                        disks[0]?.infiniteHdSubset !== "mfs" && (
+                            <MacCDROMs
+                                onRun={loadCDROM}
+                                platform={machine.platform}
+                            />
+                        )}
                     {includeLibrary &&
                         emulatorSupportsDownloadsFolder(
                             machine.emulatorType
@@ -905,35 +915,54 @@ function uploadFiles(
 const SMALL_BEZEL_THRESHOLD = 80;
 const MEDIUM_BEZEL_THRESHOLD = 168;
 
-const SCREEN_SIZES: {
-    [id: string]: (machine: MachineDef) => {width: number; height: number};
-} = {
-    "auto": machine => {
-        const availableWidth = window.innerWidth - MEDIUM_BEZEL_THRESHOLD;
-        const availableHeight = window.innerHeight - MEDIUM_BEZEL_THRESHOLD;
-        const {
-            supportedScreenSizes = [
-                {width: 1600, height: 1200},
-                {width: 1280, height: 1024},
-                {width: 1152, height: 870},
-                {width: 1024, height: 768},
-                {width: 800, height: 600},
-                {width: 640, height: 480},
-            ],
-        } = machine;
-        for (const {width, height} of supportedScreenSizes) {
-            if (width <= availableWidth && height <= availableHeight) {
-                return {width, height};
+function computeInitialScreenSize(
+    machine: MachineDef,
+    screenSizeProp?: ScreenSize,
+    screenScaleProp?: number
+): {width: number; height: number} {
+    if (machine.fixedScreenSize) {
+        return machine.fixedScreenSize;
+    }
+    if (typeof screenSizeProp === "object") {
+        return screenSizeProp;
+    }
+    let {innerWidth: windowWidth, innerHeight: windowHeight} = window;
+    let {width: screenWidth, height: screenHeight} = window.screen;
+    if (screenScaleProp) {
+        windowWidth = Math.floor(windowWidth / screenScaleProp);
+        windowHeight = Math.floor(windowHeight / screenScaleProp);
+        screenWidth = Math.floor(screenWidth / screenScaleProp);
+        screenHeight = Math.floor(screenHeight / screenScaleProp);
+    }
+    switch (screenSizeProp) {
+        case undefined:
+        case "auto": {
+            const availableWidth = windowWidth - MEDIUM_BEZEL_THRESHOLD;
+            const availableHeight = windowHeight - MEDIUM_BEZEL_THRESHOLD;
+            const {
+                supportedScreenSizes = [
+                    {width: 1600, height: 1200},
+                    {width: 1280, height: 1024},
+                    {width: 1152, height: 870},
+                    {width: 1024, height: 768},
+                    {width: 800, height: 600},
+                    {width: 640, height: 480},
+                ],
+            } = machine;
+            for (const {width, height} of supportedScreenSizes) {
+                if (width <= availableWidth && height <= availableHeight) {
+                    return {width, height};
+                }
             }
+            return {width: 640, height: 480};
         }
-        return {width: 640, height: 480};
-    },
-    "window": () => ({width: window.innerWidth, height: window.innerHeight}),
-    "fullscreen": () => ({
-        width: window.screen.width,
-        height: window.screen.availHeight,
-    }),
-};
+        case "window":
+        case "embed":
+            return {width: windowWidth, height: windowHeight};
+        case "fullscreen":
+            return {width: screenWidth, height: screenHeight};
+    }
+}
 
 // Assume that mobile devices that can't do hover events also need an explicit
 // control for bringing up the on-screen keyboard.

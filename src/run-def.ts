@@ -20,6 +20,7 @@ export type RunDef = {
     machine: MachineDef;
     ramSize?: MachineDefRAMSize;
     screenSize: ScreenSize;
+    screenScale?: number;
     disks: SystemDiskDef[];
     diskFiles: DiskFile[];
     cdromURLs: string[];
@@ -36,12 +37,14 @@ export type RunDef = {
     debugTrackpad?: boolean;
     isCustom?: boolean;
     customDate?: Date;
+    isEmbed?: boolean;
 };
 
 export type ScreenSize =
     | "auto"
     | "fullscreen"
     | "window"
+    | "embed"
     | {width: number; height: number};
 
 export function runDefFromUrl(urlString: string): RunDef | undefined {
@@ -52,9 +55,10 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         return undefined;
     }
 
-    const {searchParams} = url;
+    const {searchParams, pathname} = url;
 
     let isCustom = searchParams.has("edit");
+    const isEmbed = pathname === "/embed";
     let includeInfiniteHD;
     let includeSavedHD;
     const includeLibrary = searchParams.get("library") !== "false";
@@ -98,7 +102,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         ramSize = ramSizeParam;
         isCustom = true;
     }
-    let screenSize: ScreenSize = "auto";
+    let screenSize: ScreenSize = isEmbed ? "embed" : "auto";
     const screenSizeParam = searchParams.get("screenSize");
     switch (screenSizeParam) {
         case "auto":
@@ -116,6 +120,14 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
                 screenSize = {width, height};
             }
             break;
+        }
+    }
+    let screenScale: number | undefined = undefined;
+    const screenScaleParam = searchParams.get("screenScale");
+    if (screenScaleParam) {
+        const scale = parseFloat(screenScaleParam);
+        if (!isNaN(scale)) {
+            screenScale = scale;
         }
     }
 
@@ -154,6 +166,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         machine,
         ramSize,
         screenSize,
+        screenScale,
         ethernetProvider,
         cdromURLs,
         diskFiles: [],
@@ -164,6 +177,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         debugLog,
         debugTrackpad,
         isCustom,
+        isEmbed,
     };
 }
 
@@ -217,6 +231,9 @@ export function runDefToUrl(runDef: RunDef): string {
                 ? `${runDef.screenSize.width}x${runDef.screenSize.height}`
                 : runDef.screenSize
         );
+    }
+    if (runDef.screenScale && runDef.screenScale !== 1) {
+        url.searchParams.set("screenScale", runDef.screenScale.toString());
     }
     if (ethernetProvider instanceof CloudflareWorkerEthernetProvider) {
         url.searchParams.set("appleTalk", ethernetProvider.zoneName());

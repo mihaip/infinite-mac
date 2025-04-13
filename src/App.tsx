@@ -63,12 +63,16 @@ function App() {
                 </AppearanceProvider>
             </Suspense>
         );
-        footer = (
-            <Footer
-                onLogoClick={handleDone}
-                showFullscreenButton={runDef.screenSize === "fullscreen"}
-            />
-        );
+        if (runDef.isEmbed) {
+            footer = undefined;
+        } else {
+            footer = (
+                <Footer
+                    onLogoClick={handleDone}
+                    showFullscreenButton={runDef.screenSize === "fullscreen"}
+                />
+            );
+        }
     } else {
         contents = (
             <React.StrictMode>
