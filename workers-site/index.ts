@@ -86,7 +86,14 @@ async function handleRequest(
         }
 
         response.headers.set("X-Content-Type-Options", "nosniff");
-        response.headers.set("X-Frame-Options", "DENY");
+        if (pathname === "/embed") {
+            response.headers.set(
+                "Cross-Origin-Resource-Policy",
+                "cross-origin"
+            );
+        } else {
+            response.headers.set("X-Frame-Options", "DENY");
+        }
         // Allow SharedArrayBuffer to work
         response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
         response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
@@ -131,27 +138,20 @@ function mapRequestToAsset(request: Request): Request {
     const parsedUrl = new URL(request.url);
     let {pathname} = parsedUrl;
 
-    if (pathname.endsWith("/")) {
-        pathname = pathname.concat("index.html");
-    }
-
-    const {hostname} = parsedUrl;
     // Let the client-side handle runDef URLs (minimal version of runDefFromUrl).
-    if (
-        hostname === "127.0.0.1" ||
-        hostname === "localhost" ||
-        hostname === "infinitemac.org" ||
-        hostname.endsWith(".infinitemac.org")
-    ) {
-        const pieces = parsedUrl.pathname.split("/");
+    const pieces = pathname.split("/");
+    if (pieces.length === 3 && parseInt(pieces[1]) >= 1984) {
         // Year paths
-        if (pieces.length === 3 && parseInt(pieces[1]) >= 1984) {
-            pathname = "/index.html";
-        }
+        pathname = "/index.html";
+    } else if (
+        pieces.length === 2 &&
+        (pieces[1] === "run" || pieces[1] === "embed")
+    ) {
         // Custom run paths
-        if (pieces.length === 2 && pieces[1] === "run") {
-            pathname = "/index.html";
-        }
+        pathname = "/index.html";
+    } else if (pathname.endsWith("/")) {
+        // Regular index path
+        pathname = pathname.concat("index.html");
     }
 
     parsedUrl.pathname = pathname;

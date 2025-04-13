@@ -9,6 +9,11 @@ body.fullscreen {
     background: black;
 }
 
+body.embed {
+    background: black;
+    overflow: hidden;
+}
+
 .Mac-Loading {
     position: absolute;
     top: 0;
