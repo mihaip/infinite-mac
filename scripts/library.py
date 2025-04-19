@@ -14,6 +14,7 @@ import time
 import typing
 import unicodedata
 import urls
+import urllib.error
 import xattr
 import zipfile
 
@@ -63,33 +64,22 @@ def import_manifests() -> ImportFolders:
             continue
 
         sys.stderr.write("  Importing %s\n" % folder_path)
-        src_url = manifest_json["src_url"]
-        src_ext = manifest_json.get("src_ext")
-        if not src_ext:
-            _, src_ext = os.path.splitext(src_url.lower())
 
-        if src_ext in [".img", ".dsk", ".iso"]:
-            folder = import_disk_image(manifest_json)
-        elif src_ext in [".dmg"] or manifest_json.get("force_dmg"):
-            if not os.path.exists(paths.HDIUTIL_PATH):
-                sys.stderr.write("    Skipping .dmg import, hdiutil not found\n")
-                continue
-            if manifest_json.get("needs_dmg2img") and not os.path.exists(
-                paths.DMG2IMG_PATH
-            ):
-                sys.stderr.write("    Skipping .dmg import, dmg2img not found\n")
-                continue
-            folder = import_dmg(manifest_json)
-        elif src_ext in [".hqx", ".sit", ".bin", ".zip", ".gz", ".tgz", ".bz2"]:
-            if not os.path.exists(paths.LSAR_PATH):
+        try:
+            folder = import_manifest(manifest_json)
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
                 sys.stderr.write(
-                    "    Skipping archive import, lsar not found "
-                    "(build it with npm run build-tools)\n"
+                    "    Skipping, not found at %s\n" % (manifest_json["src_url"])
                 )
-                continue
-            folder = import_archive(manifest_json)
-        else:
-            assert False, "Unexpected manifest URL extension: %s" % src_ext
+            else:
+                sys.stderr.write("    Skipping, HTTP error %d\n" % (e.code))
+            continue
+        except Exception as e:
+            sys.stderr.write("    Skipping, error: %s\n" % (str(e)))
+            continue
+        if folder is None:
+            continue
 
         if manifest_json.get("carbonized"):
             import_foldersX[folder_path] = folder
@@ -102,6 +92,36 @@ def import_manifests() -> ImportFolders:
             import_folders[folder_path] = folder
 
     return import_folders, import_folders7, import_foldersX
+
+
+def import_manifest(manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:
+    src_url = manifest_json["src_url"]
+    src_ext = manifest_json.get("src_ext")
+    if not src_ext:
+        _, src_ext = os.path.splitext(src_url.lower())
+
+    if src_ext in [".img", ".dsk", ".iso"]:
+        return import_disk_image(manifest_json)
+    elif src_ext in [".dmg"] or manifest_json.get("force_dmg"):
+        if not os.path.exists(paths.HDIUTIL_PATH):
+            sys.stderr.write("    Skipping .dmg import, hdiutil not found\n")
+            return None
+        if manifest_json.get("needs_dmg2img") and not os.path.exists(
+            paths.DMG2IMG_PATH
+        ):
+            sys.stderr.write("    Skipping .dmg import, dmg2img not found\n")
+            return None
+        folder = import_dmg(manifest_json)
+    elif src_ext in [".hqx", ".sit", ".bin", ".zip", ".gz", ".tgz", ".bz2"]:
+        if not os.path.exists(paths.LSAR_PATH):
+            sys.stderr.write(
+                "    Skipping archive import, lsar not found "
+                "(build it with npm run build-tools)\n"
+            )
+            return None
+        folder = import_archive(manifest_json)
+    else:
+        assert False, "Unexpected manifest URL extension: %s" % src_ext
 
 
 def import_disk_image(manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:

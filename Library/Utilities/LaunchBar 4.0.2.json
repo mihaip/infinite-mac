@@ -1,5 +1,5 @@
 {
     "src_url": "https://web.archive.org/web/20051024052917if_/http://www.obdev.at:80/ftp/pub/Products/LaunchBar/LaunchBar-4.0.2.dmg.gz",
     "needs_mac_os_x": true,
-    "src_dmg": "LaunchBar-4.0.2.dmg"
+    "force_dmg": true
 }
