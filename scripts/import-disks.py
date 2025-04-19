@@ -3,6 +3,7 @@
 import copy
 import basilisk
 import disks
+import enum
 import hashlib
 import json
 import library
@@ -20,6 +21,13 @@ import stickies
 
 CHUNK_SIZE = 256 * 1024
 
+
+class InfiniteHD(enum.Enum):
+    DEFAULT = "Infinite HD.dsk"
+    SYSTEM_6 = "Infinite HD6.dsk"
+    MAC_OS_X = "Infinite HDX.dsk"
+    MFS = "Infinite HD (MFS).dsk"
+    NEXT = "Infinite HD (NeXT).dsk"
 
 class ImageDef(typing.NamedTuple):
     name: str
@@ -303,14 +311,23 @@ STICKIES = [
 if __name__ == "__main__":
     system_filter = os.getenv("DEBUG_SYSTEM_FILTER")
     library_filter = os.getenv("DEBUG_LIBRARY_FILTER")
+
+    minimal_mode = len(sys.argv) >= 2 and sys.argv[1] == "minimal"
+    if minimal_mode:
+        system_filter = "System" # Just classic images
+
+    if not os.path.exists(paths.DISK_DIR):
+        os.mkdir(paths.DISK_DIR)
+
     if not library_filter and not system_filter:
         shutil.rmtree(paths.DISK_DIR, ignore_errors=True)
-        os.mkdir(paths.DISK_DIR)
     with tempfile.TemporaryDirectory() as temp_dir:
         images = []
         if not library_filter:
             for disk in disks.ALL_DISKS:
                 if system_filter and system_filter not in disk.name:
+                    if minimal_mode:
+                        images.append(write_image_def(bytes(), disk.name, temp_dir))
                     continue
                 images.append(build_system_image(disk, temp_dir))
         if not system_filter:
@@ -322,13 +339,15 @@ if __name__ == "__main__":
                 build_desktop_db6([infinite_hd6_image])
                 build_desktop_db([infinite_hd_image, infinite_hdX_image])
 
-            images.append(
-                build_passthrough_image("Infinite HD (MFS).dsk",
-                                        dest_dir=temp_dir))
-            images.append(
-                build_passthrough_image("Infinite HD (NeXT).dsk",
-                                        dest_dir=temp_dir,
-                                        compressed=True))
+            images.append(build_passthrough_image(InfiniteHD.MFS, dest_dir=temp_dir))
+            images.append(build_passthrough_image(
+                InfiniteHD.NEXT, dest_dir=temp_dir, compressed=True))
+        elif minimal_mode:
+            for i in InfiniteHD:
+                if i in [InfiniteHD.DEFAULT, InfiniteHD.MFS]:
+                    images.append(build_passthrough_image(i.value, dest_dir=temp_dir))
+                else:
+                    images.append(write_image_def(bytes(), i.value, temp_dir))
 
         images.append(build_saved_hd_image("Saved HD.dsk", dest_dir=temp_dir))
 

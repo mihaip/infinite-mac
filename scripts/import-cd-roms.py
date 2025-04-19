@@ -124,18 +124,20 @@ def load_cover_image(
 
 
 def main():
+    placeholder_mode = len(sys.argv) >= 2 and sys.argv[1] == "placeholder"
     shutil.rmtree(paths.COVERS_DIR, ignore_errors=True)
     os.mkdir(paths.COVERS_DIR)
 
-    input_manifests = load_manifests()
     output_manifests = {}
-    for folder_path, input_manifest in input_manifests:
-        try:
-            output_manifest = get_output_manifest(input_manifest)
-        except Exception as e:
-            sys.stderr.write("  ERROR, will be skipped: %s\n" % e)
-            continue
-        output_manifests[folder_path] = output_manifest
+    if not placeholder_mode:
+        input_manifests = load_manifests()
+        for folder_path, input_manifest in input_manifests:
+            try:
+                output_manifest = get_output_manifest(input_manifest)
+            except Exception as e:
+                sys.stderr.write("  ERROR, will be skipped: %s\n" % e)
+                continue
+            output_manifests[folder_path] = output_manifest
 
     with open(os.path.join(paths.DATA_DIR, "CD-ROMs.json"), "w") as f:
         json.dump(output_manifests, f, indent=4)

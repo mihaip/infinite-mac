@@ -154,7 +154,9 @@ def load_library(import_dir: str) -> tuple[list[Item], list[Item]]:
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: %s <directory>" % sys.argv[0], file=sys.stderr)
+        print(f'Usage: {sys.argv[0]} <directory>', file=sys.stderr)
+        print(f'    "placeholder" may be used as a dummy directory value to '
+              'generate a stub file', file=sys.stderr)
         return 1
     import_dir = sys.argv[1]
 
