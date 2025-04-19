@@ -111,7 +111,7 @@ def import_manifest(manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folde
         ):
             sys.stderr.write("    Skipping .dmg import, dmg2img not found\n")
             return None
-        folder = import_dmg(manifest_json)
+        return import_dmg(manifest_json)
     elif src_ext in [".hqx", ".sit", ".bin", ".zip", ".gz", ".tgz", ".bz2"]:
         if not os.path.exists(paths.LSAR_PATH):
             sys.stderr.write(
@@ -119,7 +119,7 @@ def import_manifest(manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folde
                 "(build it with npm run build-tools)\n"
             )
             return None
-        folder = import_archive(manifest_json)
+        return import_archive(manifest_json)
     else:
         assert False, "Unexpected manifest URL extension: %s" % src_ext
 
