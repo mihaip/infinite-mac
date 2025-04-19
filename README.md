@@ -4,7 +4,7 @@
 
 ## Development
 
-This project uses [Git LFS](https://git-lfs.github.com/), ensure that the LFS tooling is installed before cloning the repo.
+This project uses Git LFS. Ensure that the LFS tooling is [installed](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage) before cloning the repo.
 
 This project uses submodules, use `git clone --recursive https://github.com/mihaip/infinite-mac.git` to clone it (or run `git submodule update --init --recursive` if you have an existing checkout).
 
@@ -18,7 +18,7 @@ Common development tasks, all done via `npm run`:
     -   `dingusppc`: DingusPPC from https://github.com/mihaip/dingusppc
     -   `previous`: Previous from https://github.com/mihaip/previous
     -   `pearpcc`: PearPC from https://github.com/mihaip/pearpc
--   `import-disks`: Build disk images for serving. Copies base OS images for the above emulators, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving. This requires the macOS versions of Basilisk II and Mini vMac to be installed, since they are used as part of the image building process.
+-   `import-disks`: Build disk images for serving. Copies base OS images for the above emulators, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving. This requires the macOS versions of Mini vMac and Basilisk II to be installed, since they are used as part of the image building process. Note that both Mini vMac and Basilisk II will be launched as part of this process. Once they seem done and you can see Infinite HD, Shut Down the emulated machine and then quit the respective emulator so that the task can continue.
 -   `import-cd-roms`: Build CD-ROM library (actual CD-ROMs are hosted on archive.org and other sites, the library contains metadata)
 -   `import-library`: Build downloads library (actual downloads are hosted on macintoshgarden.org and other sites, the library contains metadata)
 
@@ -32,7 +32,7 @@ Common deployment tasks (also done via `npm run`)
 
 ### Dependencies
 
-Dependencies can be installed with:
+Dependencies can be installed with the following instructions. Feel free to skip the last `rclone` line if you’re not planning to deploy the site.
 
 ```
 npm install
