@@ -350,6 +350,20 @@ const SYSTEM_7_0: SystemDiskDef = {
     notable: true,
 };
 
+const SYSTEM_7_0_1: SystemDiskDef = {
+    displayName: "System 7.0.1",
+    description:
+        "Added the Caps Lock extension, added support for initial set of PowerBooks and Quadras.",
+    releaseDate: [1991, 10, 21],
+    prefetchChunks: [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    ],
+    preferredMachine: MAC_IIFX,
+    appleTalkSupported: true,
+    appearanceVariant: "System7",
+    generatedSpec: () => import("./Data/System 7.0.1 HD.dsk.json"),
+};
+
 const SYSTEM_7_1: SystemDiskDef = {
     displayName: "System 7.1",
     description:
@@ -1926,6 +1940,7 @@ export const ALL_DISKS = [
     SYSTEM_6_0_7,
     SYSTEM_6_0_8,
     SYSTEM_7_0,
+    SYSTEM_7_0_1,
     SYSTEM_7_1,
     SYSTEM_7_1_1,
     SYSTEM_7_1_2,
