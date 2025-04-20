@@ -173,9 +173,9 @@ def build_system_image(
 def build_library_images(dest_dir: str) -> typing.Tuple[ImageDef, ImageDef, ImageDef]:
     image6, image, imageX = library.build_images()
 
-    image6_def = write_image_def(image6, "Infinite HD6.dsk", dest_dir)
-    image_def = write_image_def(image, "Infinite HD.dsk", dest_dir)
-    imageX_def = write_image_def(imageX, "Infinite HDX.dsk", dest_dir)
+    image6_def = write_image_def(image6, InfiniteHD.SYSTEM_6.value, dest_dir)
+    image_def = write_image_def(image, InfiniteHD.DEFAULT.value, dest_dir)
+    imageX_def = write_image_def(imageX, InfiniteHD.MAC_OS_X.value, dest_dir)
 
     return image6_def, image_def, imageX_def
 
@@ -228,6 +228,7 @@ def build_saved_hd_image(base_name: str, dest_dir: str) -> ImageDef:
 def build_desktop_db6(images: typing.List[ImageDef]) -> None:
     sys.stderr.write("Building System 6 Desktop for %s...\n" %
                      ",".join([i.name for i in images]))
+    sys.stderr.write("    (shut down the machine when complete)\n")
     try:
         minivmac.run([disks.SYSTEM_608.path()] + [i.path for i in images])
     except subprocess.CalledProcessError as e:
@@ -237,6 +238,7 @@ def build_desktop_db6(images: typing.List[ImageDef]) -> None:
 def build_desktop_db(images: typing.List[ImageDef]) -> None:
     sys.stderr.write("Rebuilding Desktop DB for %s...\n" %
                      ",".join([i.name for i in images]))
+    sys.stderr.write("    (shut down the machine when complete)\n")
     try:
         basilisk.run(
             # Boot from Mac OS 8.1 to ensure that the Desktop database that's
@@ -316,11 +318,11 @@ if __name__ == "__main__":
     if minimal_mode:
         system_filter = "System" # Just classic images
 
+    if not library_filter and not system_filter:
+        shutil.rmtree(paths.DISK_DIR, ignore_errors=True)
     if not os.path.exists(paths.DISK_DIR):
         os.mkdir(paths.DISK_DIR)
 
-    if not library_filter and not system_filter:
-        shutil.rmtree(paths.DISK_DIR, ignore_errors=True)
     with tempfile.TemporaryDirectory() as temp_dir:
         images = []
         if not library_filter:
@@ -339,9 +341,9 @@ if __name__ == "__main__":
                 build_desktop_db6([infinite_hd6_image])
                 build_desktop_db([infinite_hd_image, infinite_hdX_image])
 
-            images.append(build_passthrough_image(InfiniteHD.MFS, dest_dir=temp_dir))
+            images.append(build_passthrough_image(InfiniteHD.MFS.value, dest_dir=temp_dir))
             images.append(build_passthrough_image(
-                InfiniteHD.NEXT, dest_dir=temp_dir, compressed=True))
+                InfiniteHD.NEXT.value, dest_dir=temp_dir, compressed=True))
         elif minimal_mode:
             for i in InfiniteHD:
                 if i in [InfiniteHD.DEFAULT, InfiniteHD.MFS]:
