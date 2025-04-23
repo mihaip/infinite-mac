@@ -2,7 +2,7 @@ FROM ubuntu:24.04
 
 RUN apt update && apt install -y \
     python3 cmake git build-essential \
-    autoconf libsdl1.2-dev libsdl2-dev wget lzip curl
+    autoconf libsdl1.2-dev libsdl2-dev wget lzip curl yacc
 
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs
