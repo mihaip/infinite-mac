@@ -269,7 +269,7 @@ export const IMAC_G3: MachineDef = {
         {width: 832, height: 624, monitorId: "Multiscan15in"},
         {width: 640, height: 480, monitorId: "HiRes12-14in"},
     ],
-    ramSizes: ["128M", "64M", "32M"],
+    ramSizes: ["128M", "64M", "32M", "256M", "512M", "1024M"],
     extraFiles: {
         "113-32900-004_Apple_MACH64.bin": atiMach64RomPath,
         "apm_all_drivers.bin": deviceImageHeaderPath,
