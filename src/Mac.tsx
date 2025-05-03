@@ -66,6 +66,7 @@ export type MacProps = {
     ramSize?: MachineDefRAMSize;
     screenSize: ScreenSize;
     screenScale?: number;
+    screenUpdateMessages?: boolean;
     ethernetProvider?: EmulatorEthernetProvider;
     customDate?: Date;
     debugFallback?: boolean;
@@ -89,6 +90,7 @@ export default function Mac({
     ramSize,
     screenSize: screenSizeProp,
     screenScale: screenScaleProp,
+    screenUpdateMessages,
     ethernetProvider,
     customDate,
     debugFallback,
@@ -327,6 +329,25 @@ export default function Mac({
                 },
                 emulatorDidMakeCDROMLoadingProgress(emulator, cdrom, fraction) {
                     setEmulatorFileLoadingProgress({name: "CD-ROM", fraction});
+                },
+                emulatorDidDrawScreen(emulator, imageData) {
+                    if (screenUpdateMessages) {
+                        console.log("sending message", {
+                            type: "emulator_screen",
+                            data: imageData.data,
+                            width: imageData.width,
+                            height: imageData.height,
+                        });
+                        window.parent.postMessage(
+                            {
+                                type: "emulator_screen",
+                                data: imageData.data,
+                                width: imageData.width,
+                                height: imageData.height,
+                            },
+                            "*"
+                        );
+                    }
                 },
             }
         );
