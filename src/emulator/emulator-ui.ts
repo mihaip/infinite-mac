@@ -142,6 +142,7 @@ export interface EmulatorDelegate {
         cdrom: EmulatorCDROM,
         progress: number
     ): void;
+    emulatorDidDrawScreen?(emulator: Emulator, data: ImageData): void;
 }
 
 export type EmulatorFallbackCommandSender = (
@@ -927,6 +928,7 @@ export class Emulator {
         } else {
             this.#screenCanvasContext.putImageData(this.#screenImageData, 0, 0);
         }
+        this.#delegate?.emulatorDidDrawScreen?.(this, this.#screenImageData);
     }
 
     #clearScreen() {
