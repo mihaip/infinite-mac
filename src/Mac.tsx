@@ -263,6 +263,14 @@ export default function Mac({
                             )
                         );
                     }
+                    if (listenForControlMessages) {
+                        window.parent.postMessage(
+                            {
+                                type: "emulator_loaded",
+                            },
+                            "*"
+                        );
+                    }
                 },
                 emulatorDidMakeLoadingProgress(
                     emulator: Emulator,
