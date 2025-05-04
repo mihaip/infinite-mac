@@ -8,6 +8,8 @@ import {
 declare const self: ServiceWorkerGlobalScope;
 
 let workerCommands: EmulatorFallbackCommand[] = [];
+let isPaused = false;
+let onUnpauseCallbacks: ((response: Response) => void)[] = [];
 
 function constructJsonResponse(json: any) {
     return new Response(JSON.stringify(json), {
@@ -25,7 +27,25 @@ const diskCacheSpecs: EmulatorChunkedFileSpec[] = [];
 self.addEventListener("message", event => {
     const {data} = event;
     if (data.type === "worker-command") {
-        workerCommands.push(data.command);
+        const command = data.command as EmulatorFallbackCommand;
+        let shouldPush = true;
+        if (command.type === "input") {
+            if (command.event.type === "pause") {
+                isPaused = true;
+                shouldPush = false;
+            }
+            if (command.event.type === "unpause") {
+                isPaused = false;
+                shouldPush = false;
+                for (const callback of onUnpauseCallbacks) {
+                    callback(prepareCommandsFetchResponse());
+                }
+                onUnpauseCallbacks = [];
+            }
+        }
+        if (shouldPush) {
+            workerCommands.push(data.command);
+        }
     } else if (data.type === "init-disk-cache") {
         const diskFileSpec = data.spec as EmulatorChunkedFileSpec;
         diskCacheSpecs.push(diskFileSpec);
@@ -71,9 +91,29 @@ self.addEventListener("fetch", (event: FetchEvent) => {
 });
 
 function handleWorkerCommands(event: FetchEvent) {
+    if (isPaused) {
+        const unpausePromise = new Promise<Response>(resolve => {
+            console.log("Emulator paused, waiting for input");
+            const startTime = performance.now();
+            onUnpauseCallbacks.push(response => {
+                console.log(
+                    "Emulator unpaused after",
+                    ((performance.now() - startTime) / 1000).toFixed(1),
+                    "seconds"
+                );
+                resolve(response);
+            });
+        });
+        event.respondWith(unpausePromise);
+        return;
+    }
+    event.respondWith(prepareCommandsFetchResponse());
+}
+
+function prepareCommandsFetchResponse(): Response {
     const fetchResponse = constructJsonResponse(workerCommands);
     workerCommands = [];
-    event.respondWith(fetchResponse);
+    return fetchResponse;
 }
 
 function handleIdleWait(event: FetchEvent) {

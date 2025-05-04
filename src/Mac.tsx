@@ -67,6 +67,9 @@ export type MacProps = {
     screenSize: ScreenSize;
     screenScale?: number;
     screenUpdateMessages?: boolean;
+    startPaused?: boolean;
+    autoPause?: boolean;
+    listenForControlMessages?: boolean;
     ethernetProvider?: EmulatorEthernetProvider;
     customDate?: Date;
     debugFallback?: boolean;
@@ -90,6 +93,9 @@ export default function Mac({
     ramSize,
     screenSize: screenSizeProp,
     screenScale: screenScaleProp,
+    startPaused,
+    autoPause,
+    listenForControlMessages,
     screenUpdateMessages,
     ethernetProvider,
     customDate,
@@ -232,6 +238,8 @@ export default function Mac({
                 cdroms,
                 ethernetProvider,
                 customDate,
+                startPaused,
+                autoPause,
                 debugAudio,
                 debugLog,
                 debugTrackpad,
@@ -368,10 +376,31 @@ export default function Mac({
         }
         varz.incrementMulti(startVarz);
 
+        let messageListener: (e: MessageEvent) => void;
+        if (listenForControlMessages) {
+            messageListener = e => {
+                switch (e.data.type) {
+                    case "emulator_pause":
+                        emulator.pause();
+                        break;
+                    case "emulator_unpause":
+                        emulator.unpause();
+                        break;
+                    default:
+                        console.warn("Unknown message from parent:", e.data);
+                        break;
+                }
+            };
+            window.addEventListener("message", messageListener);
+        }
+
         return () => {
             emulator.stop();
             emulatorRef.current = undefined;
             ethernetProvider?.close?.();
+            if (messageListener) {
+                window.removeEventListener("message", messageListener);
+            }
         };
     }, [
         disks,
@@ -394,6 +423,10 @@ export default function Mac({
         libraryDownloadURLs,
         handleMacLibraryRun,
         handleMacLibraryProgress,
+        startPaused,
+        autoPause,
+        screenUpdateMessages,
+        listenForControlMessages,
     ]);
 
     useEffect(() => {

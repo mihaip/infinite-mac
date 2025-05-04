@@ -42,7 +42,10 @@ export default function RunDefMac({runDef, onDone}: RunDefMacProps) {
             ramSize={runDef.ramSize}
             screenSize={runDef.screenSize}
             screenScale={runDef.screenScale}
-            screenUpdateMessages={runDef.embedScreenUpdateMessages}
+            screenUpdateMessages={runDef.screenUpdateMessages}
+            startPaused={runDef.startPaused}
+            autoPause={runDef.autoPause}
+            listenForControlMessages={runDef.isEmbed}
             ethernetProvider={runDef.ethernetProvider}
             customDate={runDef.customDate ?? runDef.disks[0]?.customDate}
             debugFallback={runDef.debugFallback}

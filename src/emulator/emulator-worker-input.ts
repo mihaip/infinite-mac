@@ -38,10 +38,31 @@ export class SharedMemoryEmulatorWorkerInput implements EmulatorWorkerInput {
     }
 
     acquireInputLock(): number {
-        return tryToAcquireCyclicalLock(
+        const hasLock = tryToAcquireCyclicalLock(
             this.#inputBufferView,
             InputBufferAddresses.globalLockAddr
         );
+        if (!hasLock) {
+            return 0;
+        }
+        const isPaused =
+            this.#inputBufferView[InputBufferAddresses.pausedAddr] === 1;
+        if (isPaused) {
+            console.log("Emulator paused, waiting for input");
+            const startTime = performance.now();
+            Atomics.wait(
+                this.#inputBufferView,
+                InputBufferAddresses.pausedAddr,
+                1
+            );
+            console.log(
+                "Emulator unpaused after",
+                ((performance.now() - startTime) / 1000).toFixed(1),
+                "seconds"
+            );
+        }
+
+        return 1;
     }
 
     releaseInputLock() {
