@@ -332,12 +332,6 @@ export default function Mac({
                 },
                 emulatorDidDrawScreen(emulator, imageData) {
                     if (screenUpdateMessages) {
-                        console.log("sending message", {
-                            type: "emulator_screen",
-                            data: imageData.data,
-                            width: imageData.width,
-                            height: imageData.height,
-                        });
                         window.parent.postMessage(
                             {
                                 type: "emulator_screen",
