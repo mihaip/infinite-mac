@@ -37,8 +37,11 @@ export type RunDef = {
     debugTrackpad?: boolean;
     isCustom?: boolean;
     customDate?: Date;
+
     isEmbed?: boolean;
-    embedScreenUpdateMessages?: boolean;
+    screenUpdateMessages?: boolean;
+    startPaused?: boolean;
+    autoPause?: boolean;
 };
 
 export type ScreenSize =
@@ -60,8 +63,10 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
 
     let isCustom = searchParams.has("edit");
     const isEmbed = pathname === "/embed";
-    const embedScreenUpdateMessages =
+    const screenUpdateMessages =
         isEmbed && searchParams.get("screen_update_messages") === "true";
+    const startPaused = searchParams.get("paused") === "true";
+    const autoPause = searchParams.get("auto_pause") === "true";
     let includeInfiniteHD;
     let includeSavedHD;
     const includeLibrary = searchParams.get("library") !== "false";
@@ -181,7 +186,9 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         debugTrackpad,
         isCustom,
         isEmbed,
-        embedScreenUpdateMessages,
+        screenUpdateMessages,
+        startPaused,
+        autoPause,
     };
 }
 

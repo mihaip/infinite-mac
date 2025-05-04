@@ -84,6 +84,8 @@ export type EmulatorConfig = {
     cdroms: EmulatorCDROM[];
     ethernetProvider?: EmulatorEthernetProvider;
     customDate?: Date;
+    startPaused?: boolean;
+    autoPause?: boolean;
     debugAudio?: boolean;
     debugLog?: boolean;
     debugTrackpad?: boolean;
@@ -169,6 +171,7 @@ export class Emulator {
     #serviceWorkerReady?: Promise<boolean>;
 
     #gotFirstBlit = false;
+    #intersectionObserver?: IntersectionObserver;
 
     #ethernetPinger: EthernetPinger;
 
@@ -228,8 +231,8 @@ export class Emulator {
             ? new SharedMemoryEmulatorVideo(config)
             : new FallbackEmulatorVideo(config);
         this.#input = useSharedMemory
-            ? new SharedMemoryEmulatorInput()
-            : new FallbackEmulatorInput(fallbackCommandSender!);
+            ? new SharedMemoryEmulatorInput(config)
+            : new FallbackEmulatorInput(config, fallbackCommandSender!);
         this.#audio = useSharedMemory
             ? new SharedMemoryEmulatorAudio(this.#input)
             : new FallbackEmulatorAudio(this.#input);
@@ -294,6 +297,12 @@ export class Emulator {
         window.addEventListener("keydown", this.#handleKeyDown);
         window.addEventListener("keyup", this.#handleKeyUp);
         window.addEventListener("beforeunload", this.#handleBeforeUnload);
+        if (this.#config.autoPause) {
+            this.#intersectionObserver = new IntersectionObserver(
+                this.#handleIntersectionChange
+            );
+            this.#intersectionObserver.observe(canvas);
+        }
 
         document.addEventListener(
             "visibilitychange",
@@ -509,6 +518,12 @@ export class Emulator {
         this.#input.handleInput({type: "stop"});
         this.#ethernetPinger.stop();
         this.#audio.stop();
+
+        if (this.#intersectionObserver) {
+            this.#intersectionObserver.unobserve(canvas);
+            this.#intersectionObserver.disconnect();
+            this.#intersectionObserver = undefined;
+        }
     }
 
     restart(whileStopped?: () => Promise<void>): Promise<void> {
@@ -535,6 +550,14 @@ export class Emulator {
                 }
             }, 100);
         });
+    }
+
+    pause() {
+        this.#input.handleInput({type: "pause"});
+    }
+
+    unpause() {
+        this.#input.handleInput({type: "unpause"});
     }
 
     async uploadFiles(files: File[], names: string[] = []) {
@@ -902,7 +925,25 @@ export class Emulator {
     };
 
     #handleVisibilityChange = () => {
+        if (this.#config.autoPause) {
+            if (document.hidden) {
+                this.pause();
+                return;
+            } else {
+                this.unpause();
+            }
+        }
         this.#drawScreen();
+    };
+
+    #handleIntersectionChange = (entries: IntersectionObserverEntry[]) => {
+        for (const entry of entries) {
+            if (entry.isIntersecting) {
+                this.unpause();
+            } else {
+                this.pause();
+            }
+        }
     };
 
     #drawScreen() {

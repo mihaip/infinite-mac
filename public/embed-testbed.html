@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Embed Testbed</title>
+    </head>
+    <body>
+        <h1>Embed Testbed</h1>
+        <form action="/embed" method="get" target="frame">
+            <select name="disk">
+                <option value="System 1.0">System 1.0</option>
+                <option value="System 3.0">System 3.0</option>
+                <option value="System 6.0.4">System 6.0.4</option>
+                <option value="System 7.0">System 7.0</option>
+                <option value="System 7.1">System 7.1</option>
+                <option value="System 7.5">System 7.5</option>
+            </select>
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="infinite_hd"
+                    value="true"
+                    checked
+                />
+                Infinite HD
+            </label>
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="screen_update_messages"
+                    value="true"
+                    checked
+                />
+                Get screen updates
+            </label>
+
+            <label>
+                <input type="checkbox" name="paused" value="true" />
+                Start paused
+            </label>
+
+            <label>
+                <input type="checkbox" name="auto_pause" value="true" />
+                Auto-pause
+            </label>
+
+            <label>
+                <input type="checkbox" name="debug_fallback" value="true" />
+                Use fallback mode
+            </label>
+
+            <input type="submit" value="Load" />
+        </form>
+
+        <div style="height: 600px"></div>
+
+        <iframe
+            allow="cross-origin-isolated"
+            style="border: 2px solid red"
+            height="342"
+            width="512"
+            name="frame"
+        ></iframe>
+
+        <div>
+            <button id="pause">Pause</button>
+            <button id="unpause">Unpause</button>
+        </div>
+
+        <div style="height: 600px"></div>
+
+        <script>
+            const frame = document.querySelector("iframe");
+
+            onload = function () {
+                if (location.search.includes("autoload")) {
+                    document.querySelector("form").submit();
+                }
+            };
+
+            onmessage = function (e) {
+                const data = e.data;
+                switch (data.type) {
+                    case "emulator_screen":
+                        const {data: screenData, width, height} = data;
+                        console.log(
+                            `${width}x${height} screen received (${screenData.length.toLocaleString()} bytes)`
+                        );
+                }
+            };
+
+            document.getElementById("pause").onclick = function () {
+                frame.contentWindow.postMessage({type: "emulator_pause"}, "*");
+            };
+            document.getElementById("unpause").onclick = function () {
+                frame.contentWindow.postMessage(
+                    {type: "emulator_unpause"},
+                    "*"
+                );
+            };
+        </script>
+    </body>
+</html>

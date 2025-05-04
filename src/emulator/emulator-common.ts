@@ -28,6 +28,8 @@ export const InputBufferAddresses = {
 
     useMouseDeltasFlagAddr: 17,
     useMouseDeltasAddr: 18,
+
+    pausedAddr: 19,
 };
 
 export type EmulatorMouseEvent =
@@ -65,6 +67,14 @@ export type EmulatorSetUseMouseDeltas = {
     useMouseDeltas: boolean;
 };
 
+export type EmulatorPauseEvent = {
+    type: "pause";
+};
+
+export type EmulatorUnpauseEvent = {
+    type: "unpause";
+};
+
 export type EmulatorInputEvent =
     | EmulatorMouseEvent
     | EmulatorKeyboardEvent
@@ -73,7 +83,9 @@ export type EmulatorInputEvent =
     | EmulatorEthernetInterruptEvent
     | EmulatorAudioContextRunningEvent
     | EmulatorSetSpeedEvent
-    | EmulatorSetUseMouseDeltas;
+    | EmulatorSetUseMouseDeltas
+    | EmulatorPauseEvent
+    | EmulatorUnpauseEvent;
 
 export enum LockStates {
     READY_FOR_UI_THREAD,
@@ -387,6 +399,13 @@ export function updateInputBufferWithEvents(
                 ] = 1;
                 inputBufferView[InputBufferAddresses.useMouseDeltasAddr] =
                     inputEvent.useMouseDeltas ? 1 : 0;
+                break;
+            case "pause":
+                inputBufferView[InputBufferAddresses.pausedAddr] = 1;
+                break;
+            case "unpause":
+                console.warn("Unpause event should be handled directly");
+                break;
         }
     }
     if (hasMousePosition) {
