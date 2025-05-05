@@ -30,7 +30,6 @@
                     type="checkbox"
                     name="screen_update_messages"
                     value="true"
-                    checked
                 />
                 Get screen updates
             </label>
@@ -53,9 +52,8 @@
             <input type="submit" value="Load" />
         </form>
 
-
-        <div id='iframes' style='display: flex; gap: 10px;'>
-            <div class='iframe-outer'>
+        <div id="iframes" style="display: flex; gap: 10px">
+            <div class="iframe-outer">
                 <iframe
                     allow="cross-origin-isolated"
                     style="border: 2px solid red"
@@ -73,12 +71,6 @@
         <script>
             const frame = document.querySelector("iframe");
 
-            onload = function () {
-                if (location.search.includes("autoload")) {
-                    document.querySelector("form").submit();
-                }
-            };
-
             onmessage = function (e) {
                 const data = e.data;
                 switch (data.type) {
@@ -91,30 +83,50 @@
             };
 
             // Duplicate everything
-            
-            const newFormEl = document.querySelector('form').cloneNode(true);
-            newFormEl.target = 'frame2';
-            document.body.insertBefore(newFormEl, document.querySelector('form').nextElementSibling);
-            
-            const newIframeEl = document.querySelector('#iframes .iframe-outer').cloneNode(true);
-            newIframeEl.querySelector('iframe').name = 'frame2';
-            document.querySelector('#iframes').append(newIframeEl);
-            
+
+            const newFormEl = document.querySelector("form").cloneNode(true);
+            newFormEl.target = "frame2";
+            document.body.insertBefore(
+                newFormEl,
+                document.querySelector("form").nextElementSibling
+            );
+
+            const newIframeEl = document
+                .querySelector("#iframes .iframe-outer")
+                .cloneNode(true);
+            newIframeEl.querySelector("iframe").name = "frame2";
+            document.querySelector("#iframes").append(newIframeEl);
+
             // Event listeners
-            
+
             document.querySelectorAll(".pause").forEach(el => {
                 el.onclick = function () {
-                    el.closest('.iframe-outer').querySelector('iframe').contentWindow.postMessage({type: "emulator_pause"}, "*");
+                    el.closest(".iframe-outer")
+                        .querySelector("iframe")
+                        .contentWindow.postMessage(
+                            {type: "emulator_pause"},
+                            "*"
+                        );
                 };
             });
             document.querySelectorAll(".unpause").forEach(el => {
                 el.onclick = function () {
-                    el.closest('.iframe-outer').querySelector('iframe').contentWindow.postMessage(
-                        {type: "emulator_unpause"},
-                        "*"
-                    )
+                    el.closest(".iframe-outer")
+                        .querySelector("iframe")
+                        .contentWindow.postMessage(
+                            {type: "emulator_unpause"},
+                            "*"
+                        );
                 };
             });
+
+            onload = function () {
+                if (location.search.includes("autoload")) {
+                    for (const form of document.querySelectorAll("form")) {
+                        form.submit();
+                    }
+                }
+            };
         </script>
     </body>
 </html>

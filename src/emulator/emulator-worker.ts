@@ -145,7 +145,9 @@ class EmulatorWorkerApi {
         let fallbackEndpoint: EmulatorFallbackEndpoint | undefined;
         function getFallbackEndpoint(): EmulatorFallbackEndpoint {
             if (!fallbackEndpoint) {
-                fallbackEndpoint = new EmulatorFallbackEndpoint();
+                fallbackEndpoint = new EmulatorFallbackEndpoint(
+                    config.workerId
+                );
             }
             return fallbackEndpoint;
         }
@@ -556,9 +558,14 @@ class EmulatorWorkerApi {
 }
 
 export class EmulatorFallbackEndpoint {
+    #workerId: string;
     #commandQueue: EmulatorFallbackCommand[] = [];
     #fetchFailures = 0;
     #loggedMaxFetchFailures = false;
+
+    constructor(workerId: string) {
+        this.#workerId = workerId;
+    }
 
     idleWait(timeout: number) {
         this.#fetchSync(`./worker-idlewait?timeout=${timeout}&t=${Date.now()}`);
@@ -643,7 +650,7 @@ export class EmulatorFallbackEndpoint {
             return undefined;
         }
         const xhr = new XMLHttpRequest();
-        xhr.open("GET", url, false);
+        xhr.open("GET", url + `&worker-id=${this.#workerId}`, false);
         xhr.send(null);
         if (xhr.status !== 200) {
             console.warn(
