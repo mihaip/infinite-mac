@@ -156,6 +156,9 @@ export class Emulator {
     #delegate?: EmulatorDelegate;
     #worker: Worker;
     #workerTerminated: boolean = false;
+    // Doesn't have to be secure, just unique enough for a few instances that
+    // may be used concurrently.
+    #workerId = Math.random().toString(16).slice(2);
 
     #screenCanvasContext: CanvasRenderingContext2D;
     #screenImageData: ImageData;
@@ -208,6 +211,7 @@ export class Emulator {
                 if (serviceWorkerAvailable) {
                     this.#serviceWorker!.postMessage({
                         type: "worker-command",
+                        workerId: this.#workerId,
                         command,
                     });
                 } else {
@@ -443,6 +447,7 @@ export class Emulator {
                 emulatorType,
                 emulatorSubtype,
             } as EmulatorDef),
+            workerId: this.#workerId,
             wasm,
             disks,
             delayedDisks,

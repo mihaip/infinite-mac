@@ -7,9 +7,13 @@ import {
 
 declare const self: ServiceWorkerGlobalScope;
 
-let workerCommands: EmulatorFallbackCommand[] = [];
-let isPaused = false;
-let onUnpauseCallbacks: ((response: Response) => void)[] = [];
+const workerInfoById = new Map<string, WorkerInfo>();
+
+class WorkerInfo {
+    public commands: EmulatorFallbackCommand[] = [];
+    public isPaused = false;
+    public onUnpauseCallbacks: ((response: Response) => void)[] = [];
+}
 
 function constructJsonResponse(json: any) {
     return new Response(JSON.stringify(json), {
@@ -28,23 +32,29 @@ self.addEventListener("message", event => {
     const {data} = event;
     if (data.type === "worker-command") {
         const command = data.command as EmulatorFallbackCommand;
+        const workerId = data.workerId as string;
+        let workerInfo = workerInfoById.get(workerId);
+        if (!workerInfo) {
+            workerInfo = new WorkerInfo();
+            workerInfoById.set(workerId, workerInfo);
+        }
         let shouldPush = true;
         if (command.type === "input") {
             if (command.event.type === "pause") {
-                isPaused = true;
+                workerInfo.isPaused = true;
                 shouldPush = false;
             }
             if (command.event.type === "unpause") {
-                isPaused = false;
+                workerInfo.isPaused = false;
                 shouldPush = false;
-                for (const callback of onUnpauseCallbacks) {
-                    callback(prepareCommandsFetchResponse());
+                for (const callback of workerInfo.onUnpauseCallbacks) {
+                    callback(prepareCommandsFetchResponse(workerId));
                 }
-                onUnpauseCallbacks = [];
+                workerInfo.onUnpauseCallbacks = [];
             }
         }
         if (shouldPush) {
-            workerCommands.push(data.command);
+            workerInfo.commands.push(data.command);
         }
     } else if (data.type === "init-disk-cache") {
         const diskFileSpec = data.spec as EmulatorChunkedFileSpec;
@@ -78,9 +88,21 @@ self.addEventListener("message", event => {
 self.addEventListener("fetch", (event: FetchEvent) => {
     const requestUrl = new URL(event.request.url);
     if (requestUrl.pathname.endsWith("/worker-commands")) {
-        handleWorkerCommands(event);
+        const workerId = requestUrl.searchParams.get("worker-id");
+        if (!workerId) {
+            console.error("No worker-id provided");
+            event.respondWith(constructJsonResponse([]));
+            return;
+        }
+        handleWorkerCommands(event, workerId);
     } else if (requestUrl.pathname.endsWith("/worker-idlewait")) {
-        handleIdleWait(event);
+        const workerId = requestUrl.searchParams.get("worker-id");
+        if (!workerId) {
+            console.error("No worker-id provided");
+            event.respondWith(constructJsonResponse({}));
+            return;
+        }
+        handleIdleWait(event, workerId);
     } else if (
         diskCacheSpecs.some(spec =>
             decodeURIComponent(requestUrl.pathname).startsWith(spec.baseUrl)
@@ -90,12 +112,18 @@ self.addEventListener("fetch", (event: FetchEvent) => {
     }
 });
 
-function handleWorkerCommands(event: FetchEvent) {
-    if (isPaused) {
+function handleWorkerCommands(event: FetchEvent, workerId: string) {
+    const workerInfo = workerInfoById.get(workerId);
+    if (!workerInfo) {
+        console.error("No worker info found for worker ID", workerId);
+        event.respondWith(constructJsonResponse([]));
+        return;
+    }
+    if (workerInfo.isPaused) {
         const unpausePromise = new Promise<Response>(resolve => {
             console.log("Emulator paused, waiting for input");
             const startTime = performance.now();
-            onUnpauseCallbacks.push(response => {
+            workerInfo.onUnpauseCallbacks.push(response => {
                 console.log(
                     "Emulator unpaused after",
                     ((performance.now() - startTime) / 1000).toFixed(1),
@@ -107,16 +135,33 @@ function handleWorkerCommands(event: FetchEvent) {
         event.respondWith(unpausePromise);
         return;
     }
-    event.respondWith(prepareCommandsFetchResponse());
+    event.respondWith(prepareCommandsFetchResponse(workerId));
 }
 
-function prepareCommandsFetchResponse(): Response {
-    const fetchResponse = constructJsonResponse(workerCommands);
-    workerCommands = [];
+function prepareCommandsFetchResponse(workerId: string): Response {
+    const workerInfo = workerInfoById.get(workerId);
+    if (!workerInfo) {
+        console.error(
+            "No worker info found for worker ID, returning no commands",
+            workerId
+        );
+        return constructJsonResponse([]);
+    }
+    const fetchResponse = constructJsonResponse(workerInfo.commands);
+    workerInfo.commands = [];
     return fetchResponse;
 }
 
-function handleIdleWait(event: FetchEvent) {
+function handleIdleWait(event: FetchEvent, workerId: string) {
+    const workerInfo = workerInfoById.get(workerId);
+    if (!workerInfo) {
+        console.error(
+            "No worker info found for worker ID, skipping idlewait",
+            workerId
+        );
+        event.respondWith(constructJsonResponse({}));
+        return;
+    }
     const requestUrl = new URL(event.request.url);
     const timeout = parseInt(requestUrl.searchParams.get("timeout")!, 10);
     // Subtract 1ms since that's the overhead of a roundtrip with the
@@ -127,7 +172,10 @@ function handleIdleWait(event: FetchEvent) {
             const interval = self.setInterval(() => {
                 // Interrupt idlewait if new commands (presumably input) has
                 // come in.
-                if (workerCommands.length || performance.now() >= endTime) {
+                if (
+                    workerInfo.commands.length ||
+                    performance.now() >= endTime
+                ) {
                     self.clearInterval(interval);
                     resolve(constructJsonResponse({}));
                 }

@@ -145,6 +145,7 @@ export function generateNextChunkUrl(
 }
 
 export type EmulatorWorkerConfig = EmulatorDef & {
+    workerId: string;
     wasm: ArrayBuffer;
     disks: EmulatorChunkedFileSpec[];
     delayedDisks?: EmulatorChunkedFileSpec[];
