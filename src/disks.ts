@@ -307,7 +307,7 @@ const SYSTEM_6_0_5: SystemDiskDef = {
 
 const SYSTEM_6_0_6: PlaceholderDiskDef = {
     type: "placeholder",
-    displayName: "System 6.0.6.",
+    displayName: "System 6.0.6",
     releaseDate: [1990, 10, 15], // Official release date is not known.
     description: "Never officially released due to an AppleTalk bug.",
     preferredMachine: MAC_SE,
@@ -1771,7 +1771,7 @@ const NEXTSTEP_3_3: SystemDiskDef = {
 const NEXTSTEP_4_0: SystemDiskDef = {
     displayName: "NeXTSTEP 4.0 PR1",
     description:
-        "Preview release of NeXTSTEP 4.0, featuring a revamped look-and-feel. Abandoned in favor of OPENSTEP 4.0, which reverted back to the NexTSTEP 3.3 UI.",
+        "Preview release of NeXTSTEP 4.0, featuring a revamped look-and-feel. Abandoned in favor of OPENSTEP 4.0, which reverted back to the NeXTSTEP 3.3 UI.",
     releaseDate: [1995, 9, 7],
     prefetchChunks: [
         0, 1, 4, 8, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
