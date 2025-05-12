@@ -39,7 +39,7 @@ const ALL_DISKS_BY_NAME = {
 
 export function Custom({
     initialRunDef,
-    defaultDisk = ALL_DISKS_BY_NAME["System 7.1"],
+    defaultDisk = ALL_DISKS_BY_NAME["System 7.0.1"],
     onRun,
     onDone,
 }: {
