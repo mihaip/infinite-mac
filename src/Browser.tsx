@@ -366,7 +366,7 @@ function CustomDisk({onRun}: {onRun: BrowserRunFn}) {
     const today = new Date();
     return (
         <DiskFrame
-            bezelStyle="Platinum"
+            bezelStyle="Beige"
             screen={
                 <div className="DiskContents">
                     {customVisible && (
