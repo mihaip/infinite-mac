@@ -43,6 +43,7 @@ export function isValidSrcUrl(srcUrl: string) {
         "fsck.technology",
         "flanigan.us",
         "gildev.dev",
+        "aresluna.org",
     ];
     for (const allowedDomain of allowedDomains) {
         if (
