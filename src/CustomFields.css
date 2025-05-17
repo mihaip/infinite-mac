@@ -1,8 +1,8 @@
-.Custom-Dialog-Row {
+.CustomFields-Row {
     margin-bottom: 16px !important;
 }
 
-.Custom-Dialog-Row .Button:not(.Button-Aqua) {
+.CustomFields-Row .Button:not(.Button-Aqua) {
     height: 20px;
     font-weight: normal;
     font-size: 12px;
@@ -11,28 +11,28 @@
     box-sizing: border-box;
 }
 
-.Custom-Dialog-Row label {
+.CustomFields-Row label {
     display: inline;
 }
 
-.Custom-Dialog-Row.Custom-Dialog-InputCompensate {
+.CustomFields-Row.CustomFields-InputCompensate {
     margin-top: -5px;
 }
 
-.Custom-Dialog-Row.Custom-Dialog-InputCompensate .Custom-Dialog-Description {
+.CustomFields-Row.CustomFields-InputCompensate .CustomFields-Description {
     margin-top: -3px;
 }
 
-.Custom-Dialog-Row label.disabled {
+.CustomFields-Row label.disabled {
     color: #999;
     pointer-events: none;
 }
 
-.Custom-Dialog-Row label:last-of-type {
+.CustomFields-Row label:last-of-type {
     margin-bottom: 4px;
 }
 
-.Custom-Dialog-Label {
+.CustomFields-Label {
     display: inline-block;
     width: 100px;
     text-align: right;
@@ -41,27 +41,27 @@
     flex-shrink: 0;
 }
 
-.Custom-Dialog-Description {
+.CustomFields-Description {
     margin-left: 104px;
 }
 
-.Custom-Dialog-Description a {
+.CustomFields-Description a {
     color: inherit;
 }
 
-.Custom-Dialog-Repeated {
+.CustomFields-Repeated {
     display: flex !important;
     align-items: center;
     margin-bottom: 8px;
 }
 
-.Custom-Dialog-Repeated input {
+.CustomFields-Repeated input {
     height: 22px;
     box-sizing: border-box;
     max-width: calc(100% - 100px - 80px); /* Label + buttons */
 }
 
-.Custom-Dialog-Repeated .Button.AddRemove:not(.Button-Aqua) {
+.CustomFields-Repeated .Button.AddRemove:not(.Button-Aqua) {
     margin-left: 4px;
     width: 20px;
     padding: 0;
@@ -70,7 +70,7 @@
     justify-content: center;
 }
 
-.Custom-Dialog-Repeated .Button.AddRemove.Button-Aqua {
+.CustomFields-Repeated .Button.AddRemove.Button-Aqua {
     border-image-source: none;
     background-image: url(./Images/AquaRoundButton.png);
     background-repeat: no-repeat;
@@ -82,36 +82,36 @@
     padding-bottom: 4px;
 }
 
-.Custom-Dialog-Repeated .Button.AddRemove.Button-Aqua:active {
+.CustomFields-Repeated .Button.AddRemove.Button-Aqua:active {
     background-image: url(./Images/AquaRoundButton-Active.png);
 }
 
-.Custom-Dialog-Repeated-Disk {
+.CustomFields-Repeated-Disk {
     width: 256px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-.Custom-Dialog-CDROMs {
+.CustomFields-CDROMs {
     color: transparent; /* In case the label text peeks through */
     width: 20px;
     margin-left: 4px;
 }
 
-.Custom-Dialog-CDROMs.Select.Select-Aqua {
+.CustomFields-CDROMs.Select.Select-Aqua {
     width: 20px;
     border-left-width: 0;
     border-image-width: 12px 24px 12px 0;
     margin-left: -1px;
 }
 
-.Custom-Dialog-ScreenSize {
+.CustomFields-ScreenSize {
     display: inline-flex;
     gap: 4px;
 }
 
-.Custom-Dialog-ScreenSize input[type="number"] {
+.CustomFields-ScreenSize input[type="number"] {
     width: 32px;
     height: 10px;
     font-size: 12px;
