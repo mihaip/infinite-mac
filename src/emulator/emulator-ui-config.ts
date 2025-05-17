@@ -43,11 +43,31 @@ export function configToMacemuPrefs(
     const ramSize = ramSizeToByteCount(config.ramSize ?? machine.ramSizes[0]);
     prefsStr += `ramsize ${ramSize}\n`;
     prefsStr += `screen win/${config.screenWidth}/${config.screenHeight}\n`;
+
+    // Mini vMac is more sensitive to disk ordering (it tries to boot from the
+    // first one). We thus need to put our built-in disks after the CD-ROMs if
+    // one of them is likely to be a custom boot disk and there are no system
+    // disks present.
+    const shouldReorderBuiltInDisks =
+        machine.emulatorType === "Mini vMac" &&
+        !disks.some(disks => disks.name.startsWith("System")) &&
+        config.cdroms.some(cdrom => cdrom.mountReadWrite);
+    const reorderedDisks = [];
     for (const spec of disks) {
+        if (
+            shouldReorderBuiltInDisks &&
+            (spec.name.startsWith("Infinite") || spec.persistent)
+        ) {
+            reorderedDisks.push(spec);
+            continue;
+        }
         prefsStr += `disk ${spec.name}\n`;
     }
     for (const cdrom of config.cdroms) {
         prefsStr += `disk ${cdrom.mountReadWrite ? "" : "*"}${cdrom.name}\n`;
+    }
+    for (const spec of reorderedDisks) {
+        prefsStr += `disk ${spec.name}\n`;
     }
     for (const diskFile of config.diskFiles) {
         if (diskFile.isCDROM) {
