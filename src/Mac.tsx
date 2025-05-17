@@ -195,7 +195,10 @@ export default function Mac({
                 machine.mfsOnly
             ) {
                 infiniteHd = INFINITE_HD_MFS;
-            } else if (disks[0]?.infiniteHdSubset === "system6") {
+            } else if (
+                disks[0]?.infiniteHdSubset === "system6" ||
+                (disks.length === 0 && machine.emulatorType === "Mini vMac")
+            ) {
                 infiniteHd = INFINITE_HD6;
             } else if (disks[0]?.infiniteHdSubset === "macosx") {
                 infiniteHd = INFINITE_HDX;
