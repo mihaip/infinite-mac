@@ -586,30 +586,54 @@ function DiskOption({
         }
     }
 
+    const [showDiskFileButton, setShowDiskFileButton] = useState(false);
+    const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value;
+        if (value === "disk-file") {
+            // Safari doesn't trigger the file picker when invoked from a change
+            // event because it doesn't consider it to be a user gesture
+            // (https://webkit.org/b/216689). We need to first show a button
+            // and let the user click it.
+            if (
+                navigator.userAgent.includes("Safari") &&
+                !navigator.userAgent.includes("Chrome")
+            ) {
+                setShowDiskFileButton(true);
+            } else {
+                onAddDiskFile(onRemove);
+            }
+        } else {
+            onChange(ALL_DISKS_BY_NAME[e.target.value]);
+        }
+    };
+
     return (
         <div className="CustomFields-Repeated">
             <span className="CustomFields-Label">Disk:</span>
-            <Select
-                className="CustomFields-Repeated-Disk"
-                value={systemDiskName(disk)}
-                onChange={e => {
-                    const value = e.target.value;
-                    if (value === "disk-file") {
+            {showDiskFileButton ? (
+                <Button
+                    onClick={e => {
+                        e.preventDefault();
                         onAddDiskFile(onRemove);
-                    } else {
-                        onChange(ALL_DISKS_BY_NAME[e.target.value]);
-                    }
-                }}>
-                {macDisks.map(diskOption)}
-                <option disabled>Mac OS X</option>
-                {macOSXDisks.map(diskOption)}
-                <option disabled>NeXT</option>
-                {nextDisks.map(diskOption)}
-                <option disabled>Floppy Disks</option>
-                {Object.values(FLOPPY_DISKS_BY_NAME).map(diskOption)}
-                <option disabled>Custom</option>
-                <option value="disk-file">Disk File…</option>
-            </Select>
+                    }}>
+                    Chose File…
+                </Button>
+            ) : (
+                <Select
+                    className="CustomFields-Repeated-Disk"
+                    value={systemDiskName(disk)}
+                    onChange={handleSelect}>
+                    {macDisks.map(diskOption)}
+                    <option disabled>Mac OS X</option>
+                    {macOSXDisks.map(diskOption)}
+                    <option disabled>NeXT</option>
+                    {nextDisks.map(diskOption)}
+                    <option disabled>Floppy Disks</option>
+                    {Object.values(FLOPPY_DISKS_BY_NAME).map(diskOption)}
+                    <option disabled>Custom</option>
+                    <option value="disk-file">Disk File…</option>
+                </Select>
+            )}
             <Button
                 className="AddRemove"
                 onClick={e => {
