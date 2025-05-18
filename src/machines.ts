@@ -387,3 +387,12 @@ export const ALL_MACHINES = [
 export const MACHINES_BY_NAME = Object.fromEntries(
     ALL_MACHINES.map(machine => [machine.name, machine])
 );
+
+export const DEFAULT_SUPPORTED_SCREEN_SIZES = [
+    {width: 1600, height: 1200},
+    {width: 1280, height: 1024},
+    {width: 1152, height: 870},
+    {width: 1024, height: 768},
+    {width: 800, height: 600},
+    {width: 640, height: 480},
+];

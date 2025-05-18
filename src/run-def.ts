@@ -192,13 +192,14 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     };
 }
 
-export function runDefToUrl(runDef: RunDef): string {
+export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
     const {disks, machine, ethernetProvider} = runDef;
     let url: URL;
     if (
         disks.length === 1 &&
         ALL_DISKS.includes(disks[0]) &&
-        !disks[0].hiddenInBrowser
+        !disks[0].hiddenInBrowser &&
+        !toEmbed
     ) {
         url = new URL(diskToYearPath(disks[0]), location.href);
         if (!runDef.includeInfiniteHD) {
@@ -208,7 +209,7 @@ export function runDefToUrl(runDef: RunDef): string {
             url.searchParams.set("saved_hd", "false");
         }
     } else {
-        url = new URL("/run", location.href);
+        url = new URL(toEmbed ? "/embed" : "/run", location.href);
         for (const disk of disks) {
             url.searchParams.append("disk", disk.displayName);
         }
@@ -219,7 +220,7 @@ export function runDefToUrl(runDef: RunDef): string {
             url.searchParams.set("saved_hd", "true");
         }
     }
-    if (!runDef.includeLibrary) {
+    if (!runDef.includeLibrary && !toEmbed) {
         url.searchParams.set("library", "false");
     }
     for (const libraryURL of runDef.libraryDownloadURLs) {
@@ -229,7 +230,11 @@ export function runDefToUrl(runDef: RunDef): string {
         url.searchParams.append("cdrom", cdromURL);
     }
 
-    if (disks.length !== 1 || machine !== disks[0].preferredMachine) {
+    if (
+        toEmbed ||
+        disks.length !== 1 ||
+        machine !== disks[0].preferredMachine
+    ) {
         url.searchParams.set("machine", machine.name);
     }
     if (runDef.ramSize && runDef.ramSize !== machine.ramSizes[0]) {
@@ -269,6 +274,15 @@ export function runDefToUrl(runDef: RunDef): string {
     }
     if (runDef.debugTrackpad) {
         url.searchParams.set("debug_trackpad", "true");
+    }
+    if (runDef.startPaused) {
+        url.searchParams.set("paused", "true");
+    }
+    if (runDef.autoPause) {
+        url.searchParams.set("auto_pause", "true");
+    }
+    if (runDef.screenUpdateMessages) {
+        url.searchParams.set("screen_update_messages", "true");
     }
     return url.toString();
 }

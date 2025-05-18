@@ -13,7 +13,7 @@ import {
 } from "./disks";
 import {type MachineDef} from "./machines";
 import {ScreenFrame} from "./ScreenFrame";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Button} from "./controls/Button";
 import {About} from "./About";
 import {Donate} from "./Donate";
@@ -27,6 +27,7 @@ import {canSaveDisks} from "./canSaveDisks";
 import {usePersistentState} from "./usePersistentState";
 import {viewTransitionNameForDisk} from "./view-transitions";
 import {AppearanceProvider} from "./controls/Appearance";
+import {Embed} from "./Embed";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -93,6 +94,9 @@ function Description({
     const [customVisible, setCustomVisible] = useState(
         location.pathname === "/run" || initialCustomRunDef !== undefined
     );
+    const [embedVisible, setEmbedVisible] = useState(
+        location.pathname === "/embed"
+    );
 
     return (
         <div className="Description">
@@ -119,6 +123,9 @@ function Description({
                         onRun={onRun}
                         onDone={() => setCustomVisible(false)}
                     />
+                )}
+                {embedVisible && (
+                    <Embed onDone={() => setEmbedVisible(false)} />
                 )}
             </p>
             <p>
@@ -315,6 +322,28 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
         onRun(runDef, inNewWindow);
     };
 
+    const [isAltDown, setIsAltDown] = useState(false);
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Alt") {
+                setIsAltDown(true);
+            }
+        };
+        const handleKeyUp = (event: KeyboardEvent) => {
+            if (event.key === "Alt") {
+                setIsAltDown(false);
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
+        };
+    }, []);
+
+    const [embedVisible, setEmbedVisible] = useState(false);
+
     const {appearance = "Classic"} = disk;
 
     return (
@@ -330,8 +359,12 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
                 <div className="Row Buttons">
                     <Button
                         className="CustomizeButton"
-                        onClick={() => setCustomVisible(true)}>
-                        Customize…
+                        onClick={() =>
+                            isAltDown
+                                ? setEmbedVisible(true)
+                                : setCustomVisible(true)
+                        }>
+                        {isAltDown ? "Embed…" : "Customize…"}
                     </Button>
                     <Button onClick={run}>Run</Button>
                 </div>
@@ -341,6 +374,12 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
                         defaultDisk={disk}
                         onRun={onRun}
                         onDone={() => setCustomVisible(false)}
+                    />
+                )}
+                {embedVisible && (
+                    <Embed
+                        defaultDisk={disk}
+                        onDone={() => setEmbedVisible(false)}
                     />
                 )}
             </div>

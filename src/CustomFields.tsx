@@ -38,14 +38,25 @@ export function CustomFields({
     runDef,
     setRunDef,
     defaultDisk,
+    defaultSupportedScreenSizes,
+    allowAutoScreenSize = true,
+    allowSavedHD = true,
+    allowAppleTalk = true,
+    allowScreenScale = false,
     setCanRun,
 }: {
     runDef: RunDef;
     setRunDef: React.Dispatch<React.SetStateAction<RunDef>>;
     defaultDisk: SystemDiskDef;
+    defaultSupportedScreenSizes?: ConstrainedScreenSize[];
+    allowAutoScreenSize?: boolean;
+    allowSavedHD?: boolean;
+    allowAppleTalk?: boolean;
+    allowScreenScale?: boolean;
     setCanRun: (canRun: boolean) => void;
 }) {
     const appleTalkSupported =
+        allowAppleTalk &&
         runDef.disks.length > 0 &&
         runDef.disks[0].appleTalkSupported === true &&
         emulatorSupportsAppleTalk(runDef.machine.emulatorType);
@@ -215,6 +226,16 @@ export function CustomFields({
                         onChange={screenSize =>
                             setRunDef({...runDef, screenSize})
                         }
+                        allowAutoScreenSize={allowAutoScreenSize}
+                    />
+                ) : defaultSupportedScreenSizes ? (
+                    <ScreenSizePickerConstrained
+                        supportedScreenSizes={defaultSupportedScreenSizes}
+                        value={runDef.screenSize}
+                        onChange={screenSize =>
+                            setRunDef({...runDef, screenSize})
+                        }
+                        allowAutoScreenSize={allowAutoScreenSize}
                     />
                 ) : (
                     <ScreenSizePicker
@@ -224,10 +245,24 @@ export function CustomFields({
                         }
                     />
                 )}
-                <div className="CustomFields-Description Dialog-Description">
-                    Not all machines support custom screen sizes, some sizes may
-                    result in crashes.
-                </div>
+                {allowScreenScale && (
+                    <>
+                        {" "}
+                        @{" "}
+                        <ScreenScalePicker
+                            value={runDef.screenScale}
+                            onChange={screenScale =>
+                                setRunDef({...runDef, screenScale})
+                            }
+                        />
+                    </>
+                )}
+                {allowAutoScreenSize && (
+                    <div className="CustomFields-Description Dialog-Description">
+                        Not all machines support custom screen sizes, some sizes
+                        may result in crashes.
+                    </div>
+                )}
             </label>
             <div className="CustomFields-Row">
                 {runDef.disks.map((disk, i) => (
@@ -395,29 +430,33 @@ export function CustomFields({
                 </div>
             </div>
 
-            <div className="CustomFields-Row">
-                <span className="CustomFields-Label" />
-                <label className={classNames({"disabled": !canSaveDisks()})}>
-                    <Checkbox
-                        disabled={!canSaveDisks()}
-                        checked={runDef.includeSavedHD}
-                        onChange={e =>
-                            setRunDef({
-                                ...runDef,
-                                includeSavedHD: e.target.checked,
-                            })
-                        }
-                    />
-                    Saved HD
-                </label>
-                <div className="CustomFields-Description Dialog-Description">
-                    Include the Saved HD disk, an empty 1 GB disk whose contents
-                    are preserved across visits to this site (best effort).
-                    {!canSaveDisks() && (
-                        <div>Not supported by this browser</div>
-                    )}
+            {allowSavedHD && (
+                <div className="CustomFields-Row">
+                    <span className="CustomFields-Label" />
+                    <label
+                        className={classNames({"disabled": !canSaveDisks()})}>
+                        <Checkbox
+                            disabled={!canSaveDisks()}
+                            checked={runDef.includeSavedHD}
+                            onChange={e =>
+                                setRunDef({
+                                    ...runDef,
+                                    includeSavedHD: e.target.checked,
+                                })
+                            }
+                        />
+                        Saved HD
+                    </label>
+                    <div className="CustomFields-Description Dialog-Description">
+                        Include the Saved HD disk, an empty 1 GB disk whose
+                        contents are preserved across visits to this site (best
+                        effort).
+                        {!canSaveDisks() && (
+                            <div>Not supported by this browser</div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
 
             <div className="CustomFields-Row CustomFields-InputCompensate">
                 <span className="CustomFields-Label">Advanced:</span>
@@ -436,7 +475,7 @@ export function CustomFields({
                             }
                         }}
                     />
-                    Custom Date
+                    Custom date
                 </label>{" "}
                 <Input
                     style={{
@@ -500,7 +539,7 @@ export function CustomFields({
                                 })
                             }
                         />
-                        Debug Mode
+                        Debug mode
                     </label>
                     <div className="CustomFields-Description Dialog-Description">
                         Include extra debug information in the console, and do a
@@ -758,24 +797,35 @@ export function ScreenSizePicker({
     );
 }
 
+type ConstrainedScreenSize = {width: number; height: number};
+
 function ScreenSizePickerConstrained({
     supportedScreenSizes,
     value,
     onChange,
+    allowAutoScreenSize,
 }: {
-    supportedScreenSizes: {width: number; height: number}[];
+    supportedScreenSizes: ConstrainedScreenSize[];
     value: ScreenSize;
     onChange: (value: ScreenSize) => void;
+    allowAutoScreenSize: boolean;
 }) {
-    const options = [
-        <option key="auto" value={JSON.stringify("auto")}>
-            Automatic
-        </option>,
-    ];
+    const options = [];
+    if (allowAutoScreenSize) {
+        options.push(
+            <option key="auto" value="auto">
+                Automatic
+            </option>
+        );
+    }
+
+    // Don't use JSON.stringify here, as it will also take into account extra properties like monitorId, which may not be stable across instances.
+    const sizeKey = (size: ConstrainedScreenSize) =>
+        `${size.width}x${size.height}`;
 
     for (const size of supportedScreenSizes) {
         options.push(
-            <option key={JSON.stringify(size)} value={JSON.stringify(size)}>
+            <option key={sizeKey(size)} value={sizeKey(size)}>
                 {size.width} × {size.height}
             </option>
         );
@@ -799,14 +849,40 @@ function ScreenSizePickerConstrained({
     }, [onChange, supportedScreenSizes, value]);
 
     return (
-        <div className="CustomFields-ScreenSize">
-            <Select
-                value={JSON.stringify(value)}
-                onChange={e =>
-                    onChange(JSON.parse(e.target.value) as ScreenSize)
-                }>
-                {options}
-            </Select>
-        </div>
+        <Select
+            value={typeof value === "string" ? value : sizeKey(value)}
+            onChange={e => {
+                for (const size of supportedScreenSizes) {
+                    if (sizeKey(size) === e.target.value) {
+                        onChange(size);
+                        return;
+                    }
+                }
+                onChange("auto");
+            }}>
+            {options}
+        </Select>
+    );
+}
+
+function ScreenScalePicker({
+    value = 1,
+    onChange,
+}: {
+    value: number | undefined;
+    onChange: (value: number | undefined) => void;
+}) {
+    return (
+        <Select
+            value={value.toString()}
+            onChange={e => {
+                const value = parseFloat(e.currentTarget.value);
+                onChange(value === 1 ? undefined : value);
+            }}>
+            <option value="0.5">0.5×</option>
+            <option value="1">1×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+        </Select>
     );
 }
