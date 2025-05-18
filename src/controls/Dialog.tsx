@@ -15,6 +15,7 @@ export function Dialog({
     onDone,
     doneLabel = "Done",
     doneEnabled = true,
+    doneClassName,
     onOther,
     otherLabel,
     onCancel,
@@ -25,6 +26,7 @@ export function Dialog({
     onDone: (e: React.MouseEvent) => void;
     doneLabel?: string;
     doneEnabled?: boolean;
+    doneClassName?: string;
     onOther?: (e: React.MouseEvent) => void;
     otherLabel?: string;
     onCancel?: () => void;
@@ -73,6 +75,7 @@ export function Dialog({
                         </Button>
                     )}
                     <Button
+                        className={doneClassName}
                         disabled={!doneEnabled}
                         onClick={e => {
                             e.preventDefault();

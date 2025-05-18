@@ -27,7 +27,11 @@ import {
     type DiskFile,
     INFINITE_HDX,
 } from "./disks";
-import {type MachineDefRAMSize, type MachineDef} from "./machines";
+import {
+    type MachineDefRAMSize,
+    type MachineDef,
+    DEFAULT_SUPPORTED_SCREEN_SIZES,
+} from "./machines";
 import classNames from "classnames";
 import {MacCDROMs} from "./MacCDROMs";
 import {getCDROMInfo} from "./cdroms";
@@ -998,16 +1002,8 @@ function computeInitialScreenSize(
         case "auto": {
             const availableWidth = windowWidth - MEDIUM_BEZEL_THRESHOLD;
             const availableHeight = windowHeight - MEDIUM_BEZEL_THRESHOLD;
-            const {
-                supportedScreenSizes = [
-                    {width: 1600, height: 1200},
-                    {width: 1280, height: 1024},
-                    {width: 1152, height: 870},
-                    {width: 1024, height: 768},
-                    {width: 800, height: 600},
-                    {width: 640, height: 480},
-                ],
-            } = machine;
+            const {supportedScreenSizes = DEFAULT_SUPPORTED_SCREEN_SIZES} =
+                machine;
             for (const {width, height} of supportedScreenSizes) {
                 if (width <= availableWidth && height <= availableHeight) {
                     return {width, height};

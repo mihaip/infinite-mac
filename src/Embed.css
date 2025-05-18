@@ -1,0 +1,14 @@
+.Embed-HTML-Row {
+    display: flex;
+}
+
+.Embed-HTML {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    font-family: monospace;
+    max-width: 496px;
+}
+
+.Embed-Copy-Button {
+    min-width: 100px;
+}
