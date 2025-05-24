@@ -9,8 +9,8 @@ export const TextArea = forwardRef<
 >(function TextArea({className, ...inputProps}, ref) {
     const appearance = useAppearance();
     const inputClassName = classNames(
-        "TextArea",
-        `TextArea-${appearance}`,
+        "Input",
+        `Input-${appearance}`,
         className
     );
     return <textarea className={inputClassName} ref={ref} {...inputProps} />;
