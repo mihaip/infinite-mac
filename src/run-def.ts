@@ -10,6 +10,8 @@ import {
     type SystemDiskDef,
 } from "./disks";
 import {type EmulatorEthernetProvider} from "./emulator/emulator-ui";
+import {DEFAULT_EMULATOR_SETTINGS} from "./emulator/emulator-ui-settings";
+import {type EmulatorSettings} from "./emulator/emulator-ui-settings";
 import {
     MACHINES_BY_NAME,
     type MachineDefRAMSize,
@@ -42,6 +44,7 @@ export type RunDef = {
     screenUpdateMessages?: boolean;
     startPaused?: boolean;
     autoPause?: boolean;
+    settings?: EmulatorSettings;
 };
 
 export type ScreenSize =
@@ -164,6 +167,18 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     const debugPaused = searchParams.get("debug_paused") === "true";
     const debugLog = searchParams.get("debug_log") === "true";
     const debugTrackpad = searchParams.get("debug_trackpad") === "true";
+    const emulatorSettingsParam = searchParams.get("settings");
+    let settings: EmulatorSettings | undefined = undefined;
+    if (emulatorSettingsParam) {
+        try {
+            settings = {
+                ...DEFAULT_EMULATOR_SETTINGS,
+                ...JSON.parse(emulatorSettingsParam),
+            };
+        } catch (e) {
+            console.error("Invalid emulator settings JSON, ignoring:", e);
+        }
+    }
 
     return {
         disks,
@@ -189,6 +204,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         screenUpdateMessages,
         startPaused,
         autoPause,
+        settings,
     };
 }
 
@@ -283,6 +299,9 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
     }
     if (runDef.screenUpdateMessages) {
         url.searchParams.set("screen_update_messages", "true");
+    }
+    if (runDef.settings) {
+        url.searchParams.set("settings", JSON.stringify(runDef.settings));
     }
     return url.toString();
 }

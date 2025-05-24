@@ -7,7 +7,6 @@ import {
     type EmulatorWorkerVideoBlit,
 } from "./emulator-common";
 import {
-    type EmulatorSpeed,
     emulatorUsesPlaceholderDisks,
     emulatorNeedsMouseDeltas,
     type EmulatorDef,
@@ -70,6 +69,7 @@ import {
     configToPearPCConfig,
 } from "./emulator-ui-config";
 import {stringToArrayBuffer} from "../strings";
+import {type EmulatorSettings} from "./emulator-ui-settings";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -89,16 +89,6 @@ export type EmulatorConfig = {
     debugAudio?: boolean;
     debugLog?: boolean;
     debugTrackpad?: boolean;
-};
-
-export type EmulatorScreenScaling = "auto" | "smooth" | "pixelated";
-
-export type EmulatorSettings = {
-    swapControlAndCommand: boolean;
-    speed: EmulatorSpeed;
-    useMouseDeltas: boolean;
-    trackpadMode: boolean;
-    screenScaling?: EmulatorScreenScaling;
 };
 
 export interface EmulatorEthernetProvider {
