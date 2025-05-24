@@ -53,6 +53,7 @@ export default function RunDefMac({runDef, onDone}: RunDefMacProps) {
             debugPaused={runDef.debugPaused}
             debugLog={runDef.debugLog}
             debugTrackpad={runDef.debugTrackpad}
+            emulatorSettings={runDef.settings}
             onDone={onDone}
         />
     ) : (

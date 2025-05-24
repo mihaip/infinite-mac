@@ -3,9 +3,10 @@ import "./Mac.css";
 import {
     type EmulatorEthernetProvider,
     type EmulatorEthernetPeer,
-    type EmulatorSettings,
     Emulator,
 } from "./emulator/emulator-ui";
+import {DEFAULT_EMULATOR_SETTINGS} from "./emulator/emulator-ui-settings";
+import {type EmulatorSettings} from "./emulator/emulator-ui-settings";
 import {type EmulatorCDROM, isDiskImageFile} from "./emulator/emulator-common";
 import {useDevicePixelRatio} from "./useDevicePixelRatio";
 import {usePersistentState} from "./usePersistentState";
@@ -81,6 +82,7 @@ export type MacProps = {
     debugPaused?: boolean;
     debugLog?: boolean;
     debugTrackpad?: boolean;
+    emulatorSettings?: EmulatorSettings;
     onDone: () => void;
 };
 
@@ -108,6 +110,7 @@ export default function Mac({
     debugPaused,
     debugLog,
     debugTrackpad,
+    emulatorSettings: fixedEmulatorSettings,
     onDone,
 }: MacProps) {
     const screenRef = useRef<HTMLCanvasElement>(null);
@@ -138,7 +141,12 @@ export default function Mac({
     const onEmulatorSettingsChange = useCallback(() => {
         emulatorRef.current?.refreshSettings();
     }, []);
-    const [emulatorSettings, setEmulatorSettings] = usePersistentState(
+    // Hacky way to have a conditional hook without violating the rules of hooks
+    // (in practice the fixedEmulatorSettings prop never changes, so this is fine).
+    const useEmulatorSettingsHook = fixedEmulatorSettings
+        ? () => [fixedEmulatorSettings, () => {}] as const
+        : usePersistentState;
+    const [emulatorSettings, setEmulatorSettings] = useEmulatorSettingsHook(
         DEFAULT_EMULATOR_SETTINGS,
         "emulator-settings",
         onEmulatorSettingsChange
@@ -1023,13 +1031,6 @@ function computeInitialScreenSize(
 // control for bringing up the on-screen keyboard.
 const USING_TOUCH_INPUT =
     "matchMedia" in window && !window.matchMedia("(hover: hover)").matches;
-
-const DEFAULT_EMULATOR_SETTINGS: EmulatorSettings = {
-    swapControlAndCommand: false,
-    speed: -2,
-    useMouseDeltas: false,
-    trackpadMode: false,
-};
 
 function MacEthernetStatus({
     provider,

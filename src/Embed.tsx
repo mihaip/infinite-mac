@@ -8,6 +8,11 @@ import {AppearanceProvider} from "./controls/Appearance";
 import {CustomFields} from "./CustomFields";
 import {DEFAULT_SUPPORTED_SCREEN_SIZES} from "./machines";
 import {Checkbox} from "./controls/Checkbox";
+import {TextArea} from "./controls/TextArea";
+import {
+    DEFAULT_EMULATOR_SETTINGS,
+    type EmulatorSettings,
+} from "./emulator/emulator-ui-settings";
 
 export function Embed({
     defaultDisk = SYSTEM_DISKS_BY_NAME["System 7.1"],
@@ -33,6 +38,10 @@ export function Embed({
         isCustom: true,
         diskFiles: [],
     });
+    const [showSettings, setShowSettings] = useState(false);
+    const [settingsString, setSettingsString] = useState(
+        DEFAULT_SETTINGS_STRING
+    );
 
     let screenSize = {width: 640, height: 480};
     if (runDef.machine.fixedScreenSize) {
@@ -48,7 +57,14 @@ export function Embed({
     }
     const {screenScale = 1} = runDef;
 
-    const url = runDefToUrl({...runDef, screenSize: "auto"}, true);
+    let settings: EmulatorSettings | undefined;
+    try {
+        settings = JSON.parse(settingsString);
+    } catch (error) {
+        // Ignore, the user may be mid-editing the settings.
+    }
+
+    const url = runDefToUrl({...runDef, screenSize: "auto", settings}, true);
     const html = `<iframe src="${url}"
     width="${screenSize.width * screenScale}"
     height="${screenSize.height * screenScale}"
@@ -154,6 +170,47 @@ export function Embed({
                         for large or frequently-updating screens.
                     </div>
                 </div>
+                <div className="CustomFields-Row">
+                    <span className="CustomFields-Label" />
+                    <label>
+                        <Checkbox
+                            checked={showSettings}
+                            onChange={e => {
+                                const showSettings = e.target.checked;
+                                setShowSettings(showSettings);
+                                setSettingsString(
+                                    showSettings ? DEFAULT_SETTINGS_STRING : ""
+                                );
+                            }}
+                        />
+                        Custom settings
+                    </label>
+                    {showSettings && (
+                        <div>
+                            <span className="CustomFields-Label" />
+                            <TextArea
+                                value={settingsString}
+                                onChange={e =>
+                                    setSettingsString(e.target.value)
+                                }
+                                rows={
+                                    DEFAULT_SETTINGS_STRING.split("\n").length
+                                }
+                                cols={40}
+                                className="CustomFields-TextArea"
+                            />
+                            <div className="CustomFields-Description Dialog-Description">
+                                See{" "}
+                                <a
+                                    href="https://github.com/mihaip/infinite-mac/blob/main/src/emulator/emulator-ui-settings.ts"
+                                    target="_blank">
+                                    this file
+                                </a>{" "}
+                                for details on the settings values.
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 <div className="CustomFields-Row Embed-HTML-Row">
                     <span className="CustomFields-Label">HTML:</span>
@@ -166,3 +223,9 @@ export function Embed({
 
 // Prefer the smaller screen sizes, since they're more likely to fit in an iframe.
 const DEFAULT_SCREEN_SIZES = [...DEFAULT_SUPPORTED_SCREEN_SIZES].reverse();
+
+const DEFAULT_SETTINGS_STRING = JSON.stringify(
+    DEFAULT_EMULATOR_SETTINGS,
+    null,
+    4
+);
