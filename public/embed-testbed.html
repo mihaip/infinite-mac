@@ -101,6 +101,14 @@
                     <button class="keydown">Key Down</button>
                     <button class="keyup">Key Up</button>
                 </div>
+                <div>
+                    <input
+                        type="url"
+                        name="disk_url"
+                        placeholder="https://archive.org/download/..."
+                        size="62"
+                    />
+                    <button class="loaddisk">Load Disk</button>
             </div>
         </div>
 
@@ -230,6 +238,20 @@
                         .querySelector("iframe")
                         .contentWindow.postMessage(
                             {type: "emulator_key_up", code},
+                            "*"
+                        );
+                };
+            });
+            document.querySelectorAll(".loaddisk").forEach(el => {
+                el.onclick = function () {
+                    const outer = el.closest(".iframe-outer");
+                    const url = outer.querySelector(
+                        "input[name='disk_url']"
+                    ).value;
+                    outer
+                        .querySelector("iframe")
+                        .contentWindow.postMessage(
+                            {type: "emulator_load_disk", url},
                             "*"
                         );
                 };
