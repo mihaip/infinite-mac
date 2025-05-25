@@ -54,10 +54,7 @@ export function configToMacemuPrefs(
         config.cdroms.some(cdrom => cdrom.mountReadWrite);
     const reorderedDisks = [];
     for (const spec of disks) {
-        if (
-            shouldReorderBuiltInDisks &&
-            (spec.name.startsWith("Infinite") || spec.persistent)
-        ) {
+        if (shouldReorderBuiltInDisks && isBuiltNonBootableDisk(spec)) {
             reorderedDisks.push(spec);
             continue;
         }
@@ -90,6 +87,16 @@ export function configToMacemuPrefs(
     prefsStr += `jsfrequentreadinput ${config.useSharedMemory}\n`;
     return prefsStr;
 }
+
+function isBuiltNonBootableDisk(spec: EmulatorChunkedFileSpec): boolean {
+    return (
+        // The various Infinite HD variants
+        spec.name.startsWith("Infinite") ||
+        // Saved HD
+        spec.persistent === true
+    );
+}
+
 export function configToDingusPPCArgs(
     config: EmulatorConfig,
     {
@@ -226,7 +233,15 @@ bDiskInserted${i} = ${isInserted ? "TRUE" : "FALSE"}
 bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
 `);
     }
+
+    // Defer built-in non-bootable disks so that we will try to boot from
+    // custom disks and CD-ROMs first.
+    const reorderedDisks = [];
     for (const disk of disks) {
+        if (!disk.isFloppy && isBuiltNonBootableDisk(disk)) {
+            reorderedDisks.push(disk);
+            continue;
+        }
         addDisk(disk.isFloppy ? floppyStrs : diskStrs, disk.name, false);
     }
     for (const diskFile of config.diskFiles) {
@@ -235,8 +250,12 @@ bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
     for (const spec of config.cdroms) {
         // If all we have is a CD-ROM, assume it's actually a hard drive image
         // (since read-only media can't be booted from).
-        const isCDROM = diskStrs.length > 0;
+        const isCDROM = diskStrs.length > 0 && !spec.mountReadWrite;
         addDisk(diskStrs, spec.name, isCDROM);
+    }
+
+    for (const disk of reorderedDisks) {
+        addDisk(disk ? floppyStrs : diskStrs, disk.name, false);
     }
 
     // Placeholder used to handle CD-ROMs being inserted after boot.
