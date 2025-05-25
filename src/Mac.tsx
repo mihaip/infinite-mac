@@ -446,6 +446,17 @@ export default function Mac({
                             code: e.data.code,
                         });
                         break;
+                    case "emulator_load_disk":
+                        getCDROMInfo(e.data.url)
+                            .then(cdrom => emulator.loadCDROM(cdrom))
+                            .catch(err =>
+                                console.error(
+                                    "Could not load CD-ROM",
+                                    e.data.url,
+                                    err
+                                )
+                            );
+                        break;
                     default:
                         console.warn("Unknown message from parent:", e.data);
                         break;
