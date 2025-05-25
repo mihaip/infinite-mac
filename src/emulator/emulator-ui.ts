@@ -5,6 +5,7 @@ import {
     type EmulatorFallbackCommand,
     type EmulatorWorkerConfig,
     type EmulatorWorkerVideoBlit,
+    type EmulatorMouseEvent,
 } from "./emulator-common";
 import {
     emulatorUsesPlaceholderDisks,
@@ -553,6 +554,31 @@ export class Emulator {
 
     unpause() {
         this.#input.handleInput({type: "unpause"});
+    }
+
+    handleExternalInput(
+        event: EmulatorMouseEvent | {type: "keydown" | "keyup"; code: string}
+    ) {
+        switch (event.type) {
+            case "mousedown":
+            case "mouseup":
+            case "mousemove":
+                this.#input.handleInput(event);
+                break;
+            case "keydown":
+            case "keyup": {
+                const adbKeyCode = this.#getAdbKeyCode(event.code);
+                if (adbKeyCode !== undefined) {
+                    this.#input.handleInput({
+                        type: event.type,
+                        keyCode: adbKeyCode,
+                    });
+                } else {
+                    console.warn(`Unhandled key: ${event.code}`);
+                }
+                break;
+            }
+        }
     }
 
     async uploadFiles(files: File[], names: string[] = []) {

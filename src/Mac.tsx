@@ -5,8 +5,10 @@ import {
     type EmulatorEthernetPeer,
     Emulator,
 } from "./emulator/emulator-ui";
-import {DEFAULT_EMULATOR_SETTINGS} from "./emulator/emulator-ui-settings";
-import {type EmulatorSettings} from "./emulator/emulator-ui-settings";
+import {
+    type EmulatorSettings,
+    DEFAULT_EMULATOR_SETTINGS,
+} from "./emulator/emulator-ui-settings";
 import {type EmulatorCDROM, isDiskImageFile} from "./emulator/emulator-common";
 import {useDevicePixelRatio} from "./useDevicePixelRatio";
 import {usePersistentState} from "./usePersistentState";
@@ -408,6 +410,41 @@ export default function Mac({
                         break;
                     case "emulator_unpause":
                         emulator.unpause();
+                        break;
+                    case "emulator_mouse_move": {
+                        const {x, y, deltaX, deltaY} = e.data;
+                        emulator.handleExternalInput({
+                            type: "mousemove",
+                            x,
+                            y,
+                            deltaX,
+                            deltaY,
+                        });
+                        break;
+                    }
+                    case "emulator_mouse_down":
+                        emulator.handleExternalInput({
+                            type: "mousedown",
+                            button: e.data.button,
+                        });
+                        break;
+                    case "emulator_mouse_up":
+                        emulator.handleExternalInput({
+                            type: "mouseup",
+                            button: e.data.button,
+                        });
+                        break;
+                    case "emulator_key_down":
+                        emulator.handleExternalInput({
+                            type: "keydown",
+                            code: e.data.code,
+                        });
+                        break;
+                    case "emulator_key_up":
+                        emulator.handleExternalInput({
+                            type: "keyup",
+                            code: e.data.code,
+                        });
                         break;
                     default:
                         console.warn("Unknown message from parent:", e.data);

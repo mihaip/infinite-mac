@@ -10,8 +10,10 @@ import {
     type SystemDiskDef,
 } from "./disks";
 import {type EmulatorEthernetProvider} from "./emulator/emulator-ui";
-import {DEFAULT_EMULATOR_SETTINGS} from "./emulator/emulator-ui-settings";
-import {type EmulatorSettings} from "./emulator/emulator-ui-settings";
+import {
+    type EmulatorSettings,
+    DEFAULT_EMULATOR_SETTINGS,
+} from "./emulator/emulator-ui-settings";
 import {
     MACHINES_BY_NAME,
     type MachineDefRAMSize,
