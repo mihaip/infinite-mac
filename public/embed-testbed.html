@@ -2,6 +2,11 @@
 <html>
     <head>
         <title>Embed Testbed</title>
+        <style>
+            input[type="number"] {
+                width: 32px;
+            }
+        </style>
     </head>
     <body>
         <h1>Embed Testbed</h1>
@@ -74,6 +79,28 @@
                     <button class="pause">Pause</button>
                     <button class="unpause">Unpause</button>
                 </div>
+                <div>
+                    <input type="number" name="mouse_x" placeholder="x" />
+                    <input type="number" name="mouse_y" placeholder="y" />
+                    <input type="number" name="mouse_dx" placeholder="dx" />
+                    <input type="number" name="mouse_dy" placeholder="dy" />
+                    <button class="mousemove">Mouse Move</button>
+                </div>
+                <div>
+                    <input type="number" name="mouse_button" value="0" />
+                    <button class="mousedown">Mouse Down</button>
+                    <button class="mouseup">Mouse Up</button>
+                </div>
+                <div>
+                    <input
+                        type="text"
+                        name="key_code"
+                        placeholder="KeyA"
+                        size="5"
+                    />
+                    <button class="keydown">Key Down</button>
+                    <button class="keyup">Key Up</button>
+                </div>
             </div>
         </div>
 
@@ -124,6 +151,85 @@
                         .querySelector("iframe")
                         .contentWindow.postMessage(
                             {type: "emulator_unpause"},
+                            "*"
+                        );
+                };
+            });
+            document.querySelectorAll(".mousemove").forEach(el => {
+                el.onclick = function () {
+                    const outer = el.closest(".iframe-outer");
+                    const x = outer.querySelector(
+                        "input[name='mouse_x']"
+                    ).valueAsNumber;
+                    const y = outer.querySelector(
+                        "input[name='mouse_y']"
+                    ).valueAsNumber;
+                    const deltaX = outer.querySelector(
+                        "input[name='mouse_dx']"
+                    ).valueAsNumber;
+                    const deltaY = outer.querySelector(
+                        "input[name='mouse_dy']"
+                    ).valueAsNumber;
+                    outer
+                        .querySelector("iframe")
+                        .contentWindow.postMessage(
+                            {type: "emulator_mouse_move", x, y, deltaX, deltaY},
+                            "*"
+                        );
+                };
+            });
+            document.querySelectorAll(".mousedown").forEach(el => {
+                el.onclick = function () {
+                    const outer = el.closest(".iframe-outer");
+                    const button = outer.querySelector(
+                        "input[name='mouse_button']"
+                    ).valueAsNumber;
+                    outer
+                        .querySelector("iframe")
+                        .contentWindow.postMessage(
+                            {type: "emulator_mouse_down", button},
+                            "*"
+                        );
+                };
+            });
+            document.querySelectorAll(".mouseup").forEach(el => {
+                el.onclick = function () {
+                    const outer = el.closest(".iframe-outer");
+                    const button = outer.querySelector(
+                        "input[name='mouse_button']"
+                    ).valueAsNumber;
+                    outer
+                        .querySelector("iframe")
+                        .contentWindow.postMessage(
+                            {type: "emulator_mouse_up", button},
+                            "*"
+                        );
+                };
+            });
+            document.querySelectorAll(".keydown").forEach(el => {
+                el.onclick = function () {
+                    const outer = el.closest(".iframe-outer");
+                    const code = outer.querySelector(
+                        "input[name='key_code']"
+                    ).value;
+                    outer
+                        .querySelector("iframe")
+                        .contentWindow.postMessage(
+                            {type: "emulator_key_down", code},
+                            "*"
+                        );
+                };
+            });
+            document.querySelectorAll(".keyup").forEach(el => {
+                el.onclick = function () {
+                    const outer = el.closest(".iframe-outer");
+                    const code = outer.querySelector(
+                        "input[name='key_code']"
+                    ).value;
+                    outer
+                        .querySelector("iframe")
+                        .contentWindow.postMessage(
+                            {type: "emulator_key_up", code},
                             "*"
                         );
                 };
