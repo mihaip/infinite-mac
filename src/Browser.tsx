@@ -28,6 +28,7 @@ import {usePersistentState} from "./usePersistentState";
 import {viewTransitionNameForDisk} from "./view-transitions";
 import {AppearanceProvider} from "./controls/Appearance";
 import {Embed} from "./Embed";
+import {EmbedDocs} from "./EmbedDocs";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -97,6 +98,9 @@ function Description({
     const [embedVisible, setEmbedVisible] = useState(
         location.pathname === "/embed"
     );
+    const [embedDocsVisible, setEmbedDocsVisible] = useState(
+        location.pathname === "/embed-docs"
+    );
 
     return (
         <div className="Description">
@@ -126,6 +130,9 @@ function Description({
                 )}
                 {embedVisible && (
                     <Embed onDone={() => setEmbedVisible(false)} />
+                )}
+                {embedDocsVisible && (
+                    <EmbedDocs onDone={() => setEmbedDocsVisible(false)} />
                 )}
             </p>
             <p>

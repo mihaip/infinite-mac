@@ -136,7 +136,8 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         }
     }
     let screenScale: number | undefined = undefined;
-    const screenScaleParam = searchParams.get("screenScale");
+    const screenScaleParam =
+        searchParams.get("screen_scale") ?? searchParams.get("screenScale");
     if (screenScaleParam) {
         const scale = parseFloat(screenScaleParam);
         if (!isNaN(scale)) {
@@ -267,7 +268,7 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
         );
     }
     if (runDef.screenScale && runDef.screenScale !== 1) {
-        url.searchParams.set("screenScale", runDef.screenScale.toString());
+        url.searchParams.set("screen_scale", runDef.screenScale.toString());
     }
     if (ethernetProvider instanceof CloudflareWorkerEthernetProvider) {
         url.searchParams.set("appleTalk", ethernetProvider.zoneName());
