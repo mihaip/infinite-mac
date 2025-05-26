@@ -404,6 +404,9 @@ export default function Mac({
         let messageListener: (e: MessageEvent) => void;
         if (listenForControlMessages) {
             messageListener = e => {
+                if (e.source !== window.parent || window.parent === window) {
+                    return;
+                }
                 switch (e.data.type) {
                     case "emulator_pause":
                         emulator.pause();
