@@ -165,10 +165,9 @@ async function fetchChunk(
             "User-Agent": "Infinite Mac (+https://infinitemac.org)",
             "Range": `bytes=${chunkStart}-${chunkEnd}`,
         },
-        cf: {
-            cacheEverything: true,
-            cacheTtl: 30 * 24 * 60 * 60,
-        },
+        // Don't allow Cloudflare to cache this request, since it will attempt
+        // to read the entire file (as opposed to jus the range that we requested).
+        cache: "no-store",
         signal: AbortSignal.timeout(2000),
     });
 
