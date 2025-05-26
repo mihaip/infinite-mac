@@ -3,7 +3,7 @@
         "target": "ES2020",
         "module": "CommonJS",
         "lib": ["ES2020"],
-        "types": ["@cloudflare/workers-types"],
+        "types": ["@cloudflare/workers-types/latest"],
         "strict": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
