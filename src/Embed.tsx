@@ -13,6 +13,7 @@ import {
     DEFAULT_EMULATOR_SETTINGS,
     type EmulatorSettings,
 } from "./emulator/emulator-ui-settings";
+import {EmbedDocs} from "./EmbedDocs";
 
 export function Embed({
     defaultDisk = SYSTEM_DISKS_BY_NAME["System 7.1"],
@@ -21,6 +22,12 @@ export function Embed({
     defaultDisk?: SystemDiskDef;
     onDone: () => void;
 }) {
+    const [docsVisible, setDocsVisible] = useState(false);
+    const handleDocsClick = useCallback((event: React.MouseEvent) => {
+        event.preventDefault();
+        setDocsVisible(true);
+    }, []);
+
     useEffect(() => {
         varz.increment("embed_shown");
     }, []);
@@ -86,10 +93,20 @@ export function Embed({
     const [canCopy, setCanCopy] = useState(false);
 
     const {appearance = "Classic", appearanceVariant} = runDef.disks[0] ?? {};
+    if (docsVisible) {
+        return (
+            <EmbedDocs
+                onDone={onDone}
+                appearance={appearance}
+                appearanceVariant={appearanceVariant}
+            />
+        );
+    }
+
     return (
         <AppearanceProvider appearance={appearance} variant={appearanceVariant}>
             <Dialog
-                title="Embed Infinite Mac"
+                title="Embed On Your Website"
                 onDone={handleCopy}
                 doneLabel={copied ? "Copied!" : "Copy HTML"}
                 doneEnabled={canCopy}
@@ -97,8 +114,13 @@ export function Embed({
                 otherLabel="Close"
                 onOther={onDone}>
                 <p>
-                    Embed a custom Infinite instance Mac in your own website by
-                    copying the HTML code below.
+                    Embed a custom instance of Infinite Mac in your own website
+                    by copying the HTML code below. See{" "}
+                    <a href="/embed-docs" onClick={handleDocsClick}>
+                        the developer documentation
+                    </a>{" "}
+                    for more details on how you can control the embedded
+                    instance via JavaScript.
                 </p>
                 <CustomFields
                     runDef={runDef}

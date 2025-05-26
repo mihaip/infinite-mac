@@ -1,0 +1,19 @@
+.EmbedDocs pre {
+    background: #f0f0f0;
+    padding: 8px;
+}
+
+.EmbedDocs code {
+    font-family: monospace;
+    font-size: 12px;
+    background: #f0f0f0;
+}
+
+.EmbedDocs-MessageList {
+    padding: 0 0 0 16px;
+    margin: 0;
+}
+
+.EmbedDocs-MessageList li {
+    margin-bottom: 8px;
+}
