@@ -13,8 +13,7 @@ export function Footer({
     const [aboutVisible, setAboutVisible] = useState(false);
     const [donateVisible, setDonateVisible] = useState(false);
     const handleFullScreenClick = () => {
-        document.body.requestFullscreen?.() ||
-            document.body.webkitRequestFullscreen?.();
+        document.body.requestFullscreen();
     };
 
     return (
@@ -27,21 +26,18 @@ export function Footer({
             {showFullscreenButton && (
                 <span
                     onClick={handleFullScreenClick}
-                    className="Footer-Fullscreen"
-                >
+                    className="Footer-Fullscreen">
                     Full Screen
                 </span>
             )}
             <span
                 onClick={() => setAboutVisible(true)}
-                className="Footer-About"
-            >
+                className="Footer-About">
                 About
             </span>
             <span
                 onClick={() => setDonateVisible(true)}
-                className="Footer-Donate"
-            >
+                className="Footer-Donate">
                 Donate
             </span>
         </div>

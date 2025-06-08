@@ -182,9 +182,7 @@ function unpackIndexItems(
             if (!item) {
                 return;
             }
-            if (!item.index) {
-                item.index = extractItemIndex(item);
-            }
+            item.index ??= extractItemIndex(item);
         }
         setTimeout(searchIndexMoreItems, 100);
     };
@@ -282,9 +280,7 @@ export function createSearchPredicate(
 
     return item => {
         let {index} = item;
-        if (!index) {
-            index = item.index = extractItemIndex(item);
-        }
+        index ??= item.index = extractItemIndex(item);
         return terms.every(term => termMatches(term, item, index));
     };
 }
