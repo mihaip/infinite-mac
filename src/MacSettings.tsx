@@ -1,6 +1,8 @@
 import {useCallback, useEffect, useState} from "react";
-import {type EmulatorScreenScaling} from "./emulator/emulator-ui-settings";
-import {type EmulatorSettings} from "./emulator/emulator-ui-settings";
+import {
+    type EmulatorScreenScaling,
+    type EmulatorSettings,
+} from "./emulator/emulator-ui-settings";
 import {
     type EmulatorSpeed,
     type EmulatorType,
