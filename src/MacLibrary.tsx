@@ -90,9 +90,7 @@ export async function handleLibraryURL(
     fileName?: string,
     size?: number
 ) {
-    if (!fileName) {
-        fileName = new URL(url).pathname.split("/").at(-1) ?? "Untitled";
-    }
+    fileName ??= new URL(url).pathname.split("/").at(-1) ?? "Untitled";
     const progressName = name ? `${name} (${fileName})` : fileName;
     const fetchURL = proxyUrl(url);
     const blob = await fetchWithProgress(fetchURL, (loadedBytes, totalBytes) =>

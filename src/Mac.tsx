@@ -511,8 +511,7 @@ export default function Mac({
         // Make the entire page go fullscreen (instead of just the screen
         // canvas) because iOS Safari does not maintain the aspect ratio of the
         // canvas.
-        document.body.requestFullscreen?.() ||
-            document.body.webkitRequestFullscreen?.();
+        document.body.requestFullscreen();
     };
     const handleFullScreenChange = useCallback(() => {
         const isFullScreen = Boolean(

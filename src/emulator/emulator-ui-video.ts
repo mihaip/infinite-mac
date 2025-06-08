@@ -77,13 +77,11 @@ export class SharedMemoryEmulatorVideo implements EmulatorVideo {
 }
 
 export class FallbackEmulatorVideo implements EmulatorVideo {
-    #config: EmulatorConfig;
     #lastBlitData?: EmulatorWorkerFallbackVideoBlit;
     #lastBlitRect?: EmulatorWorkerVideoBlitRect;
 
-    constructor(config: EmulatorConfig) {
-        this.#config = config;
-    }
+    // eslint-disable-next-line no-useless-constructor
+    constructor(config: EmulatorConfig) {}
 
     workerConfig(): EmulatorWorkerFallbackVideoConfig {
         return {type: "fallback"};

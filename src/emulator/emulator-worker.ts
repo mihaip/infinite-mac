@@ -144,11 +144,7 @@ class EmulatorWorkerApi {
 
         let fallbackEndpoint: EmulatorFallbackEndpoint | undefined;
         function getFallbackEndpoint(): EmulatorFallbackEndpoint {
-            if (!fallbackEndpoint) {
-                fallbackEndpoint = new EmulatorFallbackEndpoint(
-                    config.workerId
-                );
-            }
+            fallbackEndpoint ??= new EmulatorFallbackEndpoint(config.workerId);
             return fallbackEndpoint;
         }
 
