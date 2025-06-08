@@ -47,9 +47,9 @@ const extractedPaths = new Set<string>();
 
 export function prepareDirectoryExtraction(
     dirPath: string
-): [EmulatorWorkerDirectorExtraction, ArrayBuffer[]] {
+): [EmulatorWorkerDirectorExtraction, ArrayBufferLike[]] {
     const {name: dirName, parentPath: dirParentPath} = FS.analyzePath(dirPath);
-    const arrayBuffers: ArrayBuffer[] = [];
+    const arrayBuffers: ArrayBufferLike[] = [];
     const extraction: EmulatorWorkerDirectorExtraction = {
         name: dirName,
         contents: [],
@@ -116,7 +116,7 @@ function extractDirectory(dirPath: string) {
 function extractFile(filePath: string) {
     const {name: fileName, parentPath: fileParentPath} =
         FS.analyzePath(filePath);
-    const arrayBuffers: ArrayBuffer[] = [];
+    const arrayBuffers: ArrayBufferLike[] = [];
     const extraction: EmulatorWorkerDirectorExtraction = {
         name: fileName,
         contents: [],
