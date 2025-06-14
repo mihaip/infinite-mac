@@ -36,7 +36,7 @@
         "eslint-plugin-react-hooks": "^5.2.0",
         "husky": "^6.0.0",
         "lint-staged": "^11.0.0",
-        "prettier": "^2.8.8",
+        "prettier": "^3.5.3",
         "vite": "^6.3.5",
         "vite-plugin-svgr": "^4.3.0",
         "wrangler": "^4.19.1"
