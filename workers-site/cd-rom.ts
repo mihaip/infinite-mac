@@ -1,23 +1,40 @@
 import {type EmulatorCDROM} from "../src/emulator/emulator-common";
 
+type CDROMSpec = {
+    srcUrl: string;
+    totalSize?: number;
+};
+
 export async function handleRequest(path: string, method: string) {
     const pathPieces = path.split("/");
-    let srcUrl;
+    let specStr;
     try {
-        srcUrl = atob(pathPieces[2]);
+        specStr = atob(pathPieces[2]);
     } catch (e) {
-        return errorResponse("Malformed CD-ROM src URL: " + pathPieces[2]);
+        return errorResponse("Malformed CD-ROM spec: " + pathPieces[2]);
     }
 
-    if (!isValidSrcUrl(srcUrl)) {
-        return errorResponse("Unexpected CD-ROM src URL: " + srcUrl);
+    let spec: CDROMSpec;
+    if (specStr.startsWith("{")) {
+        try {
+            spec = JSON.parse(specStr);
+        } catch (e) {
+            return errorResponse("Malformed CD-ROM spec: " + specStr);
+        }
+    } else {
+        // Simple spec, just a URL.
+        spec = {srcUrl: specStr};
+    }
+
+    if (!isValidSrcUrl(spec.srcUrl)) {
+        return errorResponse("Unexpected CD-ROM src URL: " + spec.srcUrl);
     }
 
     if (method === "GET") {
-        return await handleGET(pathPieces, srcUrl);
+        return await handleGET(pathPieces, spec);
     }
     if (method === "PUT") {
-        return await handlePUT(srcUrl);
+        return await handlePUT(spec.srcUrl);
     }
 
     return errorResponse("Method not allowed", 405);
@@ -56,7 +73,7 @@ export function isValidSrcUrl(srcUrl: string) {
     return false;
 }
 
-async function handleGET(pathPieces: string[], srcUrl: string) {
+async function handleGET(pathPieces: string[], spec: CDROMSpec) {
     const chunkMatch = /(\d+)-(\d+).chunk$/.exec(pathPieces[3]);
     if (!chunkMatch) {
         return errorResponse("Malformed CD-ROM src chunk: " + pathPieces[3]);
@@ -69,7 +86,7 @@ async function handleGET(pathPieces: string[], srcUrl: string) {
     for (let retry = 0; retry < 3; retry++) {
         try {
             const {chunk, contentLength} = await fetchChunk(
-                srcUrl,
+                spec,
                 chunkStart,
                 chunkEnd
             );
@@ -90,7 +107,7 @@ async function handleGET(pathPieces: string[], srcUrl: string) {
     }
 
     console.warn("CD-ROM fetch failed", {
-        srcUrl,
+        ...spec,
         chunkStart,
         chunkEnd,
         chunkFetchError,
@@ -156,18 +173,29 @@ async function handlePUT(srcUrl: string) {
 }
 
 async function fetchChunk(
-    srcUrl: string,
+    spec: CDROMSpec,
     chunkStart: number,
     chunkEnd: number
 ) {
-    const srcRes = await fetch(srcUrl, {
+    // Don't allow Cloudflare to cache requests in large files, since it will attempt
+    // to read the entire file (as opposed to just the range that we requested).
+    const isLargeFile =
+        spec.totalSize !== undefined && spec.totalSize > 250 * 1024 * 1024;
+    const cacheOptions: Partial<RequestInit<RequestInitCfProperties>> =
+        isLargeFile
+            ? {cache: "no-store"}
+            : {
+                  cf: {
+                      cacheEverything: true,
+                      cacheTtl: 30 * 24 * 60 * 60,
+                  },
+              };
+    const srcRes = await fetch(spec.srcUrl, {
         headers: {
             "User-Agent": "Infinite Mac (+https://infinitemac.org)",
             "Range": `bytes=${chunkStart}-${chunkEnd}`,
         },
-        // Don't allow Cloudflare to cache this request, since it will attempt
-        // to read the entire file (as opposed to jus the range that we requested).
-        cache: "no-store",
+        ...cacheOptions,
         signal: AbortSignal.timeout(2000),
     });
 
