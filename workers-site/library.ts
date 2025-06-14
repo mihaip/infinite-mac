@@ -48,9 +48,10 @@ async function loadLibraryDetails() {
     const {default: libraryDetailsExport} = (await import(
         "./Library-details.json"
     )) as {default: string | object};
-    const libraryDetails = typeof libraryDetailsExport === "object" ?
-        libraryDetailsExport :
-        JSON.parse(libraryDetailsExport);
+    const libraryDetails =
+        typeof libraryDetailsExport === "object"
+            ? libraryDetailsExport
+            : JSON.parse(libraryDetailsExport);
     const unpacked = Object.fromEntries(
         Object.entries(libraryDetails).map(([type, items]) => [
             type,

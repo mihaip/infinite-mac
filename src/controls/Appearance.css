@@ -38,8 +38,8 @@ https://tinkerdifferent.com/resources/collection-of-classic-apple-fonts-for-your
 
 .AppearanceSystemFont-Aqua {
     /* Prefer the locally installed Lucida Grande on macOS hosts, but then fall back on our version. */
-    font-family: "Lucida Grande", "LucidaGrande", "Helvetica", "Arial",
-        sans-serif;
+    font-family:
+        "Lucida Grande", "LucidaGrande", "Helvetica", "Arial", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-weight: normal !important;

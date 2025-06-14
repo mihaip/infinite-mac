@@ -395,9 +395,8 @@ export function updateInputBufferWithEvents(
                     inputEvent.speed;
                 break;
             case "set-use-mouse-deltas":
-                inputBufferView[
-                    InputBufferAddresses.useMouseDeltasFlagAddr
-                ] = 1;
+                inputBufferView[InputBufferAddresses.useMouseDeltasFlagAddr] =
+                    1;
                 inputBufferView[InputBufferAddresses.useMouseDeltasAddr] =
                     inputEvent.useMouseDeltas ? 1 : 0;
                 break;

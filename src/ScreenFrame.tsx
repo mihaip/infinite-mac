@@ -62,8 +62,8 @@ export function ScreenFrame(props: ScreenFrameProps) {
         bezelStyle === "NeXT"
             ? NeXTLogo
             : bezelStyle === "Pinstripes"
-            ? AppleLogoGrey
-            : AppleLogoColor;
+              ? AppleLogoGrey
+              : AppleLogoColor;
 
     return (
         <div
@@ -74,8 +74,7 @@ export function ScreenFrame(props: ScreenFrameProps) {
                 transform: scale === undefined ? undefined : `scale(${scale})`,
                 viewTransitionName,
             }}
-            {...divProps}
-        >
+            {...divProps}>
             <div className="ScreenFrame-Controls-Container">
                 <div className="ScreenFrame-Logo">
                     <Logo className="Background" />
@@ -96,8 +95,7 @@ export function ScreenFrame(props: ScreenFrameProps) {
                                     : undefined,
                             }}
                             onClick={handler}
-                            key={label}
-                        >
+                            key={label}>
                             {label}
                         </div>
                     )
@@ -109,8 +107,7 @@ export function ScreenFrame(props: ScreenFrameProps) {
                 style={{
                     width,
                     height,
-                }}
-            >
+                }}>
                 {screen}
             </div>
             {children}
