@@ -30,9 +30,16 @@ export function createEmulatorWorkerCDROMDisk(
         chunks.push(`${chunkStart}-${chunkEnd}`);
         chunkStart = chunkEnd;
     }
+    // Minimal metadata for workers-site/cd-rom.ts to reconstruct
+    const encoded = btoa(
+        JSON.stringify({
+            srcUrl: cdrom.srcUrl,
+            totalSize,
+        })
+    );
     const spec = {
         name,
-        baseUrl: `/CD-ROM/${btoa(cdrom.srcUrl)}`,
+        baseUrl: `/CD-ROM/${encoded}`,
         totalSize,
         chunks,
         chunkSize: CHUNK_SIZE,
