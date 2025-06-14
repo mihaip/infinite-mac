@@ -42,7 +42,7 @@ export async function handleRequest(request: Request, namespace: KVNamespace) {
                 const value = await namespace.get<number>(key, {type: "json"});
                 return [key.slice(VARZ_PREFIX.length), value] as [
                     string,
-                    number
+                    number,
                 ];
             })
     );

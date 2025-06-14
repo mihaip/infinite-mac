@@ -83,7 +83,7 @@
     },
     "prettier": {
         "trailingComma": "es5",
-        "jsxBracketSameLine": true,
+        "bracketSameLine": true,
         "bracketSpacing": false,
         "tabWidth": 4,
         "semi": true,
