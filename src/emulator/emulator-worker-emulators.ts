@@ -1,6 +1,7 @@
 import MinivMac128KJsPath from "./minivmac-128K.js?url";
 import MinivMac512KeJsPath from "./minivmac-512Ke.js?url";
 import MinivMacIIJsPath from "./minivmac-II.js?url";
+import MinivMacIIxJsPath from "./minivmac-IIx.js?url";
 import MinivMacPlusJsPath from "./minivmac-Plus.js?url";
 import MinivMacSEJsPath from "./minivmac-SE.js?url";
 import BasiliskIIJsPath from "./BasiliskII.js?url";
@@ -26,6 +27,7 @@ export function importEmulator(def: EmulatorDef): Promise<{default: any}> {
                 "Plus": import("./minivmac-Plus"),
                 "SE": import("./minivmac-SE"),
                 "II": import("./minivmac-II"),
+                "IIx": import("./minivmac-IIx"),
             }[def.emulatorSubtype];
         case "DingusPPC":
             return import("./dingusppc");
@@ -79,6 +81,7 @@ export function getEmulatorJsPath(def: EmulatorDef) {
                 "Plus": MinivMacPlusJsPath,
                 "SE": MinivMacSEJsPath,
                 "II": MinivMacIIJsPath,
+                "IIx": MinivMacIIxJsPath,
             }[def.emulatorSubtype];
         case "DingusPPC":
             return DingusPPCJsPath;

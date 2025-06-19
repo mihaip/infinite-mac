@@ -2,6 +2,7 @@ import mac128KRomPath from "./Data/Mac-128K.rom";
 import macPlusRomPath from "./Data/Mac-Plus.rom";
 import macSERomPath from "./Data/Mac-SE.rom";
 import macIIRomPath from "./Data/Mac-II.rom";
+import macIIxRomPath from "./Data/Mac-IIx.rom";
 import macIIfxRomPath from "./Data/Mac-IIfx.rom";
 import quadra650RomPath from "./Data/Quadra-650.rom";
 import newWorldRomPath from "./Data/New-World.rom";
@@ -116,6 +117,19 @@ export const MAC_II: MachineDef = {
     gestaltID: 6,
     emulatorType: "Mini vMac",
     emulatorSubtype: "II",
+    prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 640, height: 480},
+    bezelStyle: "Platinum",
+    ramSizes: ["8M"],
+};
+
+export const MAC_IIx: MachineDef = {
+    name: "Mac IIx",
+    cpu: "68030",
+    romPath: macIIxRomPath,
+    gestaltID: 7,
+    emulatorType: "Mini vMac",
+    emulatorSubtype: "IIx",
     prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 640, height: 480},
     bezelStyle: "Platinum",
@@ -367,6 +381,7 @@ export const ALL_MACHINES = [
     MAC_PLUS,
     MAC_SE,
     MAC_II,
+    MAC_IIx,
     MAC_IIFX,
     QUADRA_650,
     POWER_MACINTOSH_6100,

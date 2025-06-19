@@ -6,7 +6,13 @@ export type EmulatorType =
     | "Previous"
     | "PearPC";
 
-export type EmulatorMinivMacSubtypes = "128K" | "512Ke" | "Plus" | "SE" | "II";
+export type EmulatorMinivMacSubtypes =
+    | "128K"
+    | "512Ke"
+    | "Plus"
+    | "SE"
+    | "II"
+    | "IIx";
 
 export type EmulatorPreviousSubtypes =
     | "NeXT Computer"

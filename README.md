@@ -112,7 +112,7 @@ Once it has built, use `npm run import-emulator sheepshaver` from the host to up
 
 #### Mini vMac
 
-See [this page](https://www.gryphel.com/c/minivmac/options.html) for the full set set of build options (and [this one](https://www.gryphel.com/c/minivmac/develop.html) for more estoeric ones).
+See [this page](https://www.gryphel.com/c/minivmac/options.html) for the full set set of build options (and [this one](https://www.gryphel.com/c/minivmac/develop.html) for more esoteric ones).
 
 ```sh
 cd /minivmac
@@ -123,7 +123,8 @@ cd /minivmac
 # - `-m 128K -speed z`: Mac 128K (uses 1x speed by default to be more realistic)
 # - `-m 512Ke`: Mac 512ke
 # - `-m SE`: Mac SE
-# - `-m II`: Mac II
+# - `-m II -d d`: Mac II
+# - `-m IIx -d d -mem 32M`: Mac IIx
 # Actually compile Mini vMac targeting WASM
 make -j8
 ```
