@@ -15,6 +15,6 @@ time {
         --size-only \
         --transfers 32 \
         --checkers 32 \
-        public/Disk \
+        Images/build \
         cf:infinite-mac-disk
 }
