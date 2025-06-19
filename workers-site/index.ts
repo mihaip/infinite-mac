@@ -2,16 +2,14 @@ import * as varz from "./varz";
 import * as cdrom from "./cd-rom";
 import * as disk from "./disk";
 import * as library from "./library";
-import {getAssetFromKV} from "@cloudflare/kv-asset-handler";
-// @ts-expect-error TODO: include declaration for this generated module.
-import manifestJSON from "__STATIC_CONTENT_MANIFEST";
-const manifest = JSON.parse(manifestJSON);
 
 type Env = {
-    __STATIC_CONTENT: string;
     ETHERNET_ZONE: DurableObjectNamespace;
     VARZ: KVNamespace;
     DISK_BUCKET: R2Bucket;
+    ASSETS: {
+        fetch: typeof fetch;
+    };
 };
 const handler: ExportedHandler<Env> = {fetch: handleRequest};
 
@@ -57,21 +55,9 @@ async function handleRequest(
         );
     }
 
-    const fetchEvent = {
-        request,
-        waitUntil(promise: Promise<any>) {
-            return ctx.waitUntil(promise);
-        },
-    };
-
     try {
-        const page = await getAssetFromKV(fetchEvent, {
-            mapRequestToAsset,
-            pathIsEncoded: true,
-            ASSET_NAMESPACE: env.__STATIC_CONTENT,
-            ASSET_MANIFEST: manifest,
-        });
-        const response = new Response(page.body, page);
+        const assetResponse = await env.ASSETS.fetch(request);
+        const response = new Response(assetResponse.body, assetResponse);
         const {pathname} = url;
 
         // Force a MIME type from the list at
@@ -112,50 +98,11 @@ async function handleRequest(
 
         return response;
     } catch (e) {
-        // if an error is thrown try to serve the asset at 404.html
-        try {
-            const notFoundResponse = await getAssetFromKV(fetchEvent, {
-                mapRequestToAsset: req =>
-                    new Request(`${new URL(req.url).origin}/404.html`, req),
-            });
-
-            return new Response(notFoundResponse.body, {
-                ...notFoundResponse,
-                status: 404,
-            });
-        } catch (e) {
-            // Ignored
-        }
+        console.error("Error serving asset:", e);
 
         const err = e as Error;
         return new Response(err.message || err.toString(), {status: 500});
     }
-}
-
-// Override default mapRequestToAsset to not append index.html to unknown
-// MIME types.
-function mapRequestToAsset(request: Request): Request {
-    const parsedUrl = new URL(request.url);
-    let {pathname} = parsedUrl;
-
-    // Let the client-side handle runDef URLs (minimal version of runDefFromUrl).
-    const pieces = pathname.split("/");
-    if (pieces.length === 3 && parseInt(pieces[1]) >= 1984) {
-        // Year paths
-        pathname = "/index.html";
-    } else if (
-        pieces.length === 2 &&
-        (pieces[1] === "run" || pieces[1] === "embed")
-    ) {
-        // Custom run paths
-        pathname = "/index.html";
-    } else if (pathname.endsWith("/")) {
-        // Regular index path
-        pathname = pathname.concat("index.html");
-    }
-
-    parsedUrl.pathname = pathname;
-    return new Request(parsedUrl.toString(), request);
 }
 
 const LEGACY_DOMAINS: {[domain: string]: string} = {
