@@ -546,14 +546,14 @@ function createExportWrapper(name, nargs) {
 // end include: runtime_exceptions.js
 function findWasmBinary() {
   if (Module['locateFile']) {
-    var f = 'minivmac-II.wasm';
+    var f = 'minivmac-IIx.wasm';
     if (!isDataURI(f)) {
       return locateFile(f);
     }
     return f;
   }
   // Use bundler-friendly `new URL(..., import.meta.url)` pattern; works in browsers too.
-  return new URL('minivmac-II.wasm', import.meta.url).href;
+  return new URL('minivmac-IIx.wasm', import.meta.url).href;
 }
 
 var wasmBinaryFile;
@@ -824,29 +824,29 @@ function dbg(...args) {
 // === Body ===
 
 var ASM_CONSTS = {
-  80824: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
- 80874: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 80923: ($0) => { return workerApi.disks.size($0); },  
- 80960: ($0) => { workerApi.sleep($0); },  
- 80985: ($0) => { workerApi.disks.close($0); },  
- 81016: () => { workerApi.blit(0, 0); },  
- 81042: ($0, $1, $2, $3, $4, $5) => { workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5}); },  
- 81114: ($0, $1) => { return workerApi.enqueueAudio($0, $1); },  
- 81157: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 81208: ($0) => { workerApi.disks.close($0); },  
- 81239: () => { return workerApi.acquireInputLock(); },  
- 81280: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 81369: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 81459: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
- 81546: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
- 81633: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 81718: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 81798: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 81879: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr); },  
- 81961: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedAddr); },  
- 82039: () => { workerApi.releaseInputLock(); },  
- 82073: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
- 82113: ($0, $1) => { workerApi.didOpenVideo($0, $1); }
+  80840: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
+ 80890: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 80939: ($0) => { return workerApi.disks.size($0); },  
+ 80976: ($0) => { workerApi.sleep($0); },  
+ 81001: ($0) => { workerApi.disks.close($0); },  
+ 81032: () => { workerApi.blit(0, 0); },  
+ 81058: ($0, $1, $2, $3, $4, $5) => { workerApi.blit($0, $1, {top: $2, left: $3, bottom: $4, right: $5}); },  
+ 81130: ($0, $1) => { return workerApi.enqueueAudio($0, $1); },  
+ 81173: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 81224: ($0) => { workerApi.disks.close($0); },  
+ 81255: () => { return workerApi.acquireInputLock(); },  
+ 81296: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 81385: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 81475: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
+ 81562: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
+ 81649: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 81734: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 81814: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 81895: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr); },  
+ 81977: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.speedAddr); },  
+ 82055: () => { workerApi.releaseInputLock(); },  
+ 82089: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
+ 82129: ($0, $1) => { workerApi.didOpenVideo($0, $1); }
 };
 function consumeDiskName() { const diskName = workerApi.disks.consumeDiskName(); if (!diskName || !diskName.length) { return 0; } const diskNameLength = lengthBytesUTF8(diskName) + 1; const diskNameCstr = _malloc(diskNameLength); stringToUTF8(diskName, diskNameCstr, diskNameLength); return diskNameCstr; }
 

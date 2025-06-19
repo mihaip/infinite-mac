@@ -1,6 +1,7 @@
 import MinivMac128KWasmPath from "./minivmac-128K.wasm?url";
 import MinivMac512KeWasmPath from "./minivmac-512Ke.wasm?url";
 import MinivMacIIWasmPath from "./minivmac-II.wasm?url";
+import MinivMacIIxWasmPath from "./minivmac-IIx.wasm?url";
 import MinivMacPlusWasmPath from "./minivmac-Plus.wasm?url";
 import MinivMacSEWasmPath from "./minivmac-SE.wasm?url";
 import BasiliskIIWasmPath from "./BasiliskII.wasm?url";
@@ -24,6 +25,7 @@ export function getEmulatorWasmPath(def: EmulatorDef): string {
                 "Plus": MinivMacPlusWasmPath,
                 "SE": MinivMacSEWasmPath,
                 "II": MinivMacIIWasmPath,
+                "IIx": MinivMacIIxWasmPath,
             }[emulatorSubtype];
         case "DingusPPC":
             return DingusPPCWasmPath;
