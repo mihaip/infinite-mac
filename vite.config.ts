@@ -18,6 +18,8 @@ export default defineConfig(() => {
         build: {
             outDir: "build",
             minify: true,
+            // the library index is 1.5MB (before gzip), which is unavoidable.
+            chunkSizeWarningLimit: 2048,
         },
         worker: {
             format: "es",

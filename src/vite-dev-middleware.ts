@@ -18,9 +18,15 @@ export function viteDevMiddleware(
     }
 
     const url = new URL(req.url, "http://localhost:3127");
+    const pieces = url.pathname.split("/");
     if (url.pathname === "/varz" || url.pathname === "/errorz") {
         handleVarz(req, url, res);
         return true;
+    } else if (url.pathname.startsWith("/Disk/")) {
+        // Disk chunks are served from R2 in the worker (workers-site/disk.ts),
+        // redirect them to the build directory locally.
+        req.url = `/Images/build/${pieces.slice(2).join("/")}`;
+        console.log(`Redirecting ${url.pathname} to ${req.url}`);
     } else if (url.pathname.startsWith("/CD-ROM/")) {
         handleWorkerResponse(
             cdrom.handleRequest(url.pathname, req.method ?? "GET"),
@@ -33,7 +39,6 @@ export function viteDevMiddleware(
     }
 
     // Let the client handle /<year>/<disk> URLs.
-    const pieces = url.pathname.split("/");
     if (pieces.length === 3 && parseInt(pieces[1]) >= 1984) {
         req.url = "/index.html";
         return false;

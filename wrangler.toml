@@ -17,7 +17,6 @@ new_classes = ["EthernetZone"]
 
 [site]
 bucket = "./build"
-exclude = ["Disk/"]
 
 [env.production]
 routes = [
