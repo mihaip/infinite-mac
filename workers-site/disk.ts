@@ -3,6 +3,9 @@ export async function handleRequest(
     bucket: R2Bucket,
     ctx: ExecutionContext
 ) {
+    if (!bucket) {
+        return errorResponse("Bucket not configured", 500);
+    }
     if (request.method !== "GET") {
         return errorResponse("Method not allowed", 405);
     }
