@@ -12,14 +12,17 @@
     gap: 8px;
 }
 
-.Monkey-Sidebar h1 {
+.Monkey-Title {
     display: flex;
     align-items: center;
     gap: 4px;
-    margin: 0 0 -4px 0 !important;
 }
 
-.Monkey-Sidebar h1 img {
+.Monkey-Title h1 {
+    margin: 0 !important;
+}
+
+.Monkey-Title img {
     image-rendering: pixelated;
 }
 

@@ -42,6 +42,9 @@ export function MonkeyChat({
 
         if (!apiKey) {
             await collectOpenAIAPIKey();
+            if (!apiKeyProvider()) {
+                return;
+            }
         }
         sendMessage(text);
         setMessage(""); // Clear the input after sending

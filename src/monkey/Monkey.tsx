@@ -71,15 +71,23 @@ function MonkeySidebar({
     const appearance = useAppearance();
     return (
         <DialogFrame className="Monkey-Sidebar">
-            <h1 className={appearanceSystemFont(appearance)}>
+            <div className="Monkey-Title">
                 <img
                     src={iconPath}
                     alt="Colorized Monkey DA Icon"
                     width="32"
                     height="32"
                 />
-                Infinite Monkey
-            </h1>
+                <div className="Monkey-Title-Text">
+                    <h1 className={appearanceSystemFont(appearance)}>
+                        Infinite Monkey
+                    </h1>
+                    <a href="https://infinitemac.org/">Infinite Mac</a> +{" "}
+                    <a href="https://platform.openai.com/docs/guides/tools-computer-use">
+                        OpenAI Computer Use
+                    </a>
+                </div>
+            </div>
             <MonkeyControls disk={disk} setDisk={setDisk} />
             <MonkeyChat disk={disk} iframeRef={iframeRef} />
         </DialogFrame>
@@ -129,7 +137,10 @@ function diskScreenSize(disk: Disk): {
 } {
     let [width, height] = disk.screenSize;
     let {screenScale = 1} = disk;
-    if (window.innerWidth < width || window.innerHeight < height) {
+    if (
+        window.innerWidth < width * screenScale + 320 ||
+        window.innerHeight < height * screenScale
+    ) {
         // Ignore screen scale if we can't fit the screen.
         screenScale = 1;
     }
