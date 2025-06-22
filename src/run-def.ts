@@ -171,7 +171,9 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     const debugLog = searchParams.get("debug_log") === "true";
     const debugTrackpad = searchParams.get("debug_trackpad") === "true";
     const emulatorSettingsParam = searchParams.get("settings");
-    let settings: EmulatorSettings | undefined = undefined;
+    let settings: EmulatorSettings | undefined = isEmbed
+        ? DEFAULT_EMULATOR_SETTINGS
+        : undefined;
     if (emulatorSettingsParam) {
         try {
             settings = {

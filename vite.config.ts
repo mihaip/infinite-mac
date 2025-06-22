@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import basicSsl from "@vitejs/plugin-basic-ssl";
 import svgr from "vite-plugin-svgr";
 import {viteDevMiddleware} from "./src/vite-dev-middleware";
+import path from "node:path";
 
 const headers = {
     // Allow SharedArrayBuffer to work locally
@@ -16,6 +17,12 @@ const headers = {
 export default defineConfig(() => {
     return {
         build: {
+            rollupOptions: {
+                input: {
+                    main: path.resolve(__dirname, "index.html"),
+                    monkey: path.resolve(__dirname, "monkey/index.html"),
+                },
+            },
             outDir: "build",
             minify: true,
             // the library index is 1.5MB (before gzip), which is unavoidable.

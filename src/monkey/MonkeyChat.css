@@ -1,0 +1,210 @@
+.MonkeyChat {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.MonkeyChat-Messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+}
+
+.MonkeyChat-Messages.Input {
+    /* Override the input padding and font size */
+    padding: 8px;
+    font-size: 16px;
+    line-height: 20px;
+}
+
+.MonkeyChat-Input {
+    display: flex;
+    align-items: start;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.MonkeyChat-Input textarea {
+    flex-grow: 1;
+    font-size: 16px;
+    resize: none;
+}
+
+.MonkeyChat-Input textarea:focus-visible {
+    /* Inset the outline ring so it doesn't get clipped by the
+    overflow: hidden on the container */
+    outline-offset: -2px;
+}
+
+.MonkeyChat-Input-Controls {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+}
+
+.MonkeyChat-Input-Controls-Secondary {
+    display: flex;
+    align-items: center;
+}
+
+.MonkeyChat-Input-Controls-Secondary .Button-Classic {
+    padding: 1px 4px;
+    position: relative;
+}
+
+.MonkeyChat-Input-Controls-Secondary .Button-Classic:first-child {
+    border-image-width: 4px 0 4px 4px;
+}
+
+.MonkeyChat-Input-Controls-Secondary .Button-Classic:first-child:after {
+    content: "";
+    width: 1px;
+    background: #000;
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    right: -4px;
+}
+
+.MonkeyChat-Input-Controls-Secondary .Button-Classic:last-child {
+    border-image-width: 4px 4px 4px 0;
+}
+
+.MonkeyChat-Input-Controls-Secondary .Button-Platinum {
+    padding: 1px 4px;
+    position: relative;
+}
+
+.MonkeyChat-Input-Controls-Secondary .Button-Platinum:first-child {
+    border-image-width: 4px 0 4px 4px;
+}
+
+.MonkeyChat-Input-Controls-Secondary .Button-Platinum:first-child:after {
+    content: "";
+    width: 1px;
+    background: #aaa;
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    right: -4px;
+}
+
+.MonkeyChat-Input-Controls-Secondary .Button-Platinum:last-child:after {
+    content: "";
+    width: 1px;
+    background: #fff;
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    left: -4px;
+}
+
+.MonkeyChat-Input-Controls-Secondary .Button-Platinum:last-child {
+    border-image-width: 4px 4px 4px 0;
+}
+
+.MonkeyChat-APIKey-Message {
+    color: #666;
+}
+
+.MonkeyChat-Link {
+    cursor: pointer;
+    color: #00c;
+}
+
+.MonkeyChat-Link:hover {
+    text-decoration: underline;
+}
+
+.MonkeyChat-Link:active {
+    background: #00c;
+    color: #fff;
+    border-radius: 2px;
+    text-decoration: none;
+}
+
+.MonkeyChat-Separator {
+    margin-top: 1em;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 1em;
+}
+
+.MonkeyChat-Header p:first-child {
+    margin-top: 0;
+}
+
+.MonkeyChat-Header ul {
+    margin-top: -0.5em;
+    padding-inline-start: 20px;
+}
+
+.MonkeyChat-Header p:last-child {
+    margin-bottom: 0;
+}
+
+.MonkeyChat-MessageBubble {
+    max-width: 80%;
+}
+
+.MonkeyChat-MessageBubble-Content {
+    border: solid 1px #000;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.MonkeyChat-MessageBubble-User {
+    margin-left: auto;
+}
+
+.MonkeyChat-MessageBubble-User .MonkeyChat-MessageBubble-Label {
+    text-align: right;
+}
+
+.MonkeyChat-MessageBubble-Error .MonkeyChat-MessageBubble-Content {
+    border-color: #f00;
+    color: #f00;
+}
+
+.MonkeyChat-MessageBubble-Error .MonkeyChat-MessageBubble-Label {
+    color: #f00;
+}
+
+.MonkeyChat-MessageBubble-Label {
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.MonkeyChat-Badge {
+    color: #000;
+    padding: 1px 2px;
+    border-radius: 4px;
+    font-style: normal;
+}
+
+.MonkeyChat-Reasoning {
+    font-style: italic;
+    color: #333;
+}
+
+.MonkeyChat-Reasoning .MonkeyChat-Badge {
+    background: #f0ad4e;
+}
+
+.MonkeyChat-Waiting .MonkeyChat-Badge {
+    background-color: #cacada;
+    color: #668;
+    padding: 1px 4px;
+}
+
+.MonkeyChat-Action {
+    color: #333;
+}
+
+.MonkeyChat-Action .MonkeyChat-Badge {
+    background: #5bc0de;
+}

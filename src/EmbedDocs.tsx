@@ -108,7 +108,13 @@ export function EmbedDocs({
                     iframe.contentWindow.postMessage({"{"}type: "emulator_
                     <i>command</i>"{"}"}, "*");
                 </pre>
-                <p>Currently supported message payloads:</p>
+                <p>
+                    Currently supported message payloads (see also the{" "}
+                    <a href="https://github.com/mihaip/infinite-mac/blob/main/src/embed-types.ts">
+                        <code>EmbedControlEvent</code>
+                    </a>{" "}
+                    type):
+                </p>
                 <ul className="EmbedDocs-MessageList">
                     <li>
                         {message({type: "emulator_pause"})}: Pause the emulator.
@@ -133,8 +139,8 @@ export function EmbedDocs({
                         })}
                         : Send a mouse movement to the emulator. Some emulators
                         (Mini vMac, Basilisk II, SheepShaver) support absolute
-                        absolute coordinates, while others (Previous, DingusPPC,
-                        PearPC) only support relative coordinates.
+                        coordinates, while others (Previous, DingusPPC, PearPC)
+                        only support relative coordinates.
                     </li>
                     <li>
                         {message({type: "emulator_mouse_down", button: 0})} and{" "}
@@ -186,7 +192,13 @@ export function EmbedDocs({
                     {"}"});
                 </pre>
 
-                <p>Currently supported message payloads:</p>
+                <p>
+                    Currently supported message payloads (see also the{" "}
+                    <a href="https://github.com/mihaip/infinite-mac/blob/main/src/embed-types.ts">
+                        <code>EmbedNotificationEvent</code>
+                    </a>{" "}
+                    type):
+                </p>
                 <ul className="EmbedDocs-MessageList">
                     <li>
                         {message({type: "emulator_loaded"})}: Sent when the

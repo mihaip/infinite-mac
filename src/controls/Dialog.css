@@ -41,6 +41,9 @@
     image-rendering: pixelated;
     max-width: 600px;
     min-width: 320px;
+}
+
+.Dialog-Backdrop .Dialog {
     z-index: 3;
 }
 

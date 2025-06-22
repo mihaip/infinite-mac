@@ -59,6 +59,10 @@ import {
     MacLibrary,
     preloadMacLibraryContents,
 } from "./MacLibrary";
+import {
+    type EmbedNotificationEvent,
+    type EmbedControlEvent,
+} from "./embed-types";
 
 export type MacProps = {
     disks: SystemDiskDef[];
@@ -235,6 +239,10 @@ export default function Mac({
             );
         }
         const useSharedMemory = hasSharedArrayBuffer && !debugFallback;
+        const sendEmbedNotification = (event: EmbedNotificationEvent) => {
+            window.parent.postMessage(event, "*");
+        };
+
         const emulator = new Emulator(
             {
                 machine,
@@ -281,12 +289,7 @@ export default function Mac({
                         );
                     }
                     if (listenForControlMessages) {
-                        window.parent.postMessage(
-                            {
-                                type: "emulator_loaded",
-                            },
-                            "*"
-                        );
+                        sendEmbedNotification({type: "emulator_loaded"});
                     }
                 },
                 emulatorDidMakeLoadingProgress(
@@ -365,15 +368,17 @@ export default function Mac({
                 },
                 emulatorDidDrawScreen(emulator, imageData) {
                     if (screenUpdateMessages) {
-                        window.parent.postMessage(
-                            {
-                                type: "emulator_screen",
-                                data: imageData.data,
-                                width: imageData.width,
-                                height: imageData.height,
-                            },
-                            "*"
-                        );
+                        const data = imageData.data;
+                        // Make sure the alpha channel is fully opaque.
+                        for (let i = 3; i < data.length; i += 4) {
+                            data[i] = 255;
+                        }
+                        sendEmbedNotification({
+                            type: "emulator_screen",
+                            data,
+                            width: imageData.width,
+                            height: imageData.height,
+                        });
                     }
                 },
             }
@@ -407,7 +412,8 @@ export default function Mac({
                 if (e.source !== window.parent || window.parent === window) {
                     return;
                 }
-                switch (e.data.type) {
+                const event = e.data as EmbedControlEvent;
+                switch (event.type) {
                     case "emulator_pause":
                         emulator.pause();
                         break;
@@ -415,7 +421,7 @@ export default function Mac({
                         emulator.unpause();
                         break;
                     case "emulator_mouse_move": {
-                        const {x, y, deltaX, deltaY} = e.data;
+                        const {x, y, deltaX, deltaY} = event;
                         emulator.handleExternalInput({
                             type: "mousemove",
                             x,
@@ -428,34 +434,34 @@ export default function Mac({
                     case "emulator_mouse_down":
                         emulator.handleExternalInput({
                             type: "mousedown",
-                            button: e.data.button,
+                            button: event.button,
                         });
                         break;
                     case "emulator_mouse_up":
                         emulator.handleExternalInput({
                             type: "mouseup",
-                            button: e.data.button,
+                            button: event.button,
                         });
                         break;
                     case "emulator_key_down":
                         emulator.handleExternalInput({
                             type: "keydown",
-                            code: e.data.code,
+                            code: event.code,
                         });
                         break;
                     case "emulator_key_up":
                         emulator.handleExternalInput({
                             type: "keyup",
-                            code: e.data.code,
+                            code: event.code,
                         });
                         break;
                     case "emulator_load_disk":
-                        getCDROMInfo(e.data.url)
+                        getCDROMInfo(event.url)
                             .then(cdrom => emulator.loadCDROM(cdrom))
                             .catch(err =>
                                 console.error(
                                     "Could not load CD-ROM",
-                                    e.data.url,
+                                    event.url,
                                     err
                                 )
                             );
