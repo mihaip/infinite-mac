@@ -149,8 +149,13 @@ function MonkeyChatHeader({
             <p>
                 Chat with an LLM to control an emulated classic Mac. Think of it
                 as a 2025 take on the{" "}
-                <a href="https://folklore.org/Monkey_Lives.html">Monkey</a> desk
-                accessory used during the original Mac's development.
+                <a
+                    className="MonkeyChat-Link"
+                    href="https://folklore.org/Monkey_Lives.html"
+                    target="_blank">
+                    Monkey
+                </a>{" "}
+                desk accessory used during the original Mac's development.
             </p>
             <p>Some things you can try:</p>
             <ul>
@@ -166,6 +171,16 @@ function MonkeyChatHeader({
                     </li>
                 ))}
             </ul>
+            <p>
+                There's also{" "}
+                <a
+                    className="MonkeyChat-Link"
+                    href="https://www.youtube.com/watch?v=td2-GKPxgJE"
+                    target="_blank">
+                    a demo video
+                </a>{" "}
+                if you'd like to get a feel for what it can do.
+            </p>
 
             <p className="MonkeyChat-APIKey-Message">
                 {apiKey ? (

@@ -113,12 +113,13 @@
 }
 
 .MonkeyChat-Link {
-    cursor: pointer;
-    color: #00c;
+    cursor: pointer !important;
+    color: #00c !important;
+    text-decoration: none !important;
 }
 
 .MonkeyChat-Link:hover {
-    text-decoration: underline;
+    text-decoration: underline !important;
 }
 
 .MonkeyChat-Link:active {
