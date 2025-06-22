@@ -44,6 +44,12 @@ export function viteDevMiddleware(
         return false;
     }
 
+    // Simulate 307 redirect that the worker would do:
+    // https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/#automatic-trailing-slashes-default
+    if (url.pathname === "/monkey") {
+        res.writeHead(307, {Location: "/monkey/"}).end();
+        return true;
+    }
     return false;
 }
 

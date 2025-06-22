@@ -788,6 +788,7 @@ export class Emulator {
 
     #getAdbKeyCode(code: string): number | undefined {
         if (this.#delegate?.emulatorSettings?.(this).swapControlAndCommand) {
+            console.log("swapping control and command keys");
             if (code.startsWith("Control")) {
                 code = "Meta" + code.slice("Control".length);
             } else if (code.startsWith("Meta")) {

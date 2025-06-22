@@ -8,6 +8,7 @@
         "file-saver": "^2.0.5",
         "jszip": "^3.7.0",
         "linkify-react": "^4.1.1",
+        "openai": "^5.5.1",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "ringbuf.js": "^0.3.3",

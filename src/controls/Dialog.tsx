@@ -33,22 +33,13 @@ export function Dialog({
     className?: string;
 }) {
     const appearance = useAppearance();
-    const appearanceVariant = useAppearanceVariant();
     const dialog = (
         <div
             className={classNames(
                 "Dialog-Backdrop",
                 `Dialog-Backdrop-${appearance}`
             )}>
-            <div
-                className={classNames(
-                    "Dialog",
-                    `Dialog-${appearance}`,
-                    {
-                        "Dialog-System7": appearanceVariant === "System7",
-                    },
-                    className
-                )}>
+            <DialogFrame className={className}>
                 <h1 className={appearanceSystemFont(appearance)}>{title}</h1>
 
                 <div className="Dialog-Content">{children}</div>
@@ -84,10 +75,34 @@ export function Dialog({
                         {doneLabel}
                     </Button>
                 </footer>
-            </div>
+            </DialogFrame>
         </div>
     );
     return ReactDOM.createPortal(dialog, dialogRootNode);
+}
+
+export function DialogFrame({
+    children,
+    className,
+}: {
+    children: React.ReactNode;
+    className?: string;
+}) {
+    const appearance = useAppearance();
+    const appearanceVariant = useAppearanceVariant();
+    return (
+        <div
+            className={classNames(
+                "Dialog",
+                `Dialog-${appearance}`,
+                {
+                    "Dialog-System7": appearanceVariant === "System7",
+                },
+                className
+            )}>
+            {children}
+        </div>
+    );
 }
 
 const dialogRootNode = document.getElementById("dialog-root")!;
