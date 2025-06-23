@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import OpenAI, {APIUserAbortError} from "openai";
 import {
     type Tool,
     type ResponseComputerToolCall,
@@ -45,14 +45,17 @@ export function useChat(
         [setMessages]
     );
 
+    const interruptedCallIdRef = useRef<string | undefined>(undefined);
     const previousResponseIdRef = useRef<string | undefined>(undefined);
     useEffect(() => {
         previousResponseIdRef.current = undefined;
+        interruptedCallIdRef.current = undefined;
     }, [computer]);
 
     const resetMessages = useCallback(() => {
         setMessages([]);
         previousResponseIdRef.current = undefined;
+        interruptedCallIdRef.current = undefined;
     }, []);
 
     const [canSendMessage, setCanSendMessage] = useState(true);
@@ -76,7 +79,7 @@ export function useChat(
             setCanSendMessage(false);
             addMessage({type: "user", content: message});
 
-            const screenContents = computer.currentScreenContents();
+            let screenContents = computer.currentScreenContents();
 
             const tools: Tool[] = [
                 {
@@ -90,33 +93,51 @@ export function useChat(
             let response: OpenAI.Responses.Response;
             try {
                 setWaitingForResponse(true);
+                const input: OpenAI.Responses.ResponseInput = [];
+                if (
+                    interruptedCallIdRef.current &&
+                    previousResponseIdRef.current &&
+                    screenContents
+                ) {
+                    console.log("Adding output for interrupted call");
+                    input.push({
+                        call_id: interruptedCallIdRef.current,
+                        type: "computer_call_output",
+                        output: {
+                            type: "computer_screenshot",
+                            image_url: screenContents,
+                        },
+                        status: "completed",
+                    });
+                    screenContents = null; // Don't send the screenshot again
+                    interruptedCallIdRef.current = undefined;
+                }
+                input.push({
+                    role: "user",
+                    content: [
+                        {
+                            type: "input_text",
+                            text: message,
+                        },
+                        ...(screenContents
+                            ? [
+                                  {
+                                      type: "input_image" as const,
+                                      detail: "high" as const,
+                                      image_url: screenContents,
+                                  },
+                              ]
+                            : []),
+                    ],
+                });
+
                 response = await openai.responses.create(
                     {
                         model: "computer-use-preview",
                         instructions: computer.instructions,
                         previous_response_id: previousResponseIdRef.current,
                         tools,
-                        input: [
-                            {
-                                role: "user",
-                                content: [
-                                    {
-                                        type: "input_text",
-                                        text: message,
-                                    },
-                                    ...(screenContents &&
-                                    !previousResponseIdRef.current
-                                        ? [
-                                              {
-                                                  type: "input_image" as const,
-                                                  detail: "high" as const,
-                                                  image_url: screenContents,
-                                              },
-                                          ]
-                                        : []),
-                                ],
-                            },
-                        ],
+                        input,
                         reasoning: {
                             summary: "concise",
                         },
@@ -246,11 +267,23 @@ export function useChat(
                         JSON.stringify(response.output, null, 2)
                     );
                 } catch (error) {
-                    console.error("Error sending computer call output:", error);
-                    addMessage({
-                        type: "error",
-                        content: String(error),
-                    });
+                    if (error instanceof APIUserAbortError) {
+                        console.log("Action response aborted:", error);
+                        interruptedCallIdRef.current = computerCallId;
+                        addMessage({
+                            type: "error",
+                            content: "Stopped by user.",
+                        });
+                    } else {
+                        console.error(
+                            "Error sending computer call output:",
+                            error
+                        );
+                        addMessage({
+                            type: "error",
+                            content: String(error),
+                        });
+                    }
                     break;
                 } finally {
                     setWaitingForResponse(false);
