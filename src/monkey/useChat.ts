@@ -119,7 +119,7 @@ export function useChat(
                             type: "input_text",
                             text: message,
                         },
-                        ...(screenContents
+                        ...(screenContents && !previousResponseIdRef.current
                             ? [
                                   {
                                       type: "input_image" as const,
