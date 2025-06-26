@@ -22,8 +22,11 @@ export const DISKS: Disk[] = [
         screenSize: [512, 342],
         bezelStyle: "Beige",
         appearance: "Classic",
-        instructions:
-            "You are controlling a Macintosh 128K running System 1.0 from 1984. Drop-down menus need to have the mouse button held down to open them, and then you can move the mouse to select an item. Releasing the mouse button will select the item. Some keyboard shortcuts not available: Command-W for closing a window, Command-O for opening.",
+        instructions: `You are controlling a Macintosh 128K running System 1.0 from 1984. Things to keep in mind:
+- Drop-down menus need to have the mouse button held down to open them, and then you can move the mouse to select an item. Releasing the mouse button will select the item.
+- Some keyboard shortcuts not available: Command-W for closing a window, Command-O for opening.
+- There is no native mouse scrolling support or arrow keys, you will need to drag scroll thumbs to scroll.
+`,
         examples: [
             "Launch MacPaint and draw a smiley face.",
             "Get Info on the System Disk and tell me how much free space is available.",
