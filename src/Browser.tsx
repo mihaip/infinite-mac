@@ -322,6 +322,7 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
             libraryDownloadURLs: [],
             machine: disk.preferredMachine,
             cdromURLs: [],
+            cdromPrefetchChunks: [],
             diskFiles: [],
         } satisfies RunDef;
         const inNewWindow =

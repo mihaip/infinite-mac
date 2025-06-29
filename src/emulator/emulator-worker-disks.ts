@@ -36,6 +36,9 @@ export class EmulatorWorkerDisksApi {
                 this.#removableDisks.push(new EmulatorRemovableDisk());
             }
         }
+        // Expose the validation function globally in case the user wants to
+        // re-validate prefetched chunks even later.
+        (globalThis as any)["validateDisks"] = this.validate.bind(this);
     }
 
     isMediaPresent(diskId: DiskId): boolean {

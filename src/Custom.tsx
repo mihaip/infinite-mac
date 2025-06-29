@@ -33,6 +33,7 @@ export function Custom({
                   screenSize: "auto",
                   disks: [defaultDisk],
                   cdromURLs: [],
+                  cdromPrefetchChunks: [],
                   includeInfiniteHD: true,
                   includeSavedHD: canSaveDisks(),
                   includeLibrary: true,

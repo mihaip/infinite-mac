@@ -6,6 +6,7 @@ import {
     type EmulatorWorkerConfig,
     type EmulatorWorkerVideoBlit,
     type EmulatorMouseEvent,
+    generateChunkedFileSpecForCDROM,
 } from "./emulator-common";
 import {
     emulatorUsesPlaceholderDisks,
@@ -462,7 +463,18 @@ export class Emulator {
 
         const serviceWorkerAvailable = await this.#serviceWorkerReady;
         if (serviceWorkerAvailable) {
-            for (const spec of config.disks.concat(config.delayedDisks ?? [])) {
+            const specs = [
+                ...config.disks,
+                ...(config.delayedDisks ?? []),
+                ...config.cdroms
+                    .filter(
+                        cdrom =>
+                            !cdrom.fetchClientSide &&
+                            cdrom.prefetchChunks?.length
+                    )
+                    .map(generateChunkedFileSpecForCDROM),
+            ];
+            for (const spec of specs) {
                 this.#serviceWorker!.postMessage({
                     type: "init-disk-cache",
                     spec,
@@ -788,7 +800,6 @@ export class Emulator {
 
     #getAdbKeyCode(code: string): number | undefined {
         if (this.#delegate?.emulatorSettings?.(this).swapControlAndCommand) {
-            console.log("swapping control and command keys");
             if (code.startsWith("Control")) {
                 code = "Meta" + code.slice("Control".length);
             } else if (code.startsWith("Meta")) {
