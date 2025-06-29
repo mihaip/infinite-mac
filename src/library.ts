@@ -297,7 +297,7 @@ function extractItemIndex(item: LibraryIndexItem): string[] {
 }
 
 // Matches the JSON type returned by `handleDetails` handler in
-// `workers-site/library.ts`
+// `worker/library.ts`
 export type LibraryDetailsItem = {
     url: string;
     files: {[url: string]: number};
@@ -326,7 +326,7 @@ async function fetchItemDetails(
     item: LibraryIndexItem,
     setDetailsItem: (item: LibraryDetailsItem | undefined) => void
 ) {
-    // See workers-site/library.ts an explanation of why we pass in the details
+    // See worker/library.ts an explanation of why we pass in the details
     // asset URL. The fact that it's content hashed also means that we don't
     // need to worry about the client and server having different versions of
     // the index and details files.

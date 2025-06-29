@@ -2,7 +2,7 @@ name = "transparent-mac"
 account_id = "2ccb840de076261467812cbc32f8aa47"
 workers_dev = false
 compatibility_date = "2025-05-05"
-main = "workers-site/index.ts"
+main = "worker/index.ts"
 
 durable_objects.bindings = [
     { name = "ETHERNET_ZONE", class_name = "EthernetZone" },
