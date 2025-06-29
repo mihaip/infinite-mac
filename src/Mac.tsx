@@ -391,6 +391,7 @@ export default function Mac({
 
         const startVarz = {
             "emulator_starts": 1,
+            "emulator_embedded": screenSizeProp === "embed" ? 1 : 0,
             "emulator_ethernet": ethernetProvider ? 1 : 0,
             [`emulator_type:${machine.emulatorType}`]: 1,
 

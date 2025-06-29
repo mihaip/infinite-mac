@@ -5,11 +5,12 @@ import {TextArea} from "../controls/TextArea";
 import {Button} from "../controls/Button";
 import {type Message, useChat} from "./useChat";
 import {useCollectOpenAIAPIKey, useOpenAIAPIKey} from "./useOpenAIAPIKey";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {type Disk} from "./disks";
 import {useComputer} from "./useComputer";
 import resetImagePath from "./Images/Reset.png";
 import stopImagePath from "./Images/Stop.png";
+import * as varz from "../varz";
 
 export function MonkeyChat({
     disk,
@@ -18,6 +19,10 @@ export function MonkeyChat({
     disk: Disk;
     iframeRef: React.RefObject<HTMLIFrameElement>;
 }) {
+    useEffect(() => {
+        varz.increment("monkey_chat:shown");
+    }, []);
+
     const appearance = useAppearance();
 
     const [apiKey, setAPIKey, apiKeyProvider] = useOpenAIAPIKey();
@@ -26,6 +31,12 @@ export function MonkeyChat({
 
     const [message, setMessage] = useState("");
     const computer = useComputer(disk, iframeRef);
+    const onError = useCallback(() => varz.increment("monkey_chat:error"), []);
+    const onLoopIteration = useCallback(
+        () => varz.increment("monkey_chat:loop_iteration"),
+        []
+    );
+
     const {
         messages,
         sendMessage,
@@ -33,7 +44,7 @@ export function MonkeyChat({
         resetMessages,
         stopMessageSend,
         waitingForResponse,
-    } = useChat(computer, apiKeyProvider);
+    } = useChat(computer, apiKeyProvider, onLoopIteration, onError);
     const handleMessageSend = async (
         e?: React.MouseEvent,
         text: string = message
@@ -43,9 +54,11 @@ export function MonkeyChat({
         if (!apiKey) {
             await collectOpenAIAPIKey();
             if (!apiKeyProvider()) {
+                varz.increment("monkey_chat:no_api_key");
                 return;
             }
         }
+        varz.increment("monkey_chat:send");
         sendMessage(text);
         setMessage(""); // Clear the input after sending
     };
