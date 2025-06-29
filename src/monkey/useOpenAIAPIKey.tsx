@@ -62,7 +62,8 @@ function CollectDialog({onDone}: {onDone: (key?: string) => void}) {
                 <a href="https://platform.openai.com/docs/guides/tools-computer-use">
                     <code>computer-use-preview</code>
                 </a>{" "}
-                model.
+                model. It is only stored in your browser and only used for chats
+                you initiate.
             </div>
             <Input
                 autoFocus

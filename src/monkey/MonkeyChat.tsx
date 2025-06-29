@@ -172,14 +172,13 @@ function MonkeyChatHeader({
                 ))}
             </ul>
             <p>
-                There's also{" "}
                 <a
                     className="MonkeyChat-Link"
                     href="https://www.youtube.com/watch?v=td2-GKPxgJE"
                     target="_blank">
-                    a demo video
+                    Demo video
                 </a>{" "}
-                if you'd like to get a feel for what it can do.
+                of what it can (and can’t) do.
             </p>
 
             <p className="MonkeyChat-APIKey-Message">
@@ -195,13 +194,12 @@ function MonkeyChatHeader({
                     </>
                 ) : (
                     <>
-                        Note: a valid OpenAI API key is required. It is stored
-                        in your browser, and only used for chats you initiate.{" "}
                         <span
                             onClick={collectOpenAIAPIKey}
                             className="MonkeyChat-Link">
-                            Enter your OpenAI API key
-                        </span>
+                            Enter an OpenAI API key
+                        </span>{" "}
+                        to get started.
                     </>
                 )}
             </p>
