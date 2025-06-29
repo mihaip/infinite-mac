@@ -2,7 +2,6 @@
 
 import enum
 import glob
-import hashlib
 import json
 import os.path
 import paths
@@ -172,13 +171,8 @@ def main():
     app_items = list(sorted(app_items, key=item_sort_key))
     game_items = list(sorted(game_items, key=item_sort_key))
 
-    hash = hashlib.sha256()
-    for item in app_items + game_items:
-        hash.update(item.url.encode("utf-8"))
-
     with open(os.path.join(paths.DATA_DIR, "Library-index.json"), "w") as f:
         json.dump({
-            "hash": hash.hexdigest(),
             "apps": [a.to_index_output() for a in app_items],
             "games": [a.to_index_output() for a in game_items],
         }, f, separators=(",", ":"))

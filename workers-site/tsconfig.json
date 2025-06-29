@@ -1,12 +1,15 @@
 {
     "compilerOptions": {
         "target": "ES2020",
-        "module": "CommonJS",
+        "module": "esnext",
         "lib": ["ES2020"],
-        "types": ["@cloudflare/workers-types/latest"],
+        "types": ["@cloudflare/workers-types/latest", "vite/client"],
         "strict": true,
-        "resolveJsonModule": true,
+        "moduleResolution": "bundler",
         "esModuleInterop": true,
-        "incremental": true
+        "incremental": true,
+        // Ignore warnings about the Worker and SharedWorker types referenced
+        // in vite/client.
+        "skipLibCheck": true
     }
 }

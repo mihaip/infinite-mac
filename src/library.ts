@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import libraryIndex from "./Data/Library-index.json";
+import libraryDetailsUrl from "./Data/Library-details.json?url";
 
 export const APPS_INDEX = unpackIndexItems(libraryIndex.apps, "apps");
 export const GAMES_INDEX = unpackIndexItems(libraryIndex.games, "games");
@@ -325,7 +326,12 @@ async function fetchItemDetails(
     item: LibraryIndexItem,
     setDetailsItem: (item: LibraryDetailsItem | undefined) => void
 ) {
-    const url = `/Library/details?type=${item.type}&id=${item.id}&h=${libraryIndex.hash}`;
+    // See workers-site/library.ts an explanation of why we pass in the details
+    // asset URL. The fact that it's content hashed also means that we don't
+    // need to worry about the client and server having different versions of
+    // the index and details files.
+    const detailsAssetUrl = new URL(libraryDetailsUrl, window.location.href);
+    const url = `/Library/details?type=${item.type}&id=${item.id}&u=${detailsAssetUrl.toString()}`;
     const cached = itemDetailsCache.get(url);
     if (cached) {
         setDetailsItem(cached);
