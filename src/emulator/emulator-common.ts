@@ -530,7 +530,7 @@ export function generateChunkedFileSpecForCDROM(
         chunks.push(`${chunkStart}-${chunkEnd}`);
         chunkStart = chunkEnd;
     }
-    // Minimal metadata for workers-site/cd-rom.ts to reconstruct
+    // Minimal metadata for worker/cd-rom.ts to reconstruct
     const encoded = btoa(
         JSON.stringify({
             srcUrl: cdrom.srcUrl,

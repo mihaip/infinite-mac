@@ -176,7 +176,7 @@ def main():
             "apps": [a.to_index_output() for a in app_items],
             "games": [a.to_index_output() for a in game_items],
         }, f, separators=(",", ":"))
-    with open(os.path.join(paths.WORKER_DIR, "Library-details.json"), "w") as f:
+    with open(os.path.join(paths.DATA_DIR, "Library-details.json"), "w") as f:
         json.dump({
             "apps": [a.to_details_output() for a in app_items],
             "games": [a.to_details_output() for a in game_items],

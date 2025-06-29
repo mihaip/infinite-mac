@@ -56,9 +56,9 @@
         "worker-dev": "wrangler dev --port=3128",
         "worker-deploy": "CLOUDFLARE_ENV=production vite build && wrangler deploy",
         "sync-disks": "scripts/sync-disks.sh",
-        "prettier": "prettier --write src workers-site",
-        "lint": "eslint --fix src workers-site",
-        "check": "tsc --noEmit && tsc --noEmit --project workers-site/tsconfig.json",
+        "prettier": "prettier --write src worker",
+        "lint": "eslint --fix src worker",
+        "check": "tsc --noEmit && tsc --noEmit --project worker/tsconfig.json",
         "format-macemu": "clang-format -i --glob=macemu/BasiliskII/src/Unix/JS/*"
     },
     "browserslist": {
