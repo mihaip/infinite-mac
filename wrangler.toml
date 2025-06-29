@@ -44,12 +44,6 @@ kv_namespaces = [{ binding = "VARZ", id = "1725dc172d284ec4bd41bf950d5df01c" }]
 
 r2_buckets = [{ binding = "DISK_BUCKET", bucket_name = "infinite-mac-disk" }]
 
-rules = [
-    { type = "Text", globs = [
-        "**/Library-details.json",
-    ], fallthrough = true },
-]
-
 [observability]
 enabled = true
 head_sampling_rate = 0.1

@@ -3,7 +3,18 @@ export async function handleRequest(
     bucket: R2Bucket,
     ctx: ExecutionContext
 ) {
+    const url = new URL(request.url);
+    const path = url.pathname.slice(1).split("/");
+    const key = path[1];
+
     if (!bucket) {
+        // Locally we don't have a R2 bucket configured, serve files directly
+        // from the build directory (where import-disks.py puts them and
+        // sync-disks.sh uploads them to R2from).
+        if (import.meta.env.DEV) {
+            const chunkUrl = new URL(`/Images/build/${key}`, url);
+            return Response.redirect(chunkUrl.toString(), 302);
+        }
         return errorResponse("Bucket not configured", 500);
     }
     if (request.method !== "GET") {
@@ -16,9 +27,6 @@ export async function handleRequest(
         return cacheResponse;
     }
 
-    const url = new URL(request.url);
-    const path = url.pathname.slice(1).split("/");
-    const key = path[1];
     const object = await bucket.get(key);
 
     if (object === null) {

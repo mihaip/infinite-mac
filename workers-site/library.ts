@@ -1,7 +1,8 @@
+import {type Assets} from "./index";
 import {isValidSrcUrl} from "./cd-rom";
 import {type RequestInit as CloudflareWorkerRequestInit} from "@cloudflare/workers-types/2021-11-03";
 
-export async function handleRequest(request: Request) {
+export async function handleRequest(request: Request, assets: Assets) {
     if (request.method !== "GET") {
         return errorResponse("Method not allowed", 405);
     }
@@ -11,13 +12,13 @@ export async function handleRequest(request: Request) {
         case "proxy":
             return await handleProxy(url);
         case "details":
-            return await handleDetails(url);
+            return await handleDetails(url, assets);
         default:
             return errorResponse("Unknown library path", 404);
     }
 }
 
-async function handleDetails(url: URL) {
+async function handleDetails(url: URL, assets: Assets) {
     const id = url.searchParams.get("id");
     if (!id) {
         return errorResponse("id parameter is required");
@@ -26,10 +27,14 @@ async function handleDetails(url: URL) {
     if (!type) {
         return errorResponse("id parameter is required");
     }
+    const assetUrl = url.searchParams.get("u");
+    if (!assetUrl) {
+        return errorResponse("u parameter is required");
+    }
 
     if (!details) {
         // eslint-disable-next-line require-atomic-updates
-        details = await loadLibraryDetails();
+        details = await loadLibraryDetails(assets, assetUrl);
     }
 
     return new Response(JSON.stringify(details[type][id]), {
@@ -43,15 +48,14 @@ let details: {[type: string]: {[id: string]: LibraryDetailsItem}};
 
 type LibraryDetailsItem = {[key: string]: any};
 
-async function loadLibraryDetails() {
+async function loadLibraryDetails(assets: Assets, assetUrl: string) {
     console.time("Load library details");
-    const {default: libraryDetailsExport} = (await import(
-        "./Library-details.json"
-    )) as {default: string | object};
-    const libraryDetails =
-        typeof libraryDetailsExport === "object"
-            ? libraryDetailsExport
-            : JSON.parse(libraryDetailsExport);
+    // The library details file is large (~20 MB). If we include it as a JSON
+    // asset in the worker it will turned into a .js file, which is slow to
+    // load and parse. Instead, treat it as a static asset (handled by the
+    // client) and fetch it as JSON lazily when needed.
+    const assetResponse = await assets.fetch(new Request(assetUrl));
+    const libraryDetails = (await assetResponse.json()) as object;
     const unpacked = Object.fromEntries(
         Object.entries(libraryDetails).map(([type, items]) => [
             type,

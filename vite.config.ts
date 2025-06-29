@@ -2,7 +2,7 @@ import {type ResolvedConfig, defineConfig} from "vite";
 import react from "@vitejs/plugin-react-swc";
 import basicSsl from "@vitejs/plugin-basic-ssl";
 import svgr from "vite-plugin-svgr";
-import {viteDevMiddleware} from "./src/vite-dev-middleware";
+import {cloudflare} from "@cloudflare/vite-plugin";
 import path from "node:path";
 
 const headers = {
@@ -29,7 +29,7 @@ export default defineConfig(() => {
             chunkSizeWarningLimit: 2048,
         },
         worker: {
-            format: "es",
+            format: "es" as const,
         },
         assetsInclude: [
             "**/*.rom",
@@ -47,24 +47,7 @@ export default defineConfig(() => {
             headers,
         },
         clearScreen: false,
-        plugins: [
-            basicSslWrapped(),
-            react(),
-            svgr(),
-            {
-                name: "dev-middleware",
-                configureServer: server => {
-                    // Add stubs for the functionality provided by the
-                    // Cloudflare worker.
-                    server.middlewares.use((req, res, next) => {
-                        const handled = viteDevMiddleware(req, res);
-                        if (!handled) {
-                            next();
-                        }
-                    });
-                },
-            },
-        ],
+        plugins: [basicSslWrapped(), react(), svgr(), cloudflare()],
     };
 });
 
