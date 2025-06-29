@@ -35,7 +35,9 @@ export type Message =
 
 export function useChat(
     computer: Computer,
-    apiKeyProvider: () => string | undefined
+    apiKeyProvider: () => string | undefined,
+    onLoopIteration?: () => void,
+    onError?: () => void
 ) {
     const [messages, setMessages] = useState<Message[]>([]);
     const addMessage = useCallback(
@@ -154,6 +156,7 @@ export function useChat(
                     type: "error",
                     content: String(error),
                 });
+                onError?.();
                 setCanSendMessage(true);
                 return;
             } finally {
@@ -283,16 +286,18 @@ export function useChat(
                             type: "error",
                             content: String(error),
                         });
+                        onError?.();
                     }
                     break;
                 } finally {
                     setWaitingForResponse(false);
+                    onLoopIteration?.();
                 }
             }
 
             setCanSendMessage(true);
         },
-        [apiKeyProvider, computer, addMessage]
+        [apiKeyProvider, computer, addMessage, onLoopIteration, onError]
     );
 
     return {
