@@ -38,6 +38,7 @@ export function Embed({
         screenSize: "auto",
         disks: [defaultDisk],
         cdromURLs: [],
+        cdromPrefetchChunks: [],
         includeInfiniteHD: true,
         includeSavedHD: false,
         includeLibrary: false,

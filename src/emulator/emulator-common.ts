@@ -121,6 +121,9 @@ export function generateNextChunkUrl(
     url: string,
     specs: EmulatorChunkedFileSpec[]
 ): string | undefined {
+    if (url.includes("CD-ROM")) {
+        return undefined;
+    }
     const match = url.match(/.*\/([0-9a-f]+)\.chunk#(\d+)$/);
     if (!match) {
         console.warn(`Could not parse chunk URL ${url}`);
@@ -509,6 +512,38 @@ export type EmulatorCDROM = {
     platform?: "Macintosh" | "NeXT";
     fetchClientSide?: boolean;
     mountReadWrite?: boolean;
+    prefetchChunks?: number[];
 };
 
 export type EmulatorCDROMLibrary = {[path: string]: EmulatorCDROM};
+
+export function generateChunkedFileSpecForCDROM(
+    cdrom: EmulatorCDROM
+): EmulatorChunkedFileSpec {
+    const CHUNK_SIZE = 128 * 1024;
+
+    const {name, fileSize: totalSize} = cdrom;
+    let chunkStart = 0;
+    const chunks: string[] = [];
+    while (chunkStart < totalSize) {
+        const chunkEnd = Math.min(chunkStart + CHUNK_SIZE, totalSize);
+        chunks.push(`${chunkStart}-${chunkEnd}`);
+        chunkStart = chunkEnd;
+    }
+    // Minimal metadata for workers-site/cd-rom.ts to reconstruct
+    const encoded = btoa(
+        JSON.stringify({
+            srcUrl: cdrom.srcUrl,
+            totalSize,
+        })
+    );
+
+    return {
+        name,
+        baseUrl: `/CD-ROM/${encoded}`,
+        totalSize,
+        chunks,
+        chunkSize: CHUNK_SIZE,
+        prefetchChunks: cdrom.prefetchChunks ?? [0],
+    };
+}

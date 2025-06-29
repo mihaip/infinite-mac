@@ -1,12 +1,13 @@
-import {type EmulatorCDROM} from "./emulator-common";
+import {
+    type EmulatorCDROM,
+    generateChunkedFileSpecForCDROM,
+} from "./emulator-common";
 import {
     EmulatorWorkerChunkedDisk,
     type EmulatorWorkerChunkedDiskDelegate,
 } from "./emulator-worker-chunked-disk";
 import {type EmulatorWorkerDisk} from "./emulator-worker-disks";
 import {EmulatorWorkerUploadDisk} from "./emulator-worker-upload-disk";
-
-const CHUNK_SIZE = 128 * 1024;
 
 export function createEmulatorWorkerCDROMDisk(
     cdrom: EmulatorCDROM,
@@ -22,29 +23,9 @@ export function createEmulatorWorkerCDROMDisk(
             delegate
         );
     }
-    const {name, fileSize: totalSize} = cdrom;
-    let chunkStart = 0;
-    const chunks: string[] = [];
-    while (chunkStart < totalSize) {
-        const chunkEnd = Math.min(chunkStart + CHUNK_SIZE, totalSize);
-        chunks.push(`${chunkStart}-${chunkEnd}`);
-        chunkStart = chunkEnd;
-    }
-    // Minimal metadata for workers-site/cd-rom.ts to reconstruct
-    const encoded = btoa(
-        JSON.stringify({
-            srcUrl: cdrom.srcUrl,
-            totalSize,
-        })
-    );
-    const spec = {
-        name,
-        baseUrl: `/CD-ROM/${encoded}`,
-        totalSize,
-        chunks,
-        chunkSize: CHUNK_SIZE,
-        prefetchChunks: [0],
-    };
+
+    const spec = generateChunkedFileSpecForCDROM(cdrom);
+
     let disk: EmulatorWorkerDisk = new EmulatorWorkerChunkedDisk(
         spec,
         delegate

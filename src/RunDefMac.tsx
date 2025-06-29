@@ -18,14 +18,23 @@ export default function RunDefMac({runDef, onDone}: RunDefMacProps) {
     );
     useEffect(() => {
         if (runDef.cdromURLs.length) {
-            Promise.all(runDef.cdromURLs.map(getCDROMInfo))
+            Promise.all(
+                runDef.cdromURLs.map(async (url, i) => {
+                    const info = await getCDROMInfo(url);
+                    const prefetchChunks = runDef.cdromPrefetchChunks[i];
+                    if (prefetchChunks?.length > 0) {
+                        return {...info, prefetchChunks};
+                    }
+                    return info;
+                })
+            )
                 .then(setCDROMs)
                 .catch(error => {
                     setCDROMErrorText(`Could not load the CD-ROM: ${error}`);
                     setCDROMs([]);
                 });
         }
-    }, [runDef.cdromURLs]);
+    }, [runDef.cdromURLs, runDef.cdromPrefetchChunks]);
     const disks = Array.from(new Set(runDef.disks));
     disks.forEach(disk => disk.generatedSpec()); // Prefetch the disk definition
     return cdroms ? (
