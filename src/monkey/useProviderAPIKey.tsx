@@ -1,16 +1,18 @@
+import "./useProviderAPIKey.css";
 import {useCallback, useRef, useState} from "react";
 import {usePersistentState} from "../usePersistentState";
 import {Dialog} from "../controls/Dialog";
 import {Input} from "../controls/Input";
+import {type Provider} from "./Provider";
 
-export function useOpenAIAPIKey() {
+export function useProviderAPIKey(provider: Provider) {
     const [rawValue, setRawValue] = usePersistentState<string>(
         "",
-        "monkey-openai-api-key"
+        `monkey-${provider.id}-api-key`
     );
     const ref = useRef<string>(rawValue);
     ref.current = rawValue;
-    const provider = useCallback(() => {
+    const keyProvider = useCallback(() => {
         return ref.current;
     }, []);
     const setKey = useCallback(
@@ -20,15 +22,19 @@ export function useOpenAIAPIKey() {
         },
         [setRawValue]
     );
-    return [ref.current, setKey, provider] as const;
+    return [ref.current, setKey, keyProvider] as const;
 }
 
-export function useCollectOpenAIAPIKey(setKey: (key: string) => void) {
+export function useCollectProviderAPIKey(
+    provider: Provider,
+    setKey: (key: string) => void
+) {
     const [dialog, setDialog] = useState<React.ReactNode>(null);
-    const collectOpenAIAPIKey = useCallback(async () => {
+    const collectProviderAPIKey = useCallback(async () => {
         return new Promise<void>(resolve => {
             setDialog(
                 <CollectDialog
+                    provider={provider}
                     onDone={key => {
                         setDialog(null);
                         if (key) {
@@ -39,11 +45,20 @@ export function useCollectOpenAIAPIKey(setKey: (key: string) => void) {
                 />
             );
         });
-    }, [setKey]);
-    return {collectOpenAIAPIKey, collectOpenAIAPIKeyDialog: dialog};
+    }, [setKey, provider]);
+    return {
+        collectProviderAPIKey,
+        collectProviderAPIKeyDialog: dialog,
+    };
 }
 
-function CollectDialog({onDone}: {onDone: (key?: string) => void}) {
+function CollectDialog({
+    provider,
+    onDone,
+}: {
+    provider: Provider;
+    onDone: (key?: string) => void;
+}) {
     const [key, setKey] = useState("");
     const handleDone = useCallback(() => {
         onDone(key);
@@ -51,19 +66,15 @@ function CollectDialog({onDone}: {onDone: (key?: string) => void}) {
 
     return (
         <Dialog
-            className="Monkey-CollectOpenAIAPIKeyDialog"
-            title="OpenAI API Key"
+            className="Monkey-CollectProviderAPIKeyDialog"
+            title={`${provider.label} API Key`}
             onDone={handleDone}
             doneLabel="Save"
             doneEnabled={key.length > 0}
             onCancel={onDone}>
-            <div className="Monkey-CollectOpenAIAPIKeyDialog-Note">
-                The API key you provide must have access to the{" "}
-                <a href="https://platform.openai.com/docs/guides/tools-computer-use">
-                    <code>computer-use-preview</code>
-                </a>{" "}
-                model. It is only stored in your browser and only used for chats
-                you initiate.
+            <div className="Monkey-CollectProviderAPIKeyDialog-Note">
+                {provider.apiKeyInstructions} It is only stored in your browser
+                and only used for chats you initiate.
             </div>
             <Input
                 autoFocus
@@ -75,7 +86,7 @@ function CollectDialog({onDone}: {onDone: (key?: string) => void}) {
                         handleDone();
                     }
                 }}
-                placeholder="Enter an OpenAI API key"
+                placeholder={`Enter a ${provider.label} API key`}
             />
         </Dialog>
     );

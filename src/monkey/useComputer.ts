@@ -1,9 +1,12 @@
 import {useCallback, useEffect, useMemo, useRef} from "react";
 import {type Disk} from "./disks";
-import {type Computer, type ComputerAction} from "./useChat";
 import {type EmbedControlEvent} from "../embed-types";
-import {type ResponseComputerToolCall} from "openai/resources/responses/responses";
 import {sleep} from "./util";
+import {
+    type ComputerAction,
+    type Computer,
+    type ComputerMouseButton,
+} from "./Computer";
 
 export function useComputer(
     disk: Disk,
@@ -67,8 +70,7 @@ export function useComputer(
                 });
             }
 
-            type Button = ResponseComputerToolCall.Click["button"];
-            function toButtonNumber(button: Button): number {
+            function toButtonNumber(button: ComputerMouseButton): number {
                 switch (button) {
                     case "left":
                         return 0;
@@ -82,20 +84,22 @@ export function useComputer(
                 }
             }
 
-            function sendMouseDown(button: Button = "left") {
+            function sendMouseDown(button: ComputerMouseButton = "left") {
                 sendEvent({
                     type: "emulator_mouse_down",
                     button: toButtonNumber(button),
                 });
             }
 
-            function sendMouseUp(button: Button = "left") {
+            function sendMouseUp(button: ComputerMouseButton = "left") {
                 sendEvent({
                     type: "emulator_mouse_up",
                     button: toButtonNumber(button),
                 });
             }
-            async function sendMouseClick(button: Button = "left") {
+            async function sendMouseClick(
+                button: ComputerMouseButton = "left"
+            ) {
                 sendMouseDown(button);
                 await sleep(100); // Simulate a short delay for the click
                 sendMouseUp(button);

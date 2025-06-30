@@ -12,6 +12,7 @@ import {MonkeyChat} from "./MonkeyChat";
 import classNames from "classnames";
 import {type Disk, DISKS} from "./disks";
 import iconPath from "./Images/Icon.png";
+import {type Provider, PROVIDERS} from "./Provider";
 
 export default function Monkey() {
     const [disk, setDisk] = useState<Disk>(DISKS[0]);
@@ -69,6 +70,8 @@ function MonkeySidebar({
     iframeRef: React.RefObject<HTMLIFrameElement>;
 }) {
     const appearance = useAppearance();
+    const [provider, setProvider] = useState(PROVIDERS[0]);
+
     return (
         <DialogFrame className="Monkey-Sidebar">
             <div className="Monkey-Title">
@@ -83,13 +86,16 @@ function MonkeySidebar({
                         Infinite Monkey
                     </h1>
                     <a href="https://infinitemac.org/">Infinite Mac</a> +{" "}
-                    <a href="https://platform.openai.com/docs/guides/tools-computer-use">
-                        OpenAI Computer Use
-                    </a>
+                    {provider.titleLink}
                 </div>
             </div>
-            <MonkeyControls disk={disk} setDisk={setDisk} />
-            <MonkeyChat disk={disk} iframeRef={iframeRef} />
+            <MonkeyControls
+                disk={disk}
+                setDisk={setDisk}
+                provider={provider}
+                setProvider={setProvider}
+            />
+            <MonkeyChat disk={disk} iframeRef={iframeRef} provider={provider} />
         </DialogFrame>
     );
 }
@@ -97,9 +103,13 @@ function MonkeySidebar({
 function MonkeyControls({
     disk,
     setDisk,
+    provider,
+    setProvider,
 }: {
     disk: Disk;
     setDisk: (disk: Disk) => void;
+    provider: Provider;
+    setProvider: (provider: Provider) => void;
 }) {
     return (
         <div className="Monkey-Controls">
@@ -122,8 +132,18 @@ function MonkeyControls({
             </label>
             <label>
                 Provider:{" "}
-                <Select defaultValue="OpenAI">
-                    <option value="OpenAI">OpenAI</option>
+                <Select
+                    value={provider.id}
+                    onChange={e =>
+                        setProvider(
+                            PROVIDERS.find(p => p.id === e.target.value)!
+                        )
+                    }>
+                    {PROVIDERS.map(p => (
+                        <option key={p.id} value={p.id}>
+                            {p.label}
+                        </option>
+                    ))}
                 </Select>
             </label>
         </div>

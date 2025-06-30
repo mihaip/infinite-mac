@@ -4,18 +4,21 @@ import {useAppearance} from "../controls/Appearance";
 import {TextArea} from "../controls/TextArea";
 import {Button} from "../controls/Button";
 import {type Message, useChat} from "./useChat";
-import {useCollectOpenAIAPIKey, useOpenAIAPIKey} from "./useOpenAIAPIKey";
+import {useCollectProviderAPIKey, useProviderAPIKey} from "./useProviderAPIKey";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {type Disk} from "./disks";
 import {useComputer} from "./useComputer";
 import resetImagePath from "./Images/Reset.png";
 import stopImagePath from "./Images/Stop.png";
 import * as varz from "../varz";
+import {type Provider} from "./Provider";
 
 export function MonkeyChat({
+    provider,
     disk,
     iframeRef,
 }: {
+    provider: Provider;
     disk: Disk;
     iframeRef: React.RefObject<HTMLIFrameElement>;
 }) {
@@ -25,16 +28,19 @@ export function MonkeyChat({
 
     const appearance = useAppearance();
 
-    const [apiKey, setAPIKey, apiKeyProvider] = useOpenAIAPIKey();
-    const {collectOpenAIAPIKey, collectOpenAIAPIKeyDialog} =
-        useCollectOpenAIAPIKey(setAPIKey);
+    const [apiKey, setAPIKey, apiKeyProvider] = useProviderAPIKey(provider);
+    const {collectProviderAPIKey, collectProviderAPIKeyDialog} =
+        useCollectProviderAPIKey(provider, setAPIKey);
 
     const [message, setMessage] = useState("");
     const computer = useComputer(disk, iframeRef);
-    const onError = useCallback(() => varz.increment("monkey_chat:error"), []);
+    const onError = useCallback(
+        () => varz.increment(`monkey_chat:${provider.id}:error`),
+        [provider.id]
+    );
     const onLoopIteration = useCallback(
-        () => varz.increment("monkey_chat:loop_iteration"),
-        []
+        () => varz.increment(`monkey_chat:${provider.id}:loop_iteration`),
+        [provider.id]
     );
 
     const {
@@ -44,7 +50,7 @@ export function MonkeyChat({
         resetMessages,
         stopMessageSend,
         waitingForResponse,
-    } = useChat(computer, apiKeyProvider, onLoopIteration, onError);
+    } = useChat(provider, computer, apiKeyProvider, onLoopIteration, onError);
     const handleMessageSend = async (
         e?: React.MouseEvent,
         text: string = message
@@ -52,13 +58,13 @@ export function MonkeyChat({
         e?.preventDefault();
 
         if (!apiKey) {
-            await collectOpenAIAPIKey();
+            await collectProviderAPIKey();
             if (!apiKeyProvider()) {
-                varz.increment("monkey_chat:no_api_key");
+                varz.increment(`monkey_chat:${provider.id}:no_api_key`);
                 return;
             }
         }
-        varz.increment("monkey_chat:send");
+        varz.increment(`monkey_chat:${provider.id}:send`);
         sendMessage(text);
         setMessage(""); // Clear the input after sending
     };
@@ -98,9 +104,10 @@ export function MonkeyChat({
                 <MonkeyChatHeader
                     disk={disk}
                     handleMessageSend={handleMessageSend}
-                    apiKey={apiKey}
-                    setAPIKey={setAPIKey}
-                    collectOpenAIAPIKey={collectOpenAIAPIKey}
+                    provider={provider}
+                    providerAPIKey={apiKey}
+                    setProviderAPIKey={setAPIKey}
+                    collectProviderAPIKey={collectProviderAPIKey}
                 />
             </div>
             <div className="MonkeyChat-Input">
@@ -128,7 +135,12 @@ export function MonkeyChat({
                             <img src={resetImagePath} alt="Reset" />
                         </Button>
                         <Button
-                            onClick={stopMessageSend}
+                            onClick={() => {
+                                varz.increment(
+                                    `monkey_chat:${provider.id}:stop`
+                                );
+                                stopMessageSend();
+                            }}
                             disabled={canSendMessage}
                             title="Stop">
                             <img src={stopImagePath} alt="Stop" />
@@ -136,26 +148,28 @@ export function MonkeyChat({
                     </div>
                 </div>
             </div>
-            {collectOpenAIAPIKeyDialog}
+            {collectProviderAPIKeyDialog}
         </div>
     );
 }
 
 function MonkeyChatHeader({
+    provider,
     disk,
     handleMessageSend,
-    apiKey,
-    setAPIKey,
-    collectOpenAIAPIKey,
+    providerAPIKey,
+    setProviderAPIKey,
+    collectProviderAPIKey,
 }: {
+    provider: Provider;
     disk: Disk;
     handleMessageSend: (e?: React.MouseEvent, text?: string) => Promise<void>;
-    apiKey: string;
-    setAPIKey: (key: string) => void;
-    collectOpenAIAPIKey: () => Promise<void>;
+    providerAPIKey: string;
+    setProviderAPIKey: (key: string) => void;
+    collectProviderAPIKey: () => Promise<void>;
 }) {
-    const displayAPIKey = apiKey
-        ? apiKey.slice(0, 4) + "..." + apiKey.slice(-4)
+    const displayAPIKey = providerAPIKey
+        ? providerAPIKey.slice(0, 4) + "..." + providerAPIKey.slice(-4)
         : "";
     return (
         <div className="MonkeyChat-Header">
@@ -195,11 +209,11 @@ function MonkeyChatHeader({
             </p>
 
             <p className="MonkeyChat-APIKey-Message">
-                {apiKey ? (
+                {providerAPIKey ? (
                     <>
-                        OpenAI API key: <code>{displayAPIKey}</code> (
+                        {provider.label} API key: <code>{displayAPIKey}</code> (
                         <span
-                            onClick={() => setAPIKey("")}
+                            onClick={() => setProviderAPIKey("")}
                             className="MonkeyChat-Link">
                             clear
                         </span>
@@ -208,9 +222,9 @@ function MonkeyChatHeader({
                 ) : (
                     <>
                         <span
-                            onClick={collectOpenAIAPIKey}
+                            onClick={collectProviderAPIKey}
                             className="MonkeyChat-Link">
-                            Enter an OpenAI API key
+                            Enter an {provider.label} API key
                         </span>{" "}
                         to get started.
                     </>
