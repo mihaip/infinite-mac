@@ -66,13 +66,3 @@
     gap: 8px;
     justify-content: space-between;
 }
-
-.Monkey-CollectOpenAIAPIKeyDialog-Note {
-    max-width: 320px;
-    color: #666;
-    margin-bottom: 12px;
-}
-
-.Monkey-CollectOpenAIAPIKeyDialog input {
-    width: 320px;
-}
