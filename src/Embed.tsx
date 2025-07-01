@@ -67,7 +67,10 @@ export function Embed({
 
     let settings: EmulatorSettings | undefined;
     try {
-        settings = JSON.parse(settingsString);
+        settings =
+            settingsString === DEFAULT_SETTINGS_STRING
+                ? undefined
+                : JSON.parse(settingsString);
     } catch (error) {
         // Ignore, the user may be mid-editing the settings.
     }
