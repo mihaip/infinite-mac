@@ -293,6 +293,15 @@ function MonkeyChatMessage({message}: {message: Message}) {
             case "double_click":
                 displayAction = `Double click at (${action.x}, ${action.y})`;
                 break;
+            case "triple_click":
+                displayAction = `Triple click at (${action.x}, ${action.y})`;
+                break;
+            case "mouse_down":
+                displayAction = `Mouse down`;
+                break;
+            case "mouse_up":
+                displayAction = `Mouse up`;
+                break;
             case "drag":
                 displayAction = `Dragging along path: ${action.path
                     .map(p => `(${p.x}, ${p.y})`)
@@ -309,6 +318,9 @@ function MonkeyChatMessage({message}: {message: Message}) {
                 break;
             case "keypress":
                 displayAction = `Pressing keys ${action.keys.join("+")}`;
+                if (action.durationMs) {
+                    displayAction += ` for ${action.durationMs}ms`;
+                }
                 break;
             case "wait":
                 displayAction = `Waiting for computer to respond…`;

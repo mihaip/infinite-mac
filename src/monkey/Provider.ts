@@ -1,6 +1,7 @@
 import {type ReactNode} from "react";
 import {type Computer, type ComputerAction} from "./Computer";
 import {OPENAI_PROVIDER} from "./OpenAIProvider";
+import {ANTHROPIC_PROVIDER} from "./AnthropicProvider";
 
 export type Provider = {
     id: string;
@@ -28,4 +29,4 @@ export type ConversationCallbacks = {
     onLoopIteration?: () => void;
 };
 
-export const PROVIDERS = [OPENAI_PROVIDER];
+export const PROVIDERS = [OPENAI_PROVIDER, ANTHROPIC_PROVIDER];
