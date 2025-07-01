@@ -78,7 +78,11 @@ export function Browser({
 
 function sortedDisksByYear(disks: (SystemDiskDef | PlaceholderDiskDef)[]) {
     return Array.from(disks).sort((a, b) => {
-        return a.releaseDate[1] - b.releaseDate[1];
+        const monthDiff = a.releaseDate[1] - b.releaseDate[1];
+        if (monthDiff !== 0) {
+            return monthDiff;
+        }
+        return a.releaseDate[2] - b.releaseDate[2];
     });
 }
 
