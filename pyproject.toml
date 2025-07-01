@@ -1,0 +1,12 @@
+[project]
+name = "infinite-mac"
+version = "0.1.0"
+description = "Infinite Mac build tooling"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "machfs @ git+https://github.com/mihaip/machfs.git@0d2a3b200b2bd08f64039fdfed34c7f535479398",
+    "beautifulsoup4==4.12.2",
+    "Pillow>=10.3.0",
+    "xattr==1.1.4",
+]

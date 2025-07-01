@@ -14,7 +14,6 @@ Dependencies need to be installed:
 
 ```sh
 npm install
-pip3 install -r requirements.txt
 npm run build-tools
 ```
 
