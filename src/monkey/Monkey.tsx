@@ -13,6 +13,7 @@ import classNames from "classnames";
 import {type Disk, DISKS} from "./disks";
 import iconPath from "./Images/Icon.png";
 import {type Provider, PROVIDERS} from "./Provider";
+import {usePersistentState} from "../usePersistentState";
 
 export default function Monkey() {
     const [disk, setDisk] = useState<Disk>(DISKS[0]);
@@ -70,7 +71,11 @@ function MonkeySidebar({
     iframeRef: React.RefObject<HTMLIFrameElement>;
 }) {
     const appearance = useAppearance();
-    const [provider, setProvider] = useState(PROVIDERS[0]);
+    const [providerId, setProviderId] = usePersistentState(
+        PROVIDERS[0].id,
+        "monkey-provider-id"
+    );
+    const provider = PROVIDERS.find(p => p.id === providerId) ?? PROVIDERS[0];
 
     return (
         <DialogFrame className="Monkey-Sidebar">
@@ -92,10 +97,15 @@ function MonkeySidebar({
             <MonkeyControls
                 disk={disk}
                 setDisk={setDisk}
-                provider={provider}
-                setProvider={setProvider}
+                providerId={providerId}
+                setProviderId={setProviderId}
             />
-            <MonkeyChat disk={disk} iframeRef={iframeRef} provider={provider} />
+            <MonkeyChat
+                key={provider.id}
+                disk={disk}
+                iframeRef={iframeRef}
+                provider={provider}
+            />
         </DialogFrame>
     );
 }
@@ -103,13 +113,13 @@ function MonkeySidebar({
 function MonkeyControls({
     disk,
     setDisk,
-    provider,
-    setProvider,
+    providerId,
+    setProviderId,
 }: {
     disk: Disk;
     setDisk: (disk: Disk) => void;
-    provider: Provider;
-    setProvider: (provider: Provider) => void;
+    providerId: string;
+    setProviderId: (providerId: string) => void;
 }) {
     return (
         <div className="Monkey-Controls">
@@ -133,12 +143,8 @@ function MonkeyControls({
             <label>
                 Provider:{" "}
                 <Select
-                    value={provider.id}
-                    onChange={e =>
-                        setProvider(
-                            PROVIDERS.find(p => p.id === e.target.value)!
-                        )
-                    }>
+                    value={providerId}
+                    onChange={e => setProviderId(e.target.value)}>
                     {PROVIDERS.map(p => (
                         <option key={p.id} value={p.id}>
                             {p.label}

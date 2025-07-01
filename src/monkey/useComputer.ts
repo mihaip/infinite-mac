@@ -119,6 +119,14 @@ export function useComputer(
 
             console.log("Handling action:", action);
             switch (action.type) {
+                case "mouse_down":
+                    sendMouseDown(action.button);
+                    await sleep(100);
+                    break;
+                case "mouse_up":
+                    sendMouseUp(action.button);
+                    await sleep(100);
+                    break;
                 case "click":
                     sendMouseMove(action.x, action.y);
                     await sleep(100);
@@ -129,6 +137,15 @@ export function useComputer(
                     await sleep(100);
                     await sendMouseClick();
                     await sleep(100); // Simulate a short delay before the second click
+                    await sendMouseClick();
+                    break;
+                case "triple_click":
+                    sendMouseMove(action.x, action.y);
+                    await sleep(100);
+                    await sendMouseClick();
+                    await sleep(100); // Simulate a short delay before the second click
+                    await sendMouseClick();
+                    await sleep(100); // Simulate a short delay before the third click
                     await sendMouseClick();
                     break;
                 case "drag": {
@@ -193,18 +210,19 @@ export function useComputer(
                         sendKeyDown(code);
                         await sleep(10);
                     }
-                    await sleep(50); // Simulate a short delay for the key press
+                    await sleep(action.durationMs ?? 100); // Simulate a short delay for the key press
                     for (const code of codes) {
                         sendKeyUp(code);
                         await sleep(10);
                     }
                     break;
                 }
+
                 case "screenshot":
                     // No action needed, the screenshot is always sent
                     break;
                 case "wait":
-                    await sleep(100);
+                    await sleep(action.durationMs ?? 100);
             }
         },
         [iframeRef]
