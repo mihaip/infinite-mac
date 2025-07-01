@@ -22,7 +22,7 @@
         "@eslint/compat": "^1.2.9",
         "@eslint/eslintrc": "^3.3.1",
         "@eslint/js": "^9.28.0",
-        "@types/audioworklet": "^0.0.46",
+        "@types/audioworklet": "^0.0.77",
         "@types/dom-view-transitions": "^1.0.6",
         "@types/emscripten": "^1.39.13",
         "@types/file-saver": "^2.0.5",
@@ -37,8 +37,6 @@
         "eslint": "^9.28.0",
         "eslint-plugin-import": "^2.31.0",
         "eslint-plugin-react-hooks": "^5.2.0",
-        "husky": "^6.0.0",
-        "lint-staged": "^11.0.0",
         "prettier": "^3.5.3",
         "vite": "^6.3.5",
         "vite-plugin-svgr": "^4.3.0",
@@ -72,16 +70,6 @@
             "last 1 chrome version",
             "last 1 firefox version",
             "last 1 safari version"
-        ]
-    },
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged"
-        }
-    },
-    "lint-staged": {
-        "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
-            "prettier --write"
         ]
     },
     "prettier": {
