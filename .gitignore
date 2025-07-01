@@ -39,6 +39,9 @@ src/Data/Library-details.json
 # Cloudflare Worker wrangler CLI state
 .wrangler
 
+# Claude Code
+.claude/
+
 # rclone configuration with access key/secrets
 scripts/rclone.conf
 
