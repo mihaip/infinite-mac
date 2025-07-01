@@ -55,7 +55,7 @@
         "build": "vite build",
         "preview": "vite preview --host",
         "worker-dev": "wrangler dev --port=3128",
-        "worker-deploy": "CLOUDFLARE_ENV=production vite build && wrangler deploy",
+        "worker-deploy": "scripts/worker-deploy.sh",
         "sync-disks": "scripts/sync-disks.sh",
         "prettier": "prettier --write src worker",
         "lint": "eslint --fix src worker",
