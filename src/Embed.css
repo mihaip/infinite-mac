@@ -6,7 +6,8 @@
     white-space: pre-wrap;
     overflow-wrap: break-word;
     font-family: monospace;
-    max-width: 496px;
+    max-width: 490px;
+    padding: 6px;
 }
 
 .Embed-Copy-Button {
