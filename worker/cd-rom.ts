@@ -1,4 +1,5 @@
 import {type EmulatorCDROM} from "../src/emulator/emulator-common";
+import allowedDomains from "../src/cdrom-sites.json";
 
 type CDROMSpec = {
     srcUrl: string;
@@ -52,16 +53,6 @@ export function isValidSrcUrl(srcUrl: string) {
     if (srcProtocol !== "https:") {
         return false;
     }
-    const allowedDomains = [
-        "macintoshgarden.org",
-        "archive.org",
-        "img.classicmacdemos.com",
-        "macintoshrepository.org",
-        "fsck.technology",
-        "flanigan.us",
-        "gildev.dev",
-        "aresluna.org",
-    ];
     for (const allowedDomain of allowedDomains) {
         if (
             srcHost === allowedDomain ||

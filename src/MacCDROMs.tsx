@@ -17,6 +17,7 @@ import {
     DrawerList,
     DrawerListCategory,
 } from "./controls/Drawer";
+import allowedCDROMDomains from "./cdrom-sites.json";
 
 export function MacCDROMs({
     onRun,
@@ -194,11 +195,11 @@ function MacCustomCDROM({
                     file (i.e. not compressed, or a .dmg)
                 </li>
                 <li>
-                    Only a subset of sites are supported (currently archive.org,
-                    macintoshgarden.org and macintoshrepository.org). If there
-                    is another site that you wish to be supported, please
-                    contact the maintainer. Be aware that the HTTP server that
-                    serves the image has to support{" "}
+                    Only a subset of sites are supported (currently{" "}
+                    {allowedCDROMDomains.join(", ")}). If there is another site
+                    that you wish to be supported, please contact the
+                    maintainer. Be aware that the HTTP server that serves the
+                    image has to support{" "}
                     <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests">
                         range requests
                     </a>{" "}

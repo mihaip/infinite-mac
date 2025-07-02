@@ -49,6 +49,11 @@
     color: inherit;
 }
 
+.CustomFields-Description-Link {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 .CustomFields-Repeated {
     display: flex !important;
     align-items: center;

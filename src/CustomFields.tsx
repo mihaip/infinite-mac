@@ -28,6 +28,7 @@ import {
     MACHINES_BY_NAME,
 } from "./machines";
 import {type RunDef, type ScreenSize} from "./run-def";
+import allowedCDROMDomains from "./cdrom-sites.json";
 
 const ALL_DISKS_BY_NAME = {
     ...SYSTEM_DISKS_BY_NAME,
@@ -69,6 +70,7 @@ export function CustomFields({
     const [customDateEnabled, setCustomDateEnabled] = useState(
         runDef.customDate !== undefined
     );
+    const [showCDROMDomains, setShowCDROMDomains] = useState(false);
 
     const handleAddDiskFile = useCallback(
         (i: number, onDiskFileAdded?: () => void) => {
@@ -403,9 +405,16 @@ export function CustomFields({
                 <div className="CustomFields-Description Dialog-Description">
                     Disk or CD-ROM image from a URL. The image must be a raw
                     .iso/.img/.toast/.bin file (i.e. not compressed) and from{" "}
-                    <a href="https://github.com/search?q=repo%3Amihaip%2Finfinite-mac+%22const+allowedDomains%22&type=code">
+                    <span
+                        className={classNames({
+                            "CustomFields-Description-Link": !showCDROMDomains,
+                        })}
+                        onClick={() => setShowCDROMDomains(true)}>
                         a supported site
-                    </a>
+                    </span>
+                    {showCDROMDomains && (
+                        <> ({allowedCDROMDomains.join(", ")})</>
+                    )}
                     .
                 </div>
             </div>
