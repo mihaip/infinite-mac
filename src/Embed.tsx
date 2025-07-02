@@ -14,6 +14,7 @@ import {
     type EmulatorSettings,
 } from "./emulator/emulator-ui-settings";
 import {EmbedDocs} from "./EmbedDocs";
+import classNames from "classnames";
 
 export function Embed({
     defaultDisk = SYSTEM_DISKS_BY_NAME["System 7.1"],
@@ -240,7 +241,14 @@ export function Embed({
 
                 <div className="CustomFields-Row Embed-HTML-Row">
                     <span className="CustomFields-Label">HTML:</span>
-                    <div className="Embed-HTML">{html}</div>
+                    <div
+                        className={classNames(
+                            "Input",
+                            `Input-${appearance}`,
+                            "Embed-HTML"
+                        )}>
+                        {html}
+                    </div>
                 </div>
             </Dialog>
         </AppearanceProvider>
