@@ -71,6 +71,29 @@ export function CustomFields({
         runDef.customDate !== undefined
     );
     const [showCDROMDomains, setShowCDROMDomains] = useState(false);
+    const [diskURLs, setDiskURLs] = useState<DiskURL[]>([
+        ...(runDef.diskURLs?.map(url => ({
+            url,
+            mountReadWrite: true,
+        })) ?? []),
+        ...runDef.cdromURLs.map(url => ({
+            url,
+            mountReadWrite: false,
+        })),
+    ]);
+    useEffect(
+        () =>
+            setRunDef(runDef => ({
+                ...runDef,
+                cdromURLs: diskURLs
+                    .filter(diskURL => diskURL.url && !diskURL.mountReadWrite)
+                    .map(diskURL => diskURL.url),
+                diskURLs: diskURLs
+                    .filter(diskURL => diskURL.url && diskURL.mountReadWrite)
+                    .map(diskURL => diskURL.url),
+            })),
+        [setRunDef, diskURLs]
+    );
 
     const handleAddDiskFile = useCallback(
         (i: number, onDiskFileAdded?: () => void) => {
@@ -129,6 +152,7 @@ export function CustomFields({
             (runDef.disks.length > 0 ||
                 runDef.diskFiles.length > 0 ||
                 runDef.cdromURLs.length > 0 ||
+                (runDef.diskURLs?.length ?? 0) > 0 ||
                 runDef.includeSavedHD) &&
                 // Need AppleTalk to be configured if enabled.
                 (!appleTalkSupported ||
@@ -151,6 +175,7 @@ export function CustomFields({
         runDef.disks.length,
         runDef.diskFiles.length,
         runDef.cdromURLs.length,
+        runDef.diskURLs?.length,
         runDef.includeSavedHD,
         appleTalkEnabled,
         appleTalkZoneName,
@@ -352,51 +377,42 @@ export function CustomFields({
             </div>
 
             <div className="CustomFields-Row">
-                {runDef.cdromURLs.map((cdromURL, i) => (
-                    <CDROMOption
+                {diskURLs.map((url, i) => (
+                    <DiskURLOption
                         key={i}
-                        cdromURL={cdromURL}
-                        onChange={cdromURL =>
-                            setRunDef({
-                                ...runDef,
-                                cdromURLs: [
-                                    ...runDef.cdromURLs.slice(0, i),
-                                    cdromURL,
-                                    ...runDef.cdromURLs.slice(i + 1),
-                                ],
-                            })
+                        url={url}
+                        onChange={url =>
+                            setDiskURLs(v => [
+                                ...v.slice(0, i),
+                                url,
+                                ...v.slice(i + 1),
+                            ])
                         }
                         onAdd={() =>
-                            setRunDef({
-                                ...runDef,
-                                cdromURLs: [
-                                    ...runDef.cdromURLs.slice(0, i + 1),
-                                    "",
-                                    ...runDef.cdromURLs.slice(i + 1),
-                                ],
-                            })
+                            setDiskURLs(v => [
+                                ...v.slice(0, i + 1),
+                                {url: "", mountReadWrite: false},
+                                ...v.slice(i + 1),
+                            ])
                         }
                         onRemove={() =>
-                            setRunDef({
-                                ...runDef,
-                                cdromURLs: [
-                                    ...runDef.cdromURLs.slice(0, i),
-                                    ...runDef.cdromURLs.slice(i + 1),
-                                ],
-                            })
+                            setDiskURLs(v => [
+                                ...v.slice(0, i),
+                                ...v.slice(i + 1),
+                            ])
                         }
                     />
                 ))}
-                {runDef.cdromURLs.length === 0 && (
+                {diskURLs.length === 0 && (
                     <>
                         <span className="CustomFields-Label">Disk URL:</span>
                         <Button
                             onClick={e => {
                                 e.preventDefault();
-                                setRunDef({
-                                    ...runDef,
-                                    cdromURLs: [""],
-                                });
+                                setDiskURLs(v => [
+                                    ...v,
+                                    {url: "", mountReadWrite: false},
+                                ]);
                             }}>
                             Add
                         </Button>
@@ -700,61 +716,82 @@ function DiskFileOption({
     );
 }
 
-function CDROMOption({
-    cdromURL,
+type DiskURL = {url: string; mountReadWrite: boolean};
+
+function DiskURLOption({
+    url,
     onChange,
     onAdd,
     onRemove,
 }: {
-    cdromURL: string;
-    onChange: (cdromURL: string) => void;
+    url: DiskURL;
+    onChange: (cdromURL: DiskURL) => void;
     onAdd: () => void;
     onRemove: () => void;
 }) {
     return (
-        <div className="CustomFields-Repeated">
-            <span className="CustomFields-Label">Disk URL:</span>
-            <Input
-                type="url"
-                size={50}
-                value={cdromURL}
-                onChange={e => onChange(e.target.value)}
-            />
-            <Select
-                className="CustomFields-CDROMs"
-                value=""
-                onChange={e => onChange(e.target.value)}>
-                <option value="" disabled>
-                    System CD-ROMs
-                </option>
-                {systemCDROMs.map((cdrom, i) => (
-                    <Fragment key={cdrom.srcUrl}>
-                        {i > 0 &&
-                            systemCDROMEra(cdrom) !==
-                                systemCDROMEra(systemCDROMs[i - 1]) && (
-                                <option disabled />
-                            )}
-                        <option value={cdrom.srcUrl}>{cdrom.name}</option>
-                    </Fragment>
-                ))}
-            </Select>
-            <Button
-                className="AddRemove"
-                onClick={e => {
-                    e.preventDefault();
-                    onRemove();
-                }}>
-                –
-            </Button>
-            <Button
-                className="AddRemove"
-                onClick={e => {
-                    e.preventDefault();
-                    onAdd();
-                }}>
-                +
-            </Button>
-        </div>
+        <>
+            <div className="CustomFields-Repeated">
+                <span className="CustomFields-Label">Disk URL:</span>
+                <Input
+                    type="url"
+                    size={50}
+                    value={url.url}
+                    onChange={e => onChange({...url, url: e.target.value})}
+                />
+                <Select
+                    className="CustomFields-CDROMs"
+                    value=""
+                    onChange={e =>
+                        onChange({url: e.target.value, mountReadWrite: false})
+                    }>
+                    <option value="" disabled>
+                        System CD-ROMs
+                    </option>
+                    {systemCDROMs.map((cdrom, i) => (
+                        <Fragment key={cdrom.srcUrl}>
+                            {i > 0 &&
+                                systemCDROMEra(cdrom) !==
+                                    systemCDROMEra(systemCDROMs[i - 1]) && (
+                                    <option disabled />
+                                )}
+                            <option value={cdrom.srcUrl}>{cdrom.name}</option>
+                        </Fragment>
+                    ))}
+                </Select>
+                <Button
+                    className="AddRemove"
+                    onClick={e => {
+                        e.preventDefault();
+                        onRemove();
+                    }}>
+                    –
+                </Button>
+                <Button
+                    className="AddRemove"
+                    onClick={e => {
+                        e.preventDefault();
+                        onAdd();
+                    }}>
+                    +
+                </Button>
+            </div>
+            <div className="CustomFields-DiskURL-MountReadWrite">
+                <span className="CustomFields-Label" />
+                <label>
+                    <Checkbox
+                        checked={!url.mountReadWrite}
+                        onChange={e =>
+                            onChange({
+                                ...url,
+                                mountReadWrite: !e.target.checked,
+                            })
+                        }
+                    />
+                    CD-ROM (read-only)
+                </label>
+            </div>
+        </>
     );
 }
 

@@ -11,19 +11,26 @@ export type RunDefMacProps = {
 
 export default function RunDefMac({runDef, onDone}: RunDefMacProps) {
     const [cdroms, setCDROMs] = useState<EmulatorCDROM[] | undefined>(
-        runDef.cdromURLs.length ? undefined : []
+        runDef.cdromURLs.length || runDef.diskURLs?.length ? undefined : []
     );
     const [cdromErrorText, setCDROMErrorText] = useState<string | undefined>(
         undefined
     );
     useEffect(() => {
-        if (runDef.cdromURLs.length) {
+        const allURLs = [...runDef.cdromURLs, ...(runDef.diskURLs ?? [])];
+        const allPrefetchChunks = [
+            ...runDef.cdromPrefetchChunks,
+            ...(runDef.diskPrefetchChunks ?? []),
+        ];
+        if (allURLs.length) {
             Promise.all(
-                runDef.cdromURLs.map(async (url, i) => {
-                    const info = await getCDROMInfo(url);
-                    const prefetchChunks = runDef.cdromPrefetchChunks[i];
-                    if (prefetchChunks?.length > 0) {
-                        return {...info, prefetchChunks};
+                allURLs.map(async (url, i) => {
+                    const info: EmulatorCDROM = await getCDROMInfo(url);
+                    if (allPrefetchChunks[i]?.length > 0) {
+                        info.prefetchChunks = allPrefetchChunks[i];
+                    }
+                    if (runDef.diskURLs?.includes(url)) {
+                        info.mountReadWrite = true;
                     }
                     return info;
                 })
@@ -34,7 +41,12 @@ export default function RunDefMac({runDef, onDone}: RunDefMacProps) {
                     setCDROMs([]);
                 });
         }
-    }, [runDef.cdromURLs, runDef.cdromPrefetchChunks]);
+    }, [
+        runDef.cdromURLs,
+        runDef.cdromPrefetchChunks,
+        runDef.diskURLs,
+        runDef.diskPrefetchChunks,
+    ]);
     const disks = Array.from(new Set(runDef.disks));
     disks.forEach(disk => disk.generatedSpec()); // Prefetch the disk definition
     return cdroms ? (

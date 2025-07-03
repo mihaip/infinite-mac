@@ -98,10 +98,23 @@
     text-overflow: ellipsis;
 }
 
+.CustomFields-DiskURL-MountReadWrite {
+    margin-top: -6px;
+    margin-bottom: 6px;
+}
+
 .CustomFields-CDROMs {
     color: transparent; /* In case the label text peeks through */
     width: 20px;
     margin-left: 4px;
+}
+
+.CustomFields-CDROMs.Select.Select-Platinum {
+    height: 20px;
+    border-left-width: 0;
+    border-image-width: 3px 22px 3px 0;
+    margin-left: -20px;
+    z-index: 1;
 }
 
 .CustomFields-CDROMs.Select.Select-Aqua {

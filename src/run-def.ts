@@ -29,6 +29,8 @@ export type RunDef = {
     diskFiles: DiskFile[];
     cdromURLs: string[];
     cdromPrefetchChunks: number[][];
+    diskURLs?: string[];
+    diskPrefetchChunks?: number[][];
     includeInfiniteHD: boolean;
     includeSavedHD: boolean;
     includeLibrary: boolean;
@@ -161,6 +163,18 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         }
     }
 
+    const diskURLs = searchParams.getAll("disk_url");
+    const diskPrefetchChunks: number[][] = [];
+    for (const diskPrefetch of searchParams.getAll("disk_prefetch")) {
+        const chunks = diskPrefetch
+            .split(",")
+            .map(s => parseInt(s))
+            .filter(n => !isNaN(n));
+        if (chunks.length > 0) {
+            diskPrefetchChunks.push(chunks);
+        }
+    }
+
     let ethernetProvider;
     const appleTalkZoneName = searchParams.get("appleTalk");
     if (appleTalkZoneName) {
@@ -209,6 +223,8 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         ethernetProvider,
         cdromURLs,
         cdromPrefetchChunks,
+        diskURLs,
+        diskPrefetchChunks,
         diskFiles: [],
         customDate,
         debugFallback,
@@ -264,6 +280,12 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
     }
     for (const cdromPrefetch of runDef.cdromPrefetchChunks) {
         url.searchParams.append("cdrom_prefetch", cdromPrefetch.join(","));
+    }
+    for (const diskURL of runDef.diskURLs ?? []) {
+        url.searchParams.append("disk_url", diskURL);
+    }
+    for (const diskPrefetch of runDef.diskPrefetchChunks ?? []) {
+        url.searchParams.append("disk_prefetch", diskPrefetch.join(","));
     }
 
     if (
