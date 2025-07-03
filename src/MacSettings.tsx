@@ -69,48 +69,54 @@ export function MacSettings({
 
     return (
         <Dialog title="Settings" onDone={onDone}>
-            <label>
-                <Checkbox
-                    checked={emulatorSettings.swapControlAndCommand}
-                    onChange={() =>
-                        setEmulatorSettings({
-                            ...emulatorSettings,
-                            swapControlAndCommand:
-                                !emulatorSettings.swapControlAndCommand,
-                        })
-                    }
-                />
-                Swap Control and Command Keys
+            <div className="MacSettings-Row">
+                <div className="MacSettings-Row-Label">Input:</div>
+                <label>
+                    <Checkbox
+                        checked={emulatorSettings.swapControlAndCommand}
+                        onChange={() =>
+                            setEmulatorSettings({
+                                ...emulatorSettings,
+                                swapControlAndCommand:
+                                    !emulatorSettings.swapControlAndCommand,
+                            })
+                        }
+                    />
+                    Swap Control and Command Keys
+                </label>
                 <div className="Dialog-Description">
                     Makes it easier to use shortcuts like Command-W, Command-Q
                     or Command-Shift-3 (which are otherwise handled by the host
                     browser or OS).
                 </div>
-            </label>
+            </div>
             {emulatorSupportsMouseDeltas(emulatorType) &&
                 !emulatorSettings.trackpadMode && (
-                    <label>
-                        <Checkbox
-                            checked={emulatorSettings.useMouseDeltas}
-                            onChange={() =>
-                                setEmulatorSettings({
-                                    ...emulatorSettings,
-                                    useMouseDeltas:
-                                        !emulatorSettings.useMouseDeltas,
-                                })
-                            }
-                        />
-                        Use relative mouse movements
+                    <div className="MacSettings-Row">
+                        <div className="MacSettings-Row-Label" />
+                        <label>
+                            <Checkbox
+                                checked={emulatorSettings.useMouseDeltas}
+                                onChange={() =>
+                                    setEmulatorSettings({
+                                        ...emulatorSettings,
+                                        useMouseDeltas:
+                                            !emulatorSettings.useMouseDeltas,
+                                    })
+                                }
+                            />
+                            Use relative mouse movements
+                        </label>
                         <div className="Dialog-Description">
                             Send relative mouse movements to the emulator
                             instead of absolute positions. This can help with
                             compatibility of games such as Apeiron.
                         </div>
-                    </label>
+                    </div>
                 )}
             {emulatorSupportsSpeedSetting(emulatorType) && (
-                <label>
-                    Speed:
+                <div className="MacSettings-Row">
+                    <div className="MacSettings-Row-Label">Speed:</div>
                     <Select
                         value={emulatorSettings.speed}
                         onChange={event =>
@@ -131,10 +137,9 @@ export function MacSettings({
                         )}
                     </Select>
                     <div className="Dialog-Description">
-                        Very old software may be timing dependent and thus only
-                        work at 1x speeds.
+                        Very old software may be timing dependent.
                     </div>
-                </label>
+                </div>
             )}
             <div className="MacSettings-Row">
                 <div className="MacSettings-Row-Label">Scaling:</div>

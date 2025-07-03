@@ -10,6 +10,7 @@ import {type EmulatorFallbackEndpoint} from "./emulator-worker";
 
 export interface EmulatorWorkerInput {
     idleWait(timeout: number): boolean;
+    sleep(timeout: number): void;
     acquireInputLock(): number;
     releaseInputLock(): void;
     getInputValue(addr: number): number;
@@ -17,6 +18,7 @@ export interface EmulatorWorkerInput {
 
 export class SharedMemoryEmulatorWorkerInput implements EmulatorWorkerInput {
     #inputBufferView: Int32Array;
+    #sleepInputBufferView: Int32Array;
 
     constructor(config: EmulatorWorkerSharedMemoryInputConfig) {
         this.#inputBufferView = new Int32Array(
@@ -24,6 +26,7 @@ export class SharedMemoryEmulatorWorkerInput implements EmulatorWorkerInput {
             0,
             config.inputBufferSize
         );
+        this.#sleepInputBufferView = new Int32Array(new SharedArrayBuffer(4));
     }
 
     idleWait(timeout: number): boolean {
@@ -35,6 +38,12 @@ export class SharedMemoryEmulatorWorkerInput implements EmulatorWorkerInput {
         );
         const hadInput = waitResult === "ok";
         return hadInput;
+    }
+
+    sleep(timeout: number): void {
+        // sleepInputBufferView will never change, just use it to wait
+        // efficiently.
+        Atomics.wait(this.#sleepInputBufferView, 0, 0, timeout);
     }
 
     acquireInputLock(): number {
@@ -115,6 +124,14 @@ export class FallbackEmulatorWorkerInput implements EmulatorWorkerInput {
     idleWait(timeout: number): boolean {
         this.#fallbackEndpoint.idleWait(timeout);
         return false;
+    }
+
+    sleep(timeout: number): void {
+        const endTime = performance.now() + timeout;
+        while (performance.now() < endTime) {
+            // Not worth hitting the fallback endpoint, the timeouts are too
+            // short.
+        }
     }
 
     acquireInputLock(): number {

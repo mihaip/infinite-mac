@@ -9,6 +9,10 @@
     margin-right: 4px;
 }
 
+.MacSettings-Row label {
+    display: inline;
+}
+
 .MacSettings-Row .Dialog-Description {
     margin-left: 104px;
 }

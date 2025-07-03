@@ -73,8 +73,12 @@ import {
     EmulatorWorkerDiskSaver,
     initDiskSavers,
 } from "./emulator-worker-disk-saver";
-import {emulatorNeedsDeviceImage} from "./emulator-common-emulators";
+import {
+    emulatorNeedsDeviceImage,
+    type EmulatorSpeed,
+} from "./emulator-common-emulators";
 import {EmulatorWorkerDeviceImageDisk} from "./emulator-worker-device-image-disk";
+import {EmulatorWorkerSpeedGovernor} from "./emulator-worker-speed-governor";
 
 addEventListener("message", async event => {
     const {data} = event;
@@ -104,6 +108,7 @@ class EmulatorWorkerApi {
     #files: EmulatorWorkerFiles;
     #ethernet: EmulatorWorkerEthernet;
     #clipboard: EmulatorWorkerClipboard;
+    #speedGovernor?: EmulatorWorkerSpeedGovernor;
 
     #videoOpenTime = 0;
     #lastBlitFrameId = 0;
@@ -134,6 +139,7 @@ class EmulatorWorkerApi {
             delayedDisks,
             diskFiles,
             cdroms,
+            speedGovernorTargetIPS,
         } = config;
         const blitSender = (
             data: EmulatorWorkerVideoBlit,
@@ -231,6 +237,11 @@ class EmulatorWorkerApi {
             this.#emscriptenModule
         );
         this.#delayedDiskSpecs = delayedDisks;
+        if (speedGovernorTargetIPS !== undefined) {
+            this.#speedGovernor = new EmulatorWorkerSpeedGovernor(
+                speedGovernorTargetIPS
+            );
+        }
     }
 
     #abortError?: string;
@@ -466,7 +477,19 @@ class EmulatorWorkerApi {
         postMessage({type: "emulator_stopped", isExit});
     }
 
-    acquireInputLock(): number {
+    acquireInputLock(instructionCount?: number) {
+        if (this.#speedGovernor && instructionCount !== undefined) {
+            if (this.getInputValue(InputBufferAddresses.speedFlagAddr)) {
+                const speed = this.getInputValue(
+                    InputBufferAddresses.speedAddr
+                );
+                this.#speedGovernor.setSpeed(speed as EmulatorSpeed);
+            }
+            const sleepTimeMs = this.#speedGovernor.update(instructionCount);
+            if (sleepTimeMs > 0) {
+                this.#input.sleep(sleepTimeMs);
+            }
+        }
         return this.#input.acquireInputLock();
     }
 
