@@ -31,6 +31,7 @@ import {
 export type MachineDef = EmulatorDef & {
     name: string;
     cpu: EmulatorCpu;
+    speedGovernorTargetIPS?: number; // If specified, use the speed governor to try to hit this target IPS.
     romPath: string;
     gestaltID: number;
     prefsPath: string;
@@ -140,6 +141,9 @@ export const MAC_IIFX: MachineDef = {
     name: "Mac IIfx",
     cpu: "68030",
     romPath: macIIfxRomPath,
+    // Empirically determined to get realistic results in MacBench 4.0 and
+    // Speedometer 4.0.2.
+    speedGovernorTargetIPS: 4_000_000,
     gestaltID: 13,
     emulatorType: "BasiliskII",
     prefsPath: basiliskPrefsPath,
@@ -151,6 +155,9 @@ export const QUADRA_650: MachineDef = {
     name: "Quadra 650",
     cpu: "68040",
     romPath: quadra650RomPath,
+    // Empirically determined to get realistic results in MacBench 4.0 and
+    // Speedometer 4.0.2.
+    speedGovernorTargetIPS: 8_000_000,
     gestaltID: 36,
     emulatorType: "BasiliskII",
     prefsPath: basiliskPrefsPath,

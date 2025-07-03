@@ -540,41 +540,41 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  454584: () => { return workerApi.idleWait(); },  
- 454617: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
- 454653: () => { workerApi.blit(0, 0); },  
- 454679: ($0, $1) => { workerApi.blit($0, $1); },  
- 454707: () => { return workerApi.etherSeed(); },  
- 454741: ($0) => { workerApi.etherInit(UTF8ToString($0)); },  
- 454784: ($0, $1, $2) => { workerApi.etherWrite(UTF8ToString($0), $1, $2); },  
- 454836: ($0) => { return workerApi.etherRead($0, 1514); },  
- 454878: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
- 454914: () => { return workerApi.audioBufferSize(); },  
- 454954: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
- 454994: () => { return workerApi.acquireInputLock(); },  
- 455035: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
- 455124: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
- 455214: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
- 455301: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
- 455385: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
- 455472: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
- 455556: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasFlagAddr); },  
- 455647: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasAddr); },  
- 455734: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
- 455819: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
- 455899: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
- 455980: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr); },  
- 456074: () => { workerApi.releaseInputLock(); },  
- 456108: () => { workerApi.sleep(0.001); },  
- 456136: ($0) => { workerApi.setClipboardText(UTF8ToString($0)); },  
- 456186: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
- 456237: ($0) => { workerApi.disks.close($0); },  
- 456268: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
- 456317: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
- 456367: ($0) => { return workerApi.disks.size($0); },  
- 456404: ($0) => { return workerApi.disks.isMediaPresent($0); },  
- 456451: ($0) => { return workerApi.disks.isFixedDisk($0); },  
- 456495: ($0) => { workerApi.disks.eject($0); }
+  454600: () => { return workerApi.idleWait(); },  
+ 454633: ($0, $1) => { workerApi.didOpenVideo($0, $1); },  
+ 454669: () => { workerApi.blit(0, 0); },  
+ 454695: ($0, $1) => { workerApi.blit($0, $1); },  
+ 454723: () => { return workerApi.etherSeed(); },  
+ 454757: ($0) => { workerApi.etherInit(UTF8ToString($0)); },  
+ 454800: ($0, $1, $2) => { workerApi.etherWrite(UTF8ToString($0), $1, $2); },  
+ 454852: ($0) => { return workerApi.etherRead($0, 1514); },  
+ 454894: ($0, $1) => { workerApi.enqueueAudio($0, $1); },  
+ 454930: () => { return workerApi.audioBufferSize(); },  
+ 454970: ($0, $1, $2) => { workerApi.didOpenAudio($0, $1, $2); },  
+ 455010: ($0) => { return workerApi.acquireInputLock($0); },  
+ 455053: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr); },  
+ 455142: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr); },  
+ 455232: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr); },  
+ 455319: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr); },  
+ 455403: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr); },  
+ 455490: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr); },  
+ 455574: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasFlagAddr); },  
+ 455665: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasAddr); },  
+ 455752: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr); },  
+ 455837: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr); },  
+ 455917: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr); },  
+ 455998: () => { return workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr); },  
+ 456092: () => { workerApi.releaseInputLock(); },  
+ 456126: () => { workerApi.sleep(0.001); },  
+ 456154: ($0) => { workerApi.setClipboardText(UTF8ToString($0)); },  
+ 456204: ($0) => { return workerApi.disks.open(UTF8ToString($0)); },  
+ 456255: ($0) => { workerApi.disks.close($0); },  
+ 456286: ($0, $1, $2, $3) => { return workerApi.disks.read($0, $1, $2, $3); },  
+ 456335: ($0, $1, $2, $3) => { return workerApi.disks.write($0, $1, $2, $3); },  
+ 456385: ($0) => { return workerApi.disks.size($0); },  
+ 456422: ($0) => { return workerApi.disks.isMediaPresent($0); },  
+ 456469: ($0) => { return workerApi.disks.isFixedDisk($0); },  
+ 456513: ($0) => { workerApi.disks.eject($0); }
 };
 function getClipboardText() { const clipboardText = workerApi.getClipboardText(); if (!clipboardText || !clipboardText.length) { return 0; } const clipboardTextLength = lengthBytesUTF8(clipboardText) + 1; const clipboardTextCstr = _malloc(clipboardTextLength); stringToUTF8(clipboardText, clipboardTextCstr, clipboardTextLength); return clipboardTextCstr; }
 
@@ -4856,6 +4856,10 @@ function getClipboardText() { const clipboardText = workerApi.getClipboardText()
       var args = readEmAsmArgs(sigPtr, argbuf);
       return ASM_CONSTS[code](...args);
     };
+  var _emscripten_asm_const_double = (code, sigPtr, argbuf) => {
+      return runEmAsmFunction(code, sigPtr, argbuf);
+    };
+
   var _emscripten_asm_const_int = (code, sigPtr, argbuf) => {
       return runEmAsmFunction(code, sigPtr, argbuf);
     };
@@ -5124,6 +5128,8 @@ var wasmImports = {
   _tzset_js: __tzset_js,
   /** @export */
   clock_time_get: _clock_time_get,
+  /** @export */
+  emscripten_asm_const_double: _emscripten_asm_const_double,
   /** @export */
   emscripten_asm_const_int: _emscripten_asm_const_int,
   /** @export */

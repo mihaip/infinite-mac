@@ -490,6 +490,7 @@ export default function Mac({
         cdroms,
         machine,
         ethernetProvider,
+        screenSizeProp,
         initialScreenWidth,
         initialScreenHeight,
         customDate,

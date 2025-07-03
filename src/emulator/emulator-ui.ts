@@ -370,7 +370,8 @@ export class Emulator {
 
         let args: string[] = [];
         let configDebugStr;
-        const {emulatorType, emulatorSubtype} = this.#config.machine;
+        const {emulatorType, emulatorSubtype, speedGovernorTargetIPS} =
+            this.#config.machine;
         switch (emulatorType) {
             case "DingusPPC":
                 args = configToDingusPPCArgs(this.#config, {
@@ -459,6 +460,7 @@ export class Emulator {
             ethernet: this.#ethernet.workerConfig(),
             clipboard: this.#clipboard.workerConfig(),
             dateOffset,
+            speedGovernorTargetIPS,
         };
 
         const serviceWorkerAvailable = await this.#serviceWorkerReady;

@@ -41,7 +41,7 @@ export function emulatorUsesPlaceholderDisks(type: EmulatorType): boolean {
 }
 
 export function emulatorSupportsSpeedSetting(type: EmulatorType): boolean {
-    return type === "Mini vMac";
+    return type === "Mini vMac" || type === "BasiliskII";
 }
 
 // True if the emulator can optionally use mouse deltas instead of absolute
