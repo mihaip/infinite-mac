@@ -137,7 +137,7 @@ export function MacSettings({
                         )}
                     </Select>
                     <div className="Dialog-Description">
-                        Very old software may be timing dependent.
+                        Very old software may be timing-dependent.
                     </div>
                 </div>
             )}
