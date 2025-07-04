@@ -190,16 +190,15 @@ function MacCustomCDROM({
                 aware of the following caveats:
             </p>
             <ul>
-                <li>
-                    The CD-ROM image must be a raw .iso, .img, .toast or .bin
-                    file (i.e. not compressed, or a .dmg)
-                </li>
+                <li>Raw .iso, .img, .toast, or .bin files work best.</li>
                 <li>
                     Only a subset of sites are supported (currently{" "}
                     {allowedCDROMDomains.join(", ")}). If there is another site
                     that you wish to be supported, please contact the
-                    maintainer. Be aware that the HTTP server that serves the
-                    image has to support{" "}
+                    maintainer.
+                </li>
+                <li>
+                    The site must support{" "}
                     <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests">
                         range requests
                     </a>{" "}
