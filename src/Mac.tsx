@@ -201,6 +201,11 @@ export default function Mac({
         }
     }, []);
 
+    const {emulatorType} = machine;
+    const canLoadFiles =
+        emulatorSupportsDownloadsFolder(emulatorType) ||
+        emulatorSupportsCDROMs(emulatorType);
+
     useEffect(() => {
         const emulatorDisks: EmulatorDiskDef[] = [...disks];
         const delayedDisks: EmulatorDiskDef[] = [];
@@ -215,7 +220,7 @@ export default function Mac({
                 infiniteHd = INFINITE_HD_MFS;
             } else if (
                 disks[0]?.infiniteHdSubset === "system6" ||
-                (disks.length === 0 && machine.emulatorType === "Mini vMac")
+                (disks.length === 0 && emulatorType === "Mini vMac")
             ) {
                 infiniteHd = INFINITE_HD6;
             } else if (disks[0]?.infiniteHdSubset === "macosx") {
@@ -279,7 +284,7 @@ export default function Mac({
                 emulatorDidFinishLoading(emulator: Emulator) {
                     setEmulatorLoaded(true);
                     emulator.refreshSettings();
-                    if (emulatorSupportsDownloadsFolder(machine.emulatorType)) {
+                    if (emulatorSupportsDownloadsFolder(emulatorType)) {
                         libraryDownloadURLs.forEach(url =>
                             handleLibraryURL(
                                 url,
@@ -352,7 +357,7 @@ export default function Mac({
                         }
                     } else {
                         varz.incrementError(
-                            `emulator_error:${machine.emulatorType}:other`,
+                            `emulator_error:${emulatorType}:other`,
                             errorRaw
                         );
                     }
@@ -393,7 +398,7 @@ export default function Mac({
             "emulator_starts": 1,
             "emulator_embedded": screenSizeProp === "embed" ? 1 : 0,
             "emulator_ethernet": ethernetProvider ? 1 : 0,
-            [`emulator_type:${machine.emulatorType}`]: 1,
+            [`emulator_type:${emulatorType}`]: 1,
 
             "emulator_shared_memory": useSharedMemory ? 1 : 0,
         };
@@ -489,6 +494,7 @@ export default function Mac({
         includeInfiniteHD,
         cdroms,
         machine,
+        emulatorType,
         ethernetProvider,
         screenSizeProp,
         initialScreenWidth,
@@ -668,6 +674,12 @@ export default function Mac({
     function handleDrop(event: React.DragEvent) {
         event.preventDefault();
         setDragCount(0);
+        if (!canLoadFiles) {
+            setEmulatorErrorText(
+                "This emulator does not support loading files."
+            );
+            return;
+        }
         const emulator = emulatorRef.current;
         if (!emulator) {
             return;
@@ -758,14 +770,16 @@ export default function Mac({
             handler: onDone,
             alwaysVisible: true,
         },
-        {label: "Load File", handler: handleLoadFileClick},
+        ...(canLoadFiles
+            ? [{label: "Load File", handler: handleLoadFileClick}]
+            : []),
         {label: "Full Screen", handler: handleFullScreenClick},
         {label: "Settings", handler: handleSettingsClick},
     ];
     if (USING_TOUCH_INPUT) {
         controls.push({label: "Keyboard", handler: handleKeyboardClick});
         const alwaysUsingTrackpadMode =
-            emulatorNeedsMouseDeltas(machine.emulatorType) ||
+            emulatorNeedsMouseDeltas(emulatorType) ||
             emulatorSettings.useMouseDeltas;
         controls.push({
             label: "Trackpad",
@@ -859,7 +873,7 @@ export default function Mac({
                     </>
                 }>
                 {progress}
-                {dragCount > 0 && (
+                {canLoadFiles && dragCount > 0 && (
                     <div
                         className={classNames(
                             "Mac-Overlay",
@@ -867,7 +881,7 @@ export default function Mac({
                             {
                                 "Mac-Drag-Overlay-Downloads":
                                     emulatorSupportsDownloadsFolder(
-                                        machine.emulatorType
+                                        emulatorType
                                     ),
                             }
                         )}
@@ -881,7 +895,7 @@ export default function Mac({
                 )}
                 {settingsVisible && (
                     <MacSettings
-                        emulatorType={machine.emulatorType}
+                        emulatorType={emulatorType}
                         emulatorSettings={emulatorSettings}
                         setEmulatorSettings={setEmulatorSettings}
                         hasSavedHD={hasSavedHD}
@@ -921,7 +935,7 @@ export default function Mac({
             </ScreenFrame>
             {!fullscreen && screenSizeProp !== "embed" && (
                 <DrawersContainer>
-                    {emulatorSupportsCDROMs(machine.emulatorType) &&
+                    {emulatorSupportsCDROMs(emulatorType) &&
                         disks[0]?.infiniteHdSubset !== "mfs" && (
                             <MacCDROMs
                                 onRun={loadCDROM}
@@ -929,9 +943,7 @@ export default function Mac({
                             />
                         )}
                     {includeLibrary &&
-                        emulatorSupportsDownloadsFolder(
-                            machine.emulatorType
-                        ) && (
+                        emulatorSupportsDownloadsFolder(emulatorType) && (
                             <MacLibrary
                                 onLoadProgress={handleMacLibraryProgress}
                                 onRun={handleMacLibraryRun}
