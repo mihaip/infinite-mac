@@ -50,7 +50,9 @@
     margin-bottom: 0;
 }
 
-.Browser .Description span {
+.Browser .Description span,
+.Browser .Description a {
+    color: inherit;
     text-decoration: underline;
     cursor: pointer;
 }

@@ -118,13 +118,23 @@ function Description({
                 NeXTStep from the 1980s, 1990s or early 2000s and run it within
                 a virtual machine. An “Infinite HD” disk with representative
                 software from that era is also available. You can also{" "}
-                <span onClick={() => setCustomVisible(true)}>
+                <a
+                    href="/run"
+                    onClick={e => {
+                        e.preventDefault();
+                        setCustomVisible(true);
+                    }}>
                     run a custom version
-                </span>{" "}
+                </a>{" "}
                 with your choice of machine and disks and{" "}
-                <span onClick={() => setEmbedVisible(true)}>
+                <a
+                    href="/embed"
+                    onClick={e => {
+                        e.preventDefault();
+                        setEmbedVisible(true);
+                    }}>
                     embed it into your own site
-                </span>
+                </a>
                 . On some operating systems files and disk images can be
                 imported and exported using drag and drop and virtual CD-ROMs
                 can be mounted – refer to the welcome screen in each machine for
@@ -155,6 +165,7 @@ function Description({
                 )}
                 You can{" "}
                 <span onClick={() => setAboutVisible(true)}>learn more</span>,{" "}
+                <a href="/monkey">monkey around</a>,{" "}
                 <span onClick={() => setChangelogVisible(true)}>
                     see what's changed recently
                 </span>{" "}
