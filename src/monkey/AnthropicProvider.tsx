@@ -251,8 +251,11 @@ function convertAnthropicActionToComputerAction(input: any): ComputerAction {
             return {
                 type: "drag",
                 path: [
-                    {x: input.startCoordinate[0], y: input.startCoordinate[1]},
-                    {x: input.endCoordinate[0], y: input.endCoordinate[1]},
+                    {
+                        x: input.start_coordinate[0],
+                        y: input.start_coordinate[1],
+                    },
+                    {x: input.coordinate[0], y: input.coordinate[1]},
                 ],
             };
         case "right_click":
