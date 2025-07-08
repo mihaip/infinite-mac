@@ -121,10 +121,14 @@ function Description({
                 <span onClick={() => setCustomVisible(true)}>
                     run a custom version
                 </span>{" "}
-                with your choice of machine and disks. On some operating systems
-                files and disk images can be imported and exported using drag
-                and drop and virtual CD-ROMs can be mounted – refer to the
-                welcome screen in each machine for more details.
+                with your choice of machine and disks and{" "}
+                <span onClick={() => setEmbedVisible(true)}>
+                    embed it into your own site
+                </span>
+                . On some operating systems files and disk images can be
+                imported and exported using drag and drop and virtual CD-ROMs
+                can be mounted – refer to the welcome screen in each machine for
+                more details.
                 {customVisible && (
                     <Custom
                         initialRunDef={initialCustomRunDef}
