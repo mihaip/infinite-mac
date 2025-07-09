@@ -184,6 +184,22 @@ function MonkeyChatHeader({
                 </a>{" "}
                 desk accessory used during the original Mac's development.
             </p>
+            <p>
+                <a
+                    className="MonkeyChat-Link"
+                    href="https://www.youtube.com/watch?v=td2-GKPxgJE"
+                    target="_blank">
+                    Demo video
+                </a>{" "}
+                of what it can (and can’t) do, and{" "}
+                <a
+                    className="MonkeyChat-Link"
+                    href="https://blog.persistent.info/2025/07/infinite-mac-embedding.html"
+                    target="_blank">
+                    a blog post with more details
+                </a>
+                .
+            </p>
             <p>Some things you can try:</p>
             <ul>
                 {disk.examples.map((example, index) => (
@@ -198,15 +214,6 @@ function MonkeyChatHeader({
                     </li>
                 ))}
             </ul>
-            <p>
-                <a
-                    className="MonkeyChat-Link"
-                    href="https://www.youtube.com/watch?v=td2-GKPxgJE"
-                    target="_blank">
-                    Demo video
-                </a>{" "}
-                of what it can (and can’t) do.
-            </p>
 
             <p className="MonkeyChat-APIKey-Message">
                 {providerAPIKey ? (
