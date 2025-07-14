@@ -307,7 +307,7 @@ function DiskFrame({
     // Match 10 vs. 40px padding chosen via the media query.
     let screenWidth = windowWidth - (windowWidth <= 400 ? 110 : 180);
     const bezelSize = windowWidth <= 440 ? "Small-ish" : "Medium";
-    screenWidth = Math.max(Math.min(screenWidth, 320), 200);
+    screenWidth = Math.max(Math.min(screenWidth, 320), 260);
     const screenHeight = Math.round(screenWidth * 0.75);
 
     return (

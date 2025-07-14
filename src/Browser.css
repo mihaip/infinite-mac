@@ -124,6 +124,12 @@
     margin: 0 0 8px 0;
 }
 
+@media (max-width: 440px) {
+    .DiskContents h3 {
+        font-size: 24px;
+    }
+}
+
 .DiskContents h3 .Subtitle {
     color: #999;
 }
@@ -177,6 +183,14 @@
 
 .DiskContents .Row .Button {
     margin: 0 4px;
+}
+
+@media (max-width: 440px) {
+    /* Aqua buttons have some innate margin due to drop shadows, drop the extra
+    margin at small screen sizes to make sure they don't end up wrapping. */
+    .DiskContents .Row .Button.Button-Aqua {
+        margin: 0;
+    }
 }
 
 .Disk .CustomizeButton {
