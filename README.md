@@ -37,33 +37,33 @@ It will be running at http://localhost:3127.
 
 Common development tasks, all done via `npm run`:
 
--   `start`: Run local dev server (at http://localhost:3127)
--   `import-emulator <emulator>`: Copy generated WebAssembly from an emulator submodule (only necessary if modifying the emulator cores, see [below](#building-the-emulators) for how to rebuild them). The following emulators are supported:
-    -   `basiliskii`: Basilisk II from https://github.com/mihaip/macemu
-    -   `sheepshaver`: SheepShaver from https://github.com/mihaip/macemu
-    -   `minivmac-Plus` (and others): Mini vMac variants from https://github.com/mihaip/minivmac
-    -   `dingusppc`: DingusPPC from https://github.com/mihaip/dingusppc
-    -   `previous`: Previous from https://github.com/mihaip/previous
-    -   `pearpc`: PearPC from https://github.com/mihaip/pearpc
--   `import-disks`: Build disk images for serving. Copies base OS images for the above emulators, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving.
-    -   `placeholder` may be passed in as an argument to only build System 1 through 7.5.5, to skip populating the "Infinite HD" disk image.
-    -   This will invoke the native macOS versions of Mini vMac and Basilisk II as a final step, to ensure that the generated disk has a valid desktop database. If they are not installed, a warning will be logged and the generated disk may take longer to mount.
-    -   To speed up the Mini vMac building step, you can change its speed: press Control-S to bring up the speed menu, and then the A to choose "All Out"
-    -   Note that both Mini vMac and Basilisk II will be launched as part of this process. Once they seem done and you can see Infinite HD, use the "Shut Down" command to cleanly turn off the emulated machine and then quit the respective emulator so that the task can continue.
--   `import-cd-roms`: Build CD-ROM library (actual CD-ROMs are hosted on archive.org and other sites, the library contains metadata)
-    -   `placeholder` may be passed in as an argument to make an empty CD-ROM library
--   `import-library`: Build downloads library (actual downloads are hosted on macintoshgarden.org and other sites, the library contains metadata)
-    -   `placeholder` may be passed in as an argument to make the script generate a minimal library that does not depend on a Macintosh Garden data dump.
+- `start`: Run local dev server (at http://localhost:3127)
+- `import-emulator <emulator>`: Copy generated WebAssembly from an emulator submodule (only necessary if modifying the emulator cores, see [below](#building-the-emulators) for how to rebuild them). The following emulators are supported:
+    - `basiliskii`: Basilisk II from https://github.com/mihaip/macemu
+    - `sheepshaver`: SheepShaver from https://github.com/mihaip/macemu
+    - `minivmac-Plus` (and others): Mini vMac variants from https://github.com/mihaip/minivmac
+    - `dingusppc`: DingusPPC from https://github.com/mihaip/dingusppc
+    - `previous`: Previous from https://github.com/mihaip/previous
+    - `pearpc`: PearPC from https://github.com/mihaip/pearpc
+- `import-disks`: Build disk images for serving. Copies base OS images for the above emulators, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving.
+    - `placeholder` may be passed in as an argument to only build System 1 through 7.5.5, to skip populating the "Infinite HD" disk image.
+    - This will invoke the native macOS versions of Mini vMac and Basilisk II as a final step, to ensure that the generated disk has a valid desktop database. If they are not installed, a warning will be logged and the generated disk may take longer to mount.
+    - To speed up the Mini vMac building step, you can change its speed: press Control-S to bring up the speed menu, and then the A to choose "All Out"
+    - Note that both Mini vMac and Basilisk II will be launched as part of this process. Once they seem done and you can see Infinite HD, use the "Shut Down" command to cleanly turn off the emulated machine and then quit the respective emulator so that the task can continue.
+- `import-cd-roms`: Build CD-ROM library (actual CD-ROMs are hosted on archive.org and other sites, the library contains metadata)
+    - `placeholder` may be passed in as an argument to make an empty CD-ROM library
+- `import-library`: Build downloads library (actual downloads are hosted on macintoshgarden.org and other sites, the library contains metadata)
+    - `placeholder` may be passed in as an argument to make the script generate a minimal library that does not depend on a Macintosh Garden data dump.
 
 Common deployment tasks (also done via `npm run`)
 
--   `build`: Rebuild for either local use (in the `build/` directory) or for Cloudflare Worker use
--   `preview`: Serve built assets locally using Vite's server (will be running at https://localhost:4127)
--   `worker-dev`: Preview built assets in a local Cloudflare Worker (requires a separate `build` invocation, result will be running at http://localhost:3128)
--   `worker-deploy`: Build and deploy assets to the live version of the Cloudflare Worker
--   `sync-disks`: Sync disk images to a Cloudflare R2 bucket.
-    -   Requires that [rclone](https://rclone.org/) installed, it can be obtained via `sudo -v ; curl https://rclone.org/install.sh | sudo bash`
-    -   Should be done after disks are rebuilt with `import-disks` (and before `worker-deploy`).
+- `build`: Rebuild for either local use (in the `build/` directory) or for Cloudflare Worker use
+- `preview`: Serve built assets locally using Vite's server (will be running at https://localhost:4127)
+- `worker-dev`: Preview built assets in a local Cloudflare Worker (requires a separate `build` invocation, result will be running at http://localhost:3128)
+- `worker-deploy`: Build and deploy assets to the live version of the Cloudflare Worker
+- `sync-disks`: Sync disk images to a Cloudflare R2 bucket.
+    - Requires that [rclone](https://rclone.org/) installed, it can be obtained via `sudo -v ; curl https://rclone.org/install.sh | sudo bash`
+    - Should be done after disks are rebuilt with `import-disks` (and before `worker-deploy`).
 
 ### Building the emulators
 
@@ -101,9 +101,7 @@ Once it has built, use `npm run import-emulator basiliskii` from the host to upd
 
 ```sh
 cd /macemu/SheepShaver/src/Unix
-# Configure for building for WASM
 ./_emconfigure.sh
-# Actually compile SheepShaver targeting WASM
 make -j8
 ```
 
@@ -122,8 +120,8 @@ cd /minivmac
 # - `-m 128K -speed z`: Mac 128K (uses 1x speed by default to be more realistic)
 # - `-m 512Ke`: Mac 512ke
 # - `-m SE`: Mac SE
-# - `-m II -d d`: Mac II
-# - `-m IIx -d d -mem 32M`: Mac IIx
+# - `-m II`: Mac II
+# - `-m IIx -mem 32M`: Mac IIx
 # Actually compile Mini vMac targeting WASM
 make -j8
 ```
@@ -158,9 +156,7 @@ Once it has built, use `npm run import-emulator previous` from the host to updat
 
 ```sh
 cd /pearpc
-# Configure for building for WASM
 ./_emconfigure.sh
-# Actually compile PearPC targeting WASM
 make -j8
 ```
 

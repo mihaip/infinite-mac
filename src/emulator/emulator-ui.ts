@@ -947,8 +947,8 @@ export class Emulator {
         } else if (e.data.type === "emulator_did_have_error") {
             this.#delegate?.emulatorDidHaveError?.(
                 this,
-                e.data.error,
-                e.data.errorRaw ?? e.data.error
+                String(e.data.error),
+                String(e.data.errorRaw ?? e.data.error)
             );
         } else if (e.data.type === "emulator_will_load_chunk") {
             this.#delegate?.emulatorDidStartToLoadDiskChunk?.(this);

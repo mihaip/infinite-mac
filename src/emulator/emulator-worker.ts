@@ -65,10 +65,7 @@ import {
     createEmulatorWorkerCDROMDisk,
     EmulatorWorkerMode1SectorDisk,
 } from "./emulator-worker-cdrom-disk";
-import {
-    importEmulator,
-    importEmulatorFallback,
-} from "./emulator-worker-emulators";
+import {importEmulator} from "./emulator-worker-emulators";
 import {
     EmulatorWorkerDiskSaver,
     initDiskSavers,
@@ -851,11 +848,6 @@ async function startEmulator(config: EmulatorWorkerConfig) {
     try {
         runEmulatorModule(await importEmulator(config));
     } catch (error) {
-        console.log("Could not import emulator, will try fallback mode", error);
-        try {
-            runEmulatorModule(await importEmulatorFallback(config));
-        } catch (error) {
-            postMessage({type: "emulator_did_have_error", error});
-        }
+        postMessage({type: "emulator_did_have_error", error});
     }
 }
