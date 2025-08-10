@@ -304,6 +304,7 @@ export class Emulator {
             "visibilitychange",
             this.#handleVisibilityChange
         );
+        window.addEventListener("blur", this.#handleWindowBlur);
 
         await this.#startWorker();
     }
@@ -524,6 +525,7 @@ export class Emulator {
             "visibilitychange",
             this.#handleVisibilityChange
         );
+        window.removeEventListener("blur", this.#handleWindowBlur);
 
         this.#input.handleInput({type: "stop"});
         this.#ethernetPinger.stop();
@@ -865,16 +867,7 @@ export class Emulator {
             // We'll never get a keyup event for the command key, so we'll
             // need to synthesize one to avoid the guest ending up with it
             // stuck on.
-            for (const code of this.#downKeyCodes) {
-                const adbKeyCode = this.#getAdbKeyCode(code);
-                if (adbKeyCode !== undefined) {
-                    this.#input.handleInput({
-                        type: "keyup",
-                        keyCode: adbKeyCode,
-                    });
-                }
-            }
-            this.#downKeyCodes.clear();
+            this.#releaseDownKeys();
         }
     };
 
@@ -970,6 +963,25 @@ export class Emulator {
         }
         this.#drawScreen();
     };
+
+    #handleWindowBlur = () => {
+        // We'll never get keyup events for these keys (if using a shortcut that
+        // switches to another tab).
+        this.#releaseDownKeys();
+    };
+
+    #releaseDownKeys() {
+        for (const code of this.#downKeyCodes) {
+            const adbKeyCode = this.#getAdbKeyCode(code);
+            if (adbKeyCode !== undefined) {
+                this.#input.handleInput({
+                    type: "keyup",
+                    keyCode: adbKeyCode,
+                });
+            }
+        }
+        this.#downKeyCodes.clear();
+    }
 
     #handleIntersectionChange = (entries: IntersectionObserverEntry[]) => {
         for (const entry of entries) {
