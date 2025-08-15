@@ -633,15 +633,16 @@ export default function Mac({
         );
     }
 
-    const {showMacOSXSlowNotification, clearMacOSXSlowNotification} =
-        useMacOSXSlowNotification(
+    const [showMacOSXSlowNotification, clearMacOSXSlowNotification] =
+        useTemporaryNotification(
             !progress &&
                 emulatorLoaded &&
-                disks[0]?.infiniteHdSubset === "macosx"
+                disks[0]?.infiniteHdSubset === "macosx",
+            "mac-os-x-slow-notification-count"
         );
     if (showMacOSXSlowNotification) {
         progress = (
-            <div className="Mac-Loading Mac-Loading-Non-Modal Mac-Loading-Slow">
+            <div className="Mac-Loading Mac-Loading-Non-Modal Mac-Loading-OneLine">
                 <span
                     className="Mac-Loading-Dismiss"
                     onClick={clearMacOSXSlowNotification}>
@@ -652,6 +653,39 @@ export default function Mac({
             </div>
         );
     }
+
+    const [mouseHasMoved, setMouseHasMoved] = useState(false);
+    const [showPointerLockNotification, clearPointerLockNotification] =
+        useTemporaryNotification(
+            !progress &&
+                emulatorLoaded &&
+                mouseHasMoved &&
+                emulatorNeedsMouseDeltas(emulatorType) &&
+                !USING_TOUCH_INPUT,
+            "pointer-lock-notification-count"
+        );
+    if (showPointerLockNotification) {
+        progress = (
+            <div className="Mac-Loading Mac-Loading-Non-Modal Mac-Loading-OneLine">
+                <span
+                    className="Mac-Loading-Dismiss"
+                    onClick={clearPointerLockNotification}>
+                    ⓧ
+                </span>
+                Click the screen to lock the mouse for full control.
+            </div>
+        );
+    }
+    const handlePointerMove = useCallback(() => {
+        if (!mouseHasMoved) {
+            setMouseHasMoved(true);
+        }
+    }, [mouseHasMoved]);
+    const handlePointerDown = useCallback(() => {
+        if (showPointerLockNotification) {
+            clearPointerLockNotification();
+        }
+    }, [clearPointerLockNotification, showPointerLockNotification]);
 
     function handleDragStart(event: React.DragEvent) {
         // Don't allow the screen to be dragged off when using a touchpad on
@@ -862,6 +896,8 @@ export default function Mac({
                             width={screenWidth}
                             height={screenHeight}
                             onContextMenu={e => e.preventDefault()}
+                            onPointerMove={handlePointerMove}
+                            onPointerDown={handlePointerDown}
                         />
                         {USING_TOUCH_INPUT && (
                             <input
@@ -1171,27 +1207,18 @@ function MacError({text, onDone}: {text: string; onDone: () => void}) {
     );
 }
 
-function useMacOSXSlowNotification(emulatorReady: boolean) {
-    const [count, setCount] = usePersistentState(
-        10,
-        "mac-os-x-slow-notification-count"
-    );
+function useTemporaryNotification(canShow: boolean, key: string) {
+    const [count, setCount] = usePersistentState(10, key);
     const [hide, setHide] = useState(false);
-    const shouldShow = count > 0 && emulatorReady;
+    const shouldShow = count > 0 && canShow;
 
     useEffect(() => {
         if (shouldShow) {
             setCount(v => v - 1);
+            setTimeout(() => setHide(true), 10_000);
         }
-        setTimeout(() => setHide(true), 10_000);
     }, [setCount, shouldShow]);
 
-    const clearMacOSXSlowNotification = useCallback(
-        () => setCount(0),
-        [setCount]
-    );
-    return {
-        showMacOSXSlowNotification: shouldShow && !hide,
-        clearMacOSXSlowNotification,
-    };
+    const clearNotification = useCallback(() => setCount(0), [setCount]);
+    return [shouldShow && !hide, clearNotification] as const;
 }
