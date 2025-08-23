@@ -68,12 +68,27 @@ export abstract class EmulatorAudio {
 
         // We can't start the audio context until there's a user gesture.
         if (this.#audioContext.state === "suspended") {
-            window.addEventListener("mousedown", this.#resumeOnGesture, {
-                once: true,
-            });
-            window.addEventListener("touchstart", this.#resumeOnGesture, {
-                once: true,
-            });
+            window.addEventListener("pointerdown", this.#resumeOnGesture);
+            this.#audioContext?.addEventListener(
+                "statechange",
+                () => {
+                    if (this.#audioContext?.state === "running") {
+                        window.removeEventListener(
+                            "pointerdown",
+                            this.#resumeOnGesture
+                        );
+                        // Give the audio worklet some time to start processing
+                        // before we signal the emulator to start emitting audio,
+                        // so that the buffer doesn't get too full.
+                        window.setTimeout(
+                            () => this.#handleAudioContextRunning(),
+                            250
+                        );
+                    }
+                },
+                {once: true}
+            );
+            this.#resumeOnGesture(); // Try resuming anyway, in case we get lucky.
         } else {
             this.#handleAudioContextRunning();
         }
@@ -88,21 +103,6 @@ export abstract class EmulatorAudio {
 
     #resumeOnGesture = () => {
         this.#audioContext?.resume();
-        this.#audioContext?.addEventListener(
-            "statechange",
-            () => {
-                if (this.#audioContext?.state === "running") {
-                    // Give the audio worklet some time to start processing
-                    // before we signal the emulator to start emitting audio,
-                    // so that the buffer doesn't get too full.
-                    window.setTimeout(
-                        () => this.#handleAudioContextRunning(),
-                        250
-                    );
-                }
-            },
-            {once: true}
-        );
     };
 
     #handleAudioContextRunning() {
@@ -112,8 +112,7 @@ export abstract class EmulatorAudio {
 
     stop() {
         this.#audioContext?.close();
-        window.removeEventListener("mousedown", this.#resumeOnGesture);
-        window.removeEventListener("touchstart", this.#resumeOnGesture);
+        window.removeEventListener("pointerdown", this.#resumeOnGesture);
         if (this.#debugInterval) {
             window.clearInterval(this.#debugInterval);
         }
