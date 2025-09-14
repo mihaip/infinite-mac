@@ -1,12 +1,13 @@
 import JSZip from "jszip";
 import {saveAs} from "file-saver";
 import {
+    type EmulatorWorkerDirectorExtractionDirectoryEntry,
     type EmulatorFileUpload,
     type EmulatorWorkerDirectorExtraction,
     type EmulatorWorkerDirectorExtractionEntry,
 } from "./emulator-common";
 import * as varz from "../varz";
-import {fixArchiveFinderInfo} from "./emulator-finder";
+import {buildAppleDouble, parseAppleDouble} from "./emulator-ui-appledouble";
 
 export async function uploadsFromFile(
     file: File
@@ -124,79 +125,89 @@ async function uploadsFromMacOSArchive(
     return uploads;
 }
 
-function parseAppleDouble(
-    buffer: ArrayBuffer,
-    name: string
-): {
-    resourceFork?: Blob;
-    metadata?: Blob;
-} {
-    const data = new DataView(buffer);
-    const magic = data.getUint32(0);
-    if (magic !== 0x00051607) {
-        throw new Error(`Invalid AppleDouble magic ${magic.toString(16)}`);
-    }
-    const version = data.getUint32(4);
-    if (version !== 0x00020000) {
-        throw new Error(`Invalid AppleDouble version ${version.toString(16)}`);
-    }
-
-    const entryCount = data.getUint16(24);
-    let cursor = 26;
-    let resourceFork;
-    let metadata;
-    for (let i = 0; i < entryCount; i++) {
-        const entryID = data.getUint32(cursor);
-        const offset = data.getUint32(cursor + 4);
-        const length = data.getUint32(cursor + 8);
-        switch (entryID) {
-            case 2:
-                resourceFork = new Blob([
-                    buffer.slice(offset, offset + length),
-                ]);
-                break;
-            case 9: {
-                const metadataBuffer = buffer.slice(offset, offset + length);
-                fixArchiveFinderInfo(metadataBuffer);
-                metadata = new Blob([metadataBuffer]);
-                break;
-            }
-            default:
-                console.log(
-                    `Ignoring unexpected entry ID ${entryID} found in ${name}`
-                );
-        }
-        cursor += 12;
-    }
-
-    return {resourceFork, metadata};
+function isDirectoryEntry(
+    entry: EmulatorWorkerDirectorExtractionEntry
+): entry is EmulatorWorkerDirectorExtractionDirectoryEntry {
+    return Array.isArray(entry.contents);
 }
 
 export async function handleDirectoryExtraction(
     extraction: EmulatorWorkerDirectorExtraction
-) {
+): Promise<void> {
     const zip = new JSZip();
+    const macosxRoot = zip.folder("__MACOSX")!;
 
     function addToZip(
-        path: string,
+        depth: number,
         zip: JSZip,
+        macosxZip: JSZip,
         entries: EmulatorWorkerDirectorExtractionEntry[]
     ) {
+        const rsrcByName = new Map<string, Uint8Array>();
+        const finfByName = new Map<string, Uint8Array>();
         for (const entry of entries) {
-            if (Array.isArray(entry.contents)) {
-                addToZip(
-                    path + "/" + entry.name,
-                    zip.folder(entry.name)!,
-                    entry.contents
-                );
+            if (isDirectoryEntry(entry)) {
+                if (entry.name === ".rsrc") {
+                    for (const rsrcEntry of entry.contents) {
+                        if (isDirectoryEntry(rsrcEntry)) {
+                            console.warn(
+                                "Encountered unexpected directory in .rsrc",
+                                rsrcEntry
+                            );
+                        } else {
+                            rsrcByName.set(rsrcEntry.name, rsrcEntry.contents);
+                        }
+                    }
+                } else if (entry.name === ".finf") {
+                    for (const finfEntry of entry.contents) {
+                        if (isDirectoryEntry(finfEntry)) {
+                            console.warn(
+                                "Encountered unexpected directory in .finf",
+                                finfEntry
+                            );
+                        } else {
+                            finfByName.set(finfEntry.name, finfEntry.contents);
+                        }
+                    }
+                } else {
+                    addToZip(
+                        depth + 1,
+                        zip.folder(entry.name)!,
+                        macosxRoot.folder(entry.name)!,
+                        entry.contents
+                    );
+                }
+
+                for (const name of new Set([
+                    ...rsrcByName.keys(),
+                    ...finfByName.keys(),
+                ])) {
+                    const content = buildAppleDouble(
+                        finfByName.get(name),
+                        rsrcByName.get(name)
+                    )!;
+                    macosxZip.file("._" + name, content);
+                }
+            } else if (entry.name === "DInfo") {
+                if (depth === 0) {
+                    const content = buildAppleDouble(
+                        entry.contents,
+                        undefined
+                    )!;
+                    macosxZip.file("._" + extraction.name, content);
+                } else {
+                    console.warn(
+                        "Ignoring unexpected DInfo outside root",
+                        entry
+                    );
+                }
             } else {
-                const {contents} = entry;
-                zip.file(entry.name, contents);
+                zip.file(entry.name, entry.contents);
             }
         }
     }
 
-    addToZip("", zip, extraction.contents);
+    addToZip(0, zip, macosxRoot, extraction.contents);
 
     const zipBlob = await zip.generateAsync({
         compression: "DEFLATE",
@@ -207,4 +218,35 @@ export async function handleDirectoryExtraction(
 
     saveAs(zipBlob, zipName);
     varz.increment("emulator_extractions");
+}
+
+export async function handleDirectoryExtractionRaw(
+    extraction: EmulatorWorkerDirectorExtraction
+) {
+    const zip = new JSZip();
+
+    function addToZip(
+        depth: number,
+        zip: JSZip,
+        entries: EmulatorWorkerDirectorExtractionEntry[]
+    ) {
+        for (const entry of entries) {
+            if (isDirectoryEntry(entry)) {
+                addToZip(depth + 1, zip.folder(entry.name)!, entry.contents);
+            } else {
+                zip.file(entry.name, entry.contents);
+            }
+        }
+    }
+
+    addToZip(0, zip, extraction.contents);
+
+    const zipBlob = await zip.generateAsync({
+        compression: "DEFLATE",
+        compressionOptions: {level: 9},
+        type: "blob",
+    });
+    const zipName = extraction.name + " (Raw).zip";
+
+    saveAs(zipBlob, zipName);
 }
