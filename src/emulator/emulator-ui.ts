@@ -39,6 +39,7 @@ import {
 } from "./emulator-ui-files";
 import {
     handleDirectoryExtraction,
+    handleDirectoryExtractionRaw,
     uploadsFromFile,
 } from "./emulator-ui-extractor";
 import {
@@ -905,7 +906,16 @@ export class Emulator {
                 this.#audio.handleData(e.data.data);
             }
         } else if (e.data.type === "emulator_extract_directory") {
-            handleDirectoryExtraction(e.data.extraction);
+            // Raw extraction is for internal use only (for adding to the
+            // library), so hide it behind a modifier.
+            if (
+                this.#downKeyCodes.has("AltLeft") ||
+                this.#downKeyCodes.has("AltRight")
+            ) {
+                handleDirectoryExtractionRaw(e.data.extraction);
+            } else {
+                handleDirectoryExtraction(e.data.extraction);
+            }
         } else if (e.data.type === "emulator_quiescent") {
             console.timeEnd("Emulator quiescent");
             this.#delegate?.emulatorDidBecomeQuiescent?.(this);

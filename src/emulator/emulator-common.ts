@@ -445,16 +445,21 @@ export function updateInputBufferWithEvents(
     return remainingEvents;
 }
 export type EmulatorWorkerDirectorExtractionEntry =
-    | {
-          name: string;
-          contents: Uint8Array;
-      }
-    | {name: string; contents: EmulatorWorkerDirectorExtractionEntry[]};
+    | EmulatorWorkerDirectorExtractionFileEntry
+    | EmulatorWorkerDirectorExtractionDirectoryEntry;
 
-export type EmulatorWorkerDirectorExtraction = {
+export type EmulatorWorkerDirectorExtractionFileEntry = {
+    name: string;
+    contents: Uint8Array;
+};
+
+export type EmulatorWorkerDirectorExtractionDirectoryEntry = {
     name: string;
     contents: EmulatorWorkerDirectorExtractionEntry[];
 };
+
+export type EmulatorWorkerDirectorExtraction =
+    EmulatorWorkerDirectorExtractionDirectoryEntry;
 
 export const diskImageExtensions = [
     ".iso",
