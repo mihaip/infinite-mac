@@ -189,7 +189,7 @@ export default function Mac({
                 fraction: 1.0,
                 linger: true,
             });
-            uploadFiles(emulator, [file], undefined, true);
+            uploadFiles(emulator, [file], undefined, {fromLibrary: true});
             setTimeout(
                 () =>
                     setEmulatorFileLoadingProgress({
@@ -705,6 +705,37 @@ export default function Mac({
         setDragCount(value => value - 1);
     }
 
+    const [hasUploadedResourceForks, setHasUploadedResourceForks] =
+        useState(false);
+    const handleResourceForkUpload = useCallback(() => {
+        setHasUploadedResourceForks(true);
+    }, []);
+    const [
+        showResourceForkUploadNotification,
+        clearResourceForkUploadNotification,
+    ] = useTemporaryNotification(
+        hasUploadedResourceForks,
+        "resource-fork-upload-notification-count"
+    );
+    if (showResourceForkUploadNotification) {
+        progress = (
+            <div className="Mac-Loading Mac-Loading-Non-Modal Mac-Loading-OneLine">
+                <span
+                    className="Mac-Loading-Dismiss"
+                    onClick={clearResourceForkUploadNotification}>
+                    ⓧ
+                </span>
+                To upload files with resource forks, zip them first (
+                <a
+                    href="https://blog.persistent.info/2025/09/infinite-mac-resource-forks.html"
+                    target="_blank">
+                    learn more
+                </a>
+                ).
+            </div>
+        );
+    }
+
     function handleDrop(event: React.DragEvent) {
         event.preventDefault();
         setDragCount(0);
@@ -726,7 +757,8 @@ export default function Mac({
                 if (entry?.isDirectory) {
                     uploadDirectory(
                         emulator,
-                        entry as FileSystemDirectoryEntry
+                        entry as FileSystemDirectoryEntry,
+                        {onResourceForkUpload: handleResourceForkUpload}
                     );
                     return;
                 }
@@ -757,7 +789,9 @@ export default function Mac({
             }
         }
 
-        uploadFiles(emulator, files);
+        uploadFiles(emulator, files, undefined, {
+            onResourceForkUpload: handleResourceForkUpload,
+        });
     }
 
     function handleLoadFileClick() {
@@ -771,7 +805,14 @@ export default function Mac({
             // event if the user cancels the file picker.
             setDragCount(1);
             if (input.files && emulatorRef.current) {
-                uploadFiles(emulatorRef.current, Array.from(input.files));
+                uploadFiles(
+                    emulatorRef.current,
+                    Array.from(input.files),
+                    undefined,
+                    {
+                        onResourceForkUpload: handleResourceForkUpload,
+                    }
+                );
             }
             input.remove();
             // Delay removing the overlay a bit so that users have a chance to
@@ -998,7 +1039,8 @@ export default function Mac({
  */
 function uploadDirectory(
     emulator: Emulator,
-    directoryEntry: FileSystemDirectoryEntry
+    directoryEntry: FileSystemDirectoryEntry,
+    options?: UploadFileOptions
 ) {
     let inProgressCount = 1; // we're waiting to read the starting directory
     const files: File[] = [];
@@ -1012,7 +1054,7 @@ function uploadDirectory(
     const checkDone = () => {
         inProgressCount--;
         if (inProgressCount === 0) {
-            uploadFiles(emulator, files, names);
+            uploadFiles(emulator, files, names, options);
         }
     };
 
@@ -1061,11 +1103,16 @@ function uploadDirectory(
     readDirectory(directoryEntry, [directoryEntry.name]);
 }
 
+type UploadFileOptions = {
+    fromLibrary?: boolean;
+    onResourceForkUpload?: () => void;
+};
+
 function uploadFiles(
     emulator: Emulator,
     files: File[],
     names: string[] = [],
-    fromLibrary?: boolean
+    {fromLibrary, onResourceForkUpload}: UploadFileOptions = {}
 ) {
     let fileCount = 0;
     let diskImageCount = 0;
@@ -1079,6 +1126,9 @@ function uploadFiles(
     const resourceForkCount = names.filter(name =>
         name.includes("/.rsrc/")
     ).length;
+    if (resourceForkCount) {
+        onResourceForkUpload?.();
+    }
     emulator.uploadFiles(files, names);
     varz.incrementMulti({
         "emulator_uploads": files.length,
