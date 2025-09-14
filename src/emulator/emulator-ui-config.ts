@@ -255,7 +255,7 @@ bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
     }
 
     for (const disk of reorderedDisks) {
-        addDisk(disk ? floppyStrs : diskStrs, disk.name, false);
+        addDisk(disk.isFloppy ? floppyStrs : diskStrs, disk.name, false);
     }
 
     // Placeholder used to handle CD-ROMs being inserted after boot.
