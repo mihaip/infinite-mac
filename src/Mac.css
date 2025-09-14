@@ -38,6 +38,10 @@ body.embed {
     border-radius: 10px;
 }
 
+.Mac-Loading-Non-Modal a {
+    color: inherit;
+}
+
 .Mac-Loading-OneLine {
     white-space: nowrap;
     display: block;
@@ -117,6 +121,8 @@ view the screen will still be visible. */
 
 .Mac-Drag-Overlay.Mac-Drag-Overlay-Downloads:after {
     content: "Disk images will be mounted, files will be placed in the “Downloads” folder in “The Outside World”.";
+    max-width: 480px;
+    text-align: center;
 }
 
 .Mac-Ethernet-Status {
