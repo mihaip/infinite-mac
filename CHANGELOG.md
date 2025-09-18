@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2025-09-15: Better support for importing and exporting files with resource forks. See https://blog.persistent.info/2025/09/infinite-mac-resource-forks.html for more details.
+
 2025-07-08: Added the ability to embed Infinite Mac instances in other websites. See https://blog.persistent.info/2025/07/infinite-mac-embedding.html for more details, and https://infinitemac.org/monkey/ for a demo.
 
 2025-03-24: Added early Mac OS X releases (10.0 to 10.4). See https://blog.persistent.info/2025/03/infinite-mac-os-x.html for more details.
