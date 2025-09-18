@@ -122,6 +122,9 @@ async function uploadsFromMacOSArchive(
             });
         }
     }
+
+    varz.increment("emulator_uploads:mac_os_archive");
+
     return uploads;
 }
 
