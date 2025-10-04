@@ -1,0 +1,5 @@
+{
+    "src_url": "https://bluescsi.com/HD1%20BlueSCSI%20Toolbox%201.0.2.zip",
+    "src_image": "HD1 BlueSCSI Toolbox 1.0.2.hda",
+    "src_denylist": ["Trash", "Desktop Folder"]
+}
