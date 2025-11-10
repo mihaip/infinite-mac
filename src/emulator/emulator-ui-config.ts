@@ -182,10 +182,11 @@ export function configToDingusPPCArgs(
             break;
         case POWER_MACINTOSH_G3_BW_DPPC:
             args.push("--machine", "pmg3nw");
-            args.push("--pci_J12", "AtiMach64Gx");
+            args.push("--gfxmem_size", "8");
             break;
         case IMAC_G3:
             args.push("--machine", "imacg3");
+            args.push("--gfxmem_size", "8");
             break;
     }
 
