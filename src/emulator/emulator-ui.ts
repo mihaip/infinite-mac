@@ -7,6 +7,7 @@ import {
     type EmulatorWorkerVideoBlit,
     type EmulatorMouseEvent,
     generateChunkedFileSpecForCDROM,
+    type EmulatorConfigFlags,
 } from "./emulator-common";
 import {
     emulatorUsesPlaceholderDisks,
@@ -61,7 +62,7 @@ import {
     SharedMemoryEmulatorClipboard,
 } from "./emulator-ui-clipboard";
 import {type MachineDefRAMSize, type MachineDef} from "../machines";
-import {type EmulatorDiskDef} from "../disks";
+import {isSystemDiskDef, type EmulatorDiskDef} from "../disks";
 import deviceImageHeaderPath from "../Data/Device Image Header (All Drivers).hda";
 import {fetchCDROM} from "./emulator-ui-cdrom";
 import {EmulatorTrackpadController} from "./emulator-ui-trackpad";
@@ -86,12 +87,7 @@ export type EmulatorConfig = {
     delayedDisks?: EmulatorDiskDef[];
     cdroms: EmulatorCDROM[];
     ethernetProvider?: EmulatorEthernetProvider;
-    customDate?: Date;
-    startPaused?: boolean;
-    autoPause?: boolean;
-    debugAudio?: boolean;
-    debugLog?: boolean;
-    debugTrackpad?: boolean;
+    flags: EmulatorConfigFlags;
 };
 
 export interface EmulatorEthernetProvider {
@@ -294,7 +290,7 @@ export class Emulator {
         window.addEventListener("keydown", this.#handleKeyDown);
         window.addEventListener("keyup", this.#handleKeyUp);
         window.addEventListener("beforeunload", this.#handleBeforeUnload);
-        if (this.#config.autoPause) {
+        if (this.#config.flags.autoPause) {
             this.#intersectionObserver = new IntersectionObserver(
                 this.#handleIntersectionChange
             );
@@ -433,8 +429,13 @@ export class Emulator {
         console.log(configDebugStr);
         console.groupEnd();
 
-        const dateOffset = this.#config.customDate
-            ? this.#config.customDate.getTime() - Date.now()
+        const customData =
+            this.#config.flags.customDate ??
+            (this.#config.disks[0] && isSystemDiskDef(this.#config.disks[0])
+                ? this.#config.disks[0].customDate
+                : undefined);
+        const dateOffset = this.#config.flags.customDate
+            ? this.#config.flags.customDate.getTime() - Date.now()
             : 0;
 
         const config: EmulatorWorkerConfig = {
@@ -663,7 +664,7 @@ export class Emulator {
         }
         return (
             this.#delegate?.emulatorSettings?.(this).trackpadMode ??
-            this.#config.debugTrackpad ??
+            this.#config.flags.debugTrackpad ??
             false
         );
     }
@@ -891,7 +892,7 @@ export class Emulator {
                 sampleRate,
                 sampleSize,
                 channels,
-                this.#config.debugAudio ?? false
+                this.#config.flags.debugAudio ?? false
             );
         } else if (e.data.type === "emulator_blit") {
             if (!this.#gotFirstBlit) {
@@ -963,7 +964,7 @@ export class Emulator {
     };
 
     #handleVisibilityChange = () => {
-        if (this.#config.autoPause) {
+        if (this.#config.flags.autoPause) {
             if (document.hidden) {
                 this.pause();
                 return;

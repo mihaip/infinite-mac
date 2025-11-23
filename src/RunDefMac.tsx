@@ -64,16 +64,11 @@ export default function RunDefMac({runDef, onDone}: RunDefMacProps) {
             screenSize={runDef.screenSize}
             screenScale={runDef.screenScale}
             screenUpdateMessages={runDef.screenUpdateMessages}
-            startPaused={runDef.startPaused}
-            autoPause={runDef.autoPause}
+            flags={runDef.flags}
             listenForControlMessages={runDef.isEmbed}
             ethernetProvider={runDef.ethernetProvider}
-            customDate={runDef.customDate ?? runDef.disks[0]?.customDate}
             debugFallback={runDef.debugFallback}
-            debugAudio={runDef.debugAudio}
             debugPaused={runDef.debugPaused}
-            debugLog={runDef.debugLog}
-            debugTrackpad={runDef.debugTrackpad}
             emulatorSettings={runDef.settings}
             onDone={onDone}
         />

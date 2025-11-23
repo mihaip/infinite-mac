@@ -1,3 +1,5 @@
+import {type EmulatorConfigFlags} from "./emulator-common";
+
 export type EmulatorType =
     | "BasiliskII"
     | "SheepShaver"
@@ -59,8 +61,15 @@ export function emulatorSupportsAppleTalk(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";
 }
 
-export function emulatorSupportsDownloadsFolder(type: EmulatorType): boolean {
-    return type === "BasiliskII" || type === "SheepShaver";
+export function emulatorSupportsDownloadsFolder(
+    type: EmulatorType,
+    flags: EmulatorConfigFlags
+): boolean {
+    return (
+        type === "BasiliskII" ||
+        type === "SheepShaver" ||
+        (type === "DingusPPC" && flags.blueSCSI === true)
+    );
 }
 
 export function emulatorSupportsCDROMs(type: EmulatorType): boolean {

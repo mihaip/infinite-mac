@@ -108,7 +108,10 @@ export function configToDingusPPCArgs(
     }
 ): string[] {
     const args = ["--realtime", "--bootrom", romFileName];
-    if (config.debugLog) {
+    if (config.flags.blueSCSI) {
+        args.push("--bluescsi_dir", "/Shared/Downloads");
+    }
+    if (config.flags.debugLog) {
         args.push("--log-to-stderr", "--log-no-uptime");
         const {verboseBootEnvVars} = config.machine;
         if (verboseBootEnvVars) {
@@ -283,7 +286,7 @@ bWriteProtected${i} = ${isCDROM ? "TRUE" : "FALSE"}
         "ROM_PATH": romFileName,
         "FLOPPIES": floppyStrs.join("\n"),
         "DISKS": diskStrs.join("\n"),
-        "DEBUG_LOG": config.debugLog ?? false,
+        "DEBUG_LOG": config.flags.debugLog ?? false,
         "BOOT_DEVICE": bootDevice,
         "TURBO": turbo,
         "COLOR": turbo,
@@ -379,7 +382,7 @@ export function configToPearPCConfig(
         "SCREEN_WIDTH": config.screenWidth,
         "SCREEN_HEIGHT": config.screenHeight,
         "MEMORY_SIZE": memorySize,
-        "MACH_ARGS": config.debugLog ? "-v" : "",
+        "MACH_ARGS": config.flags.debugLog ? "-v" : "",
         "PCI_IDE0_MASTER_INSTALLED": primaryInstalled ? 1 : 0,
         "PCI_IDE0_MASTER_IMAGE": primaryPath,
         "PCI_IDE0_MASTER_TYPE": primaryType,

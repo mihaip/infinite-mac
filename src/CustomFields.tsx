@@ -16,7 +16,10 @@ import {
     SYSTEM_DISKS_BY_NAME,
     systemDiskName,
 } from "./disks";
-import {diskImageExtensions} from "./emulator/emulator-common";
+import {
+    diskImageExtensions,
+    type EmulatorConfigFlags,
+} from "./emulator/emulator-common";
 import {
     emulatorSupportsAppleTalk,
     emulatorSupportsDebugLog,
@@ -56,6 +59,17 @@ export function CustomFields({
     allowScreenScale?: boolean;
     setCanRun: (canRun: boolean) => void;
 }) {
+    const {flags} = runDef;
+    const setFlags = useCallback(
+        (updater: (flags: EmulatorConfigFlags) => EmulatorConfigFlags) => {
+            setRunDef(runDef => ({
+                ...runDef,
+                flags: updater(runDef.flags),
+            }));
+        },
+        [setRunDef]
+    );
+
     const appleTalkSupported =
         allowAppleTalk &&
         runDef.disks.length > 0 &&
@@ -68,7 +82,7 @@ export function CustomFields({
     const [appleTalkEnabled, setAppleTalkEnabled] = useState(false);
     const [appleTalkZoneName, setAppleTalkZoneName] = useState("");
     const [customDateEnabled, setCustomDateEnabled] = useState(
-        runDef.customDate !== undefined
+        runDef.flags.customDate !== undefined
     );
     const [showCDROMDomains, setShowCDROMDomains] = useState(false);
     const [diskURLs, setDiskURLs] = useState<DiskURL[]>([
@@ -491,10 +505,10 @@ export function CustomFields({
                         onChange={() => {
                             if (customDateEnabled) {
                                 setCustomDateEnabled(false);
-                                setRunDef({
-                                    ...runDef,
+                                setFlags(flags => ({
+                                    ...flags,
                                     customDate: undefined,
-                                });
+                                }));
                             } else {
                                 setCustomDateEnabled(true);
                             }
@@ -507,12 +521,12 @@ export function CustomFields({
                         visibility: customDateEnabled ? "visible" : "hidden",
                     }}
                     type="date"
-                    value={toDateString(runDef.customDate ?? new Date())}
+                    value={toDateString(runDef.flags.customDate ?? new Date())}
                     onChange={e =>
-                        setRunDef({
-                            ...runDef,
+                        setFlags(flags => ({
+                            ...flags,
                             customDate: fromDateString(e.target.value),
-                        })
+                        }))
                     }
                 />
                 <div className="CustomFields-Description Dialog-Description">
@@ -554,14 +568,14 @@ export function CustomFields({
                     <span className="CustomFields-Label" />
                     <label>
                         <Checkbox
-                            checked={runDef.debugLog ?? false}
+                            checked={flags.debugLog ?? false}
                             onChange={e =>
-                                setRunDef({
-                                    ...runDef,
+                                setFlags(flags => ({
+                                    ...flags,
                                     debugLog: e.target.checked
                                         ? true
                                         : undefined,
-                                })
+                                }))
                             }
                         />
                         Debug mode

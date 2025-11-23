@@ -87,10 +87,10 @@ export function isPlaceholderDiskDef(
 ): disk is PlaceholderDiskDef {
     return "type" in disk && disk.type === "placeholder";
 }
-function isSystemDiskDef(
-    disk: SystemDiskDef | PlaceholderDiskDef
+export function isSystemDiskDef(
+    disk: EmulatorDiskDef | SystemDiskDef | PlaceholderDiskDef
 ): disk is SystemDiskDef {
-    return !isPlaceholderDiskDef(disk);
+    return "displayName" in disk && !("type" in disk);
 }
 
 const SYSTEM_1_0: SystemDiskDef = {
@@ -891,6 +891,7 @@ import powerMacintoshG3BWNvramPath from "./Data/Power-Macintosh-G3-BW-nvram.bin?
 import powerMacintoshG3BWPramPath from "./Data/Power-Macintosh-G3-BW-pram.bin?url";
 import imacG3233NvramPath from "./Data/iMac-G3-233-nvram.bin?url";
 import imacG3233PramPath from "./Data/iMac-G3-233-pram.bin?url";
+import {Emulator} from "./emulator/emulator-ui";
 const dppcExtraMachineFiles = new Map([
     [
         POWER_MACINTOSH_G3_BEIGE,
