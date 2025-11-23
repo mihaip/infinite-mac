@@ -9,7 +9,11 @@ import {
     type EmulatorSettings,
     DEFAULT_EMULATOR_SETTINGS,
 } from "./emulator/emulator-ui-settings";
-import {type EmulatorCDROM, isDiskImageFile} from "./emulator/emulator-common";
+import {
+    type EmulatorCDROM,
+    isDiskImageFile,
+    type EmulatorConfigFlags,
+} from "./emulator/emulator-common";
 import {useDevicePixelRatio} from "./useDevicePixelRatio";
 import {usePersistentState} from "./usePersistentState";
 import * as varz from "./varz";
@@ -82,12 +86,9 @@ export type MacProps = {
     autoPause?: boolean;
     listenForControlMessages?: boolean;
     ethernetProvider?: EmulatorEthernetProvider;
-    customDate?: Date;
     debugFallback?: boolean;
-    debugAudio?: boolean;
     debugPaused?: boolean;
-    debugLog?: boolean;
-    debugTrackpad?: boolean;
+    flags: EmulatorConfigFlags;
     emulatorSettings?: EmulatorSettings;
     onDone: () => void;
 };
@@ -110,12 +111,9 @@ export default function Mac({
     listenForControlMessages,
     screenUpdateMessages,
     ethernetProvider,
-    customDate,
     debugFallback,
-    debugAudio,
     debugPaused,
-    debugLog,
-    debugTrackpad,
+    flags,
     emulatorSettings: fixedEmulatorSettings,
     onDone,
 }: MacProps) {
@@ -203,7 +201,7 @@ export default function Mac({
 
     const {emulatorType} = machine;
     const canLoadFiles =
-        emulatorSupportsDownloadsFolder(emulatorType) ||
+        emulatorSupportsDownloadsFolder(emulatorType, flags) ||
         emulatorSupportsCDROMs(emulatorType);
 
     useEffect(() => {
@@ -267,12 +265,7 @@ export default function Mac({
                 delayedDisks,
                 cdroms,
                 ethernetProvider,
-                customDate,
-                startPaused,
-                autoPause,
-                debugAudio,
-                debugLog,
-                debugTrackpad,
+                flags,
             },
             {
                 emulatorDidExit(emulator: Emulator) {
@@ -284,7 +277,7 @@ export default function Mac({
                 emulatorDidFinishLoading(emulator: Emulator) {
                     setEmulatorLoaded(true);
                     emulator.refreshSettings();
-                    if (emulatorSupportsDownloadsFolder(emulatorType)) {
+                    if (emulatorSupportsDownloadsFolder(emulatorType, flags)) {
                         libraryDownloadURLs.forEach(url =>
                             handleLibraryURL(
                                 url,
@@ -499,12 +492,9 @@ export default function Mac({
         screenSizeProp,
         initialScreenWidth,
         initialScreenHeight,
-        customDate,
         debugFallback,
-        debugAudio,
         debugPaused,
-        debugLog,
-        debugTrackpad,
+        flags,
         hasSavedHD,
         ramSize,
         onDone,
@@ -958,7 +948,8 @@ export default function Mac({
                             {
                                 "Mac-Drag-Overlay-Downloads":
                                     emulatorSupportsDownloadsFolder(
-                                        emulatorType
+                                        emulatorType,
+                                        flags
                                     ),
                             }
                         )}
@@ -1020,7 +1011,10 @@ export default function Mac({
                             />
                         )}
                     {includeLibrary &&
-                        emulatorSupportsDownloadsFolder(emulatorType) && (
+                        emulatorSupportsDownloadsFolder(
+                            emulatorType,
+                            flags
+                        ) && (
                             <MacLibrary
                                 onLoadProgress={handleMacLibraryProgress}
                                 onRun={handleMacLibraryRun}

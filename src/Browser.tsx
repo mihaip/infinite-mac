@@ -343,6 +343,7 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
             cdromURLs: [],
             cdromPrefetchChunks: [],
             diskFiles: [],
+            flags: {},
         } satisfies RunDef;
         const inNewWindow =
             event.button === 2 || event.metaKey || event.ctrlKey;

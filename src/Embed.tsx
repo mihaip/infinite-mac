@@ -15,6 +15,7 @@ import {
 } from "./emulator/emulator-ui-settings";
 import {EmbedDocs} from "./EmbedDocs";
 import classNames from "classnames";
+import {type EmulatorConfigFlags} from "./emulator/emulator-common";
 
 export function Embed({
     defaultDisk = SYSTEM_DISKS_BY_NAME["System 7.1"],
@@ -46,7 +47,18 @@ export function Embed({
         libraryDownloadURLs: [],
         isCustom: true,
         diskFiles: [],
+        flags: {},
     });
+    const {flags} = runDef;
+    const setFlags = useCallback(
+        (updater: (flags: EmulatorConfigFlags) => EmulatorConfigFlags) => {
+            setRunDef(runDef => ({
+                ...runDef,
+                flags: updater(runDef.flags),
+            }));
+        },
+        []
+    );
     const [showSettings, setShowSettings] = useState(false);
     const [settingsString, setSettingsString] = useState(
         DEFAULT_SETTINGS_STRING
@@ -142,14 +154,14 @@ export function Embed({
                     <span className="CustomFields-Label" />
                     <label>
                         <Checkbox
-                            checked={runDef.startPaused ?? false}
+                            checked={flags.startPaused ?? false}
                             onChange={e =>
-                                setRunDef({
-                                    ...runDef,
+                                setFlags(flags => ({
+                                    ...flags,
                                     startPaused: e.target.checked
                                         ? true
                                         : undefined,
-                                })
+                                }))
                             }
                         />
                         Start paused
@@ -158,14 +170,14 @@ export function Embed({
                     <span className="CustomFields-Label" />
                     <label>
                         <Checkbox
-                            checked={runDef.autoPause ?? false}
+                            checked={flags.autoPause ?? false}
                             onChange={e =>
-                                setRunDef({
-                                    ...runDef,
+                                setFlags(flags => ({
+                                    ...flags,
                                     autoPause: e.target.checked
                                         ? true
                                         : undefined,
-                                })
+                                }))
                             }
                         />
                         Auto-pause

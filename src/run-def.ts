@@ -10,6 +10,7 @@ import {
     type SystemDiskDef,
 } from "./disks";
 import {type EmulatorEthernetProvider} from "./emulator/emulator-ui";
+import {type EmulatorConfigFlags} from "./emulator/emulator-common";
 import {
     type EmulatorSettings,
     DEFAULT_EMULATOR_SETTINGS,
@@ -36,19 +37,12 @@ export type RunDef = {
     includeLibrary: boolean;
     libraryDownloadURLs: string[];
     ethernetProvider?: EmulatorEthernetProvider;
-    // Force non-SharedArrayBuffer mode for debugging
-    debugFallback?: boolean;
-    debugAudio?: boolean;
+    debugFallback?: boolean; // Force non-SharedArrayBuffer mode for debugging
     debugPaused?: boolean;
-    debugLog?: boolean;
-    debugTrackpad?: boolean;
+    flags: EmulatorConfigFlags;
     isCustom?: boolean;
-    customDate?: Date;
-
     isEmbed?: boolean;
     screenUpdateMessages?: boolean;
-    startPaused?: boolean;
-    autoPause?: boolean;
     settings?: EmulatorSettings;
 };
 
@@ -195,6 +189,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     const debugPaused = searchParams.get("debug_paused") === "true";
     const debugLog = searchParams.get("debug_log") === "true";
     const debugTrackpad = searchParams.get("debug_trackpad") === "true";
+    const blueSCSI = searchParams.get("blue_scsi") === "true";
     const emulatorSettingsParam = searchParams.get("settings");
     let settings: EmulatorSettings | undefined = isEmbed
         ? DEFAULT_EMULATOR_SETTINGS
@@ -226,17 +221,20 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         diskURLs,
         diskPrefetchChunks,
         diskFiles: [],
-        customDate,
         debugFallback,
-        debugAudio,
         debugPaused,
-        debugLog,
-        debugTrackpad,
+        flags: {
+            customDate,
+            debugAudio,
+            debugLog,
+            debugTrackpad,
+            startPaused,
+            autoPause,
+            blueSCSI,
+        },
         isCustom,
         isEmbed,
         screenUpdateMessages,
-        startPaused,
-        autoPause,
         settings,
     };
 }
@@ -314,14 +312,14 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
     } else if (ethernetProvider instanceof BroadcastChannelEthernetProvider) {
         url.searchParams.set("broadcast_channel_ethernet", "true");
     }
-    if (runDef.customDate) {
-        url.searchParams.set("date", toDateString(runDef.customDate));
+    if (runDef.flags.customDate) {
+        url.searchParams.set("date", toDateString(runDef.flags.customDate));
     }
 
-    if (runDef.debugAudio) {
+    if (runDef.flags.debugAudio) {
         url.searchParams.set("debug_audio", "true");
     }
-    if (runDef.debugLog) {
+    if (runDef.flags.debugLog) {
         url.searchParams.set("debug_log", "true");
     }
     if (runDef.debugPaused) {
@@ -330,17 +328,20 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
     if (runDef.debugFallback) {
         url.searchParams.set("debug_fallback", "true");
     }
-    if (runDef.debugTrackpad) {
+    if (runDef.flags.debugTrackpad) {
         url.searchParams.set("debug_trackpad", "true");
     }
-    if (runDef.startPaused) {
+    if (runDef.flags.startPaused) {
         url.searchParams.set("paused", "true");
     }
-    if (runDef.autoPause) {
+    if (runDef.flags.autoPause) {
         url.searchParams.set("auto_pause", "true");
     }
     if (runDef.screenUpdateMessages) {
         url.searchParams.set("screen_update_messages", "true");
+    }
+    if (runDef.flags.blueSCSI) {
+        url.searchParams.set("blue_scsi", "true");
     }
     if (runDef.settings) {
         url.searchParams.set("settings", JSON.stringify(runDef.settings));

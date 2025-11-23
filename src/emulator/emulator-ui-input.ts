@@ -26,7 +26,7 @@ export class SharedMemoryEmulatorInput implements EmulatorInput {
     #isPaused = false;
 
     constructor(config: EmulatorConfig) {
-        if (config.startPaused) {
+        if (config.flags.startPaused) {
             this.#inputBufferView[InputBufferAddresses.pausedAddr] = 1;
             this.#isPaused = true;
         }
@@ -123,7 +123,7 @@ export class FallbackEmulatorInput implements EmulatorInput {
         commandSender: EmulatorFallbackCommandSender
     ) {
         this.#commandSender = commandSender;
-        if (config.startPaused) {
+        if (config.flags.startPaused) {
             this.#isPaused = true;
             this.#commandSender({type: "input", event: {type: "pause"}});
         }

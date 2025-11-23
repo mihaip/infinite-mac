@@ -553,3 +553,12 @@ export function generateChunkedFileSpecForCDROM(
         prefetchChunks: cdrom.prefetchChunks ?? [0],
     };
 }
+export type EmulatorConfigFlags = {
+    customDate?: Date;
+    startPaused?: boolean;
+    autoPause?: boolean;
+    blueSCSI?: boolean;
+    debugAudio?: boolean;
+    debugLog?: boolean;
+    debugTrackpad?: boolean;
+};

@@ -40,6 +40,7 @@ export function Custom({
                   libraryDownloadURLs: [],
                   isCustom: true,
                   diskFiles: [],
+                  flags: {},
               }
     );
 
