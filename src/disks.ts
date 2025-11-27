@@ -891,7 +891,6 @@ import powerMacintoshG3BWNvramPath from "./Data/Power-Macintosh-G3-BW-nvram.bin?
 import powerMacintoshG3BWPramPath from "./Data/Power-Macintosh-G3-BW-pram.bin?url";
 import imacG3233NvramPath from "./Data/iMac-G3-233-nvram.bin?url";
 import imacG3233PramPath from "./Data/iMac-G3-233-pram.bin?url";
-import {Emulator} from "./emulator/emulator-ui";
 const dppcExtraMachineFiles = new Map([
     [
         POWER_MACINTOSH_G3_BEIGE,
