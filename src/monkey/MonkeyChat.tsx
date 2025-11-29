@@ -4,7 +4,10 @@ import {useAppearance} from "@/controls/Appearance";
 import {TextArea} from "@/controls/TextArea";
 import {Button} from "@/controls/Button";
 import {type Message, useChat} from "@/monkey/useChat";
-import {useCollectProviderAPIKey, useProviderAPIKey} from "@/monkey/useProviderAPIKey";
+import {
+    useCollectProviderAPIKey,
+    useProviderAPIKey,
+} from "@/monkey/useProviderAPIKey";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {type Disk} from "@/monkey/disks";
 import {useComputer} from "@/monkey/useComputer";

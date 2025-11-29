@@ -23,10 +23,7 @@ import pearPCConfigPath from "@/Data/PearPCConfig.txt";
 import pearpcVideoXPath from "@/Data/PearPC-video-x.rom";
 import previousConfigPath from "@/Data/PreviousConfig.txt";
 import deviceImageHeaderPath from "@/Data/Device Image Header (All Drivers).hda";
-import {
-    type EmulatorDef,
-    type EmulatorCpu,
-} from "@/emulator/common/emulators";
+import {type EmulatorDef, type EmulatorCpu} from "@/emulator/common/emulators";
 
 export type MachineDef = EmulatorDef & {
     name: string;
