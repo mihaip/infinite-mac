@@ -78,7 +78,10 @@ export function Dialog({
             </DialogFrame>
         </div>
     );
-    return ReactDOM.createPortal(dialog, dialogRootNode);
+    return ReactDOM.createPortal(
+        dialog,
+        document.getElementById("dialog-root")!
+    );
 }
 
 export function DialogFrame({
@@ -104,5 +107,3 @@ export function DialogFrame({
         </div>
     );
 }
-
-const dialogRootNode = document.getElementById("dialog-root")!;

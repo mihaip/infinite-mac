@@ -1,4 +1,4 @@
-import {type ResolvedConfig, defineConfig} from "vite";
+import {type Plugin, type ResolvedConfig, defineConfig} from "vite";
 import react from "@vitejs/plugin-react-swc";
 import basicSsl from "@vitejs/plugin-basic-ssl";
 import svgr from "vite-plugin-svgr";
@@ -47,7 +47,13 @@ export default defineConfig(() => {
             headers,
         },
         clearScreen: false,
-        plugins: [basicSslWrapped(), react(), svgr(), cloudflare()],
+        plugins: [
+            ssrDevCssPlugin(),
+            basicSslWrapped(),
+            react(),
+            svgr(),
+            cloudflare(),
+        ],
     };
 });
 
@@ -75,5 +81,47 @@ function basicSslWrapped() {
     return {
         ...originalBasicSsl,
         configResolved,
+    };
+}
+
+// Minimal plugin based on https://github.com/hi-ogawa/vite-plugins/tree/main/packages/ssr-css
+// that injects all CSS into the HTML response so that we don't have a flash of
+// unstyled content in dev mode (when Vite normally injects the CSS via JS-generated
+// <style> tag).
+function ssrDevCssPlugin(): Plugin {
+    const virtualCssPath = "/@virtual:ssr-css.css";
+    const collectedStyles = new Map<string, string>();
+    return {
+        name: "ssr-dev-css",
+        apply: "serve",
+        transform(code, id) {
+            if (id.includes("node_modules")) return null;
+            if (id.endsWith(".css")) {
+                collectedStyles.set(id, code);
+            }
+            return null;
+        },
+        configureServer(server) {
+            server.middlewares.use((req, res, next) => {
+                if (req.url === virtualCssPath) {
+                    res.setHeader("Content-Type", "text/css");
+                    res.end(Array.from(collectedStyles.values()).join("\n"));
+                    return;
+                }
+                next();
+            });
+        },
+        transformIndexHtml() {
+            return [
+                {
+                    tag: "link",
+                    injectTo: "head",
+                    attrs: {
+                        rel: "stylesheet",
+                        href: virtualCssPath,
+                    },
+                },
+            ];
+        },
     };
 }

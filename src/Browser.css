@@ -8,11 +8,18 @@
     --browser-padding: 40px;
     --browser-logo-scale: 2;
     padding: var(--browser-padding);
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 @media (max-width: 440px) {
     .Browser header {
         flex-direction: column;
+    }
+
+    .Browser .Disks-Container {
+        padding-top: 10px;
     }
 }
 
@@ -76,12 +83,12 @@
     flex-wrap: wrap;
 }
 
-.Disk {
+.Disk.ScreenFrame {
     margin: 20px;
 }
 
 @media (max-width: 400px) {
-    .Disk {
+    .Disk.ScreenFrame {
         margin: 10px;
     }
 

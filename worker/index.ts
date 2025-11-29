@@ -2,12 +2,13 @@ import * as varz from "./varz";
 import * as cdrom from "./cd-rom";
 import * as disk from "./disk";
 import * as library from "./library";
+import {canRenderSSR, renderSSR} from "./ssr";
 
 export type Assets = {
     fetch: typeof fetch;
 };
 
-type Env = {
+export type Env = {
     ETHERNET_ZONE: DurableObjectNamespace;
     VARZ: KVNamespace;
     DISK_BUCKET: R2Bucket;
@@ -49,6 +50,13 @@ async function handleRequest(
         return disk.handleRequest(request, env.DISK_BUCKET, ctx);
     }
 
+    if (canRenderSSR(url)) {
+        const ssrResponse = await renderSSR(request, env, url);
+        if (ssrResponse) {
+            return applyCommonHeaders(ssrResponse, url.pathname);
+        }
+    }
+
     const legacyDomainRedirect = getLegacyDomainRedirect(url);
     if (legacyDomainRedirect) {
         return Response.redirect(
@@ -76,38 +84,36 @@ async function handleRequest(
             response.headers.set("Content-Type", "multipart/mixed");
         }
 
-        response.headers.set("X-Content-Type-Options", "nosniff");
-        if (pathname === "/embed") {
-            response.headers.set(
-                "Cross-Origin-Resource-Policy",
-                "cross-origin"
-            );
-        } else {
-            response.headers.set("X-Frame-Options", "DENY");
-        }
-        // Allow SharedArrayBuffer to work
-        response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-        response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
-        // Allow the service worker to intercept all paths, even when
-        // initiated from a year subpath.
-        response.headers.set("Service-Worker-Allowed", "/");
-
-        // Static content uses a content hash in the URL, so it can be cached
-        // for a while (30 days).
-        if (pathname.startsWith("/assets")) {
-            response.headers.set(
-                "Cache-Control",
-                `max-age=${60 * 60 * 24 * 30}`
-            );
-        }
-
-        return response;
+        return applyCommonHeaders(response, pathname);
     } catch (e) {
         console.error("Error serving asset:", e);
 
         const err = e as Error;
         return new Response(err.message || err.toString(), {status: 500});
     }
+}
+
+function applyCommonHeaders(response: Response, pathname: string) {
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    if (pathname === "/embed") {
+        response.headers.set("Cross-Origin-Resource-Policy", "cross-origin");
+    } else {
+        response.headers.set("X-Frame-Options", "DENY");
+    }
+    // Allow SharedArrayBuffer to work
+    response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+    response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+    // Allow the service worker to intercept all paths, even when
+    // initiated from a year subpath.
+    response.headers.set("Service-Worker-Allowed", "/");
+
+    // Static content uses a content hash in the URL, so it can be cached
+    // for a while (30 days).
+    if (pathname.startsWith("/assets")) {
+        response.headers.set("Cache-Control", `max-age=${60 * 60 * 24 * 30}`);
+    }
+
+    return response;
 }
 
 const LEGACY_DOMAINS: {[domain: string]: string} = {

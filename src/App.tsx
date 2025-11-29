@@ -7,11 +7,12 @@ import {flushSync} from "react-dom";
 import {startViewTransition} from "./view-transitions";
 import {type RunDefMacProps} from "./RunDefMac";
 import {AppearanceProvider} from "./controls/Appearance";
+import {iso} from "./iso";
 
 function App() {
     const [initialRunDef, editInitialRunDef] = useMemo(() => {
-        const runDef = runDefFromUrl(location.href);
-        const isEdit = new URL(location.href).searchParams.has("edit");
+        const runDef = runDefFromUrl(iso().location.href);
+        const isEdit = iso().location.searchParams.has("edit");
         return [runDef, isEdit];
     }, []);
     const [runDef, setRunDef] = useState<RunDef | undefined>(
@@ -23,7 +24,7 @@ function App() {
         );
     useEffect(() => {
         const listener = () => {
-            setRunDef(runDefFromUrl(location.href));
+            setRunDef(runDefFromUrl(iso().location.href));
         };
         window.addEventListener("popstate", listener);
         return () => window.removeEventListener("popstate", listener);
@@ -111,8 +112,10 @@ function App() {
 const runDefMacLoader = () => import("./RunDefMac");
 let RunDefMac: React.ComponentType<RunDefMacProps> =
     React.lazy(runDefMacLoader);
-setTimeout(async () => {
-    RunDefMac = (await runDefMacLoader()).default;
-}, 1000);
+if (typeof window !== "undefined") {
+    setTimeout(async () => {
+        RunDefMac = (await runDefMacLoader()).default;
+    }, 1000);
+}
 
 export default App;
