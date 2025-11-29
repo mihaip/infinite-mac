@@ -1,2 +1,2 @@
-src/emulator/*.js
+src/emulator/worker/emscripten/*.js
 src/Data/*.json
