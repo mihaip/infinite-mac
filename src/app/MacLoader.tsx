@@ -1,15 +1,15 @@
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {type EmulatorCDROM} from "@/emulator/common/common";
 import {type RunDef} from "@/defs/run-def";
 import Mac from "@/app/Mac";
 import {getCDROMInfo} from "@/defs/cdroms";
 
-export type RunDefMacProps = {
+export type MacLoaderProps = {
     runDef: RunDef;
     onDone: () => void;
 };
 
-export default function RunDefMac({runDef, onDone}: RunDefMacProps) {
+export default function MacLoader({runDef, onDone}: MacLoaderProps) {
     const [cdroms, setCDROMs] = useState<EmulatorCDROM[] | undefined>(
         runDef.cdromURLs.length || runDef.diskURLs?.length ? undefined : []
     );
@@ -47,29 +47,17 @@ export default function RunDefMac({runDef, onDone}: RunDefMacProps) {
         runDef.diskURLs,
         runDef.diskPrefetchChunks,
     ]);
-    const disks = Array.from(new Set(runDef.disks));
-    disks.forEach(disk => disk.generatedSpec()); // Prefetch the disk definition
+    const disks = useMemo(() => {
+        const uniqueDisks = Array.from(new Set(runDef.disks));
+        uniqueDisks.forEach(disk => disk.generatedSpec()); // Prefetch the disk definition
+        return uniqueDisks;
+    }, [runDef.disks]);
+    const dedupedRunDef = useMemo(() => ({...runDef, disks}), [runDef, disks]);
     return cdroms ? (
         <Mac
-            disks={disks}
-            includeInfiniteHD={runDef.includeInfiniteHD}
-            includeSavedHD={runDef.includeSavedHD}
-            includeLibrary={runDef.includeLibrary}
-            libraryDownloadURLs={runDef.libraryDownloadURLs}
-            diskFiles={runDef.diskFiles}
+            runDef={dedupedRunDef}
             cdroms={cdroms}
             initialErrorText={cdromErrorText}
-            machine={runDef.machine}
-            ramSize={runDef.ramSize}
-            screenSize={runDef.screenSize}
-            screenScale={runDef.screenScale}
-            screenUpdateMessages={runDef.screenUpdateMessages}
-            flags={runDef.flags}
-            listenForControlMessages={runDef.isEmbed}
-            ethernetProvider={runDef.ethernetProvider}
-            debugFallback={runDef.debugFallback}
-            debugPaused={runDef.debugPaused}
-            emulatorSettings={runDef.settings}
             onDone={onDone}
         />
     ) : (

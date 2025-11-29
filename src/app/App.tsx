@@ -5,7 +5,7 @@ import {Footer} from "@/app/Footer";
 import {type RunDef, runDefFromUrl, runDefToUrl} from "@/defs/run-def";
 import {flushSync} from "react-dom";
 import {startViewTransition} from "@/lib/view-transitions";
-import {type RunDefMacProps} from "@/app/RunDefMac";
+import {type MacLoaderProps} from "@/app/MacLoader";
 import {AppearanceProvider} from "@/controls/Appearance";
 import {iso} from "@/lib/iso";
 
@@ -60,7 +60,7 @@ function App() {
                 <AppearanceProvider
                     appearance={runDef.disks[0]?.appearance ?? "Classic"}
                     variant={runDef.disks[0]?.appearanceVariant}>
-                    <RunDefMac runDef={runDef} onDone={handleDone} />
+                    <MacLoader runDef={runDef} onDone={handleDone} />
                 </AppearanceProvider>
             </Suspense>
         );
@@ -109,12 +109,11 @@ function App() {
 // Lazy load to avoid the bundle hit, but prefetch and replace with the
 // implementation so that we can use view transitions and not worry about
 // suspense boundaries.
-const runDefMacLoader = () => import("@/app/RunDefMac");
-let RunDefMac: React.ComponentType<RunDefMacProps> =
-    React.lazy(runDefMacLoader);
+const macLoader = () => import("@/app/MacLoader");
+let MacLoader: React.ComponentType<MacLoaderProps> = React.lazy(macLoader);
 if (typeof window !== "undefined") {
     setTimeout(async () => {
-        RunDefMac = (await runDefMacLoader()).default;
+        MacLoader = (await macLoader()).default;
     }, 1000);
 }
 

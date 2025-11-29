@@ -9,11 +9,7 @@ import {
     type EmulatorSettings,
     DEFAULT_EMULATOR_SETTINGS,
 } from "@/emulator/ui/settings";
-import {
-    type EmulatorCDROM,
-    isDiskImageFile,
-    type EmulatorConfigFlags,
-} from "@/emulator/common/common";
+import {type EmulatorCDROM, isDiskImageFile} from "@/emulator/common/common";
 import {useDevicePixelRatio} from "@/lib/useDevicePixelRatio";
 import {usePersistentState} from "@/lib/usePersistentState";
 import * as varz from "@/lib/varz";
@@ -25,20 +21,14 @@ import {
 import {Dialog} from "@/controls/Dialog";
 import {
     type EmulatorDiskDef,
-    type SystemDiskDef,
     INFINITE_HD,
     INFINITE_HD_MFS,
     INFINITE_HD_NEXT,
     SAVED_HD,
     INFINITE_HD6,
-    type DiskFile,
     INFINITE_HDX,
 } from "@/defs/disks";
-import {
-    type MachineDefRAMSize,
-    type MachineDef,
-    DEFAULT_SUPPORTED_SCREEN_SIZES,
-} from "@/defs/machines";
+import {type MachineDef, DEFAULT_SUPPORTED_SCREEN_SIZES} from "@/defs/machines";
 import classNames from "classnames";
 import {MacCDROMs} from "@/app/MacCDROMs";
 import {getCDROMInfo} from "@/defs/cdroms";
@@ -55,7 +45,7 @@ import {
     emulatorSupportsCDROMs,
     emulatorSupportsDownloadsFolder,
 } from "@/emulator/common/emulators";
-import {type ScreenSize} from "@/defs/run-def";
+import {type RunDef, type ScreenSize} from "@/defs/run-def";
 import {viewTransitionNameForDisk} from "@/lib/view-transitions";
 import {DrawersContainer} from "@/controls/Drawer";
 import {
@@ -69,54 +59,37 @@ import {
 } from "@/embed-types";
 
 export type MacProps = {
-    disks: SystemDiskDef[];
-    includeInfiniteHD: boolean;
-    includeSavedHD: boolean;
-    includeLibrary: boolean;
-    libraryDownloadURLs: string[];
-    diskFiles: DiskFile[];
+    runDef: RunDef;
     cdroms: EmulatorCDROM[];
     initialErrorText?: string;
-    machine: MachineDef;
-    ramSize?: MachineDefRAMSize;
-    screenSize: ScreenSize;
-    screenScale?: number;
-    screenUpdateMessages?: boolean;
-    startPaused?: boolean;
-    autoPause?: boolean;
-    listenForControlMessages?: boolean;
-    ethernetProvider?: EmulatorEthernetProvider;
-    debugFallback?: boolean;
-    debugPaused?: boolean;
-    flags: EmulatorConfigFlags;
-    emulatorSettings?: EmulatorSettings;
     onDone: () => void;
 };
 
 export default function Mac({
-    disks,
-    includeInfiniteHD,
-    includeSavedHD,
-    includeLibrary,
-    libraryDownloadURLs,
-    diskFiles,
+    runDef,
     cdroms,
     initialErrorText,
-    machine,
-    ramSize,
-    screenSize: screenSizeProp,
-    screenScale: screenScaleProp,
-    startPaused,
-    autoPause,
-    listenForControlMessages,
-    screenUpdateMessages,
-    ethernetProvider,
-    debugFallback,
-    debugPaused,
-    flags,
-    emulatorSettings: fixedEmulatorSettings,
     onDone,
 }: MacProps) {
+    const {
+        disks,
+        includeInfiniteHD,
+        includeSavedHD,
+        includeLibrary,
+        libraryDownloadURLs,
+        diskFiles,
+        machine,
+        ramSize,
+        screenSize: screenSizeProp,
+        screenScale: screenScaleProp,
+        screenUpdateMessages,
+        isEmbed,
+        ethernetProvider,
+        debugFallback,
+        debugPaused,
+        flags,
+        settings: fixedEmulatorSettings,
+    } = runDef;
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
     const [scale, setScale] = useState<number | undefined>(screenScaleProp);
@@ -169,6 +142,7 @@ export default function Mac({
     const {width: screenWidth, height: screenHeight} = screenSize;
 
     const hasSavedHD = includeSavedHD && canSaveDisks();
+    const listenForControlMessages = Boolean(isEmbed);
 
     const handleMacLibraryProgress = useCallback(
         (name: string, fraction: number) => {
@@ -501,8 +475,6 @@ export default function Mac({
         libraryDownloadURLs,
         handleMacLibraryRun,
         handleMacLibraryProgress,
-        startPaused,
-        autoPause,
         screenUpdateMessages,
         listenForControlMessages,
     ]);
