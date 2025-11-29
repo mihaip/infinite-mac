@@ -33,13 +33,14 @@ fi
 
 SRC_DIR="${ROOT_DIR}/src"
 PUBLIC_DIR="${ROOT_DIR}/public"
-EMULATOR_DESTINATION_DIR="${SRC_DIR}/emulator"
+EMULATOR_DESTINATION_DIR="${SRC_DIR}/emulator/worker/emscripten"
 
 if [ ! -f "${EMULATOR_DIR}/${EMULATOR}.wasm" ]; then
     echo "${EMULATOR} has not been built. Refer to the README for details."
     exit
 fi
 
+mkdir -p "${EMULATOR_DESTINATION_DIR}"
 # Build output
 cp "${EMULATOR_DIR}/${EMULATOR}${JS_EXTENSION}" "${EMULATOR_DESTINATION_DIR}/${EMULATOR}.js"
 cp "${EMULATOR_DIR}/${EMULATOR}.wasm" "${EMULATOR_DESTINATION_DIR}/${EMULATOR}.wasm"

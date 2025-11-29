@@ -6,9 +6,9 @@ import {
     useContext,
     useState,
 } from "react";
-import {useAppearance} from "./Appearance";
+import {useAppearance} from "@/controls/Appearance";
 import classNames from "classnames";
-import "./Drawer.css";
+import "@/controls/Drawer.css";
 
 const DrawerContainerContext = createContext({
     anyDrawerExpanded: false,

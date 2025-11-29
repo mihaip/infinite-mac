@@ -37,6 +37,11 @@ export default defineConfig(() => {
             "**/*nvram.bin",
             "**/*pram.bin",
         ],
+        resolve: {
+            alias: {
+                "@": path.resolve(__dirname, "src"),
+            },
+        },
         server: {
             port: 3127,
             headers,

@@ -1,0 +1,281 @@
+@font-face {
+    font-family: "Apple Garamond";
+    src: url("@/Fonts/AppleGaramond.woff2");
+    font-display: swap;
+}
+
+.Browser {
+    --browser-padding: 40px;
+    --browser-logo-scale: 2;
+    padding: var(--browser-padding);
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 440px) {
+    .Browser header {
+        flex-direction: column;
+    }
+
+    .Browser .Disks-Container {
+        padding-top: 10px;
+    }
+}
+
+@media (max-width: 640px) {
+    .Browser {
+        --browser-padding: 15px;
+        --browser-logo-scale: 1;
+    }
+}
+
+.Browser header {
+    display: flex;
+    gap: var(--browser-padding);
+    background: #d9e5fe;
+    margin: calc(var(--browser-padding) * -1);
+    padding: var(--browser-padding);
+    margin-bottom: 0;
+    align-items: center;
+}
+
+.Browser .Logo {
+    flex-shrink: 0;
+    background-image: url(@/Images/HeaderLogo.png);
+    background-size: cover;
+    image-rendering: pixelated;
+    width: calc(114px * var(--browser-logo-scale));
+    height: calc(74px * var(--browser-logo-scale));
+}
+
+.Browser .Description p:first-child {
+    margin-top: 0;
+}
+
+.Browser .Description p:last-child {
+    margin-bottom: 0;
+}
+
+.Browser .Description span,
+.Browser .Description a {
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.Browser .Logo h1 {
+    display: none;
+}
+
+.Browser .Year {
+    margin: 2em 0 3em 0;
+}
+
+.Browser .Year h2 {
+    color: #fff;
+    z-index: 1;
+    position: relative;
+}
+
+.Browser .Year .Disks {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.Disk.ScreenFrame {
+    margin: 20px;
+}
+
+@media (max-width: 400px) {
+    .Disk.ScreenFrame {
+        margin: 10px;
+    }
+
+    .Disk.ScreenFrame-Bezel-Pinstripes {
+        margin: 14px 10px;
+    }
+}
+
+.DiskContents {
+    background: #fff;
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    padding: 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+.DiskContents-Appearance-Aqua {
+    background: url("@/Images/AquaPinstripes.png");
+    image-rendering: pixelated;
+}
+
+.DiskContents-NeXT {
+    background: #aaa;
+    border-radius: 0;
+}
+
+.DiskContents.DiskContents-Placeholder {
+    opacity: 0.5;
+}
+
+.DiskContents h3 {
+    font-family: "Apple Garamond";
+    font-weight: normal;
+    font-size: 28px;
+    margin: 0 0 8px 0;
+}
+
+@media (max-width: 440px) {
+    .DiskContents h3 {
+        font-size: 24px;
+    }
+}
+
+.DiskContents h3 .Subtitle {
+    color: #999;
+}
+
+.DiskContents-NeXT h3 .Subtitle {
+    color: #555;
+}
+
+.DiskContents h3 .ReleaseDate {
+    color: #999;
+    font-size: 14px;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+.DiskContents-NeXT h3 .ReleaseDate {
+    color: #555;
+}
+
+.DiskContents .Unstable-Warning {
+    background: #faa;
+    color: #fff;
+    display: inline;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+.DiskContents .Row {
+    margin-bottom: 18px;
+}
+
+@media (max-width: 440px) {
+    .DiskContents .Row {
+        margin-bottom: 12px;
+    }
+}
+
+.DiskContents .Customize,
+.DiskContents .Row.DiskDescription {
+    flex-grow: 1;
+    overflow: auto;
+}
+
+.DiskContents .Row.Buttons {
+    text-align: right;
+}
+
+.DiskContents .Row:last-child {
+    margin-bottom: 0;
+}
+
+.DiskContents .Row .Button {
+    margin: 0 4px;
+}
+
+@media (max-width: 440px) {
+    /* Aqua buttons have some innate margin due to drop shadows, drop the extra
+    margin at small screen sizes to make sure they don't end up wrapping. */
+    .DiskContents .Row .Button.Button-Aqua {
+        margin: 0;
+    }
+}
+
+.Disk .CustomizeButton {
+    font-weight: normal;
+}
+
+@media (hover: hover) {
+    .Disk .CustomizeButton {
+        visibility: hidden;
+    }
+
+    .Disk:hover .CustomizeButton {
+        visibility: visible;
+    }
+}
+
+.Disk-Filters-Container {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.Disk-Filters {
+    font-family: "Helvetica", "Arial", sans-serif;
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 13px;
+    background: #282c3499;
+    padding: 5px 5px 5px 10px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.Disk-Filters-Label,
+.Disk-Filters .count {
+    color: #ccc;
+}
+
+@media (max-width: 440px) {
+    .Disk-Filters .count {
+        display: none;
+    }
+}
+
+.Disk-Filters-Button {
+    margin-left: 0.5em;
+    appearance: none;
+    border: 0;
+    padding: 5px 10px;
+    border-radius: 10px;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+}
+
+.Disk-Filters-Button .name-container {
+    display: inline-flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+/* Allow the name to be bold when selected without offsetting the rest of the
+content by leaving enough room for the bold version at all times. */
+.Disk-Filters-Button .name-sizer {
+    font-weight: bold;
+    height: 0;
+    visibility: hidden;
+    overflow: hidden;
+    user-select: none;
+    pointer-events: none;
+}
+
+.Disk-Filters-Button.selected {
+    cursor: default;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.Disk-Filters-Button.selected .name {
+    font-weight: bold;
+}

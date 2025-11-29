@@ -1,5 +1,5 @@
-import {type Appearance, type AppearanceVariant} from "../controls/Appearance";
-import {type ScreenFrameProps} from "../ScreenFrame";
+import {type Appearance, type AppearanceVariant} from "@/controls/Appearance";
+import {type ScreenFrameProps} from "@/controls/ScreenFrame";
 
 export type Disk = {
     name: string;

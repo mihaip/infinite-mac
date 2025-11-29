@@ -65,9 +65,32 @@ Common deployment tasks (also done via `npm run`)
     - Requires that [rclone](https://rclone.org/) installed, it can be obtained via `sudo -v ; curl https://rclone.org/install.sh | sudo bash`
     - Should be done after disks are rebuilt with `import-disks` (and before `worker-deploy`).
 
+### Directory Structure
+
+- `src/`: frontend React app and assets.
+    - `app/`: main UI pages/components
+    - `controls/`: reusable UI widgets (buttons, dialogs, inputs, etc).
+    - `defs/`: type-safe data definitions for disks, machines, etc.
+    - `lib/`: shared utilities and hooks
+    - `net/`: networking helpers (Ethernet providers for emulator-to-emulator connectivity).
+    - `emulator/`: emulator integration
+        - `ui/`: code that runs in the main thread to drive emulators (config, files, audio/video, input).
+        - `worker/`: emulator worker runtime and helpers.
+            - `emscripten/`: generated WASM emulator binaries of emulator cores.
+        - `common/`: shared types/utilities used by both UI and worker sides.
+    - `Data/`: support data files, including ROMs and disk manifests (generated via `import-disks`)
+    - `Images/` and `Fonts/`: bundled assets and manifests (ROMs, disk manifests, UI art, fonts).
+    - `monkey/`: Infinite Monkey LLM-based computer use demonstration
+- `worker/`: Cloudflare Worker code for SSR, asset serving, and APIs.
+- `scripts/`: helper scripts for importing emulators/disks and deployment utilities.
+- `public/`: static files served as-is
+- `Library/`: Infinite HD library, used by `import-disks` (either JSON manifests of files to download or .zip archives of snapshotted directories)
+- `CD-ROMs/`: CD-ROM library, used by `import-cd-roms`
+- `Images/`: System disk images, used by `import-disks`
+
 ### Building the emulators
 
-Basilisk II, SheepShaver, Mini vMac and DingusPPC are the original 68K and PowerPC emulators that enable this project. They are hosted in [separate](https://github.com/mihaip/minivmac/) [repos](https://github.com/mihaip/macemu/) and are included via Git submodules. Rebuilding them is only required when making changes to the emulator core, the generated files are in `src/emulator` and included in the Git repository.
+[Basilisk II](https://github.com/mihaip/macemu/tree/infinite-mac-kanjitalk755/BasiliskII), [SheepShaver](https://github.com/mihaip/macemu/tree/infinite-mac-kanjitalk755/SheepShaver), [Mini vMac](https://github.com/mihaip/minivmac/), [DingusPPC](https://github.com/mihaip/dingusppc), [Previous](https://github.com/mihaip/previous) and [PearPC](https://github.com/mihaip/pearpc) are the original 68K and PowerPC emulators that enable this project. They are hosted in separate repos and are included via Git submodules. Rebuilding them is only required when making changes to the emulator core, the generated files are in `src/emulator/worker/emscripten` and included in the Git repository.
 
 To begin, ensure that you have a Docker image built with the Emscripten toolchain and supporting libraries:
 

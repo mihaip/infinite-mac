@@ -34,23 +34,23 @@
 }
 
 .Select.Select-Classic {
-    border-image-source: url(../Images/ClassicSelect.png);
+    border-image-source: url("@/Images/ClassicSelect.png");
     border-top-width: 2px;
     border-bottom-width: 2px;
 }
 
 .Select.Select-Classic:active {
-    border-image-source: url(../Images/ClassicSelect-Active.png);
+    border-image-source: url("@/Images/ClassicSelect-Active.png");
 }
 
 .Select.Select-Platinum {
-    border-image-source: url(../Images/PlatinumSelect.png);
+    border-image-source: url("@/Images/PlatinumSelect.png");
     border-top-width: 2px;
     border-bottom-width: 2px;
 }
 
 .Select.Select-Platinum:active {
-    border-image-source: url(../Images/PlatinumSelect-Active.png);
+    border-image-source: url("@/Images/PlatinumSelect-Active.png");
 }
 
 .Select.Select-Platinum:focus-visible {
@@ -58,7 +58,7 @@
 }
 
 .Select.Select-Aqua {
-    border-image-source: url(../Images/AquaSelect.png);
+    border-image-source: url("@/Images/AquaSelect.png");
     border-image-slice: 12 24 12 9 fill;
     border-image-width: 12px 24px 12px 9px;
     border-image-repeat: stretch stretch;
@@ -68,7 +68,7 @@
 }
 
 .Select.Select-Aqua:active {
-    border-image-source: url(../Images/AquaSelect-Active.png);
+    border-image-source: url("@/Images/AquaSelect-Active.png");
 }
 
 .Select.Select-Aqua:focus-visible {
@@ -78,10 +78,10 @@
 }
 
 .Select.Select-NeXT {
-    border-image-source: url(../Images/NeXTSelect.png);
+    border-image-source: url("@/Images/NeXTSelect.png");
 }
 
 .Select.Select-NeXT:active {
     color: #000;
-    border-image-source: url(../Images/NeXTSelect-Active.png);
+    border-image-source: url("@/Images/NeXTSelect-Active.png");
 }

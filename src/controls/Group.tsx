@@ -1,6 +1,6 @@
 import classNames from "classnames";
-import "./Group.css";
-import {appearanceSystemFont, useAppearance} from "./Appearance";
+import "@/controls/Group.css";
+import {appearanceSystemFont, useAppearance} from "@/controls/Appearance";
 
 export function Group({
     label,

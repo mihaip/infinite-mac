@@ -1,19 +1,19 @@
-import "./Monkey.css";
+import "@/monkey/Monkey.css";
 import {useRef, useState} from "react";
-import {ScreenFrame} from "../ScreenFrame";
-import {Select} from "../controls/Select";
+import {ScreenFrame} from "@/controls/ScreenFrame";
+import {Select} from "@/controls/Select";
 import {
     AppearanceProvider,
     appearanceSystemFont,
     useAppearance,
-} from "../controls/Appearance";
-import {DialogFrame} from "../controls/Dialog";
-import {MonkeyChat} from "./MonkeyChat";
+} from "@/controls/Appearance";
+import {DialogFrame} from "@/controls/Dialog";
+import {MonkeyChat} from "@/monkey/MonkeyChat";
 import classNames from "classnames";
-import {type Disk, DISKS} from "./disks";
-import iconPath from "./Images/Icon.png";
-import {type Provider, PROVIDERS} from "./Provider";
-import {usePersistentState} from "../usePersistentState";
+import {type Disk, DISKS} from "@/monkey/disks";
+import iconPath from "@/monkey/Images/Icon.png";
+import {type Provider, PROVIDERS} from "@/monkey/Provider";
+import {usePersistentState} from "@/lib/usePersistentState";
 
 export default function Monkey() {
     const [disk, setDisk] = useState<Disk>(DISKS[0]);

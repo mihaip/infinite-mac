@@ -1,13 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import {Button} from "./Button";
-import "./Dialog.css";
+import {Button} from "@/controls/Button";
+import "@/controls/Dialog.css";
 import classNames from "classnames";
 import {
     appearanceSystemFont,
     useAppearance,
     useAppearanceVariant,
-} from "./Appearance";
+} from "@/controls/Appearance";
 
 export function Dialog({
     title,

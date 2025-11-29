@@ -1,6 +1,6 @@
 import classNames from "classnames";
-import "./BevelButton.css";
-import {useAppearance} from "./Appearance";
+import "@/controls/BevelButton.css";
+import {useAppearance} from "@/controls/Appearance";
 
 export function BevelButton({
     className,

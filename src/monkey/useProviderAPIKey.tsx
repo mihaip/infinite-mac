@@ -1,9 +1,9 @@
-import "./useProviderAPIKey.css";
+import "@/monkey/useProviderAPIKey.css";
 import {useCallback, useRef, useState} from "react";
-import {usePersistentState} from "../usePersistentState";
-import {Dialog} from "../controls/Dialog";
-import {Input} from "../controls/Input";
-import {type Provider} from "./Provider";
+import {usePersistentState} from "@/lib/usePersistentState";
+import {Dialog} from "@/controls/Dialog";
+import {Input} from "@/controls/Input";
+import {type Provider} from "@/monkey/Provider";
 
 export function useProviderAPIKey(provider: Provider) {
     const [rawValue, setRawValue] = usePersistentState<string>(

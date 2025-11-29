@@ -1,5 +1,5 @@
 import {createContext, type PropsWithChildren, useContext} from "react";
-import "./Appearance.css";
+import "@/controls/Appearance.css";
 
 export type Appearance = "Classic" | "Platinum" | "Aqua" | "NeXT";
 

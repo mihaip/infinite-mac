@@ -1,6 +1,6 @@
 import classNames from "classnames";
-import "./Button.css";
-import {appearanceSystemFont, useAppearance} from "./Appearance";
+import "@/controls/Button.css";
+import {appearanceSystemFont, useAppearance} from "@/controls/Appearance";
 
 export function Button({
     className,

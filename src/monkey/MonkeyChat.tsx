@@ -1,17 +1,17 @@
-import "./MonkeyChat.css";
+import "@/monkey/MonkeyChat.css";
 import classNames from "classnames";
-import {useAppearance} from "../controls/Appearance";
-import {TextArea} from "../controls/TextArea";
-import {Button} from "../controls/Button";
-import {type Message, useChat} from "./useChat";
-import {useCollectProviderAPIKey, useProviderAPIKey} from "./useProviderAPIKey";
+import {useAppearance} from "@/controls/Appearance";
+import {TextArea} from "@/controls/TextArea";
+import {Button} from "@/controls/Button";
+import {type Message, useChat} from "@/monkey/useChat";
+import {useCollectProviderAPIKey, useProviderAPIKey} from "@/monkey/useProviderAPIKey";
 import {useCallback, useEffect, useRef, useState} from "react";
-import {type Disk} from "./disks";
-import {useComputer} from "./useComputer";
-import resetImagePath from "./Images/Reset.png";
-import stopImagePath from "./Images/Stop.png";
-import * as varz from "../varz";
-import {type Provider} from "./Provider";
+import {type Disk} from "@/monkey/disks";
+import {useComputer} from "@/monkey/useComputer";
+import resetImagePath from "@/monkey/Images/Reset.png";
+import stopImagePath from "@/monkey/Images/Stop.png";
+import * as varz from "@/lib/varz";
+import {type Provider} from "@/monkey/Provider";
 
 export function MonkeyChat({
     provider,

@@ -2,7 +2,7 @@ import {RingBuffer} from "ringbuf.js";
 import {
     type EmulatorAudioProcessorOptions,
     type EmulatorWorkerSharedMemoryAudioConfig,
-} from "./emulator-common";
+} from "@/emulator/common/common";
 
 interface EmulatorAudioDataProvider {
     audioData(): Uint8Array | undefined;

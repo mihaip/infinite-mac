@@ -2,7 +2,7 @@
 https://tinkerdifferent.com/resources/collection-of-classic-apple-fonts-for-your-modern-computer.130/ */
 @font-face {
     font-family: "ChicagoFLF";
-    src: url(../Fonts/ChicagoFLF.woff2);
+    src: url("@/Fonts/ChicagoFLF.woff2");
     font-display: swap;
     font-weight: 400;
     font-style: normal;
@@ -11,7 +11,7 @@ https://tinkerdifferent.com/resources/collection-of-classic-apple-fonts-for-your
 /* Charcoal downloaded from https://os9.ca/ */
 @font-face {
     font-family: "Charcoal";
-    src: url(../Fonts/Charcoal.woff2);
+    src: url("@/Fonts/Charcoal.woff2");
     font-display: swap;
     font-weight: 400;
     font-style: normal;
@@ -20,7 +20,7 @@ https://tinkerdifferent.com/resources/collection-of-classic-apple-fonts-for-your
 /* Lucida Grande downloaded from https://online-fonts.com/fonts/lucida-grande/download */
 @font-face {
     font-family: "LucidaGrande";
-    src: url(../Fonts/LucidaGrande.woff2);
+    src: url("@/Fonts/LucidaGrande.woff2");
     font-display: swap;
     font-weight: 400;
     font-style: normal;

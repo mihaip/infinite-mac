@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from "react";
-import {type Computer, type ComputerAction} from "./Computer";
-import {type Conversation, type Provider} from "./Provider";
+import {type Computer, type ComputerAction} from "@/monkey/Computer";
+import {type Conversation, type Provider} from "@/monkey/Provider";
 
 export type Message =
     | {

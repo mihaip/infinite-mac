@@ -1,6 +1,6 @@
 import classNames from "classnames";
-import "./Checkbox.css";
-import {useAppearance} from "./Appearance";
+import "@/controls/Checkbox.css";
+import {useAppearance} from "@/controls/Appearance";
 
 export function Checkbox({
     className,

@@ -16,14 +16,7 @@ const compat = new FlatCompat({
 });
 
 export default defineConfig([
-    globalIgnores([
-        "src/emulator/dingusppc.js",
-        "src/emulator/minivmac-*.js",
-        "src/emulator/ppc.js",
-        "src/emulator/previous.js",
-        "src/emulator/BasiliskII.js",
-        "src/emulator/SheepShaver.js",
-    ]),
+    globalIgnores(["src/emulator/worker/emscripten/*.js"]),
     {
         extends: fixupConfigRules(
             compat.extends(

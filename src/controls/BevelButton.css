@@ -24,11 +24,11 @@
 }
 
 .BevelButton-Platinum {
-    border-image-source: url(../Images/PlatinumBevelButton.png);
+    border-image-source: url("@/Images/PlatinumBevelButton.png");
     line-height: 13px;
 }
 
 .BevelButton-Platinum:active,
 .BevelButton-Platinum.BevelButton-Selected {
-    border-image-source: url(../Images/PlatinumBevelButton-Active.png);
+    border-image-source: url("@/Images/PlatinumBevelButton-Active.png");
 }

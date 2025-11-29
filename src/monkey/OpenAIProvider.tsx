@@ -1,12 +1,12 @@
 import OpenAI, {APIUserAbortError} from "openai";
 import {type Tool} from "openai/resources/responses/responses";
-import {type Computer} from "./Computer";
+import {type Computer} from "@/monkey/Computer";
 import {
     type ConversationCallbacks,
     type Conversation,
     type Provider,
-} from "./Provider";
-import {sleep} from "./util";
+} from "@/monkey/Provider";
+import {sleep} from "@/monkey/util";
 
 export const OPENAI_PROVIDER: Provider = {
     id: "openai",

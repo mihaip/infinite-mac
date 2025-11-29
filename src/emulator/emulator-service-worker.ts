@@ -3,7 +3,7 @@ import {
     type EmulatorFallbackCommand,
     generateNextChunkUrl,
     generateChunkUrl,
-} from "./emulator-common";
+} from "@/emulator/common/common";
 
 declare const self: ServiceWorkerGlobalScope;
 
