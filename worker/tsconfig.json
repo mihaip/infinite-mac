@@ -10,6 +10,10 @@
         "incremental": true,
         // Ignore warnings about the Worker and SharedWorker types referenced
         // in vite/client.
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["../src/*"]
+        }
     }
 }

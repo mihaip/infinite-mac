@@ -1,6 +1,6 @@
 import classNames from "classnames";
-import "./Select.css";
-import {appearanceSystemFont, useAppearance} from "./Appearance";
+import "@/controls/Select.css";
+import {appearanceSystemFont, useAppearance} from "@/controls/Appearance";
 
 export function Select({
     className,

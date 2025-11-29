@@ -48,19 +48,19 @@
 }
 
 .Dialog.Dialog-Classic {
-    border-image-source: url(../Images/ClassicDialogFrame.png);
+    border-image-source: url("@/Images/ClassicDialogFrame.png");
 }
 
 .Dialog.Dialog-Classic.Dialog-System7 {
-    border-image-source: url(../Images/System7DialogFrame.png);
+    border-image-source: url("@/Images/System7DialogFrame.png");
 }
 
 .Dialog.Dialog-Platinum {
-    border-image-source: url(../Images/PlatinumDialogFrame.png);
+    border-image-source: url("@/Images/PlatinumDialogFrame.png");
 }
 
 .Dialog.Dialog-Aqua {
-    border-image-source: url(../Images/AquaDialogFrame.png);
+    border-image-source: url("@/Images/AquaDialogFrame.png");
     border-image-slice: 21 30 29 28 fill;
     border-image-width: 21px 30px 29px 28px;
     border-image-repeat: repeat;
@@ -72,7 +72,7 @@
 }
 
 .Dialog.Dialog-NeXT {
-    border-image-source: url(../Images/NeXTDialogFrame.png);
+    border-image-source: url("@/Images/NeXTDialogFrame.png");
 }
 
 .Dialog-Content {

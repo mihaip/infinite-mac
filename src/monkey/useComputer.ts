@@ -1,12 +1,12 @@
 import {useCallback, useEffect, useMemo, useRef} from "react";
-import {type Disk} from "./disks";
-import {type EmbedControlEvent} from "../embed-types";
-import {sleep} from "./util";
+import {type Disk} from "@/monkey/disks";
+import {type EmbedControlEvent} from "@/embed-types";
+import {sleep} from "@/monkey/util";
 import {
     type ComputerAction,
     type Computer,
     type ComputerMouseButton,
-} from "./Computer";
+} from "@/monkey/Computer";
 
 export function useComputer(
     disk: Disk,

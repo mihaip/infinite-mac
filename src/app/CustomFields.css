@@ -1,0 +1,136 @@
+.CustomFields-Row {
+    margin-bottom: 16px !important;
+}
+
+.CustomFields-Row .Button:not(.Button-Aqua) {
+    height: 20px;
+    font-weight: normal;
+    font-size: 12px;
+    padding-top: 0;
+    padding-bottom: 0;
+    box-sizing: border-box;
+}
+
+.CustomFields-Row label {
+    display: inline;
+}
+
+.CustomFields-Row.CustomFields-InputCompensate {
+    margin-top: -5px;
+}
+
+.CustomFields-Row.CustomFields-InputCompensate .CustomFields-Description {
+    margin-top: -3px;
+}
+
+.CustomFields-Row label.disabled {
+    color: #999;
+    pointer-events: none;
+}
+
+.CustomFields-Row label:last-of-type {
+    margin-bottom: 4px;
+}
+
+.CustomFields-Label {
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    margin-right: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.CustomFields-Description {
+    margin-left: 104px;
+}
+
+.CustomFields-Description a {
+    color: inherit;
+}
+
+.CustomFields-Description-Link {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.CustomFields-Repeated {
+    display: flex !important;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.CustomFields-Repeated input {
+    height: 22px;
+    box-sizing: border-box;
+    max-width: calc(100% - 100px - 80px); /* Label + buttons */
+}
+
+.CustomFields-Repeated .Button.AddRemove:not(.Button-Aqua) {
+    margin-left: 4px;
+    width: 20px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.CustomFields-Repeated .Button.AddRemove.Button-Aqua {
+    border-image-source: none;
+    background-image: url("@/Images/AquaRoundButton.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    border: 0;
+    width: 32px;
+    height: 31px;
+    font-weight: bold !important;
+    padding-bottom: 4px;
+}
+
+.CustomFields-Repeated .Button.AddRemove.Button-Aqua:active {
+    background-image: url("@/Images/AquaRoundButton-Active.png");
+}
+
+.CustomFields-Repeated-Disk {
+    width: 256px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.CustomFields-DiskURL-MountReadWrite {
+    margin-top: -6px;
+    margin-bottom: 6px;
+}
+
+.CustomFields-CDROMs {
+    color: transparent; /* In case the label text peeks through */
+    width: 20px;
+    margin-left: 4px;
+}
+
+.CustomFields-CDROMs.Select.Select-Platinum {
+    height: 20px;
+    border-left-width: 0;
+    border-image-width: 3px 22px 3px 0;
+    margin-left: -20px;
+    z-index: 1;
+}
+
+.CustomFields-CDROMs.Select.Select-Aqua {
+    width: 20px;
+    border-left-width: 0;
+    border-image-width: 12px 24px 12px 0;
+    margin-left: -1px;
+}
+
+.CustomFields-ScreenSize {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.CustomFields-ScreenSize input[type="number"] {
+    width: 32px;
+    height: 10px;
+    font-size: 12px;
+}

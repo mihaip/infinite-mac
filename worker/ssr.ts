@@ -2,7 +2,7 @@ import {createElement} from "react";
 import {renderToReadableStream} from "react-dom/server";
 import {type Env} from "./index";
 import {AsyncLocalStorage} from "node:async_hooks";
-import {type Iso, setIsoProvider} from "../src/iso";
+import {type Iso, setIsoProvider} from "@/lib/iso";
 
 export function canRenderSSR(url: URL) {
     const {pathname, searchParams} = url;
@@ -88,7 +88,7 @@ async function renderAppStream() {
         // Dynamically import to avoid failing worker startup if SSR breaks.
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore: allow importing client entry into worker SSR shim.
-        const {default: App} = (await import("../src/App")) as {default: any};
+        const {default: App} = (await import("@/app/App")) as {default: any};
         const vnode = createElement(App, {});
         return await renderToReadableStream(vnode);
     } catch (err) {

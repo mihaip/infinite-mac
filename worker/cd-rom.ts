@@ -1,5 +1,5 @@
-import {type EmulatorCDROM} from "../src/emulator/emulator-common";
-import allowedDomains from "../src/cdrom-sites.json";
+import {type EmulatorCDROM} from "@/emulator/common/common";
+import allowedDomains from "@/defs/cdrom-sites.json";
 
 type CDROMSpec = {
     srcUrl: string;

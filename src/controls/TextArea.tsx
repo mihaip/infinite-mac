@@ -1,7 +1,7 @@
 import classNames from "classnames";
-import "./Input.css";
+import "@/controls/Input.css";
 import {forwardRef} from "react";
-import {useAppearance} from "./Appearance";
+import {useAppearance} from "@/controls/Appearance";
 
 export const TextArea = forwardRef<
     HTMLTextAreaElement,

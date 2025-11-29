@@ -30,35 +30,35 @@
 }
 
 .Checkbox-Classic::before {
-    background-image: url(../Images/ClassicCheckbox.png);
+    background-image: url("@/Images/ClassicCheckbox.png");
 }
 
 .Checkbox-Classic:active::before {
-    background-image: url(../Images/ClassicCheckbox-Active.png);
+    background-image: url("@/Images/ClassicCheckbox-Active.png");
 }
 
 .Checkbox-Classic:checked::before {
-    background-image: url(../Images/ClassicCheckbox-Checked.png);
+    background-image: url("@/Images/ClassicCheckbox-Checked.png");
 }
 
 .Checkbox-Classic:checked:active::before {
-    background-image: url(../Images/ClassicCheckbox-CheckedActive.png);
+    background-image: url("@/Images/ClassicCheckbox-CheckedActive.png");
 }
 
 .Checkbox-Platinum::before {
-    background-image: url(../Images/PlatinumCheckbox.png);
+    background-image: url("@/Images/PlatinumCheckbox.png");
 }
 
 .Checkbox-Platinum:active::before {
-    background-image: url(../Images/PlatinumCheckbox-Active.png);
+    background-image: url("@/Images/PlatinumCheckbox-Active.png");
 }
 
 .Checkbox-Platinum:checked::before {
-    background-image: url(../Images/PlatinumCheckbox-Checked.png);
+    background-image: url("@/Images/PlatinumCheckbox-Checked.png");
 }
 
 .Checkbox-Platinum:checked:active::before {
-    background-image: url(../Images/PlatinumCheckbox-CheckedActive.png);
+    background-image: url("@/Images/PlatinumCheckbox-CheckedActive.png");
 }
 
 .Checkbox-Aqua {
@@ -67,22 +67,22 @@
 }
 
 .Checkbox-Aqua::before {
-    background-image: url(../Images/AquaCheckbox.png);
+    background-image: url("@/Images/AquaCheckbox.png");
     width: 18px;
     height: 18px;
     background-size: 18px 18px;
 }
 
 .Checkbox-Aqua:active::before {
-    background-image: url(../Images/AquaCheckbox-Active.png);
+    background-image: url("@/Images/AquaCheckbox-Active.png");
 }
 
 .Checkbox-Aqua:checked::before {
-    background-image: url(../Images/AquaCheckbox-Checked.png);
+    background-image: url("@/Images/AquaCheckbox-Checked.png");
 }
 
 .Checkbox-Aqua:checked:active::before {
-    background-image: url(../Images/AquaCheckbox-CheckedActive.png);
+    background-image: url("@/Images/AquaCheckbox-CheckedActive.png");
 }
 
 .Checkbox-NeXT {
@@ -94,17 +94,17 @@
     width: 15px;
     height: 15px;
     background-size: 15px 15px;
-    background-image: url(../Images/NeXTCheckbox.png);
+    background-image: url("@/Images/NeXTCheckbox.png");
 }
 
 .Checkbox-NeXT:active::before {
-    background-image: url(../Images/NeXTCheckbox-Active.png);
+    background-image: url("@/Images/NeXTCheckbox-Active.png");
 }
 
 .Checkbox-NeXT:checked::before {
-    background-image: url(../Images/NeXTCheckbox-Checked.png);
+    background-image: url("@/Images/NeXTCheckbox-Checked.png");
 }
 
 .Checkbox-NeXT:checked:active::before {
-    background-image: url(../Images/NeXTCheckbox-CheckedActive.png);
+    background-image: url("@/Images/NeXTCheckbox-CheckedActive.png");
 }

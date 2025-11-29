@@ -118,7 +118,7 @@
 .Drawer-Contents-Platinum {
     background: transparent;
     border-radius: 0;
-    border-image: url(../Images/PlatinumDrawerFrame.png);
+    border-image: url("@/Images/PlatinumDrawerFrame.png");
     border-image-width: 6px 5px 0 4px;
     border-image-slice: 6 5 0 4 fill;
     border-width: 6px 5px 0 4px;

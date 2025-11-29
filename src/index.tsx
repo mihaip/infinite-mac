@@ -1,8 +1,8 @@
 import {createRoot, hydrateRoot} from "react-dom/client";
-import "./index.css";
-import App from "./App";
-import {canSaveDisks} from "./canSaveDisks";
-import {setIsoProvider, type Iso} from "./iso";
+import "@/index.css";
+import App from "@/app/App";
+import {canSaveDisks} from "@/lib/canSaveDisks";
+import {setIsoProvider, type Iso} from "@/lib/iso";
 
 // Determining if we can save data is an async operation, kick off the request
 // now so that we're more likely to have the answer by the time the we actually

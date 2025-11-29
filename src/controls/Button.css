@@ -31,21 +31,21 @@
 }
 
 .Button.Button-Classic {
-    border-image-source: url(../Images/ClassicButton.png);
+    border-image-source: url("@/Images/ClassicButton.png");
     line-height: 13px;
 }
 
 .Button.Button-Classic:active {
-    border-image-source: url(../Images/ClassicButton-Active.png);
+    border-image-source: url("@/Images/ClassicButton-Active.png");
 }
 
 .Button.Button-Platinum {
-    border-image-source: url(../Images/PlatinumButton.png);
+    border-image-source: url("@/Images/PlatinumButton.png");
     line-height: 13px;
 }
 
 .Button.Button-Platinum:active {
-    border-image-source: url(../Images/PlatinumButton-Active.png);
+    border-image-source: url("@/Images/PlatinumButton-Active.png");
 }
 
 .Button.Button-Platinum:focus-visible {
@@ -53,7 +53,7 @@
 }
 
 .Button.Button-Aqua {
-    border-image-source: url(../Images/AquaButton.png);
+    border-image-source: url("@/Images/AquaButton.png");
     border-image-slice: 15 20 fill;
     border-image-width: 15px 20px;
     border-width: 6px 12px 9px;
@@ -65,7 +65,7 @@
 }
 
 .Button.Button-Aqua:active {
-    border-image-source: url(../Images/AquaButton-Active.png);
+    border-image-source: url("@/Images/AquaButton-Active.png");
     color: #000;
 }
 
@@ -76,10 +76,10 @@
 }
 
 .Button.Button-NeXT {
-    border-image-source: url(../Images/NeXTButton.png);
+    border-image-source: url("@/Images/NeXTButton.png");
 }
 
 .Button.Button-NeXT:active {
     color: #000;
-    border-image-source: url(../Images/NeXTButton-Active.png);
+    border-image-source: url("@/Images/NeXTButton-Active.png");
 }

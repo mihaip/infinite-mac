@@ -36,11 +36,11 @@
 }
 
 .Input.Input-Classic {
-    border-image-source: url(../Images/ClassicInput.png);
+    border-image-source: url("@/Images/ClassicInput.png");
 }
 
 .Input.Input-Platinum {
-    border-image-source: url(../Images/PlatinumInput.png);
+    border-image-source: url("@/Images/PlatinumInput.png");
 }
 
 .Input.Input-Platinum:focus-visible {
@@ -52,7 +52,7 @@
 }
 
 .Input.Input-Aqua {
-    border-image-source: url(../Images/AquaInput.png);
+    border-image-source: url("@/Images/AquaInput.png");
 }
 
 .Input.Input-Aqua:focus-visible {
@@ -65,5 +65,5 @@
 }
 
 .Input.Input-NeXT {
-    border-image-source: url(../Images/NeXTInput.png);
+    border-image-source: url("@/Images/NeXTInput.png");
 }

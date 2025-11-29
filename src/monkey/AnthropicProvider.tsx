@@ -1,11 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
-import {type Computer, type ComputerAction} from "./Computer";
+import {type Computer, type ComputerAction} from "@/monkey/Computer";
 import {
     type ConversationCallbacks,
     type Conversation,
     type Provider,
-} from "./Provider";
-import {sleep} from "./util";
+} from "@/monkey/Provider";
+import {sleep} from "@/monkey/util";
 
 export const ANTHROPIC_PROVIDER: Provider = {
     id: "anthropic",

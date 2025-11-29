@@ -1,7 +1,7 @@
 import {type ReactNode} from "react";
-import {type Computer, type ComputerAction} from "./Computer";
-import {OPENAI_PROVIDER} from "./OpenAIProvider";
-import {ANTHROPIC_PROVIDER} from "./AnthropicProvider";
+import {type Computer, type ComputerAction} from "@/monkey/Computer";
+import {OPENAI_PROVIDER} from "@/monkey/OpenAIProvider";
+import {ANTHROPIC_PROVIDER} from "@/monkey/AnthropicProvider";
 
 export type Provider = {
     id: string;
