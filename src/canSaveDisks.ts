@@ -41,6 +41,8 @@ export function canSaveDisks() {
 }
 
 let workerSyncFileSupport: "unknown" | "supported" | "unsupported" =
-    localStorage["workerSyncFileSupport"] ?? "unknown";
+    typeof localStorage !== "undefined"
+        ? (localStorage["workerSyncFileSupport"] ?? "unknown")
+        : "unknown";
 
 let worker: Worker | undefined;

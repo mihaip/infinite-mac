@@ -13,22 +13,22 @@ import {
 } from "./disks";
 import {type MachineDef} from "./machines";
 import {ScreenFrame} from "./ScreenFrame";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {Button} from "./controls/Button";
 import {About} from "./About";
 import {Donate} from "./Donate";
-import {useWindowWidth} from "./useWindowWidth";
 import "./Browser.css";
 import {Changelog} from "./Changelog";
 import {type RunDef} from "./run-def";
 import {Custom} from "./Custom";
 import classNames from "classnames";
 import {canSaveDisks} from "./canSaveDisks";
-import {usePersistentState} from "./usePersistentState";
+import {useIsoPersistentState} from "./useIsoPersistentState";
 import {viewTransitionNameForDisk} from "./view-transitions";
 import {AppearanceProvider} from "./controls/Appearance";
 import {Embed} from "./Embed";
 import {EmbedDocs} from "./EmbedDocs";
+import {iso} from "./iso";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -96,6 +96,7 @@ function Description({
     const [aboutVisible, setAboutVisible] = useState(false);
     const [changelogVisible, setChangelogVisible] = useState(false);
     const [donateVisible, setDonateVisible] = useState(false);
+    const {location} = iso();
     const [customVisible, setCustomVisible] = useState(
         location.pathname === "/run" || initialCustomRunDef !== undefined
     );
@@ -193,7 +194,7 @@ const disks = {
 type DiskFilter = keyof typeof disks;
 
 function useDiskFilter() {
-    const filterParam = new URLSearchParams(location.search).get("filter");
+    const filterParam = iso().location.searchParams.get("filter");
     let defaultValue: DiskFilter = "notable";
     let useClientState = false;
     // If using query params, we go into a temporary client state.
@@ -203,7 +204,7 @@ function useDiskFilter() {
     }
 
     const clientState = useState<DiskFilter>(defaultValue);
-    const persistentState = usePersistentState<DiskFilter>(
+    const persistentState = useIsoPersistentState<DiskFilter>(
         defaultValue,
         "diskFilter"
     );
@@ -302,12 +303,12 @@ function DiskFrame({
     screen: React.ReactElement;
     viewTransitionName?: string;
 }) {
-    const windowWidth = useWindowWidth();
-
-    // Match 10 vs. 40px padding chosen via the media query.
-    let screenWidth = windowWidth - (windowWidth <= 400 ? 110 : 180);
-    const bezelSize = windowWidth <= 440 ? "Small-ish" : "Medium";
-    screenWidth = Math.max(Math.min(screenWidth, 320), 260);
+    const isSmallScreen = useMemo(() => {
+        const {userAgent} = iso().navigator;
+        return userAgent.includes("Mobile") || userAgent.includes("iPhone");
+    }, []);
+    const bezelSize = isSmallScreen ? "Small-ish" : "Medium";
+    const screenWidth = isSmallScreen ? 260 : 320;
     const screenHeight = Math.round(screenWidth * 0.75);
 
     return (
