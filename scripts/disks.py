@@ -142,27 +142,88 @@ SYSTEM_753_PPC = Disk(name="System 7.5.3 (PPC) HD.dsk")
 
 SYSTEM_755 = Disk(name="System 7.5.5 HD.dsk")
 
-MAC_OS_76 = Disk(name="Mac OS 7.6 HD.dsk")
+MAC_OS_76 = Disk(
+    name="Mac OS 7.6 HD.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.7.6.HD.dsk.zip"
+    ],
+)
 
-MAC_OS_8 = Disk(name="Mac OS 8.0 HD.dsk")
+MAC_OS_8 = Disk(
+    name="Mac OS 8.0 HD.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.8.0.HD.dsk.zip"
+    ],
+)
 
-MAC_OS_81 = Disk(name="Mac OS 8.1 HD.dsk")
+
+MAC_OS_81 = Disk(
+    name="Mac OS 8.1 HD.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.8.1.HD.dsk.zip"
+    ],
+)
+
 
 MAC_OS_81_DISK_TOOLS_68K = Disk(name="Mac OS 8.1 Disk Tools 68K FD.dsk")
 
 MAC_OS_81_DISK_TOOLS_PPC = Disk(name="Mac OS 8.1 Disk Tools PPC FD.dsk")
 
-MAC_OS_85 = Disk(name="Mac OS 8.5 HD.dsk")
+MAC_OS_85 = Disk(
+    name="Mac OS 8.5 HD.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.8.5.HD.dsk.zip"
+    ],
+)
 
-MAC_OS_86 = Disk(name="Mac OS 8.6 HD.dsk")
 
-MAC_OS_9 = Disk(name="Mac OS 9.0 HD.dsk")
+MAC_OS_86 = Disk(
+    name="Mac OS 8.6 HD.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.8.6.HD.dsk.zip"
+    ],
+)
 
-MAC_OS_904 = Disk(name="Mac OS 9.0.4 HD.dsk")
 
-MAC_OS_91 = Disk(name="Mac OS 9.1 HD.dsk")
+MAC_OS_9 = Disk(
+    name="Mac OS 9.0 HD.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.9.0.HD.dsk.zip"
+    ],
+)
 
-MAC_OS_922 = Disk(name="Mac OS 9.2.2 HD.dsk")
+
+MAC_OS_904 = Disk(
+    name="Mac OS 9.0.4 HD.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.9.0.4.HD.dsk.zip"
+    ],
+)
+
+
+MAC_OS_91 = Disk(
+    name="Mac OS 9.1 HD.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.9.1.HD.dsk.zip"
+    ],
+)
+
+
+MAC_OS_922 = Disk(
+    name="Mac OS 9.2.2 HD.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.9.2.2.HD.dsk.zip"
+    ],
+)
 
 MAC_OS_X_10_0_PUBLIC_BETA = Disk(
     name="Mac OS X 10.0 (Public Beta) HD.dsk",

@@ -48,24 +48,4 @@ scripts/rclone.conf
 # We only commit the compressed versions of these images, but having the
 # uncompressed ones around is useful for local development.
 Images/Saved HD.dsk
-Images/NeXTStep 0.8 HD.dsk
-Images/NeXTStep 0.9 HD.dsk
-Images/NeXTStep 1.0 HD.dsk
-Images/NeXTStep 1.0a HD.dsk
-Images/NeXTStep 2.0 HD.dsk
-Images/NeXTStep 2.1 HD.dsk
-Images/NeXTStep 2.2 HD.dsk
-Images/NeXTSTEP 3.0 HD.dsk
-Images/NeXTSTEP 3.1 HD.dsk
-Images/NeXTSTEP 3.2 HD.dsk
-Images/NeXTSTEP 3.3 HD.dsk
-Images/NeXTSTEP 4.0 HD.dsk
-Images/OPENSTEP 4.0 HD.dsk
-Images/OPENSTEP 4.2 HD.dsk
 Images/Infinite HD (NeXT).dsk
-Images/Mac OS X 10.0 (Public Beta) HD.dsk
-Images/Mac OS X 10.0.4 HD.dsk
-Images/Mac OS X 10.1.5 HD.dsk
-Images/Mac OS X 10.2.8 HD.dsk
-Images/Mac OS X 10.3.9 HD.dsk
-Images/Mac OS X 10.4.11 HD.dsk
