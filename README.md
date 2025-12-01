@@ -84,7 +84,7 @@ Common deployment tasks (also done via `npm run`)
 - `public/`: static files served as-is
 - `Library/`: Infinite HD library, used by `import-disks` (either JSON manifests of files to download or .zip archives of snapshotted directories)
 - `CD-ROMs/`: CD-ROM library, used by `import-cd-roms`
-- `Images/`: System disk images, used by `import-disks`
+- `Images/`: System disk images, used by `import-disks` (larger images are stored as [GitHub releases](https://github.com/mihaip/infinite-mac/releases))
 
 ### Building the emulators
 
