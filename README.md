@@ -6,8 +6,6 @@
 
 ### Getting Started
 
-This project uses Git LFS. Ensure that the LFS tooling is [installed](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage) before cloning the repo.
-
 This project uses submodules, use `git clone --recursive https://github.com/mihaip/infinite-mac.git` to clone it (or run `git submodule update --init --recursive` if you have an existing checkout).
 
 Dependencies need to be installed:
