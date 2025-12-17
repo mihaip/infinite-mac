@@ -50,19 +50,19 @@ async function handleRequest(
         return disk.handleRequest(request, env.DISK_BUCKET, ctx);
     }
 
-    if (canRenderSSR(url)) {
-        const ssrResponse = await renderSSR(request, env, url);
-        if (ssrResponse) {
-            return applyCommonHeaders(ssrResponse, url.pathname);
-        }
-    }
-
     const legacyDomainRedirect = getLegacyDomainRedirect(url);
     if (legacyDomainRedirect) {
         return Response.redirect(
             "https://infinitemac.org" + legacyDomainRedirect,
             301
         );
+    }
+
+    if (canRenderSSR(url)) {
+        const ssrResponse = await renderSSR(request, env, url);
+        if (ssrResponse) {
+            return applyCommonHeaders(ssrResponse, url.pathname);
+        }
     }
 
     try {
