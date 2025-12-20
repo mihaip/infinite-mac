@@ -97,5 +97,13 @@
         "host.h": "c",
         "nextbus.hpp": "c",
         "*.inc": "cpp"
-    }
+    },
+    "json.schemas": [
+        {
+            "fileMatch": ["wrangler.jsonc"],
+            "schema": {
+                "allowTrailingCommas": true
+            }
+        }
+    ]
 }

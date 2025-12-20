@@ -1,0 +1,113 @@
+{
+    "account_id": "2ccb840de076261467812cbc32f8aa47",
+    "compatibility_date": "2025-05-05",
+    "compatibility_flags": ["nodejs_compat"],
+    "main": "worker/index.ts",
+    "name": "infinite-mac",
+    "workers_dev": false,
+    "kv_namespaces": [
+        {
+            "binding": "VARZ",
+            "id": "1725dc172d284ec4bd41bf950d5df01c",
+            "preview_id": "535cb0b90b1a44f1b284919f2751aedb",
+        },
+    ],
+    "migrations": [
+        {
+            "new_classes": ["EthernetZone"],
+            "tag": "v1",
+        },
+    ],
+    "assets": {
+        "binding": "ASSETS",
+        "directory": "./build",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": true,
+    },
+    "durable_objects": {
+        "bindings": [
+            {
+                "class_name": "EthernetZone",
+                "name": "ETHERNET_ZONE",
+            },
+        ],
+    },
+    "env": {
+        "production": {
+            "kv_namespaces": [
+                {
+                    "binding": "VARZ",
+                    "id": "1725dc172d284ec4bd41bf950d5df01c",
+                },
+            ],
+            "r2_buckets": [
+                {
+                    "binding": "DISK_BUCKET",
+                    "bucket_name": "infinite-mac-disk",
+                },
+            ],
+            "routes": [
+                {
+                    "pattern": "system6.app/*",
+                    "zone_name": "system6.app",
+                },
+                {
+                    "pattern": "*.system6.app/*",
+                    "zone_name": "system6.app",
+                },
+                {
+                    "pattern": "system7.app/*",
+                    "zone_name": "system7.app",
+                },
+                {
+                    "pattern": "*.system7.app/*",
+                    "zone_name": "system7.app",
+                },
+                {
+                    "pattern": "macos8.app/*",
+                    "zone_name": "macos8.app",
+                },
+                {
+                    "pattern": "*.macos8.app/*",
+                    "zone_name": "macos8.app",
+                },
+                {
+                    "pattern": "macos9.app/*",
+                    "zone_name": "macos9.app",
+                },
+                {
+                    "pattern": "*.macos9.app/*",
+                    "zone_name": "macos9.app",
+                },
+                {
+                    "pattern": "kanjitalk7.app/*",
+                    "zone_name": "kanjitalk7.app",
+                },
+                {
+                    "pattern": "*.kanjitalk7.app/*",
+                    "zone_name": "kanjitalk7.app",
+                },
+                {
+                    "pattern": "infinitemac.org/*",
+                    "zone_name": "infinitemac.org",
+                },
+                {
+                    "pattern": "*.infinitemac.org/*",
+                    "zone_name": "infinitemac.org",
+                },
+            ],
+            "durable_objects": {
+                "bindings": [
+                    {
+                        "class_name": "EthernetZone",
+                        "name": "ETHERNET_ZONE",
+                    },
+                ],
+            },
+        },
+    },
+    "observability": {
+        "enabled": true,
+        "head_sampling_rate": 0.1,
+    },
+}
