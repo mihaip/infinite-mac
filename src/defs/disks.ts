@@ -2096,3 +2096,8 @@ export const SAVED_HD: EmulatorDiskDef = {
     generatedSpec: () => import("@/Data/Saved HD.dsk.json"),
     persistent: true,
 };
+
+export const THE_OUTSIDE_WORLD: EmulatorDiskDef = {
+    prefetchChunks: [0],
+    generatedSpec: () => import("@/Data/The Outside World.dsk.json"),
+};

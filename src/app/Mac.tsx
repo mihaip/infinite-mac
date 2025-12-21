@@ -24,9 +24,10 @@ import {
     INFINITE_HD,
     INFINITE_HD_MFS,
     INFINITE_HD_NEXT,
-    SAVED_HD,
     INFINITE_HD6,
     INFINITE_HDX,
+    SAVED_HD,
+    THE_OUTSIDE_WORLD,
 } from "@/defs/disks";
 import {type MachineDef, DEFAULT_SUPPORTED_SCREEN_SIZES} from "@/defs/machines";
 import classNames from "classnames";
@@ -42,6 +43,7 @@ import {
 } from "@/emulator/ui/disk-saver";
 import {
     emulatorNeedsMouseDeltas,
+    emulatorNeedsTheOutsideWorldDisk,
     emulatorSupportsCDROMs,
     emulatorSupportsDownloadsFolder,
 } from "@/emulator/common/emulators";
@@ -208,6 +210,9 @@ export default function Mac({
         }
         if (hasSavedHD) {
             emulatorDisks.push(SAVED_HD);
+        }
+        if (emulatorNeedsTheOutsideWorldDisk(emulatorType, flags)) {
+            emulatorDisks.push(THE_OUTSIDE_WORLD);
         }
         const hasSharedArrayBuffer = typeof SharedArrayBuffer !== "undefined";
         if (!hasSharedArrayBuffer) {

@@ -1,0 +1,15 @@
+The Outside World drive is used to send and receive files from your computer into the emulated Mac environment. This is done with the hold of the BlueSCSI SD Transfer utility.
+
+To send a file into the Mac:
+- Use the "Load File" from the monitor frame (next to the Apple logo), or drag the file into the browser window.
+- Launch the BlueSCSI SD Transfer utility
+- The file should appear in the "BlueSCSI Toolbox" window. Select it and press the "Download" button.
+- It will appear in The Outside World drive, next to the other items in it.
+
+To receive a file from the Mac:
+- Launch the BlueSCSI SD Transfer utility
+- From the File menu, select the "Upload File" option
+- In a couple of seconds, your browser will download a .zip archive with the file you sent.
+
+Tips:
+- For maximum compatibility, you should use a format like BinHex (.hqx) or StuffIt (.sit), so that resource forks and metadata are preserved.

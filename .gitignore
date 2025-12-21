@@ -48,4 +48,5 @@ scripts/rclone.conf
 # We only commit the compressed versions of these images, but having the
 # uncompressed ones around is useful for local development.
 Images/Saved HD.dsk
+Images/The Outside World.dsk
 Images/Infinite HD (NeXT).dsk

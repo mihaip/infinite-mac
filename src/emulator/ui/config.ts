@@ -110,6 +110,7 @@ export function configToDingusPPCArgs(
     const args = ["--realtime", "--bootrom", romFileName];
     if (config.flags.blueSCSI) {
         args.push("--bluescsi_dir", "/Shared/Downloads");
+        args.push("--bluescsi_send_dir", "/Shared/Uploads");
     }
     if (config.flags.debugLog) {
         args.push("--log-to-stderr", "--log-no-uptime");

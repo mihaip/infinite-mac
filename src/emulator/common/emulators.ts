@@ -80,8 +80,19 @@ export function emulatorNeedsDeviceImage(type: EmulatorType): boolean {
     return type === "DingusPPC" || type === "PearPC";
 }
 
+export function emulatorNeedsTheOutsideWorldDisk(
+    type: EmulatorType,
+    flags: EmulatorConfigFlags
+): boolean {
+    return type === "DingusPPC" && flags.blueSCSI === true;
+}
+
 export function emulatorSupportsDebugLog(type: EmulatorType): boolean {
     return type === "DingusPPC" || type === "Previous" || type === "PearPC";
+}
+
+export function emulatorSupportsBlueSCSI(type: EmulatorType): boolean {
+    return type === "DingusPPC";
 }
 
 export function emulatorCpuId(

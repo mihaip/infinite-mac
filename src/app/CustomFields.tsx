@@ -23,6 +23,7 @@ import {
 import {
     emulatorSupportsAppleTalk,
     emulatorSupportsDebugLog,
+    emulatorSupportsBlueSCSI,
 } from "@/emulator/common/emulators";
 import {
     type MachineDef,
@@ -76,6 +77,9 @@ export function CustomFields({
         runDef.disks[0].appleTalkSupported === true &&
         emulatorSupportsAppleTalk(runDef.machine.emulatorType);
     const debugLogSupported = emulatorSupportsDebugLog(
+        runDef.machine.emulatorType
+    );
+    const blueSCSISupported = emulatorSupportsBlueSCSI(
         runDef.machine.emulatorType
     );
 
@@ -559,6 +563,31 @@ export function CustomFields({
                     <div className="CustomFields-Description Dialog-Description">
                         Allow local networking between emulated machines in the
                         same zone.
+                    </div>
+                </div>
+            )}
+
+            {blueSCSISupported && (
+                <div className="CustomFields-Row">
+                    <span className="CustomFields-Label" />
+                    <label>
+                        <Checkbox
+                            checked={flags.blueSCSI ?? false}
+                            onChange={e =>
+                                setFlags(flags => ({
+                                    ...flags,
+                                    blueSCSI: e.target.checked
+                                        ? true
+                                        : undefined,
+                                }))
+                            }
+                        />
+                        BlueSCSI Toolbox support
+                    </label>
+                    <div className="CustomFields-Description Dialog-Description">
+                        Enable experimental support for the BlueSCSI Toolbox
+                        protocol, allowing files to be transferred between the
+                        emulated Mac and the browser.
                     </div>
                 </div>
             )}

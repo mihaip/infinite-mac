@@ -29,6 +29,7 @@ class InfiniteHD(enum.Enum):
     MFS = "Infinite HD (MFS).dsk"
     NEXT = "Infinite HD (NeXT).dsk"
 
+
 class ImageDef(typing.NamedTuple):
     name: str
     path: str
@@ -49,14 +50,15 @@ def write_chunked_image(image: ImageDef) -> None:
     chunks = []
     chunk_signatures = set()
     zero_chunk_count = 0
-    salt = b'raw'
+    salt = b"raw"
     with open(image.path, "rb") as image_file:
         image_bytes = image_file.read()
     disk_size = len(image_bytes)
     for i in range(0, disk_size, CHUNK_SIZE):
-        sys.stderr.write("Chunking %s: %.1f%%\r" %
-                         (image.name, ((i + CHUNK_SIZE) / disk_size) * 100))
-        chunk = image_bytes[i:i + CHUNK_SIZE]
+        sys.stderr.write(
+            "Chunking %s: %.1f%%\r" % (image.name, ((i + CHUNK_SIZE) / disk_size) * 100)
+        )
+        chunk = image_bytes[i : i + CHUNK_SIZE]
         total_size += len(chunk)
         # Don't bother storing zero-ed out chunks (common for the saved HD),
         # the signature takes up space, and we don't need to load them
@@ -64,8 +66,7 @@ def write_chunked_image(image: ImageDef) -> None:
             chunks.append("")
             zero_chunk_count += 1
             continue
-        chunk_signature = hashlib.blake2b(chunk, digest_size=16,
-                                          salt=salt).hexdigest()
+        chunk_signature = hashlib.blake2b(chunk, digest_size=16, salt=salt).hexdigest()
         chunks.append(chunk_signature)
         if chunk_signature in chunk_signatures:
             continue
@@ -80,11 +81,13 @@ def write_chunked_image(image: ImageDef) -> None:
 
     if len(chunks) > 0:
         sys.stderr.write(
-            "Chunked %s: %d%% unique chunks, %d%% zero chunks\n" % (
+            "Chunked %s: %d%% unique chunks, %d%% zero chunks\n"
+            % (
                 image.name,
                 round(len(chunk_signatures) / len(chunks) * 100),
                 round(zero_chunk_count / len(chunks) * 100),
-            ))
+            )
+        )
     else:
         sys.stderr.write("Chunked %s: 0 chunks\n" % image.name)
 
@@ -98,18 +101,23 @@ def write_chunked_image(image: ImageDef) -> None:
                 "chunkSize": CHUNK_SIZE,
             },
             manifest_file,
-            indent=4)
+            indent=4,
+        )
 
 
 def build_system_image(
     disk: disks.Disk,
     dest_dir: str,
 ) -> ImageDef:
-    sys.stderr.write("Building system image %s\n" % (disk.name, ))
+    sys.stderr.write("Building system image %s\n" % (disk.name,))
 
     input_path = disk.path()
     if not os.path.exists(input_path):
-        logging.warning("File for disk image %s (%s) does not exist, using placeholder", disk.name, input_path)
+        logging.warning(
+            "File for disk image %s (%s) does not exist, using placeholder",
+            disk.name,
+            input_path,
+        )
         image_data = bytes()
     elif disk.compressed:
         with zipfile.ZipFile(input_path, "r") as zip:
@@ -133,14 +141,14 @@ def build_system_image(
     if stickies_index == -1:
         logging.warning(
             "Placeholder file not found in disk image %s, skipping customization",
-            disk.name)
+            disk.name,
+        )
     else:
         customized_stickies = copy.deepcopy(STICKIES)
         with open("CHANGELOG.md", "r") as changelog_file:
             changelog = changelog_file.read()
         if disk.welcome_sticky_override:
-            customized_stickies[-1] = copy.deepcopy(
-                disk.welcome_sticky_override)
+            customized_stickies[-1] = copy.deepcopy(disk.welcome_sticky_override)
         for sticky in customized_stickies:
             sticky.text = sticky.text.replace("CHANGELOG", changelog)
             if disk.stickies_encoding == "shift_jis":
@@ -157,15 +165,22 @@ def build_system_image(
         if len(stickies_data) > len(stickies_placeholder):
             logging.warning(
                 "Stickies file is too large (%d, placeholder is only %d), "
-                "skipping customization for %s", len(stickies_data),
-                len(stickies_placeholder), disk.name)
+                "skipping customization for %s",
+                len(stickies_data),
+                len(stickies_placeholder),
+                disk.name,
+            )
         else:
             # Replace the leftover placeholder data, so that TextText does not
             # render it (not needed for Stickies since they have a length
             # field, but it doesn't hurt either).
-            image_data = image_data[:stickies_index] + stickies_data + \
-                disk.sticky_placeholder_overwrite_byte * (len(stickies_placeholder) - len(stickies_data)) + \
-                image_data[stickies_index + len(stickies_placeholder):]
+            image_data = (
+                image_data[:stickies_index]
+                + stickies_data
+                + disk.sticky_placeholder_overwrite_byte
+                * (len(stickies_placeholder) - len(stickies_data))
+                + image_data[stickies_index + len(stickies_placeholder) :]
+            )
 
     return write_image_def(image_data, disk.name, dest_dir)
 
@@ -180,7 +195,9 @@ def build_library_images(dest_dir: str) -> typing.Tuple[ImageDef, ImageDef, Imag
     return image6_def, image_def, imageX_def
 
 
-def build_passthrough_image(base_name: str, dest_dir: str, compressed: bool = False) -> ImageDef:
+def build_passthrough_image(
+    base_name: str, dest_dir: str, compressed: bool = False
+) -> ImageDef:
     input_path = os.path.join(paths.IMAGES_DIR, base_name)
     if compressed:
         with zipfile.ZipFile(input_path + ".zip", "r") as zip:
@@ -191,43 +208,52 @@ def build_passthrough_image(base_name: str, dest_dir: str, compressed: bool = Fa
     return write_image_def(image_data, base_name, dest_dir)
 
 
-def build_saved_hd_image(base_name: str, dest_dir: str) -> ImageDef:
+def build_additional_hd_image(
+    base_name: str, readme_file: str, dest_dir: str
+) -> ImageDef:
     # The disk image is compressed since it's mostly empty space and we don't
     # want to pay for a lot of Git LFS storage.
-    with zipfile.ZipFile(os.path.join(paths.IMAGES_DIR, base_name + ".zip"),
-                         "r") as zip:
+    with zipfile.ZipFile(
+        os.path.join(paths.IMAGES_DIR, base_name + ".zip"), "r"
+    ) as zip:
         image_data = zip.read(base_name)
 
-    # Also use the Stickies placeholder file to inject the Saved HD Read Me
+    # Also use the Stickies placeholder file to inject the Read Me
     readme_placeholder = stickies.generate_ttxt_placeholder()
     readme_index = image_data.find(readme_placeholder)
 
     if readme_index != -1:
-        readme_data = read_strings("saved-hd.txt").replace(
-            "\n", "\r").encode("macroman")
+        readme_data = read_strings(readme_file).replace("\n", "\r").encode("macroman")
 
         if len(readme_data) > len(readme_placeholder):
             logging.warning(
                 "Read Me file is too large (%d, placeholder is only %d), "
-                "skipping customization for %s", len(readme_data),
-                len(readme_placeholder), base_name)
+                "skipping customization for %s",
+                len(readme_data),
+                len(readme_placeholder),
+                base_name,
+            )
         else:
             # Replace the leftover placeholder data, so that TextText does not
             # render.
-            image_data = image_data[:readme_index] + readme_data + \
-                b"\x00" * (len(readme_placeholder) - len(readme_data)) + \
-                image_data[readme_index + len(readme_placeholder):]
+            image_data = (
+                image_data[:readme_index]
+                + readme_data
+                + b"\x00" * (len(readme_placeholder) - len(readme_data))
+                + image_data[readme_index + len(readme_placeholder) :]
+            )
     else:
         logging.warning(
-            "Placeholder file not found in disk image %s, skipping Read Me",
-            base_name)
+            "Placeholder file not found in disk image %s, skipping Read Me", base_name
+        )
 
     return write_image_def(image_data, base_name, dest_dir)
 
 
 def build_desktop_db6(images: typing.List[ImageDef]) -> None:
-    sys.stderr.write("Building System 6 Desktop for %s...\n" %
-                     ",".join([i.name for i in images]))
+    sys.stderr.write(
+        "Building System 6 Desktop for %s...\n" % ",".join([i.name for i in images])
+    )
     sys.stderr.write("    (shut down the machine when complete)\n")
     try:
         minivmac.run([disks.SYSTEM_608.path()] + [i.path for i in images])
@@ -236,8 +262,9 @@ def build_desktop_db6(images: typing.List[ImageDef]) -> None:
 
 
 def build_desktop_db(images: typing.List[ImageDef]) -> None:
-    sys.stderr.write("Rebuilding Desktop DB for %s...\n" %
-                     ",".join([i.name for i in images]))
+    sys.stderr.write(
+        "Rebuilding Desktop DB for %s...\n" % ",".join([i.name for i in images])
+    )
     sys.stderr.write("    (shut down the machine when complete)\n")
     try:
         mac_os_81_path = disks.MAC_OS_81.path()
@@ -250,7 +277,9 @@ def build_desktop_db(images: typing.List[ImageDef]) -> None:
             # Boot from Mac OS 8.1 to ensure that the Desktop database that's
             # created is acceptable to all classic Mac OS versions (one generated by
             # System 7 is not).
-            ["*" + mac_os_81_path] + [i.path for i in images])
+            ["*" + mac_os_81_path]
+            + [i.path for i in images]
+        )
     except subprocess.CalledProcessError as e:
         sys.stderr.write("Failed to build Desktop DB, will continue.\n")
 
@@ -312,7 +341,7 @@ STICKIES = [
         font=stickies.Font.HELVETICA,
         size=18,
         style={stickies.Style.BOLD},
-        text='Welcome to Infinite Macintosh!',
+        text="Welcome to Infinite Macintosh!",
     ),
 ]
 
@@ -322,7 +351,7 @@ if __name__ == "__main__":
 
     minimal_mode = len(sys.argv) >= 2 and sys.argv[1] == "minimal"
     if minimal_mode:
-        system_filter = "System" # Just classic images
+        system_filter = "System"  # Just classic images
 
     if not library_filter and not system_filter:
         shutil.rmtree(paths.DISK_DIR, ignore_errors=True)
@@ -339,7 +368,9 @@ if __name__ == "__main__":
                     continue
                 images.append(build_system_image(disk, temp_dir))
         if not system_filter:
-            infinite_hd6_image, infinite_hd_image, infinite_hdX_image = build_library_images(temp_dir)
+            infinite_hd6_image, infinite_hd_image, infinite_hdX_image = (
+                build_library_images(temp_dir)
+            )
             images.append(infinite_hd6_image)
             images.append(infinite_hd_image)
             images.append(infinite_hdX_image)
@@ -347,9 +378,14 @@ if __name__ == "__main__":
                 build_desktop_db6([infinite_hd6_image])
                 build_desktop_db([infinite_hd_image, infinite_hdX_image])
 
-            images.append(build_passthrough_image(InfiniteHD.MFS.value, dest_dir=temp_dir))
-            images.append(build_passthrough_image(
-                InfiniteHD.NEXT.value, dest_dir=temp_dir, compressed=True))
+            images.append(
+                build_passthrough_image(InfiniteHD.MFS.value, dest_dir=temp_dir)
+            )
+            images.append(
+                build_passthrough_image(
+                    InfiniteHD.NEXT.value, dest_dir=temp_dir, compressed=True
+                )
+            )
         elif minimal_mode:
             for i in InfiniteHD:
                 if i in [InfiniteHD.DEFAULT, InfiniteHD.MFS]:
@@ -357,7 +393,20 @@ if __name__ == "__main__":
                 else:
                     images.append(write_image_def(bytes(), i.value, temp_dir))
 
-        images.append(build_saved_hd_image("Saved HD.dsk", dest_dir=temp_dir))
+        images.append(
+            build_additional_hd_image(
+                "Saved HD.dsk",
+                "saved-hd.txt",
+                dest_dir=temp_dir,
+            )
+        )
+        images.append(
+            build_additional_hd_image(
+                "The Outside World.dsk",
+                "the-outside-world.txt",
+                dest_dir=temp_dir,
+            )
+        )
 
         for image in images:
             write_chunked_image(image)
