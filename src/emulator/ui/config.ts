@@ -111,6 +111,10 @@ export function configToDingusPPCArgs(
     if (config.flags.blueSCSI) {
         args.push("--bluescsi_dir", "/Shared/Downloads");
         args.push("--bluescsi_send_dir", "/Shared/Uploads");
+        // Add alternate directories for machines that use the Mesh secondary
+        // SCSI bus.
+        args.push("--bluescsi_dir2", "/Shared/Downloads");
+        args.push("--bluescsi_send_dir2", "/Shared/Uploads");
     }
     if (config.flags.debugLog) {
         args.push("--log-to-stderr", "--log-no-uptime");
