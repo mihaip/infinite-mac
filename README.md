@@ -96,7 +96,13 @@ To begin, ensure that you have a Docker image built with the Emscripten toolchai
 docker build -t macemu_emsdk .
 ```
 
-Open a shell into the Docker container:
+To rebuild all the emulators, run the following script which automate all of the steps below:
+
+```sh
+scripts/rebuild-and-import-emulators.sh
+```
+
+To manually build individual emulators, open a shell into the Docker container:
 
 ```sh
 scripts/docker-shell.sh

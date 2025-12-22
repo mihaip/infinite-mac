@@ -11,8 +11,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
 # install the SDK manually.
 RUN git clone https://github.com/emscripten-core/emsdk.git \
     && cd emsdk \
-    && ./emsdk install 4.0.11 \
-    && ./emsdk activate 4.0.11 \
+    && ./emsdk install 4.0.22 \
+    && ./emsdk activate 4.0.22 \
     && echo "source $(pwd)/emsdk_env.sh" >> $HOME/.bashrc
 
 COPY macemu/BasiliskII/src/Unix/_em_build_mpfr.sh /tmp/_em_build_mpfr.sh

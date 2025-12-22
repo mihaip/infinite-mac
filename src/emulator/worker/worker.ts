@@ -700,33 +700,35 @@ async function startEmulator(config: EmulatorWorkerConfig) {
             if (dateOffset) {
                 let overrodeDateFunctions = false;
                 for (const moduleImports of Object.values(imports)) {
-                    // Emscripten 3.1.73 and earlier end up accessing the current
-                    // time through an exported emscripten_date_now function,
-                    // so we can just override that.
+                    // emscripten_date_now is not consistently exported depending
+                    // on build settings, so try to override it...
                     if ("emscripten_date_now" in moduleImports) {
                         moduleImports["emscripten_date_now"] = () => {
                             return Date.now() + dateOffset;
                         };
                         overrodeDateFunctions = true;
-                    }
-                    // From Emscripten 3.1.74 onwards, emscripten_date_now is
-                    // still used but it's not exposed via moduleImports, so we
-                    // need to override the slightly higher level clock_time_get
-                    // function. It writes the return value into the heap, which
-                    // we can't easily access from here, so it's easier to
-                    // monkey-patch Date.now while it runs.
-                    const originalClockTimeGet =
-                        moduleImports["clock_time_get"];
-                    if (originalClockTimeGet instanceof Function) {
-                        const originalDateNow = Date.now;
-                        moduleImports["clock_time_get"] = (...args: any[]) => {
-                            const offsetNow = originalDateNow() + dateOffset;
-                            Date.now = () => offsetNow;
-                            const rv = originalClockTimeGet(...args);
-                            Date.now = originalDateNow;
-                            return rv;
-                        };
-                        overrodeDateFunctions = true;
+                    } else {
+                        // ...but if it's not there, we we can override the
+                        // slightly higher level clock_time_get function. It
+                        // writes the return value into the heap, which we
+                        // can't easily access from here, so it's easier to
+                        // monkey-patch Date.now while it runs.
+                        const originalClockTimeGet =
+                            moduleImports["clock_time_get"];
+                        if (originalClockTimeGet instanceof Function) {
+                            const originalDateNow = Date.now;
+                            moduleImports["clock_time_get"] = (
+                                ...args: any[]
+                            ) => {
+                                const offsetNow =
+                                    originalDateNow() + dateOffset;
+                                Date.now = () => offsetNow;
+                                const rv = originalClockTimeGet(...args);
+                                Date.now = originalDateNow;
+                                return rv;
+                            };
+                            overrodeDateFunctions = true;
+                        }
                     }
                 }
                 if (!overrodeDateFunctions) {
