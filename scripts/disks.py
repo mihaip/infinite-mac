@@ -150,6 +150,14 @@ MAC_OS_76 = Disk(
     ],
 )
 
+MAC_OS_761 = Disk(
+    name="Mac OS 7.6.1 HD.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.7.6.1.HD.dsk.zip?v=2"
+    ],
+)
+
 MAC_OS_8 = Disk(
     name="Mac OS 8.0 HD.dsk",
     compressed=True,
@@ -462,6 +470,7 @@ ALL_DISKS = [
     KANJITALK_753,
     SYSTEM_755,
     MAC_OS_76,
+    MAC_OS_761,
     MAC_OS_8,
     MAC_OS_81,
     MAC_OS_81_DISK_TOOLS_68K,

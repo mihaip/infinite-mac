@@ -588,6 +588,28 @@ const MAC_OS_7_6: SystemDiskDef = {
     notable: true,
 };
 
+const MAC_OS_7_6_1: SystemDiskDef = {
+    displayName: "Mac OS 7.6.1",
+    description:
+        "Improved performance and reliability: nearly all type 11 errors and many type 12 errors are now removed. Added support for recent hardware releases.",
+    releaseDate: [1997, 4, 7],
+    prefetchChunks: [
+        0, 3, 6, 9, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27, 28,
+        29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 50, 51, 52, 53, 54, 55, 56, 57,
+        58, 59, 61, 62, 65, 66, 68, 69, 70, 71, 72, 73, 74, 75, 76, 78, 79, 81,
+        82, 83, 84, 85, 86, 87, 88, 89, 90, 92, 93, 94, 98, 99, 101, 120, 121,
+        122, 124, 126, 127, 128, 130, 134, 135, 136, 137, 138, 139, 140, 141,
+        147, 148, 149, 151, 152, 153, 154, 159, 161, 170, 174, 175, 179, 181,
+        182, 183, 184, 185, 187, 188, 189, 190, 193, 196, 207, 208, 215, 216,
+        217, 220,
+    ],
+    preferredMachine: QUADRA_650,
+    appleTalkSupported: true,
+    appearanceVariant: "System7",
+    generatedSpec: () => import("@/Data/Mac OS 7.6.1 HD.dsk.json"),
+    notable: false,
+};
+
 const MAC_OS_8_0: SystemDiskDef = {
     displayName: "Mac OS 8.0",
     description:
@@ -1953,6 +1975,7 @@ export const ALL_DISKS = [
     SYSTEM_7_5_4,
     SYSTEM_7_5_5,
     MAC_OS_7_6,
+    MAC_OS_7_6_1,
     MAC_OS_8_0,
     MAC_OS_8_1,
     MAC_OS_8_5,
