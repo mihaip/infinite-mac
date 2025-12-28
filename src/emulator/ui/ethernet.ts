@@ -185,8 +185,13 @@ export class EthernetPinger {
         this.#ethernetProvider = ethernetProvider;
         this.#interval = window.setInterval(
             this.#ping,
-            location.host.startsWith("localhost") ? 500 : 5000
+            // Wait 30 seconds between pings in production so that the worker
+            // can hibernate (per https://developers.cloudflare.com/durable-objects/concepts/durable-object-lifecycle/
+            // the worker needs to be quiet for at least 10 seconds to be eligible for
+            // hibernation).
+            location.host.startsWith("localhost") ? 500 : 30_000
         );
+        this.#ping();
     }
 
     stop() {
