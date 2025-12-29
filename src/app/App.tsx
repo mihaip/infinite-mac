@@ -8,8 +8,10 @@ import {startViewTransition} from "@/lib/view-transitions";
 import {type MacLoaderProps} from "@/app/MacLoader";
 import {AppearanceProvider} from "@/controls/Appearance";
 import {iso} from "@/lib/iso";
+import classNames from "classnames";
+import {MacKeyboardProvider, useMacKeyboard} from "@/app/MacKeyboard";
 
-function App() {
+function AppImpl() {
     const [initialRunDef, editInitialRunDef] = useMemo(() => {
         const runDef = runDefFromUrl(iso().location.href);
         const isEdit = iso().location.searchParams.has("edit");
@@ -29,6 +31,8 @@ function App() {
         window.addEventListener("popstate", listener);
         return () => window.removeEventListener("popstate", listener);
     }, []);
+
+    const {isKeyboardVisible} = useMacKeyboard();
 
     let contents;
     let footer: React.ReactElement | undefined = <Footer />;
@@ -99,7 +103,7 @@ function App() {
     }
 
     return (
-        <div className="App">
+        <div className={classNames("App", {"top-align": isKeyboardVisible})}>
             {contents}
             {footer}
         </div>
@@ -109,12 +113,25 @@ function App() {
 // Lazy load to avoid the bundle hit, but prefetch and replace with the
 // implementation so that we can use view transitions and not worry about
 // suspense boundaries.
+// Don't do this if we're going to load a machine straight away, both because
+// it's not needed and because the change in the component type can lead to a
+// mount and unmount if we end up re-rendering (e.g. due to the keyboard state
+// changing).
 const macLoader = () => import("@/app/MacLoader");
 let MacLoader: React.ComponentType<MacLoaderProps> = React.lazy(macLoader);
-if (typeof window !== "undefined") {
+if (
+    typeof window !== "undefined" &&
+    runDefFromUrl(window.location.href) === undefined
+) {
     setTimeout(async () => {
         MacLoader = (await macLoader()).default;
     }, 1000);
 }
 
-export default App;
+export default function App() {
+    return (
+        <MacKeyboardProvider>
+            <AppImpl />
+        </MacKeyboardProvider>
+    );
+}

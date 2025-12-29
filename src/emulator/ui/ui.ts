@@ -738,11 +738,10 @@ export class Emulator {
 
     #handleKeyDown = (event: KeyboardEvent) => {
         const {target, code} = event;
-        // Ignore input events in UI, except for the dummy <input> that we use
-        // to get keyboard events on mobile.
+        // Ignore input events in UI
         if (
-            target instanceof HTMLInputElement &&
-            !target.classList.contains("Mac-Keyboard-Input")
+            target instanceof HTMLInputElement ||
+            target instanceof HTMLTextAreaElement
         ) {
             return;
         }

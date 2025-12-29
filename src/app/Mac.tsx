@@ -5,10 +5,7 @@ import {
     type EmulatorEthernetPeer,
     Emulator,
 } from "@/emulator/ui/ui";
-import {
-    type EmulatorSettings,
-    DEFAULT_EMULATOR_SETTINGS,
-} from "@/emulator/ui/settings";
+import {DEFAULT_EMULATOR_SETTINGS} from "@/emulator/ui/settings";
 import {type EmulatorCDROM, isDiskImageFile} from "@/emulator/common/common";
 import {useDevicePixelRatio} from "@/lib/useDevicePixelRatio";
 import {usePersistentState} from "@/lib/usePersistentState";
@@ -18,6 +15,7 @@ import {
     type ScreenFrameProps,
     ScreenFrame,
 } from "@/controls/ScreenFrame";
+import {MacKeyboard, useMacKeyboard} from "@/app/MacKeyboard";
 import {Dialog} from "@/controls/Dialog";
 import {
     type EmulatorDiskDef,
@@ -180,6 +178,9 @@ export default function Mac({
         emulatorSupportsDownloadsFolder(emulatorType, flags) ||
         emulatorSupportsCDROMs(emulatorType);
 
+    const onDoneRef = useRef(onDone);
+    onDoneRef.current = onDone;
+
     useEffect(() => {
         const emulatorDisks: EmulatorDiskDef[] = [...disks];
         const delayedDisks: EmulatorDiskDef[] = [];
@@ -248,7 +249,7 @@ export default function Mac({
             },
             {
                 emulatorDidExit(emulator: Emulator) {
-                    onDone();
+                    onDoneRef.current();
                 },
                 emulatorDidChangeScreenSize(width, height) {
                     setScreenSize({width, height});
@@ -476,7 +477,6 @@ export default function Mac({
         flags,
         hasSavedHD,
         ramSize,
-        onDone,
         libraryDownloadURLs,
         handleMacLibraryRun,
         handleMacLibraryProgress,
@@ -538,19 +538,27 @@ export default function Mac({
         setSettingsVisible(true);
     };
 
-    const keyboardInputRef = useRef<HTMLInputElement>(null);
+    const {isKeyboardVisible, setIsKeyboardVisible} = useMacKeyboard();
     const handleKeyboardClick = () => {
-        const input = keyboardInputRef.current;
-        if (!input) {
-            return;
-        }
-        // Bringing up the on-screen keyboard on iOS requires that the input
-        // is visible, and as of iOS 17, it needs to be on-screen at all times.
-        // We don't show it by default to avoid any unintended side effects from
-        // from it.
-        input.style.visibility = "visible";
-        input.focus();
+        setIsKeyboardVisible(!isKeyboardVisible);
     };
+    useEffect(() => {
+        return () => setIsKeyboardVisible(false);
+    }, [setIsKeyboardVisible]);
+
+    const handleKeyDown = useCallback((code: string) => {
+        emulatorRef.current?.handleExternalInput({
+            type: "keydown",
+            code,
+        });
+    }, []);
+
+    const handleKeyUp = useCallback((code: string) => {
+        emulatorRef.current?.handleExternalInput({
+            type: "keyup",
+            code,
+        });
+    }, []);
     const handleStartClick = () => {
         emulatorRef.current?.start();
     };
@@ -819,7 +827,11 @@ export default function Mac({
         {label: "Settings", handler: handleSettingsClick},
     ];
     if (USING_TOUCH_INPUT) {
-        controls.push({label: "Keyboard", handler: handleKeyboardClick});
+        controls.push({
+            label: "Keyboard",
+            handler: handleKeyboardClick,
+            selected: isKeyboardVisible,
+        });
         const alwaysUsingTrackpadMode =
             emulatorNeedsMouseDeltas(emulatorType) ||
             emulatorSettings.useMouseDeltas;
@@ -862,6 +874,8 @@ export default function Mac({
     const screenClassName = classNames("Mac-Screen", {
         "Mac-Screen-Smooth-Scaling": smoothScaling,
     });
+    const drawersVisible =
+        !fullscreen && screenSizeProp !== "embed" && !isKeyboardVisible;
 
     return (
         <>
@@ -897,24 +911,15 @@ export default function Mac({
                 onDrop={handleDrop}
                 controls={controls}
                 screen={
-                    <>
-                        <canvas
-                            className={screenClassName}
-                            ref={screenRef}
-                            width={screenWidth}
-                            height={screenHeight}
-                            onContextMenu={e => e.preventDefault()}
-                            onPointerMove={handlePointerMove}
-                            onPointerDown={handlePointerDown}
-                        />
-                        {USING_TOUCH_INPUT && (
-                            <input
-                                type="text"
-                                className="Mac-Keyboard-Input"
-                                ref={keyboardInputRef}
-                            />
-                        )}
-                    </>
+                    <canvas
+                        className={screenClassName}
+                        ref={screenRef}
+                        width={screenWidth}
+                        height={screenHeight}
+                        onContextMenu={e => e.preventDefault()}
+                        onPointerMove={handlePointerMove}
+                        onPointerDown={handlePointerDown}
+                    />
                 }>
                 {progress}
                 {canLoadFiles && dragCount > 0 && (
@@ -977,8 +982,15 @@ export default function Mac({
                         onDone={() => setEmulatorErrorText("")}
                     />
                 )}
+                {USING_TOUCH_INPUT && isKeyboardVisible && (
+                    <MacKeyboard
+                        bezelStyle={machine.bezelStyle}
+                        onKeyDown={handleKeyDown}
+                        onKeyUp={handleKeyUp}
+                    />
+                )}
             </ScreenFrame>
-            {!fullscreen && screenSizeProp !== "embed" && (
+            {drawersVisible && (
                 <DrawersContainer>
                     {emulatorSupportsCDROMs(emulatorType) &&
                         disks[0]?.infiniteHdSubset !== "mfs" && (
