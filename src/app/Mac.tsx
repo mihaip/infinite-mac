@@ -985,6 +985,7 @@ export default function Mac({
                 {isKeyboardVisible && (
                     <MacKeyboard
                         bezelStyle={machine.bezelStyle}
+                        emulatorType={machine.emulatorType}
                         fullSize={window.innerWidth >= 768}
                         onKeyDown={handleKeyDown}
                         onKeyUp={handleKeyUp}

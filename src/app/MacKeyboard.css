@@ -102,6 +102,7 @@
     font-style: italic;
     align-items: end;
     justify-content: start;
+    min-width: 32px;
 }
 
 .MacKeyboard-FullSize .MacKeyboard-Key-Normal {
@@ -115,6 +116,13 @@
 .MacKeyboard-FullSize .MacKeyboard-Key-Command {
     padding-right: 6px;
     font-size: 20px;
+}
+
+.MacKeyboard-FullSize .MacKeyboard-Key.MacKeyboard-Key-Interrupt {
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-style: normal;
 }
 
 .MacKeyboard-FullSize .MacKeyboard-Key-FKey {

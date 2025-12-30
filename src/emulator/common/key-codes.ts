@@ -143,6 +143,10 @@ export const JS_CODE_TO_MINI_VMAC_KEYCODE: {[code: string]: number} = {
     // for it.
     "ControlLeft": 0x3b, // MKC_Control
     "ControlRight": 0x3b, // MKC_Control
+
+    // Fake keycode to trigger the interrupt button
+    "Interrupt": 0x90, // MKC_Interrupt
+    "Power": 0x91, // MKC_Reset
 };
 
 /**

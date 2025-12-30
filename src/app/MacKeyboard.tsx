@@ -9,6 +9,10 @@ import React, {
 import {createPortal} from "react-dom";
 import "./MacKeyboard.css";
 import classNames from "classnames";
+import {
+    type EmulatorType,
+    emulatorUsesInterruptKey,
+} from "@/emulator/common/emulators";
 
 type MacKeyboardContextType = {
     isKeyboardVisible: boolean;
@@ -48,6 +52,7 @@ export function useMacKeyboard() {
 // Keyboard component
 export type MacKeyboardProps = {
     bezelStyle: "Beige" | "Platinum" | "Pinstripes" | "NeXT";
+    emulatorType: EmulatorType;
     onKeyDown: (code: string) => void;
     onKeyUp: (code: string) => void;
     fullSize?: boolean;
@@ -339,6 +344,7 @@ const FULL_SIZE_KEYS: KeyDef[][] = [
 
 export function MacKeyboard({
     bezelStyle,
+    emulatorType,
     onKeyDown,
     onKeyUp,
     fullSize = false,
@@ -444,12 +450,37 @@ export function MacKeyboard({
         );
     };
 
+    function expandRow(row: KeyDef[]): KeyDef[] {
+        const powerKeyIndex = row.findIndex(k => k.code === "Power");
+        if (powerKeyIndex === -1) {
+            return row;
+        }
+        if (!emulatorUsesInterruptKey(emulatorType)) {
+            return row;
+        }
+        const powerKeyDef = row[powerKeyIndex];
+        const newRow = [...row];
+        newRow[powerKeyIndex] = {
+            ...powerKeyDef,
+            flex: 0.5,
+            className: "MacKeyboard-Key-Interrupt",
+        };
+        newRow.splice(powerKeyIndex, 0, {
+            code: "Interrupt",
+            label: "⎉",
+            special: powerKeyDef.special,
+            className: "MacKeyboard-Key-Interrupt",
+            flex: 0.5,
+        });
+        return newRow;
+    }
+
     const keyboardElement = (
         <div className={keyboardClassName}>
             {keyRows.map((row, rowIndex) => {
                 return (
                     <div className="MacKeyboard-Row" key={rowIndex}>
-                        {row.map(renderKey)}
+                        {expandRow(row).map(renderKey)}
                     </div>
                 );
             })}

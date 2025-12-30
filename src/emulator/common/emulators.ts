@@ -46,6 +46,10 @@ export function emulatorSupportsSpeedSetting(type: EmulatorType): boolean {
     return type === "Mini vMac" || type === "BasiliskII";
 }
 
+export function emulatorUsesInterruptKey(type: EmulatorType): boolean {
+    return type === "Mini vMac";
+}
+
 // True if the emulator can optionally use mouse deltas instead of absolute
 // coordinates (separate from emulatorNeedsMouseDeltas, those emulators always
 // use deltas).
