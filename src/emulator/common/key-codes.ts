@@ -125,6 +125,7 @@ export const JS_CODE_TO_ADB_KEYCODE: {[code: string]: number} = {
     "ArrowRight": 0x3c,
     "ArrowDown": 0x3d,
     "ArrowUp": 0x3e,
+    "Power": 0x7f,
 };
 
 // Overrides the subset of JS_CODE_TO_ADB_KEYCODE that have different mappings
@@ -235,6 +236,7 @@ export const JS_CODE_TO_NEXT_KEYCODE: {[code: string]: number} = {
     "ArrowDown": 0x0f, // NEXTKEY_DOWN_ARROW
     "ArrowUp": 0x16, // NEXTKEY_UP_ARROW
     "End": 0x02, // NEXTKEY_VOLUME_DOWN
+    "Power": 0x58, // NEXTKEY_POWER
 
     // Modifiers are sent as separate flags
     "MetaLeft": 0x00,

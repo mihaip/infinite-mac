@@ -78,27 +78,73 @@
     transform: translate(1px, 1px);
 }
 
-.MacKeyboard-Modifier {
+.MacKeyboard-Key-Modifier {
     font-size: 15px;
     font-weight: 500;
     min-width: 60px;
 }
 
-.MacKeyboard-Key-Special {
+.MacKeyboard-FullSize {
+    max-width: 960px;
+    margin: 0 auto;
+    box-shadow: rgba(0, 0, 0, 0.2) 0 -2px 10px;
+    border-radius: 8px;
+}
+
+.MacKeyboard-FullSize .MacKeyboard-Row:first-child {
+    margin-bottom: 12px;
+}
+
+.MacKeyboard-FullSize .MacKeyboard-Key {
+    height: 48px;
+    font-size: 24px;
+    padding: 0 0 6px 6px;
+    font-style: italic;
+    align-items: end;
+    justify-content: start;
+}
+
+.MacKeyboard-FullSize .MacKeyboard-Key-Normal {
+    font-style: normal;
+}
+
+.MacKeyboard-FullSize .MacKeyboard-Key-Special {
+    font-size: 14px;
+}
+
+.MacKeyboard-FullSize .MacKeyboard-Key-Command {
+    padding-right: 6px;
+    font-size: 20px;
+}
+
+.MacKeyboard-FullSize .MacKeyboard-Key-FKey {
+    font-size: 16px;
+}
+
+.MacKeyboard-FullSize .MacKeyboard-Key-Command .MacKeyboard-Key-Label {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.MacKeyboard-FullSize
+    .MacKeyboard-Key-Command
+    .MacKeyboard-Key-Label
+    span:first-child {
+    -webkit-text-stroke: 1px var(--key-text-color);
+    -webkit-text-fill-color: transparent;
+}
+
+.MacKeyboard-Mobile .MacKeyboard-Key-Special {
     filter: brightness(0.9);
 }
 
-.MacKeyboard-ModifierRow {
+.MacKeyboard-Mobile .MacKeyboard-Row:first-child {
     margin-bottom: 8px;
 }
 
-.MacKeyboard-BottomRow .MacKeyboard-Key {
-    flex: 1.5;
-}
-
-.MacKeyboard-BottomRow .MacKeyboard-Space {
-    flex: 4;
-    font-size: 15px;
+.MacKeyboard-Row:first-child .MacKeyboard-Key {
+    height: 36px;
 }
 
 .MacKeyboard-Beige {
@@ -132,33 +178,4 @@
     --keyboard-bg-color: hsl(0deg 0% 93%);
     --key-border-color-light: hsl(0deg 0% 100%);
     --key-border-color-dark: hsl(0deg 0% 80%);
-}
-
-@media (max-width: 480px) {
-    .MacKeyboard-Key {
-        height: 38px;
-        font-size: 18px;
-    }
-
-    .MacKeyboard-Modifier {
-        font-size: 14px;
-        min-width: 50px;
-    }
-}
-
-@media (min-width: 768px) {
-    .MacKeyboard {
-        padding: 12px;
-        padding-bottom: max(12px, env(safe-area-inset-bottom));
-    }
-
-    .MacKeyboard-Key {
-        height: 48px;
-        font-size: 22px;
-    }
-
-    .MacKeyboard-Row {
-        gap: 8px;
-        margin-bottom: 8px;
-    }
 }

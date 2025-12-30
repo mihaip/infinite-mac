@@ -825,13 +825,13 @@ export default function Mac({
             : []),
         {label: "Full Screen", handler: handleFullScreenClick},
         {label: "Settings", handler: handleSettingsClick},
-    ];
-    if (USING_TOUCH_INPUT) {
-        controls.push({
+        {
             label: "Keyboard",
             handler: handleKeyboardClick,
             selected: isKeyboardVisible,
-        });
+        },
+    ];
+    if (USING_TOUCH_INPUT) {
         const alwaysUsingTrackpadMode =
             emulatorNeedsMouseDeltas(emulatorType) ||
             emulatorSettings.useMouseDeltas;
@@ -982,9 +982,10 @@ export default function Mac({
                         onDone={() => setEmulatorErrorText("")}
                     />
                 )}
-                {USING_TOUCH_INPUT && isKeyboardVisible && (
+                {isKeyboardVisible && (
                     <MacKeyboard
                         bezelStyle={machine.bezelStyle}
+                        fullSize={window.innerWidth >= 768}
                         onKeyDown={handleKeyDown}
                         onKeyUp={handleKeyUp}
                     />
