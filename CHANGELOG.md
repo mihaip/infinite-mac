@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2025-12-30: Added an on-screen keyboard to allow easier input on mobile devices and to make it possible to send special keys like "power" and "interrupt".
+
 2025-09-15: Better support for importing and exporting files with resource forks. See https://blog.persistent.info/2025/09/infinite-mac-resource-forks.html for more details.
 
 2025-07-08: Added the ability to embed Infinite Mac instances in other websites. See https://blog.persistent.info/2025/07/infinite-mac-embedding.html for more details, and https://infinitemac.org/monkey/ for a demo.
