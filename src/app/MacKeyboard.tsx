@@ -5,6 +5,7 @@ import React, {
     useCallback,
     useRef,
     useMemo,
+    useEffect,
 } from "react";
 import {createPortal} from "react-dom";
 import "./MacKeyboard.css";
@@ -13,6 +14,7 @@ import {
     type EmulatorType,
     emulatorUsesInterruptKey,
 } from "@/emulator/common/emulators";
+import * as varz from "@/lib/varz";
 
 type MacKeyboardContextType = {
     isKeyboardVisible: boolean;
@@ -349,6 +351,10 @@ export function MacKeyboard({
     onKeyUp,
     fullSize = false,
 }: MacKeyboardProps) {
+    useEffect(() => {
+        varz.increment(`keyboard_shown:${fullSize ? "full" : "mobile"}`);
+    }, [fullSize]);
+
     const [activeModifiers, setActiveModifiers] = useState<Set<ModifierKey>>(
         new Set()
     );
