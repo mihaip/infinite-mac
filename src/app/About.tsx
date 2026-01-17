@@ -153,9 +153,10 @@ export function About({onDone}: {onDone: () => void}) {
                     The project is focused on classic Macintosh and adjacent
                     systems, but if you're interested in other operating
                     systems, you can check out{" "}
-                    <a href="https://www.pcjs.org/">PCjs</a> or{" "}
-                    <a href="https://copy.sh/v86/">Virtual x86</a> for Windows,
-                    and{" "}
+                    <a href="https://www.pcjs.org/">PCjs</a>,{" "}
+                    <a href="https://martypc.net/">MartyPC</a>, or{" "}
+                    <a href="https://copy.sh/v86/">Virtual x86</a> for
+                    DOS/Windows, and{" "}
                     <a href="https://www.scullinsteel.com/apple2/">
                         Apple ][js
                     </a>{" "}
