@@ -429,14 +429,12 @@ export class Emulator {
         console.log(configDebugStr);
         console.groupEnd();
 
-        const customData =
+        const customDate =
             this.#config.flags.customDate ??
             (this.#config.disks[0] && isSystemDiskDef(this.#config.disks[0])
                 ? this.#config.disks[0].customDate
                 : undefined);
-        const dateOffset = this.#config.flags.customDate
-            ? this.#config.flags.customDate.getTime() - Date.now()
-            : 0;
+        const dateOffset = customDate ? customDate.getTime() - Date.now() : 0;
 
         const config: EmulatorWorkerConfig = {
             ...({
