@@ -80,10 +80,6 @@ export function emulatorSupportsCDROMs(type: EmulatorType): boolean {
     return type !== "DingusPPC" && type !== "PearPC";
 }
 
-export function emulatorNeedsDeviceImage(type: EmulatorType): boolean {
-    return type === "DingusPPC" || type === "PearPC";
-}
-
 export function emulatorNeedsTheOutsideWorldDisk(
     type: EmulatorType,
     flags: EmulatorConfigFlags

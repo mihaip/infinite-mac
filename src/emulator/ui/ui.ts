@@ -10,6 +10,10 @@ import {
     type EmulatorConfigFlags,
 } from "@/emulator/common/common";
 import {
+    emulatorNeedsDeviceImage,
+    getDeviceImageHeaderPath,
+} from "@/emulator/common/device-image";
+import {
     emulatorUsesPlaceholderDisks,
     emulatorNeedsMouseDeltas,
     type EmulatorDef,
@@ -63,7 +67,6 @@ import {
 } from "@/emulator/ui/clipboard";
 import {type MachineDefRAMSize, type MachineDef} from "@/defs/machines";
 import {isSystemDiskDef, type EmulatorDiskDef} from "@/defs/disks";
-import deviceImageHeaderPath from "@/Data/Device Image Header (All Drivers).hda";
 import {fetchCDROM} from "@/emulator/ui/cdrom";
 import {EmulatorTrackpadController} from "@/emulator/ui/trackpad";
 import {
@@ -327,6 +330,9 @@ export class Emulator {
             };
         }
 
+        const {emulatorType, emulatorSubtype, speedGovernorTargetIPS} =
+            this.#config.machine;
+
         // Fetch all of the dependent files ourselves, to avoid a waterfall
         // if we let Emscripten handle it (it would first load the JS, and
         // then that would load the WASM and data files).
@@ -341,7 +347,9 @@ export class Emulator {
                 emulatorWasmPath,
                 this.#config.machine.romPath,
                 this.#config.machine.prefsPath,
-                deviceImageHeaderPath,
+                getDeviceImageHeaderPath(
+                    emulatorNeedsDeviceImage(emulatorType)
+                ),
                 ...Object.values(extraMachineFiles),
             ],
             (total, left) => {
@@ -368,8 +376,7 @@ export class Emulator {
 
         let args: string[] = [];
         let configDebugStr;
-        const {emulatorType, emulatorSubtype, speedGovernorTargetIPS} =
-            this.#config.machine;
+
         switch (emulatorType) {
             case "DingusPPC":
                 args = configToDingusPPCArgs(this.#config, {

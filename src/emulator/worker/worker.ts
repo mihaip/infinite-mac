@@ -70,12 +70,10 @@ import {
     EmulatorWorkerDiskSaver,
     initDiskSavers,
 } from "@/emulator/worker/disk-saver";
-import {
-    emulatorNeedsDeviceImage,
-    type EmulatorSpeed,
-} from "@/emulator/common/emulators";
+import {type EmulatorSpeed} from "@/emulator/common/emulators";
 import {EmulatorWorkerDeviceImageDisk} from "@/emulator/worker/device-image-disk";
 import {EmulatorWorkerSpeedGovernor} from "@/emulator/worker/speed-governor";
+import {emulatorNeedsDeviceImage} from "@/emulator/common/device-image";
 
 addEventListener("message", async event => {
     const {data} = event;
@@ -188,7 +186,7 @@ class EmulatorWorkerApi {
                       getFallbackEndpoint()
                   );
 
-        const needsDeviceImage = emulatorNeedsDeviceImage(config.emulatorType);
+        const deviceImageType = emulatorNeedsDeviceImage(config.emulatorType);
         this.disks = new EmulatorWorkerDisksApi(
             [
                 ...disks.map(spec => {
@@ -201,13 +199,14 @@ class EmulatorWorkerApi {
                         disk = new EmulatorWorkerChunkedDisk(spec, this);
                     }
                     if (
-                        needsDeviceImage &&
+                        deviceImageType !== null &&
                         !spec.isFloppy &&
                         !spec.hasDeviceImageHeader
                     ) {
                         return new EmulatorWorkerDeviceImageDisk(
                             disk,
-                            config.deviceImageHeader
+                            config.deviceImageHeader,
+                            deviceImageType
                         );
                     }
                     return disk;
@@ -215,13 +214,14 @@ class EmulatorWorkerApi {
                 ...diskFiles.map(spec => {
                     const disk = new EmulatorWorkerUploadDisk(spec, this);
                     if (
-                        needsDeviceImage &&
+                        deviceImageType !== null &&
                         !spec.isCDROM &&
                         !spec.hasDeviceImageHeader
                     ) {
                         return new EmulatorWorkerDeviceImageDisk(
                             disk,
-                            config.deviceImageHeader
+                            config.deviceImageHeader,
+                            deviceImageType
                         );
                     }
                     return disk;

@@ -1,16 +1,23 @@
-import {generateDeviceImageHeader} from "@/emulator/common/device-image";
+import {
+    type DeviceImageType,
+    generateDeviceImageHeader,
+} from "@/emulator/common/device-image";
 import {type EmulatorWorkerDisk} from "@/emulator/worker/disks";
 
 export class EmulatorWorkerDeviceImageDisk implements EmulatorWorkerDisk {
     #disk: EmulatorWorkerDisk;
     #deviceHeader: ArrayBuffer;
 
-    constructor(disk: EmulatorWorkerDisk, baseDeviceHeader: ArrayBuffer) {
+    constructor(
+        disk: EmulatorWorkerDisk,
+        baseDeviceHeader: ArrayBuffer,
+        deviceImageType: DeviceImageType
+    ) {
         this.#disk = disk;
         this.#deviceHeader = generateDeviceImageHeader(
             baseDeviceHeader,
             disk.size,
-            true
+            deviceImageType
         );
     }
 

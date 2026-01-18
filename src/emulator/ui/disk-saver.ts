@@ -3,8 +3,11 @@ import {saveAs} from "file-saver";
 import {type EmulatorDiskDef} from "@/defs/disks";
 import {dirtyChunksFileName, dataFileName} from "@/emulator/common/disk-saver";
 import {generateChunkUrl} from "@/emulator/common/common";
-import deviceImageHeaderPath from "@/Data/Device Image Header (Apple SCSI 4.3 Driver).hda";
-import {generateDeviceImageHeader} from "@/emulator/common/device-image";
+import {
+    DeviceImageType,
+    generateDeviceImageHeader,
+    getDeviceImageHeaderPath,
+} from "@/emulator/common/device-image";
 
 export async function resetDiskSaver(disk: EmulatorDiskDef) {
     const spec = (await disk.generatedSpec()).default;
@@ -141,13 +144,15 @@ export async function saveDiskSaverImage(
     }
 
     if (deviceImage) {
+        const deviceImageType = DeviceImageType.AppleSCSI43Driver;
+        const deviceImageHeaderPath = getDeviceImageHeaderPath(deviceImageType);
         const baseDeviceImageHeader = await (
             await fetch(deviceImageHeaderPath)
         ).arrayBuffer();
         const deviceImageHeader = generateDeviceImageHeader(
             baseDeviceImageHeader,
             spec.totalSize,
-            false
+            deviceImageType
         );
         saveAs(new Blob([deviceImageHeader, image]), spec.name + ".hda");
         return;
