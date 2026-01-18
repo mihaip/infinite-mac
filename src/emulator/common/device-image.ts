@@ -16,6 +16,8 @@ export function emulatorNeedsDeviceImage(
         case "DingusPPC":
         case "PearPC":
             return DeviceImageType.AllDrivers;
+        case "Snow":
+            return DeviceImageType.AppleSCSI43Driver;
         default:
             return null;
     }

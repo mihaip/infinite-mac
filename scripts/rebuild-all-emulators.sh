@@ -75,4 +75,10 @@ make clean
 make -j8
 echo "✓ PearPC built successfully"
 
+# Snow
+echo "Building Snow"
+cd /snow
+cargo build -r -p snow_frontend_im --target wasm32-unknown-emscripten
+echo "✓ Snow built successfully"
+
 echo "✓ All emulators built successfully!"

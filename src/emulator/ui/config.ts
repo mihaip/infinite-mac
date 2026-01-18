@@ -400,6 +400,25 @@ export function configToPearPCConfig(
     return configStr;
 }
 
+export function configToSnowArgs(
+    config: EmulatorConfig,
+    {
+        romFileName,
+        disks,
+    }: {romFileName: string; disks: EmulatorChunkedFileSpec[]}
+): string[] {
+    // For initial bringup, only Mac SE is supported
+    // Machine type is hardcoded in the Rust code
+    const args = ["--bootrom", romFileName];
+    // TODO: support more than one disk
+    if (disks.length > 0) {
+        args.push("--scsi-disk", disks[0].name);
+    } else if (config.diskFiles.length > 0) {
+        args.push("--scsi-disk", config.diskFiles[0].name);
+    }
+    return args;
+}
+
 function ramSizeToByteCount(ramSize: MachineDefRAMSize): number {
     let byteCount = parseInt(ramSize);
     if (ramSize.endsWith("M")) {

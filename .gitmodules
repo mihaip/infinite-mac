@@ -20,3 +20,6 @@
 [submodule "pearpc"]
 	path = pearpc
 	url = https://github.com/mihaip/pearpc
+[submodule "snow"]
+	path = snow
+	url = https://github.com/mihaip/snow.git

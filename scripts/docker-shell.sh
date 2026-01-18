@@ -11,11 +11,13 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 VOLUME_MOUNTS=(
+    -v macemu_cargo:/root/.cargo
     -v "$PROJECT_ROOT/macemu":/macemu
     -v "$PROJECT_ROOT/minivmac":/minivmac
     -v "$PROJECT_ROOT/dingusppc":/dingusppc
     -v "$PROJECT_ROOT/previous":/previous
     -v "$PROJECT_ROOT/pearpc":/pearpc
+    -v "$PROJECT_ROOT/snow":/snow
     -v "$PROJECT_ROOT/scripts":/scripts
 )
 

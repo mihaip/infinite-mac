@@ -17,3 +17,8 @@ RUN git clone https://github.com/emscripten-core/emsdk.git \
 
 COPY macemu/BasiliskII/src/Unix/_em_build_mpfr.sh /tmp/_em_build_mpfr.sh
 RUN /tmp/_em_build_mpfr.sh
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    --default-toolchain 1.92.0 \
+    --target wasm32-unknown-emscripten
+ENV PATH="/root/.cargo/bin:${PATH}"

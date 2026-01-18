@@ -9,6 +9,7 @@ import SheepShaverWasmPath from "@/emulator/worker/emscripten/SheepShaver.wasm?u
 import DingusPPCWasmPath from "@/emulator/worker/emscripten/dingusppc.wasm?url";
 import PearPCWasmPath from "@/emulator/worker/emscripten/ppc.wasm?url";
 import PreviousWasmPath from "@/emulator/worker/emscripten/previous.wasm?url";
+import SnowWasmPath from "@/emulator/worker/emscripten/snow.wasm?url";
 import {type EmulatorDef} from "@/emulator/common/emulators";
 
 export function getEmulatorWasmPath(def: EmulatorDef): string {
@@ -33,5 +34,7 @@ export function getEmulatorWasmPath(def: EmulatorDef): string {
             return PearPCWasmPath;
         case "Previous":
             return PreviousWasmPath;
+        case "Snow":
+            return SnowWasmPath;
     }
 }

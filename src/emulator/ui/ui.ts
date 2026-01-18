@@ -18,6 +18,7 @@ import {
     emulatorNeedsMouseDeltas,
     type EmulatorDef,
     emulatorSupportsMouseDeltas,
+    emulatorNeedsDiskPlaceholderFiles,
 } from "@/emulator/common/emulators";
 import {getEmulatorWasmPath} from "@/emulator/ui/emulators";
 import Worker from "@/emulator/worker/worker?worker";
@@ -74,6 +75,7 @@ import {
     configToPreviousConfig,
     configToMacemuPrefs,
     configToPearPCConfig,
+    configToSnowArgs,
 } from "@/emulator/ui/config";
 import {stringToArrayBuffer} from "@/lib/strings";
 import {type EmulatorSettings} from "@/emulator/ui/settings";
@@ -373,6 +375,19 @@ export class Emulator {
         Object.keys(extraMachineFiles).forEach((fileName, i) => {
             autoloadFiles[fileName] = extraMachineFileContents[i];
         });
+        if (emulatorNeedsDiskPlaceholderFiles(emulatorType)) {
+            for (const entry of [
+                ...disks,
+                ...(delayedDisks ?? []),
+                ...this.#config.cdroms,
+                ...this.#config.diskFiles,
+            ]) {
+                if (autoloadFiles[entry.name] !== undefined) {
+                    continue;
+                }
+                autoloadFiles[entry.name] = new ArrayBuffer(0);
+            }
+        }
 
         let args: string[] = [];
         let configDebugStr;
@@ -392,16 +407,6 @@ export class Emulator {
                     romFileName,
                 });
                 autoloadFiles["previous.cfg"] = stringToArrayBuffer(config);
-                // Previous expects to find all of the disk files on the filesystem,
-                // create some dummy files.
-                for (const disk of [
-                    ...disks,
-                    ...(delayedDisks ?? []),
-                    ...this.#config.cdroms,
-                    ...this.#config.diskFiles,
-                ]) {
-                    autoloadFiles[disk.name] = new ArrayBuffer(0);
-                }
                 configDebugStr = config;
                 break;
             }
@@ -428,6 +433,10 @@ export class Emulator {
                 configDebugStr = config;
                 break;
             }
+            case "Snow":
+                args = configToSnowArgs(this.#config, {romFileName, disks});
+                configDebugStr = args.join(" ");
+                break;
         }
         console.groupCollapsed(
             "%cGenerated emulator config",

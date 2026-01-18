@@ -188,3 +188,12 @@ make -j8
 ```
 
 Once it has built, use `npm run import-emulator pearpc` from the host to update the files in `src/emulator`.
+
+### Snow
+
+```sh
+cd /snow
+cargo build -r -p snow_frontend_im --target wasm32-unknown-emscripten
+```
+
+Once it has built, use `npm run import-emulator snow` from the host to update the files in `src/emulator`.

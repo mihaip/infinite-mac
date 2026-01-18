@@ -108,6 +108,19 @@ export const MAC_SE: MachineDef = {
     ramSizes: ["4M"],
 };
 
+export const MAC_SE_SNOW: MachineDef = {
+    name: "Mac SE (Snow)",
+    cpu: "68000",
+    romPath: macSERomPath,
+    gestaltID: 5,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Platinum",
+    ramSizes: ["4M"],
+    isHidden: true,
+};
+
 export const MAC_II: MachineDef = {
     name: "Mac II",
     cpu: "68020",
@@ -384,6 +397,7 @@ export const ALL_MACHINES = [
     MAC_512KE,
     MAC_PLUS,
     MAC_SE,
+    MAC_SE_SNOW,
     MAC_II,
     MAC_IIx,
     MAC_IIFX,

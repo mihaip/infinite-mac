@@ -26,6 +26,10 @@ elif [ "$1" = "previous" ]; then
 elif [ "$1" = "pearpc" ]; then
     EMULATOR=ppc
     EMULATOR_DIR="${ROOT_DIR}/pearpc/src"
+elif [ "$1" = "snow" ]; then
+    EMULATOR=snow
+    JS_EXTENSION=".js"
+    EMULATOR_DIR="${ROOT_DIR}/snow/target/wasm32-unknown-emscripten/release"
 else
     echo "Unknown emulator $1"
     exit 1
