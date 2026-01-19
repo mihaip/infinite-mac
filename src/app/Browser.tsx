@@ -492,7 +492,7 @@ function DiskHeader({
                 {disk.displaySubtitle && (
                     <span className="Subtitle"> ({disk.displaySubtitle})</span>
                 )}
-                <div className="ReleaseDate">
+                <div className="ReleaseDate" suppressHydrationWarning={true}>
                     {releaseDateString}
                     {disk.isUnstable && (
                         <div className="Unstable-Warning">Unstable</div>
