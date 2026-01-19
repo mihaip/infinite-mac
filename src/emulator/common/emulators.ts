@@ -82,7 +82,9 @@ export function emulatorSupportsCDROMs(type: EmulatorType): boolean {
 }
 
 export function emulatorNeedsDiskPlaceholderFiles(type: EmulatorType): boolean {
-    return type === "Previous" || type === "Snow";
+    // Previous expects to find all of the configured disk "files" on the
+    // filesystems, we create some empty stubs for that.
+    return type === "Previous";
 }
 
 export function emulatorNeedsTheOutsideWorldDisk(
