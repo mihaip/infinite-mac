@@ -409,12 +409,20 @@ export function configToSnowArgs(
 ): string[] {
     // For initial bringup, only Mac SE is supported
     // Machine type is hardcoded in the Rust code
-    const args = ["--bootrom", romFileName];
-    // TODO: support more than one disk
-    if (disks.length > 0) {
-        args.push("--scsi-disk", disks[0].name);
-    } else if (config.diskFiles.length > 0) {
-        args.push("--scsi-disk", config.diskFiles[0].name);
+    const args = ["--rom", romFileName];
+    for (const disk of disks) {
+        if (disk.isFloppy) {
+            // TODO: floppy support
+        } else {
+            args.push("--disk", disk.name);
+        }
+    }
+    for (const diskFile of config.diskFiles) {
+        if (diskFile.isCDROM) {
+            // TODO: CD-ROM support
+        } else {
+            args.push("--disk", diskFile.name);
+        }
     }
     return args;
 }
