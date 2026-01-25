@@ -3923,6 +3923,10 @@ function _fd_write(fd, iov, iovcnt, pnum) {
   }
 }
 
+function _js_acquire_input_lock() {
+  return workerApi.acquireInputLock();
+}
+
 function _js_blit(bufPtr, bufSize) {
   workerApi.blit(bufPtr, bufSize);
 }
@@ -3949,6 +3953,34 @@ function _js_disk_size(diskId) {
 
 function _js_disk_write(diskId, bufPtr, offset, length) {
   return workerApi.disks.write(diskId, bufPtr, offset, length);
+}
+
+function _js_get_mouse_button_state() {
+  return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);
+}
+
+function _js_get_mouse_delta_x() {
+  return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr);
+}
+
+function _js_get_mouse_delta_y() {
+  return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr);
+}
+
+function _js_get_mouse_x_position() {
+  return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr);
+}
+
+function _js_get_mouse_y_position() {
+  return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr);
+}
+
+function _js_has_mouse_position() {
+  return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr);
+}
+
+function _js_release_input_lock() {
+  workerApi.releaseInputLock();
 }
 
 var _llvm_eh_typeid_for = type => type;
@@ -4326,6 +4358,7 @@ var wasmImports = {
   /** @export */ invoke_vijiji,
   /** @export */ invoke_vijjjj,
   /** @export */ invoke_vji,
+  /** @export */ js_acquire_input_lock: _js_acquire_input_lock,
   /** @export */ js_blit: _js_blit,
   /** @export */ js_did_open_video: _js_did_open_video,
   /** @export */ js_disk_close: _js_disk_close,
@@ -4333,6 +4366,13 @@ var wasmImports = {
   /** @export */ js_disk_read: _js_disk_read,
   /** @export */ js_disk_size: _js_disk_size,
   /** @export */ js_disk_write: _js_disk_write,
+  /** @export */ js_get_mouse_button_state: _js_get_mouse_button_state,
+  /** @export */ js_get_mouse_delta_x: _js_get_mouse_delta_x,
+  /** @export */ js_get_mouse_delta_y: _js_get_mouse_delta_y,
+  /** @export */ js_get_mouse_x_position: _js_get_mouse_x_position,
+  /** @export */ js_get_mouse_y_position: _js_get_mouse_y_position,
+  /** @export */ js_has_mouse_position: _js_has_mouse_position,
+  /** @export */ js_release_input_lock: _js_release_input_lock,
   /** @export */ llvm_eh_typeid_for: _llvm_eh_typeid_for,
   /** @export */ random_get: _random_get
 };
@@ -4458,10 +4498,10 @@ function invoke_vji(index, a1, a2) {
   }
 }
 
-function invoke_viiiiii(index, a1, a2, a3, a4, a5, a6) {
+function invoke_viiiiiiiiiiiii(index, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13) {
   var sp = stackSave();
   try {
-    getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6);
+    getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
   } catch (e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -4484,6 +4524,17 @@ function invoke_iiii(index, a1, a2, a3) {
   var sp = stackSave();
   try {
     return getWasmTableEntry(index)(a1, a2, a3);
+  } catch (e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiii(index, a1, a2, a3, a4, a5, a6) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6);
   } catch (e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -4595,17 +4646,6 @@ function invoke_di(index, a1) {
   var sp = stackSave();
   try {
     return getWasmTableEntry(index)(a1);
-  } catch (e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_viiiiiiiiiiiii(index, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13) {
-  var sp = stackSave();
-  try {
-    getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
   } catch (e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;

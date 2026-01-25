@@ -405,11 +405,19 @@ export function configToSnowArgs(
     {
         romFileName,
         disks,
-    }: {romFileName: string; disks: EmulatorChunkedFileSpec[]}
+        useMouseDeltas,
+    }: {
+        romFileName: string;
+        disks: EmulatorChunkedFileSpec[];
+        useMouseDeltas?: boolean;
+    }
 ): string[] {
     // For initial bringup, only Mac SE is supported
     // Machine type is hardcoded in the Rust code
     const args = ["--rom", romFileName];
+    if (useMouseDeltas) {
+        args.push("--use-mouse-deltas");
+    }
     for (const disk of disks) {
         if (disk.isFloppy) {
             // TODO: floppy support

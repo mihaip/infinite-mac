@@ -112,6 +112,10 @@
     margin: 2px 0 0 22px;
 }
 
+.Dialog-Description .warning {
+    color: #c33;
+}
+
 .Dialog.Dialog-NeXT .Dialog-Description {
     color: #444;
 }

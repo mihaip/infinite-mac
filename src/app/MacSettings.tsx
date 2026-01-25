@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {
     type EmulatorScreenScaling,
     type EmulatorSettings,
@@ -9,6 +9,7 @@ import {
     emulatorSupportsSpeedSetting,
     EMULATOR_SPEEDS,
     emulatorSupportsMouseDeltas,
+    emulatorNeedsRestartForMouseDeltas,
 } from "@/emulator/common/emulators";
 import {Dialog} from "@/controls/Dialog";
 import {Select} from "@/controls/Select";
@@ -66,6 +67,10 @@ export function MacSettings({
     const [storageImportVisible, setStorageImportVisible] = useState(false);
     const [saveImageVisible, setSaveImageVisible] = useState(false);
     const {screenScaling = "auto"} = emulatorSettings;
+    const initialMouseDeltasRef = useRef(emulatorSettings.useMouseDeltas);
+    const showMouseDeltasRestartWarning =
+        emulatorNeedsRestartForMouseDeltas(emulatorType) &&
+        emulatorSettings.useMouseDeltas !== initialMouseDeltasRef.current;
 
     return (
         <Dialog title="Settings" onDone={onDone}>
@@ -111,6 +116,12 @@ export function MacSettings({
                             Send relative mouse movements to the emulator
                             instead of absolute positions. This can help with
                             compatibility of games such as Apeiron.
+                            {showMouseDeltasRestartWarning && (
+                                <span className="warning">
+                                    {" "}
+                                    Requires page reload.
+                                </span>
+                            )}
                         </div>
                     </div>
                 )}

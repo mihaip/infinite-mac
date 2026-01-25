@@ -55,11 +55,17 @@ export function emulatorUsesInterruptKey(type: EmulatorType): boolean {
 // coordinates (separate from emulatorNeedsMouseDeltas, those emulators always
 // use deltas).
 export function emulatorSupportsMouseDeltas(type: EmulatorType): boolean {
-    return type === "BasiliskII" || type === "SheepShaver";
+    return type === "BasiliskII" || type === "SheepShaver" || type === "Snow";
 }
 
 export function emulatorNeedsMouseDeltas(type: EmulatorType): boolean {
     return type === "DingusPPC" || type === "Previous" || type === "PearPC";
+}
+
+export function emulatorNeedsRestartForMouseDeltas(
+    type: EmulatorType
+): boolean {
+    return type === "Snow";
 }
 
 export function emulatorSupportsAppleTalk(type: EmulatorType): boolean {

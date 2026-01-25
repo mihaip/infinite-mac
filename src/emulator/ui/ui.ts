@@ -433,10 +433,17 @@ export class Emulator {
                 configDebugStr = config;
                 break;
             }
-            case "Snow":
-                args = configToSnowArgs(this.#config, {romFileName, disks});
+            case "Snow": {
+                const useMouseDeltas =
+                    this.#trackpadMode() || this.#useMouseDeltas();
+                args = configToSnowArgs(this.#config, {
+                    romFileName,
+                    disks,
+                    useMouseDeltas,
+                });
                 configDebugStr = args.join(" ");
                 break;
+            }
         }
         console.groupCollapsed(
             "%cGenerated emulator config",
