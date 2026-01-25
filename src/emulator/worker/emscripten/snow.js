@@ -3955,6 +3955,14 @@ function _js_disk_write(diskId, bufPtr, offset, length) {
   return workerApi.disks.write(diskId, bufPtr, offset, length);
 }
 
+function _js_get_key_code() {
+  return workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr);
+}
+
+function _js_get_key_state() {
+  return workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr);
+}
+
 function _js_get_mouse_button_state() {
   return workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr);
 }
@@ -3973,6 +3981,10 @@ function _js_get_mouse_x_position() {
 
 function _js_get_mouse_y_position() {
   return workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr);
+}
+
+function _js_has_key_event() {
+  return workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr);
 }
 
 function _js_has_mouse_position() {
@@ -4366,11 +4378,14 @@ var wasmImports = {
   /** @export */ js_disk_read: _js_disk_read,
   /** @export */ js_disk_size: _js_disk_size,
   /** @export */ js_disk_write: _js_disk_write,
+  /** @export */ js_get_key_code: _js_get_key_code,
+  /** @export */ js_get_key_state: _js_get_key_state,
   /** @export */ js_get_mouse_button_state: _js_get_mouse_button_state,
   /** @export */ js_get_mouse_delta_x: _js_get_mouse_delta_x,
   /** @export */ js_get_mouse_delta_y: _js_get_mouse_delta_y,
   /** @export */ js_get_mouse_x_position: _js_get_mouse_x_position,
   /** @export */ js_get_mouse_y_position: _js_get_mouse_y_position,
+  /** @export */ js_has_key_event: _js_has_key_event,
   /** @export */ js_has_mouse_position: _js_has_mouse_position,
   /** @export */ js_release_input_lock: _js_release_input_lock,
   /** @export */ llvm_eh_typeid_for: _llvm_eh_typeid_for,
