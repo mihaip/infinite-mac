@@ -3927,8 +3927,16 @@ function _js_acquire_input_lock() {
   return workerApi.acquireInputLock();
 }
 
+function _js_audio_buffer_size() {
+  return workerApi.audioBufferSize();
+}
+
 function _js_blit(bufPtr, bufSize) {
   workerApi.blit(bufPtr, bufSize);
+}
+
+function _js_did_open_audio(sampleRate, sampleSize, channels) {
+  workerApi.didOpenAudio(sampleRate, sampleSize, channels);
 }
 
 function _js_did_open_video(width, height) {
@@ -3953,6 +3961,10 @@ function _js_disk_size(diskId) {
 
 function _js_disk_write(diskId, bufPtr, offset, length) {
   return workerApi.disks.write(diskId, bufPtr, offset, length);
+}
+
+function _js_enqueue_audio(bufPtr, bufSize) {
+  workerApi.enqueueAudio(bufPtr, bufSize);
 }
 
 function _js_get_key_code() {
@@ -3993,6 +4005,10 @@ function _js_has_mouse_position() {
 
 function _js_release_input_lock() {
   workerApi.releaseInputLock();
+}
+
+function _js_sleep(seconds) {
+  workerApi.sleep(seconds);
 }
 
 var _llvm_eh_typeid_for = type => type;
@@ -4217,13 +4233,13 @@ var memory = makeInvalidEarlyAccess("memory");
 
 var __indirect_function_table = makeInvalidEarlyAccess("__indirect_function_table");
 
-var __ZN9snow_core3mac3adb5mouse1_6__CTOR17h86853eced474791fE = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h86853eced474791fE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb5mouse1_6__CTOR17h86853eced474791fE");
+var __ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE");
 
-var __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h5609330551a59109E = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h5609330551a59109E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h5609330551a59109E");
+var __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE");
 
-var __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h3cb1c9b111b2910dE = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h3cb1c9b111b2910dE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h3cb1c9b111b2910dE");
+var __ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E");
 
-var __ZN9snow_core3mac4scsi4disk1_6__CTOR17hc5aefaca3b913ee6E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17hc5aefaca3b913ee6E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi4disk1_6__CTOR17hc5aefaca3b913ee6E");
+var __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E");
 
 var wasmMemory = makeInvalidEarlyAccess("wasmMemory");
 
@@ -4256,10 +4272,10 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports["__set_stack_limits"] != "undefined", "missing Wasm export: __set_stack_limits");
   assert(typeof wasmExports["memory"] != "undefined", "missing Wasm export: memory");
   assert(typeof wasmExports["__indirect_function_table"] != "undefined", "missing Wasm export: __indirect_function_table");
-  assert(typeof wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h86853eced474791fE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb5mouse1_6__CTOR17h86853eced474791fE");
-  assert(typeof wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17h5609330551a59109E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb8keyboard1_6__CTOR17h5609330551a59109E");
-  assert(typeof wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h3cb1c9b111b2910dE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h3cb1c9b111b2910dE");
-  assert(typeof wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17hc5aefaca3b913ee6E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi4disk1_6__CTOR17hc5aefaca3b913ee6E");
+  assert(typeof wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE");
+  assert(typeof wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE");
+  assert(typeof wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E");
+  assert(typeof wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E");
   _main = Module["_main"] = createExportWrapper("main", 2);
   _malloc = createExportWrapper("malloc", 1);
   _free = createExportWrapper("free", 1);
@@ -4286,10 +4302,10 @@ function assignWasmExports(wasmExports) {
   ___set_stack_limits = Module["___set_stack_limits"] = createExportWrapper("__set_stack_limits", 2);
   memory = wasmMemory = wasmExports["memory"];
   __indirect_function_table = wasmTable = wasmExports["__indirect_function_table"];
-  __ZN9snow_core3mac3adb5mouse1_6__CTOR17h86853eced474791fE = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h86853eced474791fE"] = wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h86853eced474791fE"].value;
-  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h5609330551a59109E = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h5609330551a59109E"] = wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17h5609330551a59109E"].value;
-  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h3cb1c9b111b2910dE = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h3cb1c9b111b2910dE"] = wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h3cb1c9b111b2910dE"].value;
-  __ZN9snow_core3mac4scsi4disk1_6__CTOR17hc5aefaca3b913ee6E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17hc5aefaca3b913ee6E"] = wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17hc5aefaca3b913ee6E"].value;
+  __ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"] = wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"].value;
+  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE"] = wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE"].value;
+  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E"] = wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E"].value;
+  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E"] = wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E"].value;
 }
 
 var wasmImports = {
@@ -4371,13 +4387,16 @@ var wasmImports = {
   /** @export */ invoke_vijjjj,
   /** @export */ invoke_vji,
   /** @export */ js_acquire_input_lock: _js_acquire_input_lock,
+  /** @export */ js_audio_buffer_size: _js_audio_buffer_size,
   /** @export */ js_blit: _js_blit,
+  /** @export */ js_did_open_audio: _js_did_open_audio,
   /** @export */ js_did_open_video: _js_did_open_video,
   /** @export */ js_disk_close: _js_disk_close,
   /** @export */ js_disk_open: _js_disk_open,
   /** @export */ js_disk_read: _js_disk_read,
   /** @export */ js_disk_size: _js_disk_size,
   /** @export */ js_disk_write: _js_disk_write,
+  /** @export */ js_enqueue_audio: _js_enqueue_audio,
   /** @export */ js_get_key_code: _js_get_key_code,
   /** @export */ js_get_key_state: _js_get_key_state,
   /** @export */ js_get_mouse_button_state: _js_get_mouse_button_state,
@@ -4388,6 +4407,7 @@ var wasmImports = {
   /** @export */ js_has_key_event: _js_has_key_event,
   /** @export */ js_has_mouse_position: _js_has_mouse_position,
   /** @export */ js_release_input_lock: _js_release_input_lock,
+  /** @export */ js_sleep: _js_sleep,
   /** @export */ llvm_eh_typeid_for: _llvm_eh_typeid_for,
   /** @export */ random_get: _random_get
 };
@@ -4480,6 +4500,28 @@ function invoke_i(index) {
   }
 }
 
+function invoke_viiiiiiiiiiiii(index, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+  } catch (e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiii(index, a1, a2, a3, a4) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1, a2, a3, a4);
+  } catch (e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_ii(index, a1) {
   var sp = stackSave();
   try {
@@ -4506,28 +4548,6 @@ function invoke_vji(index, a1, a2) {
   var sp = stackSave();
   try {
     getWasmTableEntry(index)(a1, a2);
-  } catch (e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_viiiiiiiiiiiii(index, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13) {
-  var sp = stackSave();
-  try {
-    getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
-  } catch (e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_iiiii(index, a1, a2, a3, a4) {
-  var sp = stackSave();
-  try {
-    return getWasmTableEntry(index)(a1, a2, a3, a4);
   } catch (e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -4657,17 +4677,6 @@ function invoke_ji(index, a1) {
   }
 }
 
-function invoke_di(index, a1) {
-  var sp = stackSave();
-  try {
-    return getWasmTableEntry(index)(a1);
-  } catch (e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
 function invoke_viiiiiiiiiii(index, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11) {
   var sp = stackSave();
   try {
@@ -4683,6 +4692,17 @@ function invoke_vid(index, a1, a2) {
   var sp = stackSave();
   try {
     getWasmTableEntry(index)(a1, a2);
+  } catch (e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_di(index, a1) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1);
   } catch (e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;

@@ -141,6 +141,14 @@ export class EmulatorPlaybackProcessor extends AudioWorkletProcessor {
         }
 
         switch (this.#options.sampleSize) {
+            case 32: {
+                const sample32 = this.#currentAudioDataView.getFloat32(
+                    this.#currentAudioDataOffset,
+                    true
+                );
+                this.#currentAudioDataOffset += 4;
+                return sample32;
+            }
             case 16: {
                 const sample16 = this.#currentAudioDataView.getInt16(
                     this.#currentAudioDataOffset
@@ -174,11 +182,16 @@ export class EmulatorPlaybackProcessor extends AudioWorkletProcessor {
             i < this.#currentAudioData.byteLength;
             i += sampleSize
         ) {
-            const sample = (
-                sampleSize === 2
-                    ? this.#currentAudioDataView.getUint16(i)
-                    : this.#currentAudioDataView.getUint8(i)
-            ).toString(16);
+            let sample: string;
+            if (sampleSize === 4) {
+                sample = this.#currentAudioDataView
+                    .getFloat32(i, true)
+                    .toFixed(3);
+            } else if (sampleSize === 2) {
+                sample = this.#currentAudioDataView.getUint16(i).toString(16);
+            } else {
+                sample = this.#currentAudioDataView.getUint8(i).toString(16);
+            }
             if (v.length > 0 && v[v.length - 1] === sample) {
                 repeat++;
                 continue;
