@@ -1,6 +1,8 @@
 import mac128KRomPath from "@/Data/Mac-128K.rom";
+import mac512KRomPath from "@/Data/Mac-512K.rom";
 import macPlusRomPath from "@/Data/Mac-Plus.rom";
 import macSERomPath from "@/Data/Mac-SE.rom";
+import macClassicRomPath from "@/Data/Mac-Classic.rom";
 import macIIRomPath from "@/Data/Mac-II.rom";
 import macIIxRomPath from "@/Data/Mac-IIx.rom";
 import macIIfxRomPath from "@/Data/Mac-IIfx.rom";
@@ -23,6 +25,8 @@ import pearPCConfigPath from "@/Data/PearPCConfig.txt";
 import pearpcVideoXPath from "@/Data/PearPC-video-x.rom";
 import previousConfigPath from "@/Data/PreviousConfig.txt";
 import deviceImageHeaderPath from "@/Data/Device Image Header (All Drivers).hda";
+import macIIDisplayCard824RomPath from "@/Data/mac-ii-display-card-8-24.rom";
+import se30VideoRomPath from "@/Data/se30-video.rom";
 import {type EmulatorDef, type EmulatorCpu} from "@/emulator/common/emulators";
 
 export type MachineDef = EmulatorDef & {
@@ -69,6 +73,34 @@ export const MAC_128K: MachineDef = {
     ramSizes: ["128K"],
 };
 
+export const MAC_128K_SNOW: MachineDef = {
+    name: "Mac 128K (Snow)",
+    cpu: "68000",
+    romPath: mac128KRomPath,
+    gestaltID: 1,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Beige",
+    mfsOnly: true,
+    ramSizes: ["128K"],
+};
+
+export const MAC_512K_SNOW: MachineDef = {
+    name: "Mac 512K (Snow)",
+    cpu: "68000",
+    romPath: mac512KRomPath,
+    // Uses gestalt ID 2 (normally Macintosh XL) to disambiguate the 512K within
+    // the Snow frontend.
+    gestaltID: 2,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Beige",
+    mfsOnly: true,
+    ramSizes: ["512K"],
+};
+
 export const MAC_512KE: MachineDef = {
     name: "Mac 512Ke",
     cpu: "68000",
@@ -82,6 +114,18 @@ export const MAC_512KE: MachineDef = {
     ramSizes: ["512K"],
 };
 
+export const MAC_512KE_SNOW: MachineDef = {
+    name: "Mac 512Ke (Snow)",
+    cpu: "68000",
+    romPath: macPlusRomPath,
+    gestaltID: 3,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Beige",
+    ramSizes: ["512K", "128K"],
+};
+
 export const MAC_PLUS: MachineDef = {
     name: "Mac Plus",
     cpu: "68000",
@@ -93,6 +137,18 @@ export const MAC_PLUS: MachineDef = {
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Beige",
     ramSizes: ["4M"],
+};
+
+export const MAC_PLUS_SNOW: MachineDef = {
+    name: "Mac Plus (Snow)",
+    cpu: "68000",
+    romPath: macPlusRomPath,
+    gestaltID: 4,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Beige",
+    ramSizes: ["4M", "2M", "1M"],
 };
 
 export const MAC_SE: MachineDef = {
@@ -117,8 +173,21 @@ export const MAC_SE_SNOW: MachineDef = {
     prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Platinum",
-    ramSizes: ["4M"],
-    isHidden: true,
+    ramSizes: ["4M", "2M", "1M"],
+};
+
+export const MAC_CLASSIC_SNOW: MachineDef = {
+    name: "Mac Classic (Snow)",
+    cpu: "68000",
+    romPath: macClassicRomPath,
+    // SHA-256: c1c47260bacac2473e21849925fbfdf48e5ab584aaef7c6d54569d0cb6b41cce
+    // See snow/core/src/mac/mod.rs (MacModel::ROMS) for valid ROM signatures.
+    gestaltID: 17,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Platinum",
+    ramSizes: ["4M", "2M", "1M"],
 };
 
 export const MAC_II: MachineDef = {
@@ -134,6 +203,26 @@ export const MAC_II: MachineDef = {
     ramSizes: ["8M"],
 };
 
+export const MAC_II_SNOW: MachineDef = {
+    name: "Mac II (Snow)",
+    cpu: "68020",
+    romPath: macIIRomPath,
+    gestaltID: 6,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    supportedScreenSizes: [
+        {width: 1152, height: 870, monitorId: "RGB21"},
+        {width: 640, height: 870, monitorId: "PortraitBW"},
+        {width: 640, height: 480, monitorId: "HiRes14"},
+        {width: 512, height: 384, monitorId: "RGB12"},
+    ],
+    bezelStyle: "Platinum",
+    ramSizes: ["8M", "4M", "2M", "1M"],
+    extraFiles: {
+        "mac-ii-display-card-8-24.rom": macIIDisplayCard824RomPath,
+    },
+};
+
 export const MAC_IIx: MachineDef = {
     name: "Mac IIx",
     cpu: "68030",
@@ -145,6 +234,61 @@ export const MAC_IIx: MachineDef = {
     fixedScreenSize: {width: 640, height: 480},
     bezelStyle: "Platinum",
     ramSizes: ["32M"],
+};
+
+export const MAC_IIx_SNOW: MachineDef = {
+    name: "Mac IIx (Snow)",
+    cpu: "68030",
+    romPath: macIIxRomPath,
+    gestaltID: 7,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    supportedScreenSizes: [
+        {width: 1152, height: 870, monitorId: "RGB21"},
+        {width: 640, height: 870, monitorId: "PortraitBW"},
+        {width: 640, height: 480, monitorId: "HiRes14"},
+        {width: 512, height: 384, monitorId: "RGB12"},
+    ],
+    bezelStyle: "Platinum",
+    ramSizes: ["8M", "128M", "32M", "16M", "4M", "2M", "1M"],
+    extraFiles: {
+        "mac-ii-display-card-8-24.rom": macIIDisplayCard824RomPath,
+    },
+};
+
+export const MAC_IIcx_SNOW: MachineDef = {
+    name: "Mac IIcx (Snow)",
+    cpu: "68030",
+    romPath: macIIxRomPath,
+    gestaltID: 8,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    supportedScreenSizes: [
+        {width: 1152, height: 870, monitorId: "RGB21"},
+        {width: 640, height: 870, monitorId: "PortraitBW"},
+        {width: 640, height: 480, monitorId: "HiRes14"},
+        {width: 512, height: 384, monitorId: "RGB12"},
+    ],
+    bezelStyle: "Platinum",
+    ramSizes: ["8M", "128M", "32M", "16M", "4M", "2M", "1M"],
+    extraFiles: {
+        "mac-ii-display-card-8-24.rom": macIIDisplayCard824RomPath,
+    },
+};
+
+export const MAC_SE30_SNOW: MachineDef = {
+    name: "Mac SE/30 (Snow)",
+    cpu: "68030",
+    romPath: macIIxRomPath,
+    gestaltID: 9,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Platinum",
+    ramSizes: ["8M", "128M", "32M", "16M", "4M", "2M", "1M"],
+    extraFiles: {
+        "se30-video.rom": se30VideoRomPath,
+    },
 };
 
 export const MAC_IIFX: MachineDef = {
@@ -394,12 +538,21 @@ export const NEXT_STATION_TURBO_COLOR: MachineDef = {
 
 export const ALL_MACHINES = [
     MAC_128K,
+    MAC_128K_SNOW,
+    MAC_512K_SNOW,
     MAC_512KE,
+    MAC_512KE_SNOW,
     MAC_PLUS,
+    MAC_PLUS_SNOW,
     MAC_SE,
     MAC_SE_SNOW,
+    MAC_CLASSIC_SNOW,
     MAC_II,
+    MAC_II_SNOW,
     MAC_IIx,
+    MAC_IIx_SNOW,
+    MAC_IIcx_SNOW,
+    MAC_SE30_SNOW,
     MAC_IIFX,
     QUADRA_650,
     POWER_MACINTOSH_6100,

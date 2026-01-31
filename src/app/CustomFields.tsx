@@ -60,6 +60,11 @@ export function CustomFields({
     allowScreenScale?: boolean;
     setCanRun: (canRun: boolean) => void;
 }) {
+    const displayMachineName = useCallback((machine: MachineDef) => {
+        return machine.emulatorType === "Snow"
+            ? machine.name.replace(/ \(Snow\)$/, "")
+            : machine.name;
+    }, []);
     const {flags} = runDef;
     const setFlags = useCallback(
         (updater: (flags: EmulatorConfigFlags) => EmulatorConfigFlags) => {
@@ -148,6 +153,7 @@ export function CustomFields({
 
     const groupedMachines: {[group: string]: MachineDef[]} = {
         "68K": [],
+        "68K (Experimental)": [],
         "PowerPC": [],
         "NeXT": [],
     };
@@ -157,6 +163,8 @@ export function CustomFields({
         }
         if (machine.platform === "NeXT") {
             groupedMachines["NeXT"].push(machine);
+        } else if (machine.emulatorType === "Snow") {
+            groupedMachines["68K (Experimental)"].push(machine);
         } else if (machine.cpu.startsWith("68")) {
             groupedMachines["68K"].push(machine);
         } else {
@@ -223,7 +231,7 @@ export function CustomFields({
                                 <option disabled>{group}</option>
                                 {machines.map(m => (
                                     <option key={m.name} value={m.name}>
-                                        {m.name}
+                                        {displayMachineName(m)}
                                     </option>
                                 ))}
                             </Fragment>

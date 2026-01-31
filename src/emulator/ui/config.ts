@@ -412,9 +412,31 @@ export function configToSnowArgs(
         useMouseDeltas?: boolean;
     }
 ): string[] {
-    // For initial bringup, only Mac SE is supported
-    // Machine type is hardcoded in the Rust code
-    const args = ["--rom", romFileName];
+    const args = [
+        "--rom",
+        romFileName,
+        "--gestalt-id",
+        config.machine.gestaltID.toString(),
+        "--ram-size",
+        ramSizeToByteCount(
+            config.ramSize ?? config.machine.ramSizes[0]
+        ).toString(),
+    ];
+    if (config.machine.supportedScreenSizes) {
+        for (const size of config.machine.supportedScreenSizes) {
+            if (
+                size.width === config.screenWidth &&
+                size.height === config.screenHeight &&
+                size.monitorId
+            ) {
+                args.push("--monitor", size.monitorId);
+                break;
+            }
+        }
+    }
+    for (const romName of Object.keys(config.machine.extraFiles ?? {})) {
+        args.push("--extra-rom", romName);
+    }
     if (useMouseDeltas) {
         args.push("--use-mouse-deltas");
     }
