@@ -442,7 +442,7 @@ export function configToSnowArgs(
     }
     for (const disk of disks) {
         if (disk.isFloppy) {
-            // TODO: floppy support
+            args.push("--floppy", disk.name);
         } else {
             args.push("--disk", disk.name);
         }

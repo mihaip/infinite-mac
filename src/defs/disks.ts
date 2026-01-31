@@ -106,6 +106,7 @@ const SYSTEM_1_0: SystemDiskDef = {
     delayAdditionalDiskMount: true,
     generatedSpec: () => import("@/Data/System 1.0.dsk.json"),
     notable: true,
+    isFloppy: true,
 };
 
 const SYSTEM_1_0_ORIGINAL: SystemDiskDef = {
@@ -129,6 +130,7 @@ const SYSTEM_1_1: SystemDiskDef = {
     preferredMachine: MAC_128K,
     infiniteHdSubset: "mfs",
     generatedSpec: () => import("@/Data/System 1.1.dsk.json"),
+    isFloppy: true,
 };
 
 const SYSTEM_2_0: SystemDiskDef = {
@@ -141,6 +143,7 @@ const SYSTEM_2_0: SystemDiskDef = {
     infiniteHdSubset: "mfs",
     generatedSpec: () => import("@/Data/System 2.0.dsk.json"),
     notable: true,
+    isFloppy: true,
 };
 
 const SYSTEM_2_1: SystemDiskDef = {
@@ -154,6 +157,7 @@ const SYSTEM_2_1: SystemDiskDef = {
     infiniteHdSubset: "system6",
     generatedSpec: () => import("@/Data/System 2.1.dsk.json"),
     notable: true,
+    isFloppy: true,
 };
 
 const SYSTEM_3_0: SystemDiskDef = {
@@ -166,6 +170,7 @@ const SYSTEM_3_0: SystemDiskDef = {
     infiniteHdSubset: "system6",
     generatedSpec: () => import("@/Data/System 3.0.dsk.json"),
     notable: true,
+    isFloppy: true,
 };
 
 const SYSTEM_3_1: PlaceholderDiskDef = {
@@ -186,6 +191,7 @@ const SYSTEM_3_2: SystemDiskDef = {
     preferredMachine: MAC_PLUS,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("@/Data/System 3.2.dsk.json"),
+    isFloppy: true,
 };
 
 const SYSTEM_3_3: SystemDiskDef = {
@@ -197,6 +203,7 @@ const SYSTEM_3_3: SystemDiskDef = {
     preferredMachine: MAC_PLUS,
     infiniteHdSubset: "system6",
     generatedSpec: () => import("@/Data/System 3.3.dsk.json"),
+    isFloppy: true,
 };
 
 const SYSTEM_4_0: SystemDiskDef = {
@@ -2107,6 +2114,7 @@ export const INFINITE_HDX: EmulatorDiskDef = {
 export const INFINITE_HD_MFS: EmulatorDiskDef = {
     prefetchChunks: [0, 1, 2],
     generatedSpec: () => import("@/Data/Infinite HD (MFS).dsk.json"),
+    isFloppy: true,
 };
 
 export const INFINITE_HD_NEXT: EmulatorDiskDef = {

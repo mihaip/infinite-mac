@@ -203,13 +203,16 @@ export default function Mac({
             } else {
                 infiniteHd = INFINITE_HD;
             }
-            if (disks[0]?.delayAdditionalDiskMount) {
+            if (
+                disks[0]?.delayAdditionalDiskMount &&
+                emulatorType === "Mini vMac"
+            ) {
                 delayedDisks.push(infiniteHd);
             } else {
                 emulatorDisks.push(infiniteHd);
             }
         }
-        if (hasSavedHD) {
+        if (hasSavedHD && !machine.mfsOnly) {
             emulatorDisks.push(SAVED_HD);
         }
         if (emulatorNeedsTheOutsideWorldDisk(emulatorType, flags)) {
