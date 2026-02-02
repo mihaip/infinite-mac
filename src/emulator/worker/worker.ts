@@ -329,7 +329,7 @@ class EmulatorWorkerApi {
 
     /**
      * Variant of idleWait that is called called more frequently (and with an
-     * expected waiting time) by Mini vMac.
+     * expected waiting time) by Mini vMac and Snow.
      */
     sleep(timeSeconds: number) {
         try {
@@ -367,25 +367,30 @@ class EmulatorWorkerApi {
             this.#input.idleWait(timeSeconds * 1000);
         }
 
-        if (this.#lastIdleWaitFrameId !== this.#lastBlitFrameId) {
-            this.#lastIdleWaitFrameId = this.#lastBlitFrameId;
-            this.#periodicTasks();
+        this.checkForPeriodicTasks();
+    }
 
-            // We don't have a more accurate way to determine when Mini vMac
-            // is idle/quiescent (the Mac has finished booting), so we wait for
-            // the disk writes done during boot to finish.
-            if (this.disks.isDoneWithDiskWrites()) {
-                this.#markQuiescent();
-            }
+    checkForPeriodicTasks() {
+        if (this.#lastIdleWaitFrameId === this.#lastBlitFrameId) {
+            return;
+        }
+        this.#lastIdleWaitFrameId = this.#lastBlitFrameId;
+        this.#periodicTasks();
 
-            // System 7.0 doesn't have idlewait and doesn't do disk writes, so
-            // we assume that it's done 10 seconds after video started.
-            if (
-                this.#videoOpenTime !== 0 &&
-                performance.now() - this.#videoOpenTime > 10000
-            ) {
-                this.#markQuiescent();
-            }
+        // We don't have a more accurate way to determine when Mini vMac
+        // is idle/quiescent (the Mac has finished booting), so we wait for
+        // the disk writes done during boot to finish.
+        if (this.disks.isDoneWithDiskWrites()) {
+            this.#markQuiescent();
+        }
+
+        // System 7.0 doesn't have idlewait and doesn't do disk writes, so
+        // we assume that it's done 10 seconds after video started.
+        if (
+            this.#videoOpenTime !== 0 &&
+            performance.now() - this.#videoOpenTime > 10000
+        ) {
+            this.#markQuiescent();
         }
     }
 

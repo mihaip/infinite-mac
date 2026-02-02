@@ -5,6 +5,7 @@ type DiskId = number;
 export interface EmulatorWorkerDisk {
     name: string;
     size: number;
+    isCdrom?: boolean;
 
     read(buffer: Uint8Array, offset: number, length: number): number;
     write(buffer: Uint8Array, offset: number, length: number): number;
@@ -183,6 +184,18 @@ export class EmulatorWorkerDisksApi {
 
     consumeDiskName(): string | undefined {
         return this.#pendingDiskNames.shift();
+    }
+
+    consumeCdromName(): string | undefined {
+        for (let i = 0; i < this.#pendingDiskNames.length; i++) {
+            const name = this.#pendingDiskNames[i];
+            const disk = this.#disks.find(d => d.name === name);
+            if (disk?.isCdrom) {
+                this.#pendingDiskNames.splice(i, 1);
+                return name;
+            }
+        }
+        return undefined;
     }
 }
 

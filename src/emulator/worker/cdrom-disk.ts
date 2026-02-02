@@ -14,7 +14,7 @@ export function createEmulatorWorkerCDROMDisk(
     delegate: EmulatorWorkerChunkedDiskDelegate
 ): EmulatorWorkerDisk {
     if (cdrom.srcUrl.startsWith("blob:")) {
-        return new EmulatorWorkerUploadDisk(
+        const disk: EmulatorWorkerDisk = new EmulatorWorkerUploadDisk(
             {
                 name: cdrom.name,
                 size: cdrom.fileSize,
@@ -22,6 +22,8 @@ export function createEmulatorWorkerCDROMDisk(
             },
             delegate
         );
+        disk.isCdrom = true;
+        return disk;
     }
 
     const spec = generateChunkedFileSpecForCDROM(cdrom);
@@ -33,6 +35,7 @@ export function createEmulatorWorkerCDROMDisk(
     if (cdrom.mode === "MODE1/2352") {
         disk = new EmulatorWorkerMode1SectorDisk(disk);
     }
+    disk.isCdrom = true;
     return disk;
 }
 

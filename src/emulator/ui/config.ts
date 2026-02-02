@@ -449,10 +449,13 @@ export function configToSnowArgs(
     }
     for (const diskFile of config.diskFiles) {
         if (diskFile.isCDROM) {
-            // TODO: CD-ROM support
+            args.push("--cdrom", diskFile.name);
         } else {
             args.push("--disk", diskFile.name);
         }
+    }
+    for (const cdrom of config.cdroms) {
+        args.push("--cdrom", cdrom.name);
     }
     return args;
 }

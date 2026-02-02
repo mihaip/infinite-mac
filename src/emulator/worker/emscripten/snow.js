@@ -3935,6 +3935,21 @@ function _js_blit(bufPtr, bufSize) {
   workerApi.blit(bufPtr, bufSize);
 }
 
+function _js_check_for_periodic_tasks() {
+  workerApi.checkForPeriodicTasks();
+}
+
+function _js_consume_cdrom_name() {
+  const diskName = workerApi.disks.consumeCdromName();
+  if (!diskName || !diskName.length) {
+    return 0;
+  }
+  const diskNameLength = lengthBytesUTF8(diskName) + 1;
+  const diskNameCstr = _malloc(diskNameLength);
+  stringToUTF8(diskName, diskNameCstr, diskNameLength);
+  return diskNameCstr;
+}
+
 function _js_did_open_audio(sampleRate, sampleSize, channels) {
   workerApi.didOpenAudio(sampleRate, sampleSize, channels);
 }
@@ -3965,6 +3980,10 @@ function _js_disk_write(diskId, bufPtr, offset, length) {
 
 function _js_enqueue_audio(bufPtr, bufSize) {
   workerApi.enqueueAudio(bufPtr, bufSize);
+}
+
+function _js_free(ptr) {
+  _free(ptr);
 }
 
 function _js_get_key_code() {
@@ -4233,9 +4252,9 @@ var memory = makeInvalidEarlyAccess("memory");
 
 var __indirect_function_table = makeInvalidEarlyAccess("__indirect_function_table");
 
-var __ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE");
-
 var __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE");
+
+var __ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE");
 
 var __ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E");
 
@@ -4272,8 +4291,8 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports["__set_stack_limits"] != "undefined", "missing Wasm export: __set_stack_limits");
   assert(typeof wasmExports["memory"] != "undefined", "missing Wasm export: memory");
   assert(typeof wasmExports["__indirect_function_table"] != "undefined", "missing Wasm export: __indirect_function_table");
-  assert(typeof wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE");
   assert(typeof wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE");
+  assert(typeof wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE");
   assert(typeof wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E");
   assert(typeof wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E");
   _main = Module["_main"] = createExportWrapper("main", 2);
@@ -4302,8 +4321,8 @@ function assignWasmExports(wasmExports) {
   ___set_stack_limits = Module["___set_stack_limits"] = createExportWrapper("__set_stack_limits", 2);
   memory = wasmMemory = wasmExports["memory"];
   __indirect_function_table = wasmTable = wasmExports["__indirect_function_table"];
-  __ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"] = wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"].value;
   __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE"] = wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17h67b346e8153a729aE"].value;
+  __ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"] = wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h59e6748f4b82b41cE"].value;
   __ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E"] = wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17h228743557260ec06E"].value;
   __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E"] = wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h48bee24d7b434be5E"].value;
 }
@@ -4389,6 +4408,8 @@ var wasmImports = {
   /** @export */ js_acquire_input_lock: _js_acquire_input_lock,
   /** @export */ js_audio_buffer_size: _js_audio_buffer_size,
   /** @export */ js_blit: _js_blit,
+  /** @export */ js_check_for_periodic_tasks: _js_check_for_periodic_tasks,
+  /** @export */ js_consume_cdrom_name: _js_consume_cdrom_name,
   /** @export */ js_did_open_audio: _js_did_open_audio,
   /** @export */ js_did_open_video: _js_did_open_video,
   /** @export */ js_disk_close: _js_disk_close,
@@ -4397,6 +4418,7 @@ var wasmImports = {
   /** @export */ js_disk_size: _js_disk_size,
   /** @export */ js_disk_write: _js_disk_write,
   /** @export */ js_enqueue_audio: _js_enqueue_audio,
+  /** @export */ js_free: _js_free,
   /** @export */ js_get_key_code: _js_get_key_code,
   /** @export */ js_get_key_state: _js_get_key_state,
   /** @export */ js_get_mouse_button_state: _js_get_mouse_button_state,
