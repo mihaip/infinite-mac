@@ -256,7 +256,13 @@ def build_desktop_db6(images: typing.List[ImageDef]) -> None:
     )
     sys.stderr.write("    (shut down the machine when complete)\n")
     try:
-        minivmac.run([disks.SYSTEM_608.path()] + [i.path for i in images])
+        # Use an unmodified System 6.0.8 boot disk to build the Desktop DB.
+        # (the fully installed version that we have has the Desktop Mgr extension
+        #  and will also build a System 7-style desktop DB).
+        boot_disk_path = os.path.join(
+            paths.IMAGES_DIR, "System 6.0.8 - System Startup.img"
+        )
+        minivmac.run([boot_disk_path] + [i.path for i in images])
     except subprocess.CalledProcessError as e:
         sys.stderr.write("Failed to build System 6 Desktop, will continue.\n")
 
