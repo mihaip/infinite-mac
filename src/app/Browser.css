@@ -8,7 +8,6 @@
     --browser-padding: 40px;
     --browser-logo-scale: 2;
     padding: var(--browser-padding);
-    overflow: hidden;
     width: 100%;
     box-sizing: border-box;
 }
