@@ -6,8 +6,7 @@ import {
 import {
     type EmulatorSpeed,
     type EmulatorType,
-    emulatorSupportsSpeedSetting,
-    EMULATOR_SPEEDS,
+    emulatorSpeedConfig,
     emulatorSupportsMouseDeltas,
     emulatorNeedsRestartForMouseDeltas,
 } from "@/emulator/common/emulators";
@@ -71,6 +70,12 @@ export function MacSettings({
     const showMouseDeltasRestartWarning =
         emulatorNeedsRestartForMouseDeltas(emulatorType) &&
         emulatorSettings.useMouseDeltas !== initialMouseDeltasRef.current;
+    const speedConfig = emulatorSpeedConfig(emulatorType);
+    const speed =
+        speedConfig &&
+        (speedConfig.speedOptions.has(emulatorSettings.speed)
+            ? emulatorSettings.speed
+            : speedConfig.defaultSpeed);
 
     return (
         <Dialog title="Settings" onDone={onDone}>
@@ -125,11 +130,11 @@ export function MacSettings({
                         </div>
                     </div>
                 )}
-            {emulatorSupportsSpeedSetting(emulatorType) && (
+            {speedConfig && speed !== undefined && (
                 <div className="MacSettings-Row">
                     <div className="MacSettings-Row-Label">Speed:</div>
                     <Select
-                        value={emulatorSettings.speed}
+                        value={speed}
                         onChange={event =>
                             setEmulatorSettings({
                                 ...emulatorSettings,
@@ -139,7 +144,7 @@ export function MacSettings({
                             })
                         }>
                         {Array.from(
-                            EMULATOR_SPEEDS.entries(),
+                            speedConfig.speedOptions.entries(),
                             ([speed, label]) => (
                                 <option key={`speed-${speed}`} value={speed}>
                                     {label}

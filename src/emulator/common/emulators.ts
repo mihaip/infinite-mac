@@ -43,10 +43,6 @@ export function emulatorUsesPlaceholderDisks(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";
 }
 
-export function emulatorSupportsSpeedSetting(type: EmulatorType): boolean {
-    return type === "Mini vMac" || type === "BasiliskII";
-}
-
 export function emulatorUsesInterruptKey(type: EmulatorType): boolean {
     return type === "Mini vMac";
 }
@@ -139,18 +135,61 @@ export function emulatorModelId(
 
 // -2 is a special value meaning the default that Mini vMac was built with,
 // other values are what it uses in CONTROLM.h for speeds.
-export type EmulatorSpeed = -2 | 0 | 1 | 2 | 3 | 4 | 5 | -1;
+export type MinivMacEmulatorSpeed = -2 | 0 | 1 | 2 | 3 | 4 | 5 | -1;
 
-export const EMULATOR_SPEEDS = new Map<EmulatorSpeed, string>([
-    [-2, "Default"],
-    [0, "1x"],
-    [1, "2x"],
-    [2, "4x"],
-    [3, "8x"],
-    [4, "16x"],
-    [5, "32x"],
-    [-1, "All Out"],
-]);
+// Basilisk II speed controls are implemented in speed-governor.ts.
+export type BasiliskIIEmulatorSpeed = MinivMacEmulatorSpeed;
+
+// Keep values in sync with Snow speed handling in snow/frontend_im/src/input.rs.
+export type SnowEmulatorSpeed = -2 | 7 | -1 | 9;
+
+export type EmulatorSpeed =
+    | MinivMacEmulatorSpeed
+    | BasiliskIIEmulatorSpeed
+    | SnowEmulatorSpeed;
+
+export type EmulatorSpeedConfig = {
+    defaultSpeed: EmulatorSpeed;
+    speedOptions: ReadonlyMap<EmulatorSpeed, string>;
+};
+
+const MACEMU_SPEED_CONFIG: EmulatorSpeedConfig = {
+    defaultSpeed: -2,
+    speedOptions: new Map<EmulatorSpeed, string>([
+        [-2, "Default"],
+        [0, "1x"],
+        [1, "2x"],
+        [2, "4x"],
+        [3, "8x"],
+        [4, "16x"],
+        [5, "32x"],
+        [-1, "All Out"],
+    ]),
+};
+
+const SNOW_SPEED_CONFIG: EmulatorSpeedConfig = {
+    defaultSpeed: -2,
+    speedOptions: new Map<EmulatorSpeed, string>([
+        [-2, "Accurate"],
+        [7, "Dynamic"],
+        [-1, "Uncapped"],
+        [9, "Video"],
+    ]),
+};
+
+export function emulatorSpeedConfig(
+    type: EmulatorType
+): EmulatorSpeedConfig | undefined {
+    switch (type) {
+        case "Mini vMac":
+        case "BasiliskII":
+            return MACEMU_SPEED_CONFIG;
+        case "Snow":
+            return SNOW_SPEED_CONFIG;
+        default:
+            return undefined;
+    }
+}
 
 export type EmulatorDef =
     | {

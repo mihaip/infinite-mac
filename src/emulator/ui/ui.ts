@@ -19,6 +19,7 @@ import {
     type EmulatorDef,
     emulatorSupportsMouseDeltas,
     emulatorNeedsDiskPlaceholderFiles,
+    emulatorSpeedConfig,
 } from "@/emulator/common/emulators";
 import {getEmulatorWasmPath} from "@/emulator/ui/emulators";
 import Worker from "@/emulator/worker/worker?worker";
@@ -522,8 +523,15 @@ export class Emulator {
     refreshSettings() {
         const settings = this.#delegate?.emulatorSettings?.(this);
         const speed = settings?.speed;
-        if (speed !== undefined) {
-            this.#input.handleInput({type: "set-speed", speed});
+        const speedConfig = emulatorSpeedConfig(this.#config.machine.emulatorType);
+        if (speedConfig && speed !== undefined) {
+            const normalizedSpeed = speedConfig.speedOptions.has(speed)
+                ? speed
+                : speedConfig.defaultSpeed;
+            this.#input.handleInput({
+                type: "set-speed",
+                speed: normalizedSpeed,
+            });
         }
         const useMouseDeltas = this.#trackpadMode() || settings?.useMouseDeltas;
         if (useMouseDeltas !== undefined) {

@@ -2,7 +2,7 @@ import {type EmulatorSpeed} from "@/emulator/common/emulators";
 
 export type EmulatorSettings = {
     swapControlAndCommand: boolean;
-    // Only supported by 68K emulators (Mini vMac and Basilisk II).
+    // If unsupported by the active emulator, this setting is ignored.
     speed: EmulatorSpeed;
     // Use relative mouse deltas (if supported by the emulator).
     useMouseDeltas: boolean;
