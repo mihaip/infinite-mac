@@ -109,36 +109,3 @@ body.embed {
     max-width: 480px;
     text-align: center;
 }
-
-.Mac-Ethernet-Status {
-    position: absolute;
-    bottom: var(--screen-ethernet-status-bottom);
-    display: var(--screen-ethernet-status-display);
-    right: 32px;
-    font-family: Geneva, Helvetica, sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.Mac-Ethernet-Status-Details {
-    z-index: 1;
-    position: absolute;
-    bottom: 20px;
-    right: 0;
-    color: #000;
-    font-size: 14px;
-    white-space: nowrap;
-    padding: 8px;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-}
-
-.Mac-Ethernet-Status-Peers {
-    margin-top: 8px;
-}
-
-.Mac-Ethernet-Status-Peers ul {
-    margin: 0;
-    padding-left: 16px;
-}
