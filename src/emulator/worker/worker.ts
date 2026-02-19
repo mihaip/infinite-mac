@@ -10,6 +10,7 @@ import {
     type EmulatorFallbackUploadFileCommand,
     type EmulatorFileUpload,
     type EmulatorInputEvent,
+    type EmulatorStatsUpdate,
     type EmulatorWorkerConfig,
     type EmulatorWorkerVideoBlit,
     type EmulatorWorkerVideoBlitRect,
@@ -109,6 +110,7 @@ class EmulatorWorkerApi {
     #lastBlitFrameId = 0;
     #nextExpectedBlitTime = 0;
     #lastIdleWaitFrameId = 0;
+    #lastPeriodicTasksTime = 0;
 
     #markedQuiescent = false;
     #handledStop = false;
@@ -282,7 +284,16 @@ class EmulatorWorkerApi {
             );
             this.#video.blit(data, rect);
         }
-        this.#nextExpectedBlitTime = performance.now() + 16;
+        const now = performance.now();
+        this.#nextExpectedBlitTime = now + 16;
+
+        // Not all emulators invoke sleep or idlewait (and even if they do, they
+        // might not for a while if in a tight loop that does not yield), so
+        // have a fallback as part of screen updating.
+        const timeSinceLastPeriodicTasks = now - this.#lastPeriodicTasksTime;
+        if (timeSinceLastPeriodicTasks > 250) {
+            this.#periodicTasks();
+        }
     }
 
     didOpenAudio(sampleRate: number, sampleSize: number, channels: number) {
@@ -421,6 +432,17 @@ class EmulatorWorkerApi {
         if (this.getInputValue(InputBufferAddresses.stopFlagAddr)) {
             this.#handleStop();
         }
+
+        let ipmsStat: {currentIPMS: number} | undefined;
+        if (this.#speedGovernor) {
+            ipmsStat = {currentIPMS: this.#speedGovernor.currentIPMS};
+        }
+        this.updateEmulatorStats({
+            ...ipmsStat,
+            ...this.disks.stats(),
+        });
+
+        this.#lastPeriodicTasksTime = performance.now();
     }
 
     #handleFileRequests() {
@@ -541,6 +563,10 @@ class EmulatorWorkerApi {
 
     setClipboardText(text: string) {
         postMessage({type: "emulator_set_clipboard_text", text});
+    }
+
+    updateEmulatorStats(stats: EmulatorStatsUpdate) {
+        postMessage({type: "emulator_stats", stats});
     }
 
     getClipboardText(): string | undefined {

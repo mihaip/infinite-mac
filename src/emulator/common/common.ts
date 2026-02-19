@@ -67,6 +67,15 @@ export type EmulatorSetUseMouseDeltas = {
     useMouseDeltas: boolean;
 };
 
+export type EmulatorStats = {
+    effectiveSpeed?: number;
+    currentIPMS?: number;
+    diskBytesRead?: number;
+    diskBytesWritten?: number;
+};
+
+export type EmulatorStatsUpdate = Partial<EmulatorStats>;
+
 export type EmulatorPauseEvent = {
     type: "pause";
 };

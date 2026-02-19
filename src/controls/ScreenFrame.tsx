@@ -14,6 +14,7 @@ export type ScreenFrameProps = {
     scale?: number;
     fullscreen?: boolean;
     led?: "None" | "On" | "Loading";
+    onLedClick?: () => void;
     controls?: ScreenControl[];
     screen?: React.ReactElement;
     children?: React.ReactNode;
@@ -37,6 +38,7 @@ export function ScreenFrame(props: ScreenFrameProps) {
         scale,
         fullscreen,
         led = "None",
+        onLedClick,
         controls = [],
         screen,
         children,
@@ -57,6 +59,7 @@ export function ScreenFrame(props: ScreenFrameProps) {
     );
     const ledClassName = classNames("ScreenFrame-Led", {
         "ScreenFrame-Led-Loading": led === "Loading",
+        "ScreenFrame-Led-Clickable": onLedClick,
     });
     const Logo =
         bezelStyle === "NeXT"
@@ -101,7 +104,7 @@ export function ScreenFrame(props: ScreenFrameProps) {
                     )
                 )}
             </div>
-            {led !== "None" && <div className={ledClassName} />}
+            {led !== "None" && <div className={ledClassName} onClick={onLedClick} />}
             <div
                 className="ScreenFrame-ScreenContainer"
                 style={{

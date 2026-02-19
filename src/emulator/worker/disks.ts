@@ -24,6 +24,9 @@ export class EmulatorWorkerDisksApi {
 
     #emscriptenModule: EmscriptenModule;
 
+    #diskBytesRead = 0;
+    #diskBytesWritten = 0;
+
     constructor(
         disks: EmulatorWorkerDisk[],
         useRemovableDisks: boolean,
@@ -136,7 +139,9 @@ export class EmulatorWorkerDisksApi {
             bufPtr,
             bufPtr + length
         );
-        return disk.read(buffer, offset, length);
+        const bytesRead = disk.read(buffer, offset, length);
+        this.#diskBytesRead += Math.max(bytesRead, 0);
+        return bytesRead;
     }
 
     write(
@@ -155,7 +160,9 @@ export class EmulatorWorkerDisksApi {
             bufPtr,
             bufPtr + length
         );
-        return disk.write(buffer, offset, length);
+        const bytesWritten = disk.write(buffer, offset, length);
+        this.#diskBytesWritten += Math.max(bytesWritten, 0);
+        return bytesWritten;
     }
 
     size(diskIdOrName: DiskId | string): number {
@@ -196,6 +203,13 @@ export class EmulatorWorkerDisksApi {
             }
         }
         return undefined;
+    }
+
+    stats(): {diskBytesRead: number; diskBytesWritten: number} {
+        return {
+            diskBytesRead: this.#diskBytesRead,
+            diskBytesWritten: this.#diskBytesWritten,
+        };
     }
 }
 

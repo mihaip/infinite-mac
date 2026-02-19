@@ -1,6 +1,7 @@
 import {type EmulatorSpeed} from "@/emulator/common/emulators";
 
-const SMOOTHING_FACTOR = 0.1;
+const ERROR_SMOOTHING_FACTOR = 0.1;
+const SPEED_SMOOTHING_FACTOR = 0.001;
 
 export class EmulatorWorkerSpeedGovernor {
     #lastInstructionCount = 0;
@@ -8,6 +9,7 @@ export class EmulatorWorkerSpeedGovernor {
     readonly #targetIPS: number; // Target instructions per second
     #targetIPMS: number; // Target instructions per millisecond, adjusted by the speed setting
     #emaErrorMs = 0; // Exponential moving average of how far we are the actual execution time.
+    #currentIPMS = 0; // Exponential moving average of the instructions per millisecond that are running.
 
     constructor(targetIPS: number) {
         this.#targetIPS = targetIPS;
@@ -23,10 +25,11 @@ export class EmulatorWorkerSpeedGovernor {
         this.#emaErrorMs = 0;
     }
 
+    get currentIPMS(): number {
+        return this.#currentIPMS;
+    }
+
     update(instructionCount: number): number {
-        if (this.#targetIPMS === 0) {
-            return 0;
-        }
         const deltaInstructions =
             instructionCount < this.#lastInstructionCount
                 ? instructionCount // instructionCount was reset
@@ -37,12 +40,20 @@ export class EmulatorWorkerSpeedGovernor {
         const deltaMs = Math.max(now - this.#lastTime, 1e-3);
         this.#lastTime = now;
 
+        const ipms = deltaInstructions / deltaMs;
+        this.#currentIPMS =
+            this.#currentIPMS * (1 - SPEED_SMOOTHING_FACTOR) +
+            ipms * SPEED_SMOOTHING_FACTOR;
+
+        if (this.#targetIPMS === 0) {
+            return 0;
+        }
         const wantDeltaMs = deltaInstructions / this.#targetIPMS;
         const errorMs = wantDeltaMs - deltaMs;
 
         this.#emaErrorMs =
-            SMOOTHING_FACTOR * errorMs +
-            (1 - SMOOTHING_FACTOR) * this.#emaErrorMs;
+            ERROR_SMOOTHING_FACTOR * errorMs +
+            (1 - ERROR_SMOOTHING_FACTOR) * this.#emaErrorMs;
         return Math.max(this.#emaErrorMs, 0);
     }
 }

@@ -1,0 +1,27 @@
+.Mac-Emulator-Stats {
+    position: absolute;
+    bottom: var(--screen-led-bottom);
+    display: var(--screen-led-display);
+    right: 0;
+    font-family: Geneva, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+.Mac-Emulator-Stats-Details {
+    z-index: 1;
+    position: absolute;
+    bottom: 16px;
+    right: 0;
+    color: #000;
+    font-size: 14px;
+    white-space: nowrap;
+    padding: 8px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+.Mac-Emulator-Stats-Details ul {
+    margin: 8px 0 0;
+    padding-left: 16px;
+}

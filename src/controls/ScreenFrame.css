@@ -201,6 +201,11 @@
     background: #00ff00;
 }
 
+.ScreenFrame-Led.ScreenFrame-Led-Clickable {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
 .ScreenFrame-Led-Loading {
     animation: Mac-Led-Blink 0.1s infinite;
 }

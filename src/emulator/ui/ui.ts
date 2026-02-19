@@ -3,6 +3,7 @@ import {
     type EmulatorCDROM,
     type EmulatorChunkedFileSpec,
     type EmulatorFallbackCommand,
+    type EmulatorStatsUpdate,
     type EmulatorWorkerConfig,
     type EmulatorWorkerVideoBlit,
     type EmulatorMouseEvent,
@@ -126,6 +127,10 @@ export interface EmulatorDelegate {
     emulatorEthernetPeersDidChange?(
         emulator: Emulator,
         peers: readonly EmulatorEthernetPeer[]
+    ): void;
+    emulatorStatsDidChange?(
+        emulator: Emulator,
+        statsUpdate: EmulatorStatsUpdate
     ): void;
     emulatorDidRunOutOfMemory?(emulator: Emulator): void;
     emulatorDidHaveError?(
@@ -964,6 +969,8 @@ export class Emulator {
             } else {
                 this.#config.ethernetProvider?.send(destination, packet);
             }
+        } else if (e.data.type === "emulator_stats") {
+            this.#delegate?.emulatorStatsDidChange?.(this, e.data.stats);
         } else if (e.data.type === "emulator_set_clipboard_text") {
             const {text} = e.data;
             navigator.clipboard.writeText(text).then(

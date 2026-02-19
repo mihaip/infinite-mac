@@ -6,7 +6,11 @@ import {
     Emulator,
 } from "@/emulator/ui/ui";
 import {DEFAULT_EMULATOR_SETTINGS} from "@/emulator/ui/settings";
-import {type EmulatorCDROM, isDiskImageFile} from "@/emulator/common/common";
+import {
+    type EmulatorCDROM,
+    type EmulatorStats,
+    isDiskImageFile,
+} from "@/emulator/common/common";
 import {useDevicePixelRatio} from "@/lib/useDevicePixelRatio";
 import {usePersistentState} from "@/lib/usePersistentState";
 import * as varz from "@/lib/varz";
@@ -57,6 +61,7 @@ import {
     type EmbedNotificationEvent,
     type EmbedControlEvent,
 } from "@/embed-types";
+import {MacEmulatorStats} from "@/app/MacEmulatorStats";
 
 export type MacProps = {
     runDef: RunDef;
@@ -109,6 +114,8 @@ export default function Mac({
     const [ethernetPeers, setEthernetPeers] = useState<
         readonly EmulatorEthernetPeer[]
     >([]);
+    const [emulatorStats, setEmulatorStats] = useState<EmulatorStats>({});
+    const [emulatorStatsExpanded, setEmulatorStatsExpanded] = useState(false);
     // Don't clear the loading state immediately, to make it clearer that I/O
     // is happening and things may be slow.
     const finishLoadingDiskChunkTimeoutRef = useRef<number>(0);
@@ -182,6 +189,7 @@ export default function Mac({
     onDoneRef.current = onDone;
 
     useEffect(() => {
+        setEmulatorStats({});
         const emulatorDisks: EmulatorDiskDef[] = [...disks];
         const delayedDisks: EmulatorDiskDef[] = [];
         if (includeInfiniteHD) {
@@ -302,6 +310,9 @@ export default function Mac({
                     if (ethernetProvider) {
                         setEthernetPeers(peers);
                     }
+                },
+                emulatorStatsDidChange(emulator, stats) {
+                    setEmulatorStats(current => ({...current, ...stats}));
                 },
                 emulatorDidRunOutOfMemory(emulator: Emulator) {
                     varz.increment("emulator_error:out_of_memory");
@@ -805,6 +816,13 @@ export default function Mac({
         emulatorRef.current?.loadCDROM(cdrom);
     }
 
+    const hasEmulatorStats = Object.keys(emulatorStats).length > 0;
+    useEffect(() => {
+        if (!hasEmulatorStats) {
+            setEmulatorStatsExpanded(false);
+        }
+    }, [hasEmulatorStats]);
+
     // Can't use media queries because they would need to depend on the
     // emulator screen size, but we can't pass that in via CSS variables. We
     // could in theory dynamically generate the media query via JS, but it's not
@@ -907,6 +925,11 @@ export default function Mac({
                         ? "Loading"
                         : "On"
                 }
+                onLedClick={
+                    hasEmulatorStats
+                        ? () => setEmulatorStatsExpanded(expanded => !expanded)
+                        : undefined
+                }
                 onDragStart={handleDragStart}
                 onDragOver={handleDragOver}
                 onDragEnter={handleDragEnter}
@@ -945,6 +968,9 @@ export default function Mac({
                         provider={ethernetProviderRef.current}
                         peers={ethernetPeers}
                     />
+                )}
+                {hasEmulatorStats && emulatorStatsExpanded && (
+                    <MacEmulatorStats stats={emulatorStats} />
                 )}
                 {settingsVisible && (
                     <MacSettings
