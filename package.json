@@ -9,7 +9,7 @@
         "cookie": "^0.7.2",
         "file-saver": "^2.0.5",
         "jszip": "^3.7.0",
-        "linkify-react": "^4.1.1",
+        "linkify-react": "^4.3.2",
         "openai": "^5.5.1",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
