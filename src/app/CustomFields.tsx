@@ -2,7 +2,7 @@ import "@/app/CustomFields.css";
 import classNames from "classnames";
 import {Fragment, useCallback, useEffect, useState} from "react";
 import {canSaveDisks} from "@/lib/canSaveDisks";
-import {systemCDROMEra, systemCDROMs} from "@/defs/cdroms";
+import {systemCDROMEra, getSystemCDROMs} from "@/defs/cdroms";
 import {CloudflareWorkerEthernetProvider} from "@/net/CloudflareWorkerEthernetProvider";
 import {Button} from "@/controls/Button";
 import {Checkbox} from "@/controls/Checkbox";
@@ -780,6 +780,7 @@ function DiskURLOption({
     onAdd: () => void;
     onRemove: () => void;
 }) {
+    const systemCDROMs = getSystemCDROMs();
     return (
         <>
             <div className="CustomFields-Repeated">

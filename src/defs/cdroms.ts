@@ -7,15 +7,19 @@ import cdromsManifest from "@/Data/CD-ROMs.json";
 
 export const cdromLibrary: EmulatorCDROMLibrary = cdromsManifest as any;
 
-export const systemCDROMs = Object.entries(cdromLibrary)
-    .filter(
-        ([path, entry]) =>
-            path.startsWith("System Software/") &&
-            !path.startsWith("System Software/Compilations/")
-    )
-    .map(([path, entry]) => entry)
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}))
-    .sort(systemCDROMCompare);
+export function getSystemCDROMs() {
+    return Object.entries(cdromLibrary)
+        .filter(
+            ([path, entry]) =>
+                path.startsWith("System Software/") &&
+                !path.startsWith("System Software/Compilations/")
+        )
+        .map(([path, entry]) => entry)
+        .sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, {numeric: true})
+        )
+        .sort(systemCDROMCompare);
+}
 
 enum SystemSoftwareEra {
     CLASSIC = 0,
