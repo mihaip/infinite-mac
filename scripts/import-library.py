@@ -8,6 +8,7 @@ import paths
 import sys
 import typing
 
+
 # Should be sorted in rough order of commonality, so that items with only common
 # fields will end up with shorter arrays.
 class Field(enum.Enum):
@@ -18,7 +19,7 @@ class Field(enum.Enum):
     ARCHITECTURES = 4
     CATEGORIES = 5
     PUBLISHERS = 6
-    PERSPECTIVE = 7 # Only present for games
+    PERSPECTIVE = 7  # Only present for games
 
     URL = 0
     FILES = 1
@@ -26,9 +27,11 @@ class Field(enum.Enum):
     SCREENSHOTS = 3
     MANUALS = 4
     COMPOSERS = 5
-    EXTERNAL_DOWNLOAD_URL = 6 # Rarest
+    EXTERNAL_DOWNLOAD_URL = 6  # Rarest
+
 
 OutputItem = list[typing.Any]
+
 
 def to_output(src: dict[Field, typing.Any]) -> OutputItem:
     output_item = []
@@ -40,6 +43,7 @@ def to_output(src: dict[Field, typing.Any]) -> OutputItem:
                 output_item.append(None)
         output_item[field.value] = value
     return output_item
+
 
 class Item(typing.NamedTuple):
     title: str
@@ -60,33 +64,42 @@ class Item(typing.NamedTuple):
     manuals: dict[str, int]
 
     def to_index_output(self) -> OutputItem:
-        return to_output({
-            Field.TITLE: self.title,
-            Field.AUTHORS: self.authors,
-            Field.YEAR: self.year,
-            Field.SYSTEMS: self.systems,
-            Field.ARCHITECTURES: self.architectures,
-            Field.CATEGORIES: self.categories,
-            Field.PUBLISHERS: self.publishers,
-            Field.PERSPECTIVE: self.perspectives,
-        })
+        return to_output(
+            {
+                Field.TITLE: self.title,
+                Field.AUTHORS: self.authors,
+                Field.YEAR: self.year,
+                Field.SYSTEMS: self.systems,
+                Field.ARCHITECTURES: self.architectures,
+                Field.CATEGORIES: self.categories,
+                Field.PUBLISHERS: self.publishers,
+                Field.PERSPECTIVE: self.perspectives,
+            }
+        )
 
     def to_details_output(self):
-        return to_output({
-            Field.URL: self.url,
-            Field.FILES: self.files,
-            Field.DESCRIPTION: self.description,
-            Field.SCREENSHOTS: self.screenshots,
-            Field.MANUALS: self.manuals,
-            Field.COMPOSERS: self.composers,
-            Field.EXTERNAL_DOWNLOAD_URL: self.external_download_url,
-        })
+        return to_output(
+            {
+                Field.URL: self.url,
+                Field.FILES: self.files,
+                Field.DESCRIPTION: self.description,
+                Field.SCREENSHOTS: self.screenshots,
+                Field.MANUALS: self.manuals,
+                Field.COMPOSERS: self.composers,
+                Field.EXTERNAL_DOWNLOAD_URL: self.external_download_url,
+            }
+        )
 
-def load_library(import_dir: str) -> tuple[list[Item], list[Item]]:
+
+def load_library(import_dir: str) -> tuple[list[Item], list[Item], set[str], int]:
     app_items = []
     game_items = []
+    unknown_categories = set()
+    skipped_items = 0
 
-    for item_path in glob.iglob(os.path.join(import_dir, "**", "*.json"), recursive=True):
+    for item_path in glob.iglob(
+        os.path.join(import_dir, "**", "*.json"), recursive=True
+    ):
         with open(item_path, "r") as item_file:
             item_json = json.load(item_file)
 
@@ -97,11 +110,20 @@ def load_library(import_dir: str) -> tuple[list[Item], list[Item]]:
             item_json = item_json["game"]
             items = game_items
         else:
-            print("Item %s has an unexpected structure: %s" % (item_path, json.dumps(item_json)))
-            return 1
+            raise ValueError(
+                "Item %s has an unexpected structure: %s"
+                % (item_path, json.dumps(item_json))
+            )
+
+        category_names = item_json.get("category", item_json.get("category_app", []))
+        unknown_item_categories = [c for c in category_names if c not in CATEGORY_MAP]
+        if unknown_item_categories:
+            unknown_categories.update(unknown_item_categories)
+            skipped_items += 1
+            continue
 
         categories = []
-        for c in item_json.get("category", item_json.get("category_app", [])):
+        for c in category_names:
             categories.append(CATEGORY_MAP[c])
         perspectives = []
         for p in item_json.get("perspective", []):
@@ -141,7 +163,9 @@ def load_library(import_dir: str) -> tuple[list[Item], list[Item]]:
             authors=authors,
             publishers=publishers,
             files={f["filename"]: f["filesize"] for f in item_json.get("files", [])},
-            manuals={m["filename"]: m["filesize"] for m in item_json.get("manuals", [])},
+            manuals={
+                m["filename"]: m["filesize"] for m in item_json.get("manuals", [])
+            },
             screenshots=[s["filename"] for s in item_json.get("screenshots", [])],
             year=year,
             systems=[SYSTEM_MAP[s] for s in item_json["system"] if s],
@@ -149,20 +173,24 @@ def load_library(import_dir: str) -> tuple[list[Item], list[Item]]:
         )
 
         items.append(item)
-    return app_items, game_items
+    return app_items, game_items, unknown_categories, skipped_items
+
 
 def main():
     if len(sys.argv) != 2:
-        print(f'Usage: {sys.argv[0]} <directory>', file=sys.stderr)
-        print(f'    "placeholder" may be used as a dummy directory value to '
-              'generate a stub file', file=sys.stderr)
+        print(f"Usage: {sys.argv[0]} <directory>", file=sys.stderr)
+        print(
+            f'    "placeholder" may be used as a dummy directory value to '
+            "generate a stub file",
+            file=sys.stderr,
+        )
         return 1
     import_dir = sys.argv[1]
 
     if import_dir != "placeholder":
-        app_items, game_items = load_library(import_dir)
+        app_items, game_items, unknown_categories, skipped_items = load_library(import_dir)
     else:
-        app_items, game_items = [], []
+        app_items, game_items, unknown_categories, skipped_items = [], [], set(), 0
 
     # The URL slug has been normalized to remove punctuation and other
     # characters. We ignore the first path component since a few games were
@@ -172,40 +200,54 @@ def main():
     game_items = list(sorted(game_items, key=item_sort_key))
 
     with open(os.path.join(paths.DATA_DIR, "Library-index.json"), "w") as f:
-        json.dump({
-            "apps": [a.to_index_output() for a in app_items],
-            "games": [a.to_index_output() for a in game_items],
-        }, f, separators=(",", ":"))
+        json.dump(
+            {
+                "apps": [a.to_index_output() for a in app_items],
+                "games": [a.to_index_output() for a in game_items],
+            },
+            f,
+            separators=(",", ":"),
+        )
     with open(os.path.join(paths.DATA_DIR, "Library-details.json"), "w") as f:
-        json.dump({
-            "apps": [a.to_details_output() for a in app_items],
-            "games": [a.to_details_output() for a in game_items],
-        }, f, separators=(",", ":"))
+        json.dump(
+            {
+                "apps": [a.to_details_output() for a in app_items],
+                "games": [a.to_details_output() for a in game_items],
+            },
+            f,
+            separators=(",", ":"),
+        )
 
+    if unknown_categories:
+        print(
+            "Skipped %d item(s) with unknown categories: %s"
+            % (skipped_items, ", ".join(sorted(unknown_categories))),
+            file=sys.stderr,
+        )
 
     return 0
 
 
-SYSTEM_MAP ={
-    'Mac OS 1 - 5': 1,
-    'Mac OS 6': 6,
-    'Mac OS 7': 7,
-    'Mac OS 8.5': 8.5,
-    'Mac OS 8': 8,
-    'Mac OS 9': 9,
-    'Mac OS X': 10,
+SYSTEM_MAP = {
+    "Mac OS 1 - 5": 1,
+    "Mac OS 6": 6,
+    "Mac OS 7": 7,
+    "Mac OS 8.5": 8.5,
+    "Mac OS 8": 8,
+    "Mac OS 9": 9,
+    "Mac OS X": 10,
 }
 
 ARCHITECTURE_MAP = {
-    '68k': 0,
-    'PPC': 1,
-    'PPC (Carbonized)': 2,
-    'x86 (Intel:Mac)': 3,
-    'x64 (Intel:Mac)': 3,
-    'x86 (Intel)': 4,
-    'x86 (Windows)': 5,
-    'x64 (Windows)': 6,
-    'ARM (Apple Silicon)': 7,
+    "68k": 0,
+    "PPC": 1,
+    "PPC (Carbonized)": 2,
+    "x86 (Intel:Mac)": 3,
+    "x64 (Intel:Mac)": 3,
+    "x86 (Intel)": 4,
+    "x86 (Windows)": 5,
+    "x64 (Windows)": 6,
+    "ARM (Apple Silicon)": 7,
 }
 
 CATEGORY_MAP = {
@@ -265,6 +307,21 @@ CATEGORY_MAP = {
     "Widgets": 53,
     "Word Processing & Publishing": 54,
     "World Builder": 55,
+    "Lifestyle": 56,
+    "Finance": 57,
+    "Customization & Themes": 58,
+    "Source Code": 59,
+    "Audio Plugins": 60,
+    "Health & Fitness": 61,
+    "Defunct": 62,
+    "Casual": 63,
+    "Demoscene": 64,
+    "Hidden Object": 65,
+    "Medical": 66,
+    "Travel": 67,
+    "Visual Novels": 68,
+    "Web Extensions": 69,
+    "Word Games": 70,
 }
 
 PERSPECTIVE_MAP = {

@@ -124,6 +124,21 @@ export const CATEGORIES_INDEX = [
     "Widgets",
     "Word Processing & Publishing",
     "World Builder",
+    "Lifestyle",
+    "Finance",
+    "Customization & Themes",
+    "Source Code",
+    "Audio Plugins",
+    "Health & Fitness",
+    "Defunct",
+    "Casual",
+    "Demoscene",
+    "Hidden Object",
+    "Medical",
+    "Travel",
+    "Visual Novels",
+    "Web Extensions",
+    "Word Games",
 ];
 
 type PerspectiveIndex = number;
