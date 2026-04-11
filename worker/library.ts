@@ -114,13 +114,29 @@ async function handleProxy(url: URL) {
         },
     };
 
-    return fetch(srcUrl, requestInit as RequestInit);
+    try {
+        return await fetch(srcUrl, requestInit as RequestInit);
+    } catch (err) {
+        const errorMessage = String(err);
+        console.error("error proxying request to", srcUrl, err);
+        if (
+            import.meta.env.DEV &&
+            errorMessage.includes("internal error; reference =")
+        ) {
+            const hint =
+                'If this is local development, run "npm run generate-local-ca-bundle" and restart "npm run start".';
+            console.error(hint);
+            return errorResponse(`Error fetching URL: ${err}\n${hint}`, 502);
+        }
+        return errorResponse("Error fetching URL: " + err, 502);
+    }
 }
 
 function errorResponse(message: string, status: number = 400): Response {
+    const statusText = message.split("\n", 1)[0];
     return new Response(message, {
         status,
-        statusText: message,
+        statusText,
         headers: {"Content-Type": "text/plain"},
     });
 }
