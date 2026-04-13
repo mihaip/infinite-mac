@@ -1,5 +1,3 @@
-import {type EmulatorConfigFlags} from "@/emulator/common/common";
-
 export type EmulatorType =
     | "BasiliskII"
     | "SheepShaver"
@@ -68,17 +66,6 @@ export function emulatorSupportsAppleTalk(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";
 }
 
-export function emulatorSupportsDownloadsFolder(
-    type: EmulatorType,
-    flags: EmulatorConfigFlags
-): boolean {
-    return (
-        type === "BasiliskII" ||
-        type === "SheepShaver" ||
-        (type === "DingusPPC" && flags.blueSCSI === true)
-    );
-}
-
 export function emulatorSupportsCDROMs(type: EmulatorType): boolean {
     return type !== "DingusPPC" && type !== "PearPC";
 }
@@ -89,18 +76,11 @@ export function emulatorNeedsDiskPlaceholderFiles(type: EmulatorType): boolean {
     return type === "Previous";
 }
 
-export function emulatorNeedsTheOutsideWorldDisk(
-    type: EmulatorType,
-    flags: EmulatorConfigFlags
-): boolean {
-    return type === "DingusPPC" && flags.blueSCSI === true;
-}
-
 export function emulatorSupportsDebugLog(type: EmulatorType): boolean {
     return type === "DingusPPC" || type === "Previous" || type === "PearPC";
 }
 
-export function emulatorSupportsBlueSCSI(type: EmulatorType): boolean {
+export function emulatorHasOptionalBlueSCSI(type: EmulatorType): boolean {
     return type === "DingusPPC";
 }
 

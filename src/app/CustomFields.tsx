@@ -21,9 +21,9 @@ import {
     type EmulatorConfigFlags,
 } from "@/emulator/common/common";
 import {
-    emulatorSupportsAppleTalk,
+    emulatorHasOptionalBlueSCSI,
     emulatorSupportsDebugLog,
-    emulatorSupportsBlueSCSI,
+    emulatorSupportsAppleTalk,
 } from "@/emulator/common/emulators";
 import {
     type MachineDef,
@@ -31,7 +31,11 @@ import {
     ALL_MACHINES,
     MACHINES_BY_NAME,
 } from "@/defs/machines";
-import {type RunDef, type ScreenSize} from "@/defs/run-def";
+import {
+    runDefSupportsBlueSCSI,
+    type RunDef,
+    type ScreenSize,
+} from "@/defs/run-def";
 import allowedCDROMDomains from "@/defs/cdrom-sites.json";
 
 const ALL_DISKS_BY_NAME = {
@@ -84,7 +88,7 @@ export function CustomFields({
     const debugLogSupported = emulatorSupportsDebugLog(
         runDef.machine.emulatorType
     );
-    const blueSCSISupported = emulatorSupportsBlueSCSI(
+    const blueSCSISupported = emulatorHasOptionalBlueSCSI(
         runDef.machine.emulatorType
     );
 

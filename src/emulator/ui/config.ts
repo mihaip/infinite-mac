@@ -440,6 +440,10 @@ export function configToSnowArgs(
     if (useMouseDeltas) {
         args.push("--use-mouse-deltas");
     }
+    if (config.machine.supportsBlueSCSI) {
+        args.push("--bluescsi-dir", "/Shared/Downloads");
+        args.push("--bluescsi-send-dir", "/Shared/Uploads");
+    }
     for (const disk of disks) {
         if (disk.isFloppy) {
             args.push("--floppy", disk.name);

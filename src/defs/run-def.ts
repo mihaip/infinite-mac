@@ -11,6 +11,7 @@ import {
 } from "@/defs/disks";
 import {type EmulatorEthernetProvider} from "@/emulator/ui/ui";
 import {type EmulatorConfigFlags} from "@/emulator/common/common";
+import {emulatorHasOptionalBlueSCSI} from "@/emulator/common/emulators";
 import {
     type EmulatorSettings,
     DEFAULT_EMULATOR_SETTINGS,
@@ -52,6 +53,27 @@ export type ScreenSize =
     | "window"
     | "embed"
     | {width: number; height: number};
+
+export function runDefSupportsBlueSCSI(runDef: RunDef): boolean {
+    return (
+        (runDef.machine.emulatorType === "DingusPPC" &&
+            runDef.flags.blueSCSI === true) ||
+        (runDef.machine.emulatorType === "Snow" &&
+            runDef.machine.supportsBlueSCSI === true)
+    );
+}
+
+export function runDefSupportsDownloadsFolder(runDef: RunDef): boolean {
+    return (
+        runDef.machine.emulatorType === "BasiliskII" ||
+        runDef.machine.emulatorType === "SheepShaver" ||
+        runDefSupportsBlueSCSI(runDef)
+    );
+}
+
+export function runDefNeedsTheOutsideWorldDisk(runDef: RunDef): boolean {
+    return runDefSupportsBlueSCSI(runDef);
+}
 
 export function runDefFromUrl(urlString: string): RunDef | undefined {
     let url;
@@ -230,7 +252,9 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
             debugTrackpad,
             startPaused,
             autoPause,
-            blueSCSI,
+            blueSCSI: emulatorHasOptionalBlueSCSI(machine.emulatorType)
+                ? blueSCSI
+                : undefined,
         },
         isCustom,
         isEmbed,
@@ -340,7 +364,10 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
     if (runDef.screenUpdateMessages) {
         url.searchParams.set("screen_update_messages", "true");
     }
-    if (runDef.flags.blueSCSI) {
+    if (
+        emulatorHasOptionalBlueSCSI(runDef.machine.emulatorType) &&
+        runDef.flags.blueSCSI
+    ) {
         url.searchParams.set("blue_scsi", "true");
     }
     if (runDef.settings) {

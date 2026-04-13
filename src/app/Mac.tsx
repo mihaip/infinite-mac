@@ -45,11 +45,15 @@ import {
 } from "@/emulator/ui/disk-saver";
 import {
     emulatorNeedsMouseDeltas,
-    emulatorNeedsTheOutsideWorldDisk,
     emulatorSupportsCDROMs,
-    emulatorSupportsDownloadsFolder,
 } from "@/emulator/common/emulators";
-import {type RunDef, type ScreenSize} from "@/defs/run-def";
+import {
+    runDefNeedsTheOutsideWorldDisk,
+    runDefSupportsBlueSCSI,
+    runDefSupportsDownloadsFolder,
+    type RunDef,
+    type ScreenSize,
+} from "@/defs/run-def";
 import {viewTransitionNameForDisk} from "@/lib/view-transitions";
 import {DrawersContainer} from "@/controls/Drawer";
 import {
@@ -183,7 +187,7 @@ export default function Mac({
 
     const {emulatorType} = machine;
     const canLoadFiles =
-        emulatorSupportsDownloadsFolder(emulatorType, flags) ||
+        runDefSupportsDownloadsFolder(runDef) ||
         emulatorSupportsCDROMs(emulatorType);
 
     const onDoneRef = useRef(onDone);
@@ -224,7 +228,7 @@ export default function Mac({
         if (hasSavedHD && !machine.mfsOnly) {
             emulatorDisks.push(SAVED_HD);
         }
-        if (emulatorNeedsTheOutsideWorldDisk(emulatorType, flags)) {
+        if (runDefNeedsTheOutsideWorldDisk(runDef)) {
             emulatorDisks.push(THE_OUTSIDE_WORLD);
         }
         const hasSharedArrayBuffer = typeof SharedArrayBuffer !== "undefined";
@@ -269,7 +273,7 @@ export default function Mac({
                 emulatorDidFinishLoading(emulator: Emulator) {
                     setEmulatorLoaded(true);
                     emulator.refreshSettings();
-                    if (emulatorSupportsDownloadsFolder(emulatorType, flags)) {
+                    if (runDefSupportsDownloadsFolder(runDef)) {
                         libraryDownloadURLs.forEach(url =>
                             handleLibraryURL(
                                 url,
@@ -956,10 +960,12 @@ export default function Mac({
                             "Mac-Drag-Overlay",
                             {
                                 "Mac-Drag-Overlay-Downloads":
-                                    emulatorSupportsDownloadsFolder(
-                                        emulatorType,
-                                        flags
-                                    ),
+                                    runDefSupportsDownloadsFolder(runDef),
+                                "Mac-Drag-Overlay-BlueSCSI":
+                                    runDefSupportsBlueSCSI(runDef),
+                                "Mac-Drag-Overlay-Outside-World":
+                                    !runDefSupportsBlueSCSI(runDef) &&
+                                    runDefSupportsDownloadsFolder(runDef),
                             }
                         )}
                     />
@@ -1032,11 +1038,9 @@ export default function Mac({
                             />
                         )}
                     {includeLibrary &&
-                        emulatorSupportsDownloadsFolder(
-                            emulatorType,
-                            flags
-                        ) && (
+                        runDefSupportsDownloadsFolder(runDef) && (
                             <MacLibrary
+                                runDef={runDef}
                                 onLoadProgress={handleMacLibraryProgress}
                                 onRun={handleMacLibraryRun}
                                 onRunCDROM={loadCDROM}

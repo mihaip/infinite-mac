@@ -15,12 +15,15 @@ import {type LibraryIndexItem} from "@/defs/library";
 import {proxyUrl} from "@/defs/library-urls";
 import {isDiskImageFile, type EmulatorCDROM} from "@/emulator/common/common";
 import {getCDROMInfo} from "@/defs/cdroms";
+import {runDefNeedsTheOutsideWorldDisk, type RunDef} from "@/defs/run-def";
 
 export function MacLibrary({
+    runDef,
     onRun,
     onRunCDROM,
     onLoadProgress,
 }: {
+    runDef: RunDef;
     onRun: (file: File) => void;
     onRunCDROM: (cdrom: EmulatorCDROM) => void;
     onLoadProgress: (name: string, fraction: number) => void;
@@ -38,6 +41,7 @@ export function MacLibrary({
             contents={collapse => (
                 <Suspense fallback={<MacLibraryContentsFallback />}>
                     <MacLibraryContents
+                        runDef={runDef}
                         search={search}
                         setSearch={setSearch}
                         detailsItem={detailsItem}
@@ -100,9 +104,11 @@ export async function handleLibraryURL(
 }
 
 export function MacLibraryHeader({
+    runDef,
     search,
     setSearch,
 }: {
+    runDef?: RunDef;
     search?: string;
     setSearch?: (search: string) => void;
 }) {
@@ -133,9 +139,21 @@ export function MacLibraryHeader({
                             The Macintosh Garden
                         </a>
                         's mission is to preserve software for the Macintosh
-                        platform. You can browse its library and directly load
-                        files into the “Downloads” folder of “The Outside
-                        World”.
+                        platform.{" "}
+                        {runDef?.machine.emulatorType === "Snow" &&
+                        runDefNeedsTheOutsideWorldDisk(runDef) ? (
+                            <>
+                                You can browse its library and load files for
+                                import through BlueSCSI SD Transfer on “The
+                                Outside World”.
+                            </>
+                        ) : (
+                            <>
+                                You can browse its library and directly load
+                                files into the “Downloads” folder of “The
+                                Outside World”.
+                            </>
+                        )}
                     </div>
                 )}
                 <Input

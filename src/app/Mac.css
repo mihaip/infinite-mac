@@ -104,8 +104,14 @@ body.embed {
     content: "Disk images will be mounted";
 }
 
-.Mac-Drag-Overlay.Mac-Drag-Overlay-Downloads:after {
+.Mac-Drag-Overlay.Mac-Drag-Overlay-Outside-World:after {
     content: "Disk images will be mounted, files will be placed in the “Downloads” folder in “The Outside World”.";
+    max-width: 480px;
+    text-align: center;
+}
+
+.Mac-Drag-Overlay.Mac-Drag-Overlay-BlueSCSI:after {
+    content: "Disk images will be mounted, files can be imported through BlueSCSI SD Transfer on “The Outside World”.";
     max-width: 480px;
     text-align: center;
 }

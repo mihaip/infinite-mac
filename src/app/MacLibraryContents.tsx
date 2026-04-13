@@ -26,14 +26,17 @@ import {MacLibraryHeader} from "@/app/MacLibrary";
 import {MacLibraryScreenshots} from "@/app/MacLibraryScreenshots";
 import {BevelButton} from "@/controls/BevelButton";
 import {Group} from "@/controls/Group";
+import {type RunDef} from "@/defs/run-def";
 
 export default function MacLibraryContents({
+    runDef,
     search,
     setSearch,
     detailsItem,
     setDetailsItem,
     onRun,
 }: {
+    runDef: RunDef;
     search: string;
     setSearch: (search: string) => void;
     detailsItem: LibraryIndexItem | undefined;
@@ -50,6 +53,7 @@ export default function MacLibraryContents({
                 />
             ) : (
                 <MacLibraryBrowser
+                    runDef={runDef}
                     search={search}
                     setSearch={setSearch}
                     onSelectItem={setDetailsItem}
@@ -60,10 +64,12 @@ export default function MacLibraryContents({
 }
 
 function MacLibraryBrowser({
+    runDef,
     search,
     setSearch,
     onSelectItem,
 }: {
+    runDef: RunDef;
     search: string;
     setSearch: (search: string) => void;
     onSelectItem: OnSelectItemFn;
@@ -81,7 +87,11 @@ function MacLibraryBrowser({
 
     return (
         <>
-            <MacLibraryHeader search={search} setSearch={setSearch} />
+            <MacLibraryHeader
+                runDef={runDef}
+                search={search}
+                setSearch={setSearch}
+            />
             <DrawerList tall>
                 {games.length > 0 && (
                     <MacLibraryTable

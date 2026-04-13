@@ -52,6 +52,7 @@ export type MachineDef = EmulatorDef & {
     // If requesting debug logs, OpenFirmware variables to set to also enable a
     // verbose boot.
     verboseBootEnvVars?: {[name: string]: string};
+    supportsBlueSCSI?: boolean;
     isHidden?: boolean;
 };
 
@@ -148,6 +149,7 @@ export const MAC_PLUS_SNOW: MachineDef = {
     prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Beige",
+    supportsBlueSCSI: true,
     ramSizes: ["4M", "2M", "1M"],
 };
 
@@ -173,6 +175,7 @@ export const MAC_SE_SNOW: MachineDef = {
     prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Platinum",
+    supportsBlueSCSI: true,
     ramSizes: ["4M", "2M", "1M"],
 };
 
@@ -187,6 +190,7 @@ export const MAC_CLASSIC_SNOW: MachineDef = {
     prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Platinum",
+    supportsBlueSCSI: true,
     ramSizes: ["4M", "2M", "1M"],
 };
 
@@ -217,6 +221,7 @@ export const MAC_II_SNOW: MachineDef = {
         {width: 512, height: 384, monitorId: "RGB12"},
     ],
     bezelStyle: "Platinum",
+    supportsBlueSCSI: true,
     ramSizes: ["8M", "4M", "2M", "1M"],
     extraFiles: {
         "mac-ii-display-card-8-24.rom": macIIDisplayCard824RomPath,
@@ -250,6 +255,7 @@ export const MAC_IIx_SNOW: MachineDef = {
         {width: 512, height: 384, monitorId: "RGB12"},
     ],
     bezelStyle: "Platinum",
+    supportsBlueSCSI: true,
     ramSizes: ["8M", "128M", "32M", "16M", "4M", "2M", "1M"],
     extraFiles: {
         "mac-ii-display-card-8-24.rom": macIIDisplayCard824RomPath,
@@ -270,6 +276,7 @@ export const MAC_IIcx_SNOW: MachineDef = {
         {width: 512, height: 384, monitorId: "RGB12"},
     ],
     bezelStyle: "Platinum",
+    supportsBlueSCSI: true,
     ramSizes: ["8M", "128M", "32M", "16M", "4M", "2M", "1M"],
     extraFiles: {
         "mac-ii-display-card-8-24.rom": macIIDisplayCard824RomPath,
@@ -285,6 +292,7 @@ export const MAC_SE30_SNOW: MachineDef = {
     prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Platinum",
+    supportsBlueSCSI: true,
     ramSizes: ["8M", "128M", "32M", "16M", "4M", "2M", "1M"],
     extraFiles: {
         "se30-video.rom": se30VideoRomPath,
