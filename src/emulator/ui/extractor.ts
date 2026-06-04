@@ -134,9 +134,36 @@ function isDirectoryEntry(
     return Array.isArray(entry.contents);
 }
 
+function printedImageEntry(
+    extraction: EmulatorWorkerDirectorExtraction
+): {name: string; contents: Uint8Array} | undefined {
+    if (
+        !extraction.name.startsWith("Snow print ") ||
+        !extraction.name.endsWith(".png") ||
+        extraction.contents.length !== 1
+    ) {
+        return undefined;
+    }
+    const entry = extraction.contents[0];
+    if (isDirectoryEntry(entry) || entry.name !== extraction.name) {
+        return undefined;
+    }
+    return entry;
+}
+
 export async function handleDirectoryExtraction(
     extraction: EmulatorWorkerDirectorExtraction
 ): Promise<void> {
+    const printedImage = printedImageEntry(extraction);
+    if (printedImage) {
+        saveAs(
+            new Blob([printedImage.contents], {type: "image/png"}),
+            printedImage.name
+        );
+        varz.increment("emulator_prints");
+        return;
+    }
+
     const zip = new JSZip();
     const macosxRoot = zip.folder("__MACOSX")!;
 

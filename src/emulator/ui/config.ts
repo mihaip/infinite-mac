@@ -444,6 +444,7 @@ export function configToSnowArgs(
         args.push("--bluescsi-dir", "/Shared/Downloads");
         args.push("--bluescsi-send-dir", "/Shared/Uploads");
     }
+    args.push("--printer-output-dir", "/Shared/Uploads");
     for (const disk of disks) {
         if (disk.isFloppy) {
             args.push("--floppy", disk.name);
