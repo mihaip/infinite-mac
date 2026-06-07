@@ -59,7 +59,7 @@ export function runDefSupportsBlueSCSI(runDef: RunDef): boolean {
         (runDef.machine.emulatorType === "DingusPPC" &&
             runDef.flags.blueSCSI === true) ||
         (runDef.machine.emulatorType === "Snow" &&
-            runDef.machine.supportsBlueSCSI === true)
+            runDef.machine.hasSCSI === true)
     );
 }
 

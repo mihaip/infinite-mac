@@ -30,6 +30,8 @@ import {
     type MachineDefRAMSize,
     ALL_MACHINES,
     MACHINES_BY_NAME,
+    machineSupportsInfiniteHD,
+    machineSupportsSavedHD,
 } from "@/defs/machines";
 import {
     runDefSupportsBlueSCSI,
@@ -211,6 +213,10 @@ export function CustomFields({
         appleTalkZoneName,
         appleTalkSupported,
     ]);
+
+    const supportsInfiniteHD = machineSupportsInfiniteHD(runDef.machine);
+    const supportsSavedHD =
+        canSaveDisks() && machineSupportsSavedHD(runDef.machine);
 
     return (
         <>
@@ -467,9 +473,11 @@ export function CustomFields({
 
             <div className="CustomFields-Row">
                 <span className="CustomFields-Label">Built-in Disks:</span>
-                <label>
+                <label
+                    className={classNames({"disabled": !supportsInfiniteHD})}>
                     <Checkbox
-                        checked={runDef.includeInfiniteHD}
+                        disabled={!supportsInfiniteHD}
+                        checked={runDef.includeInfiniteHD && supportsInfiniteHD}
                         onChange={e =>
                             setRunDef({
                                 ...runDef,
@@ -482,6 +490,9 @@ export function CustomFields({
                 <div className="CustomFields-Description Dialog-Description">
                     Include the Infinite HD disk, which has a large collection
                     of useful software.
+                    {!supportsInfiniteHD && (
+                        <div>Not supported by this machine</div>
+                    )}
                 </div>
             </div>
 
@@ -489,10 +500,10 @@ export function CustomFields({
                 <div className="CustomFields-Row">
                     <span className="CustomFields-Label" />
                     <label
-                        className={classNames({"disabled": !canSaveDisks()})}>
+                        className={classNames({"disabled": !supportsSavedHD})}>
                         <Checkbox
-                            disabled={!canSaveDisks()}
-                            checked={runDef.includeSavedHD}
+                            disabled={!supportsSavedHD}
+                            checked={runDef.includeSavedHD && supportsSavedHD}
                             onChange={e =>
                                 setRunDef({
                                     ...runDef,
@@ -508,6 +519,9 @@ export function CustomFields({
                         effort).
                         {!canSaveDisks() && (
                             <div>Not supported by this browser</div>
+                        )}
+                        {!machineSupportsSavedHD(runDef.machine) && (
+                            <div>Not supported by this machine</div>
                         )}
                     </div>
                 </div>

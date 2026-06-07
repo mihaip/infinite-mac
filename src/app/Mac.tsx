@@ -31,7 +31,12 @@ import {
     SAVED_HD,
     THE_OUTSIDE_WORLD,
 } from "@/defs/disks";
-import {type MachineDef, DEFAULT_SUPPORTED_SCREEN_SIZES} from "@/defs/machines";
+import {
+    type MachineDef,
+    DEFAULT_SUPPORTED_SCREEN_SIZES,
+    machineSupportsInfiniteHD,
+    machineSupportsSavedHD,
+} from "@/defs/machines";
 import classNames from "classnames";
 import {MacCDROMs} from "@/app/MacCDROMs";
 import {getCDROMInfo} from "@/defs/cdroms";
@@ -83,8 +88,6 @@ export default function Mac({
 }: MacProps) {
     const {
         disks,
-        includeInfiniteHD,
-        includeSavedHD,
         includeLibrary,
         libraryDownloadURLs,
         diskFiles,
@@ -100,6 +103,12 @@ export default function Mac({
         flags,
         settings: fixedEmulatorSettings,
     } = runDef;
+    const includeInfiniteHD =
+        runDef.includeInfiniteHD && machineSupportsInfiniteHD(runDef.machine);
+    const includeSavedHD =
+        runDef.includeSavedHD && machineSupportsSavedHD(runDef.machine);
+    const needsTheOutsideWorldDisk = runDefNeedsTheOutsideWorldDisk(runDef);
+    const supportsDownloadsFolder = runDefSupportsDownloadsFolder(runDef);
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
     const [scale, setScale] = useState<number | undefined>(screenScaleProp);
@@ -225,10 +234,10 @@ export default function Mac({
                 emulatorDisks.push(infiniteHd);
             }
         }
-        if (hasSavedHD && !machine.mfsOnly) {
+        if (hasSavedHD) {
             emulatorDisks.push(SAVED_HD);
         }
-        if (runDefNeedsTheOutsideWorldDisk(runDef)) {
+        if (needsTheOutsideWorldDisk) {
             emulatorDisks.push(THE_OUTSIDE_WORLD);
         }
         const hasSharedArrayBuffer = typeof SharedArrayBuffer !== "undefined";
@@ -273,7 +282,7 @@ export default function Mac({
                 emulatorDidFinishLoading(emulator: Emulator) {
                     setEmulatorLoaded(true);
                     emulator.refreshSettings();
-                    if (runDefSupportsDownloadsFolder(runDef)) {
+                    if (supportsDownloadsFolder) {
                         libraryDownloadURLs.forEach(url =>
                             handleLibraryURL(
                                 url,
@@ -497,6 +506,8 @@ export default function Mac({
         hasSavedHD,
         ramSize,
         libraryDownloadURLs,
+        needsTheOutsideWorldDisk,
+        supportsDownloadsFolder,
         handleMacLibraryRun,
         handleMacLibraryProgress,
         screenUpdateMessages,
