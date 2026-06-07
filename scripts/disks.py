@@ -1,10 +1,12 @@
 import dataclasses
 import hashlib
+import logging
 import os.path
 import paths
 import stickies
 import typing
 import urls
+import zipfile
 
 
 @dataclasses.dataclass
@@ -43,6 +45,22 @@ class Disk:
         if self.compressed:
             name += ".zip"
         return os.path.join(paths.IMAGES_DIR, name)
+
+    def read(self) -> bytes:
+        input_path = self.path()
+        if not os.path.exists(input_path):
+            logging.warning(
+                "File for disk image %s (%s) does not exist, using placeholder",
+                self.name,
+                input_path,
+            )
+            return bytes()
+        elif self.compressed:
+            with zipfile.ZipFile(input_path, "r") as zip:
+                return zip.read(self.name)
+        else:
+            with open(input_path, "rb") as image:
+                return image.read()
 
 
 SYSTEM_10_ORIGINAL = Disk(name="System 1.0 (Original).dsk")

@@ -111,20 +111,7 @@ def build_system_image(
 ) -> ImageDef:
     sys.stderr.write("Building system image %s\n" % (disk.name,))
 
-    input_path = disk.path()
-    if not os.path.exists(input_path):
-        logging.warning(
-            "File for disk image %s (%s) does not exist, using placeholder",
-            disk.name,
-            input_path,
-        )
-        image_data = bytes()
-    elif disk.compressed:
-        with zipfile.ZipFile(input_path, "r") as zip:
-            image_data = zip.read(disk.name)
-    else:
-        with open(input_path, "rb") as image:
-            image_data = image.read()
+    image_data = disk.read()
 
     stickies_placeholder = stickies.generate_placeholder()
     stickies_index = image_data.find(stickies_placeholder)
