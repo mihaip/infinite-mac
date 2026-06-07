@@ -20,6 +20,7 @@ import {
     POWER_MACINTOSH_G3_BW_DPPC,
     POWER_MACINTOSH_G4_PEARPC,
     IMAC_G3,
+    MAC_IIcx_SNOW,
 } from "@/defs/machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -1946,6 +1947,18 @@ const OPENSTEP_4_2: SystemDiskDef = {
     generatedSpec: () => import("@/Data/OPENSTEP 4.2 HD.dsk.json"),
 };
 
+const AUX_3_1_1: SystemDiskDef = {
+    displayName: "A/UX 3.1.1",
+    description:
+        "Final A/UX release, incorporates bug fixes from AWS Tune Up 2.0.",
+    releaseDate: [1994, 11, 17],
+    prefetchChunks: [0],
+    preferredMachine: MAC_IIcx_SNOW,
+    generatedSpec: () => import("@/Data/AUX 3.1.1.dsk.json"),
+    hasDeviceImageHeader: true,
+    hiddenInBrowser: true,
+};
+
 export const ALL_DISKS = [
     SYSTEM_1_0,
     SYSTEM_1_1,
@@ -2019,6 +2032,8 @@ export const ALL_DISKS = [
     OPENSTEP_4_0,
     OPENSTEP_4_1,
     OPENSTEP_4_2,
+
+    AUX_3_1_1,
 ];
 
 export const FLOPPY_DISKS = [

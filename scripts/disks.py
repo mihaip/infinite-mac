@@ -453,7 +453,11 @@ OPENSTEP_42 = Disk(
     ],
 )
 
+AUX_311 = Disk(name="AUX 3.1.1.dsk", compressed=True)
+
+
 ALL_DISKS = [
+    # Classic
     SYSTEM_10_ORIGINAL,
     SYSTEM_10,
     SYSTEM_11,
@@ -499,12 +503,14 @@ ALL_DISKS = [
     MAC_OS_904,
     MAC_OS_91,
     MAC_OS_922,
+    # Mac OS X
     MAC_OS_X_10_0_PUBLIC_BETA,
     MAC_OS_X_10_0_4,
     MAC_OS_X_10_1_5,
     MAC_OS_X_10_2_8,
     MAC_OS_X_10_3_9,
     MAC_OS_X_10_4_11,
+    # NexTStep/OPENSTEP
     NEXTSTEP_08,
     NEXTSTEP_09,
     NEXTSTEP_10,
@@ -519,4 +525,6 @@ ALL_DISKS = [
     NEXTSTEP_40,
     OPENSTEP_40,
     OPENSTEP_42,
+    # A/UX
+    AUX_311,
 ]

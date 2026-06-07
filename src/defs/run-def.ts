@@ -380,7 +380,7 @@ function diskToYearPath(disk: SystemDiskDef): string {
     const year = Object.entries(DISKS_BY_YEAR).find(([year, disks]) =>
         disks.includes(disk)
     )?.[0];
-    return `/${year}/${disk.displayName}`;
+    return `/${year}/${encodeURIComponent(disk.displayName)}`;
 }
 
 function diskFromYearPath(pathname: string): SystemDiskDef | undefined {
