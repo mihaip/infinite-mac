@@ -135,12 +135,21 @@
     width: 100%;
 }
 
-.MacKeyboard-FullSize
-    .MacKeyboard-Key-Command
-    .MacKeyboard-Key-Label
-    span:first-child {
-    -webkit-text-stroke: 1px var(--key-text-color);
-    -webkit-text-fill-color: transparent;
+.MacKeyboard-FullSize .MacKeyboard-Key-Command .MacKeyboard-Key-Label {
+    align-items: end;
+}
+
+.MacKeyboard-FullSize .MacKeyboard-Key-Command .AppleLogo {
+    width: 15px;
+    height: 15px;
+    margin-bottom: 4px;
+    stroke: var(--key-text-color);
+    stroke-width: 70px;
+    overflow: visible;
+}
+
+.MacKeyboard-FullSize .MacKeyboard-Key-Command .AppleLogo path {
+    fill: transparent !important;
 }
 
 .MacKeyboard-Mobile .MacKeyboard-Key-Special {

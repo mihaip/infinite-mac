@@ -14,6 +14,7 @@ import {
     type EmulatorType,
     emulatorUsesInterruptKey,
 } from "@/emulator/common/emulators";
+import AppleLogoGrey from "@/Images/AppleLogoGrey.svg?react";
 import * as varz from "@/lib/varz";
 
 type MacKeyboardContextType = {
@@ -41,7 +42,7 @@ export function MacKeyboardProvider({children}: {children: React.ReactNode}) {
     );
 }
 
-export function useMacKeyboard() {
+export function useMacKeyboard(): MacKeyboardContextType {
     const context = useContext(MacKeyboardContext);
     if (!context) {
         throw new Error(
@@ -51,7 +52,6 @@ export function useMacKeyboard() {
     return context;
 }
 
-// Keyboard component
 export type MacKeyboardProps = {
     bezelStyle: "Beige" | "Platinum" | "Pinstripes" | "NeXT";
     emulatorType: EmulatorType;
@@ -222,7 +222,8 @@ const MOBILE_NUMBER_KEYS: KeyDef[][] = [
 
 const COMMAND_LABEL = (
     <>
-        <span></span> <span>⌘</span>
+        <AppleLogoGrey className="AppleLogo" />
+        <span>⌘</span>
     </>
 );
 
