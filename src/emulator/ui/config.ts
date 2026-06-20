@@ -422,6 +422,9 @@ export function configToSnowArgs(
             config.ramSize ?? config.machine.ramSizes[0]
         ).toString(),
     ];
+    if (config.machine.modifier) {
+        args.push("--mac-model-modifier", config.machine.modifier);
+    }
     if (config.machine.supportedScreenSizes) {
         for (const size of config.machine.supportedScreenSizes) {
             if (

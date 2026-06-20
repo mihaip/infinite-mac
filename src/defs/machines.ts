@@ -2,6 +2,7 @@ import mac128KRomPath from "@/Data/Mac-128K.rom";
 import mac512KRomPath from "@/Data/Mac-512K.rom";
 import macPlusRomPath from "@/Data/Mac-Plus.rom";
 import macSERomPath from "@/Data/Mac-SE.rom";
+import macSEFDHDRomPath from "@/Data/Mac-SE-FDHD.rom";
 import macClassicRomPath from "@/Data/Mac-Classic.rom";
 import macIIRomPath from "@/Data/Mac-II.rom";
 import macIIxRomPath from "@/Data/Mac-IIx.rom";
@@ -35,6 +36,7 @@ export type MachineDef = EmulatorDef & {
     speedGovernorTargetIPS?: number; // If specified, use the speed governor to try to hit this target IPS.
     romPath: string;
     gestaltID: number;
+    modifier?: "FDHD";
     prefsPath: string;
     fixedScreenSize?: {width: number; height: number};
     supportedScreenSizes?: {
@@ -168,8 +170,22 @@ export const MAC_SE: MachineDef = {
 export const MAC_SE_SNOW: MachineDef = {
     name: "Mac SE (Snow)",
     cpu: "68000",
+    romPath: macSEFDHDRomPath,
+    gestaltID: 5,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 512, height: 342},
+    bezelStyle: "Platinum",
+    hasSCSI: true,
+    ramSizes: ["4M", "2M", "1M"],
+};
+
+export const MAC_SE_FDHD_SNOW: MachineDef = {
+    name: "Mac SE FDHD (Snow)",
+    cpu: "68000",
     romPath: macSERomPath,
     gestaltID: 5,
+    modifier: "FDHD",
     emulatorType: "Snow",
     prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 512, height: 342},
@@ -222,6 +238,28 @@ export const MAC_II_SNOW: MachineDef = {
     bezelStyle: "Platinum",
     hasSCSI: true,
     ramSizes: ["8M", "4M", "2M", "1M"],
+    extraFiles: {
+        "mac-ii-display-card-8-24.rom": macIIDisplayCard824RomPath,
+    },
+};
+
+export const MAC_II_FDHD_SNOW: MachineDef = {
+    name: "Mac II FDHD (Snow)",
+    cpu: "68020",
+    romPath: macIIxRomPath,
+    gestaltID: 6,
+    modifier: "FDHD",
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    supportedScreenSizes: [
+        {width: 1152, height: 870, monitorId: "RGB21"},
+        {width: 640, height: 870, monitorId: "PortraitBW"},
+        {width: 640, height: 480, monitorId: "HiRes14"},
+        {width: 512, height: 384, monitorId: "RGB12"},
+    ],
+    bezelStyle: "Platinum",
+    hasSCSI: true,
+    ramSizes: ["8M", "128M", "32M", "16M", "4M", "2M", "1M"],
     extraFiles: {
         "mac-ii-display-card-8-24.rom": macIIDisplayCard824RomPath,
     },
@@ -553,9 +591,11 @@ export const ALL_MACHINES = [
     MAC_PLUS_SNOW,
     MAC_SE,
     MAC_SE_SNOW,
+    MAC_SE_FDHD_SNOW,
     MAC_CLASSIC_SNOW,
     MAC_II,
     MAC_II_SNOW,
+    MAC_II_FDHD_SNOW,
     MAC_IIx,
     MAC_IIx_SNOW,
     MAC_IIcx_SNOW,
