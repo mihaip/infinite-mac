@@ -7,9 +7,11 @@ import {Dialog} from "@/controls/Dialog";
 import {cdromLibrary, getCDROMInfo, systemCDROMCompare} from "@/defs/cdroms";
 import {Input} from "@/controls/Input";
 import {type MachinePlatform} from "@/defs/machines";
+import defaultFloppyImage from "@/Images/DefaultFloppy.png";
 import defaultCDROMImage from "@/Images/DefaultCDROM.png";
 import defaultCDROMNeXTImage from "@/Images/DefaultCDROM-NeXT.png";
 import cdromsIcon from "@/Images/CD-ROM.png";
+import floppiessIcon from "@/Images/Floppy.png";
 import {
     Drawer,
     DrawerContents,
@@ -22,15 +24,17 @@ import allowedCDROMDomains from "@/defs/cdrom-sites.json";
 export function MacCDROMs({
     onRun,
     platform,
+    floppies,
 }: {
     onRun: (cdrom: EmulatorCDROM) => void;
     platform?: MachinePlatform;
+    floppies?: boolean;
 }) {
     const [search, setSearch] = useState("");
     return (
         <Drawer
-            title="CD-ROMs"
-            titleIconUrl={cdromsIcon}
+            title={floppies ? "Floppies" : "CD-ROMs"}
+            titleIconUrl={floppies ? floppiessIcon : cdromsIcon}
             contents={collapse => (
                 <MacCDROMsContents
                     search={search}
@@ -40,6 +44,7 @@ export function MacCDROMs({
                         onRun(cdrom);
                     }}
                     platform={platform}
+                    floppies={floppies}
                 />
             )}
         />
@@ -51,11 +56,13 @@ function MacCDROMsContents({
     setSearch,
     onRun,
     platform = "Macintosh",
+    floppies,
 }: {
     search: string;
     setSearch: (search: string) => void;
     onRun: (cdrom: EmulatorCDROM) => void;
     platform?: MachinePlatform;
+    floppies?: boolean;
 }) {
     const cdroms = cdromLibrary;
     const folderPaths = Array.from(Object.keys(cdroms)).sort();
@@ -71,6 +78,9 @@ function MacCDROMsContents({
         const cdrom = cdroms[folderPath];
         const {platform: cdromPlatform = "Macintosh"} = cdrom;
         if (cdromPlatform !== platform) {
+            continue;
+        }
+        if ((floppies && !cdrom.isFloppy) || (!floppies && cdrom.isFloppy)) {
             continue;
         }
         const category = folderPath.substring(
@@ -115,12 +125,24 @@ function MacCDROMsContents({
                 <MacCustomCDROM
                     onRun={onRun}
                     onDone={() => setCustomCDROMVisible(false)}
+                    floppies={floppies}
                 />
             )}
             <DrawerHeader>
                 <div className="Mac-CDROMs-Instructions">
-                    Load CD-ROM images into the emulated Mac to access software
-                    that is too large to pre-install on Infinite HD.
+                    {floppies ? (
+                        <>
+                            Load floppy images into the emulated Mac to access
+                            additional software. Only one additional floppy may
+                            be mounted at a time.
+                        </>
+                    ) : (
+                        <>
+                            Load CD-ROM images into the emulated Mac to access
+                            software that is too large to pre-install on
+                            Infinite HD.
+                        </>
+                    )}
                 </div>
                 <div className="Mac-CDROMs-Controls">
                     <Button onClick={() => setCustomCDROMVisible(true)}>
@@ -158,15 +180,20 @@ function MacCDROMsContents({
 function MacCustomCDROM({
     onRun,
     onDone,
+    floppies,
 }: {
     onRun: (cdrom: EmulatorCDROM) => void;
     onDone: () => void;
+    floppies?: boolean;
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
     const [url, setUrl] = useState("");
     const handleLoad = async () => {
         try {
             const cdrom = await getCDROMInfo(url);
+            if (floppies) {
+                cdrom.isFloppy = true;
+            }
             history.replaceState(
                 {},
                 "",
@@ -178,19 +205,23 @@ function MacCustomCDROM({
             alert("Could not load CD-ROM: " + (err as Error).message);
         }
     };
+    const noun = floppies ? "floppy" : "CD-ROM";
+    const extensions = floppies
+        ? ".img or .moof"
+        : ".iso, .img, .toast, or .bin";
     return (
         <Dialog
-            title="Run Custom CD-ROM…"
+            title={`Load custom ${noun}`}
             onDone={handleLoad}
-            doneLabel="Run"
+            doneLabel="Load"
             doneEnabled={url !== "" && inputRef.current?.validity.valid}
             onCancel={onDone}>
             <p>
-                Infinite Mac supports loading of CD-ROM images from URLs. Be
+                Infinite Mac supports loading of {noun} images from URLs. Be
                 aware of the following caveats:
             </p>
             <ul>
-                <li>Raw .iso, .img, .toast, or .bin files work best.</li>
+                <li>Raw {extensions} files work best.</li>
                 <li>
                     Only a subset of sites are supported (currently{" "}
                     {allowedCDROMDomains.join(", ")}). If there is another site
@@ -243,11 +274,16 @@ function MacCDROM({cdrom, onRun}: {cdrom: EmulatorCDROM; onRun: () => void}) {
             "Mac-CDROM-Cover-Round": coverImageType === "round",
         });
     } else {
-        const isNext = cdrom.platform === "NeXT";
-        coverImageUrl = isNext ? defaultCDROMNeXTImage : defaultCDROMImage;
-        coverImageWidth = isNext ? 48 : 32;
-        coverImageHeight = isNext ? 48 : 32;
         coverClassName = classNames("Mac-CDROM-Cover", "Default");
+        coverImageWidth = coverImageHeight = 32;
+        if (cdrom.isFloppy) {
+            coverImageUrl = defaultFloppyImage;
+        } else if (cdrom.platform === "NeXT") {
+            coverImageUrl = defaultCDROMNeXTImage;
+            coverImageWidth = coverImageHeight = 48;
+        } else {
+            coverImageUrl = defaultCDROMImage;
+        }
     }
     return (
         <div className="Mac-CDROM" onClick={onRun}>

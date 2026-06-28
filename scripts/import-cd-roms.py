@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import glob
 import hashlib
 import io
@@ -23,6 +24,7 @@ class InputManifest(typing.TypedDict):
     cover_image_type: typing.NotRequired[str]
     mode: typing.NotRequired[str]
     platform: typing.NotRequired[str]
+    is_floppy: typing.NotRequired[bool]
 
 
 class OutputManifest(typing.TypedDict):
@@ -34,30 +36,41 @@ class OutputManifest(typing.TypedDict):
     fileSize: int
     mode: typing.NotRequired[str]
     platform: typing.NotRequired[str]
+    isFloppy: typing.NotRequired[bool]
 
-def load_manifests() -> typing.Dict[str, InputManifest]:
-    for manifest_path in glob.iglob(os.path.join(paths.CD_ROMS_DIR, "**",
+
+def load_manifest(manifest_path: str) -> typing.Tuple[str, InputManifest]:
+    folder_path, _ = os.path.splitext(
+        os.path.relpath(manifest_path, paths.CD_ROMS_DIR))
+    # Windows does not allow colons in filenames. To allow the repo to
+    # be checked out in Windows, we use a "small colon" Unicode variant
+    # in the filesystem, but replace it with a normal colon now.
+    if ":" in folder_path:
+        sys.stderr.write(
+            "  WARNING: %s contains a colon in its path, it may not be accessible in Windows checkouts"
+            % folder_path)
+    folder_path = folder_path.replace("﹕", ":")
+    _, name = os.path.split(folder_path)
+    sys.stderr.write("Importing %s\n" % folder_path)
+    with open(manifest_path, "r") as manifest:
+        manifest_json = json.load(manifest)
+        manifest_json["name"] = name
+        return folder_path, manifest_json
+
+
+def load_manifests(
+        manifest_paths: typing.Optional[typing.Iterable[str]] = None
+) -> typing.Iterator[typing.Tuple[str, InputManifest]]:
+    if manifest_paths is None:
+        manifest_paths = glob.iglob(os.path.join(paths.CD_ROMS_DIR, "**",
                                                  "*.json"),
-                                    recursive=True):
-        folder_path, _ = os.path.splitext(
-            os.path.relpath(manifest_path, paths.CD_ROMS_DIR))
-        # Windows does not allow colons in filenames. To allow the repo to
-        # be checked out in Windows, we use a "small colon" Unicode variant
-        # in the filesystem, but replace it with a normal colon now.
-        if ":" in folder_path:
-            sys.stderr.write(
-                "  WARNING: %s contains a colon in its path, it may not be accessible in Windows checkouts"
-                % folder_path)
-        folder_path = folder_path.replace("﹕", ":")
-        _, name = os.path.split(folder_path)
-        sys.stderr.write("Importing %s\n" % folder_path)
-        with open(manifest_path, "r") as manifest:
-            manifest_json = json.load(manifest)
-            manifest_json["name"] = name
-            yield folder_path, manifest_json
+                                    recursive=True)
+    for manifest_path in manifest_paths:
+        yield load_manifest(manifest_path)
 
 
-def get_output_manifest(input_manifest: InputManifest) -> OutputManifest:
+def get_output_manifest(input_manifest: InputManifest,
+                        write_cover: bool = True) -> OutputManifest:
     src_url = input_manifest["src_url"]
     headers = urls.read_url_headers(src_url)
     file_size = int(headers["Content-Length"])
@@ -72,7 +85,9 @@ def get_output_manifest(input_manifest: InputManifest) -> OutputManifest:
     }
     if "cover_image" in input_manifest:
         cover_image_hash, cover_image_size = load_cover_image(
-            input_manifest["cover_image"], input_manifest.get("cover_image_inset"))
+            input_manifest["cover_image"],
+            input_manifest.get("cover_image_inset"),
+            write_cover=write_cover)
         output_manifest["coverImageHash"] = cover_image_hash
         output_manifest["coverImageSize"] = cover_image_size
     if "cover_image_type" in input_manifest:
@@ -81,13 +96,15 @@ def get_output_manifest(input_manifest: InputManifest) -> OutputManifest:
         output_manifest["mode"] = input_manifest["mode"]
     if "platform" in input_manifest:
         output_manifest["platform"] = input_manifest["platform"]
-
+    if "is_floppy" in input_manifest:
+        output_manifest["isFloppy"] = input_manifest["is_floppy"]
     return output_manifest
 
 
 def load_cover_image(
     cover_image_url: str, inset: typing.Union[int, typing.Tuple[int, int, int,
-                                                                int]]
+                                                                int]],
+    write_cover: bool = True,
 ) -> typing.Tuple[str, typing.Tuple[int, int]]:
     cover_image_path = urls.read_url_to_path(cover_image_url)
     with Image.open(cover_image_path) as cover_image:
@@ -114,17 +131,47 @@ def load_cover_image(
         cover_image.save(cover_image_output, format="JPEG")
         cover_image_content = cover_image_output.getvalue()
         cover_image_hash = hashlib.sha256(cover_image_content).hexdigest()
-        cover_image_path = os.path.join(paths.COVERS_DIR,
-                                        f"{cover_image_hash}.jpeg")
+        if write_cover:
+            cover_image_path = os.path.join(paths.COVERS_DIR,
+                                            f"{cover_image_hash}.jpeg")
 
-        with open(cover_image_path, "wb") as f:
-            f.write(cover_image_content)
+            with open(cover_image_path, "wb") as f:
+                f.write(cover_image_content)
 
         return cover_image_hash, cover_image.size
 
 
 def main():
-    placeholder_mode = len(sys.argv) >= 2 and sys.argv[1] == "placeholder"
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "placeholder",
+        nargs="?",
+        choices=["placeholder"],
+        help="generate a stub output manifest",
+    )
+    parser.add_argument(
+        "--validate",
+        nargs="*",
+        metavar="MANIFEST",
+        help=(
+            "validate all manifests, or only the provided CD-ROMs/*.json "
+            "manifest paths, without writing generated outputs"
+        ),
+    )
+    args = parser.parse_args()
+
+    if args.validate is not None:
+        input_manifests = load_manifests(args.validate or None)
+        had_errors = False
+        for _, input_manifest in input_manifests:
+            try:
+                get_output_manifest(input_manifest, write_cover=False)
+            except Exception as e:
+                sys.stderr.write("  ERROR: %s\n" % e)
+                had_errors = True
+        return 1 if had_errors else 0
+
+    placeholder_mode = args.placeholder == "placeholder"
     shutil.rmtree(paths.COVERS_DIR, ignore_errors=True)
     os.mkdir(paths.COVERS_DIR)
 
@@ -144,4 +191,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

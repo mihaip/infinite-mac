@@ -11,7 +11,10 @@ import {
 } from "@/defs/disks";
 import {type EmulatorEthernetProvider} from "@/emulator/ui/ui";
 import {type EmulatorConfigFlags} from "@/emulator/common/common";
-import {emulatorHasOptionalBlueSCSI} from "@/emulator/common/emulators";
+import {
+    emulatorHasOptionalBlueSCSI,
+    EmulatorType,
+} from "@/emulator/common/emulators";
 import {
     type EmulatorSettings,
     DEFAULT_EMULATOR_SETTINGS,
@@ -73,6 +76,27 @@ export function runDefSupportsDownloadsFolder(runDef: RunDef): boolean {
 
 export function runDefNeedsTheOutsideWorldDisk(runDef: RunDef): boolean {
     return runDefSupportsBlueSCSI(runDef);
+}
+
+export function runDefSupportsCDROMs(runDef: RunDef): boolean {
+    const type = runDef.machine.emulatorType;
+    if (type === "DingusPPC" || type === "PearPC") {
+        return false;
+    }
+    if (type === "Snow" && !runDef.machine.hasSCSI) {
+        return false;
+    }
+    if (runDef.disks[0]?.infiniteHdSubset === "mfs") {
+        return false;
+    }
+    return true;
+}
+
+export function runDefSupportsFloppies(runDef: RunDef): boolean {
+    if (runDef.machine.emulatorType === "Snow" && !runDef.machine.hasSCSI) {
+        return true;
+    }
+    return false;
 }
 
 export function runDefFromUrl(urlString: string): RunDef | undefined {

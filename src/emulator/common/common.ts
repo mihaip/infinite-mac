@@ -525,6 +525,7 @@ export type EmulatorCDROM = {
     coverImageType?: "square" | "round"; // Default is round
     mode?: "MODE1/2352"; // TODO: other modes
     platform?: "Macintosh" | "NeXT";
+    isFloppy?: boolean;
     fetchClientSide?: boolean;
     mountReadWrite?: boolean;
     prefetchChunks?: number[];

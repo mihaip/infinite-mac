@@ -6,6 +6,7 @@ export interface EmulatorWorkerDisk {
     name: string;
     size: number;
     isCdrom?: boolean;
+    isFloppy?: boolean;
 
     read(buffer: Uint8Array, offset: number, length: number): number;
     write(buffer: Uint8Array, offset: number, length: number): number;
@@ -197,7 +198,19 @@ export class EmulatorWorkerDisksApi {
         for (let i = 0; i < this.#pendingDiskNames.length; i++) {
             const name = this.#pendingDiskNames[i];
             const disk = this.#disks.find(d => d.name === name);
-            if (disk?.isCdrom) {
+            if (disk?.isCdrom && !disk.isFloppy) {
+                this.#pendingDiskNames.splice(i, 1);
+                return name;
+            }
+        }
+        return undefined;
+    }
+
+    consumeFloppyName(): string | undefined {
+        for (let i = 0; i < this.#pendingDiskNames.length; i++) {
+            const name = this.#pendingDiskNames[i];
+            const disk = this.#disks.find(d => d.name === name);
+            if (disk?.isFloppy) {
                 this.#pendingDiskNames.splice(i, 1);
                 return name;
             }

@@ -66,10 +66,6 @@ export function emulatorSupportsAppleTalk(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";
 }
 
-export function emulatorSupportsCDROMs(type: EmulatorType): boolean {
-    return type !== "DingusPPC" && type !== "PearPC";
-}
-
 export function emulatorNeedsDiskPlaceholderFiles(type: EmulatorType): boolean {
     // Previous expects to find all of the configured disk "files" on the
     // filesystems, we create some empty stubs for that.

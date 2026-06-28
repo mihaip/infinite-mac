@@ -48,14 +48,13 @@ import {
     resetDiskSaver,
     saveDiskSaverImage,
 } from "@/emulator/ui/disk-saver";
-import {
-    emulatorNeedsMouseDeltas,
-    emulatorSupportsCDROMs,
-} from "@/emulator/common/emulators";
+import {emulatorNeedsMouseDeltas} from "@/emulator/common/emulators";
 import {
     runDefNeedsTheOutsideWorldDisk,
     runDefSupportsBlueSCSI,
+    runDefSupportsCDROMs,
     runDefSupportsDownloadsFolder,
+    runDefSupportsFloppies,
     type RunDef,
     type ScreenSize,
 } from "@/defs/run-def";
@@ -196,8 +195,7 @@ export default function Mac({
 
     const {emulatorType} = machine;
     const canLoadFiles =
-        runDefSupportsDownloadsFolder(runDef) ||
-        emulatorSupportsCDROMs(emulatorType);
+        runDefSupportsDownloadsFolder(runDef) || runDefSupportsCDROMs(runDef);
 
     const onDoneRef = useRef(onDone);
     onDoneRef.current = onDone;
@@ -1041,13 +1039,19 @@ export default function Mac({
             </ScreenFrame>
             {drawersVisible && (
                 <DrawersContainer>
-                    {emulatorSupportsCDROMs(emulatorType) &&
-                        disks[0]?.infiniteHdSubset !== "mfs" && (
-                            <MacCDROMs
-                                onRun={loadCDROM}
-                                platform={machine.platform}
-                            />
-                        )}
+                    {runDefSupportsCDROMs(runDef) && (
+                        <MacCDROMs
+                            onRun={loadCDROM}
+                            platform={machine.platform}
+                        />
+                    )}
+                    {runDefSupportsFloppies(runDef) && (
+                        <MacCDROMs
+                            onRun={loadCDROM}
+                            platform={machine.platform}
+                            floppies
+                        />
+                    )}
                     {includeLibrary &&
                         runDefSupportsDownloadsFolder(runDef) && (
                             <MacLibrary

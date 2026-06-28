@@ -3841,15 +3841,22 @@ function _js_check_for_periodic_tasks() {
   workerApi.checkForPeriodicTasks();
 }
 
-function _js_consume_cdrom_name() {
-  const diskName = workerApi.disks.consumeCdromName();
-  if (!diskName || !diskName.length) {
+function snowNameToCString(name) {
+  if (!name || !name.length) {
     return 0;
   }
-  const diskNameLength = lengthBytesUTF8(diskName) + 1;
-  const diskNameCstr = _malloc(diskNameLength);
-  stringToUTF8(diskName, diskNameCstr, diskNameLength);
-  return diskNameCstr;
+  const nameLength = lengthBytesUTF8(name) + 1;
+  const nameCstr = _malloc(nameLength);
+  stringToUTF8(name, nameCstr, nameLength);
+  return nameCstr;
+}
+
+function _js_consume_cdrom_name() {
+  return snowNameToCString(workerApi.disks.consumeCdromName());
+}
+
+function _js_consume_floppy_name() {
+  return snowNameToCString(workerApi.disks.consumeFloppyName());
 }
 
 function _js_did_open_audio(sampleRate, sampleSize, channels) {
@@ -4113,7 +4120,7 @@ var missingLibrarySymbols = [ "writeI53ToI64", "writeI53ToI64Clamped", "writeI53
 
 missingLibrarySymbols.forEach(missingLibrarySymbol);
 
-var unexportedSymbols = [ "run", "out", "err", "callMain", "abort", "wasmExports", "HEAPF32", "HEAPF64", "HEAP8", "HEAP16", "HEAPU16", "HEAP32", "HEAPU32", "HEAP64", "HEAPU64", "writeStackCookie", "checkStackCookie", "INT53_MAX", "INT53_MIN", "bigintToI53Checked", "stackSave", "stackRestore", "stackAlloc", "ptrToString", "exitJS", "ENV", "setStackLimits", "ERRNO_CODES", "strError", "DNS", "Protocols", "Sockets", "timers", "warnOnce", "readEmAsmArgsArray", "getExecutableName", "handleException", "keepRuntimeAlive", "asyncLoad", "mmapAlloc", "wasmTable", "wasmMemory", "getUniqueRunDependency", "noExitRuntime", "addRunDependency", "removeRunDependency", "addOnPreRun", "addOnPostRun", "freeTableIndexes", "functionsInTableMap", "setValue", "getValue", "PATH", "PATH_FS", "UTF8Decoder", "UTF8ArrayToString", "UTF8ToString", "stringToUTF8Array", "stringToUTF8", "lengthBytesUTF8", "intArrayFromString", "UTF16Decoder", "stringToUTF8OnStack", "JSEvents", "specialHTMLTargets", "findCanvasEventTarget", "currentFullscreenStrategy", "restoreOldWindowedStyle", "UNWIND_CACHE", "ExitStatus", "getEnvStrings", "checkWasiClock", "doReadv", "doWritev", "initRandomFill", "randomFill", "emSetImmediate", "emClearImmediate_deps", "emClearImmediate", "promiseMap", "getExceptionMessageCommon", "getCppExceptionTag", "getCppExceptionThrownObjectFromWebAssemblyException", "Browser", "requestFullscreen", "requestFullScreen", "setCanvasSize", "getUserMedia", "createContext", "getPreloadedImageData__data", "wget", "MONTH_DAYS_REGULAR", "MONTH_DAYS_LEAP", "MONTH_DAYS_REGULAR_CUMULATIVE", "MONTH_DAYS_LEAP_CUMULATIVE", "SYSCALLS", "preloadPlugins", "FS_createPreloadedFile", "FS_preloadFile", "FS_modeStringToFlags", "FS_getMode", "FS_stdin_getChar_buffer", "FS_stdin_getChar", "FS_unlink", "FS_createPath", "FS_createDevice", "FS_readFile", "FS_root", "FS_mounts", "FS_devices", "FS_streams", "FS_nextInode", "FS_nameTable", "FS_currentPath", "FS_initialized", "FS_ignorePermissions", "FS_filesystems", "FS_syncFSRequests", "FS_readFiles", "FS_lookupPath", "FS_getPath", "FS_hashName", "FS_hashAddNode", "FS_hashRemoveNode", "FS_lookupNode", "FS_createNode", "FS_destroyNode", "FS_isRoot", "FS_isMountpoint", "FS_isFile", "FS_isDir", "FS_isLink", "FS_isChrdev", "FS_isBlkdev", "FS_isFIFO", "FS_isSocket", "FS_flagsToPermissionString", "FS_nodePermissions", "FS_mayLookup", "FS_mayCreate", "FS_mayDelete", "FS_mayOpen", "FS_checkOpExists", "FS_nextfd", "FS_getStreamChecked", "FS_getStream", "FS_createStream", "FS_closeStream", "FS_dupStream", "FS_doSetAttr", "FS_chrdev_stream_ops", "FS_major", "FS_minor", "FS_makedev", "FS_registerDevice", "FS_getDevice", "FS_getMounts", "FS_syncfs", "FS_mount", "FS_unmount", "FS_lookup", "FS_mknod", "FS_statfs", "FS_statfsStream", "FS_statfsNode", "FS_create", "FS_mkdir", "FS_mkdev", "FS_symlink", "FS_rename", "FS_rmdir", "FS_readdir", "FS_readlink", "FS_stat", "FS_fstat", "FS_lstat", "FS_doChmod", "FS_chmod", "FS_lchmod", "FS_fchmod", "FS_doChown", "FS_chown", "FS_lchown", "FS_fchown", "FS_doTruncate", "FS_truncate", "FS_ftruncate", "FS_utime", "FS_open", "FS_close", "FS_isClosed", "FS_llseek", "FS_read", "FS_write", "FS_mmap", "FS_msync", "FS_ioctl", "FS_writeFile", "FS_cwd", "FS_chdir", "FS_createDefaultDirectories", "FS_createDefaultDevices", "FS_createSpecialDirectories", "FS_createStandardStreams", "FS_staticInit", "FS_init", "FS_quit", "FS_findObject", "FS_analyzePath", "FS_createFile", "FS_createDataFile", "FS_forceLoadFile", "FS_createLazyFile", "FS_absolutePath", "FS_createFolder", "FS_createLink", "FS_joinPath", "FS_mmapAlloc", "FS_standardizePath", "MEMFS", "TTY", "PIPEFS", "SOCKFS", "tempFixedLengthArray", "miniTempWebGLFloatBuffers", "miniTempWebGLIntBuffers", "GL", "AL", "GLUT", "EGL", "GLEW", "IDBStore", "SDL", "SDL_gfx", "print", "printErr", "jstoi_s" ];
+var unexportedSymbols = [ "run", "out", "err", "callMain", "abort", "wasmExports", "HEAPF32", "HEAPF64", "HEAP8", "HEAP16", "HEAPU16", "HEAP32", "HEAPU32", "HEAP64", "HEAPU64", "writeStackCookie", "checkStackCookie", "INT53_MAX", "INT53_MIN", "bigintToI53Checked", "stackSave", "stackRestore", "stackAlloc", "ptrToString", "exitJS", "ENV", "setStackLimits", "ERRNO_CODES", "strError", "DNS", "Protocols", "Sockets", "timers", "warnOnce", "readEmAsmArgsArray", "getExecutableName", "handleException", "keepRuntimeAlive", "asyncLoad", "mmapAlloc", "wasmTable", "wasmMemory", "getUniqueRunDependency", "noExitRuntime", "addRunDependency", "removeRunDependency", "addOnPreRun", "addOnPostRun", "freeTableIndexes", "functionsInTableMap", "setValue", "getValue", "PATH", "PATH_FS", "UTF8Decoder", "UTF8ArrayToString", "UTF8ToString", "stringToUTF8Array", "stringToUTF8", "lengthBytesUTF8", "intArrayFromString", "UTF16Decoder", "stringToUTF8OnStack", "JSEvents", "specialHTMLTargets", "findCanvasEventTarget", "currentFullscreenStrategy", "restoreOldWindowedStyle", "UNWIND_CACHE", "ExitStatus", "getEnvStrings", "checkWasiClock", "doReadv", "doWritev", "initRandomFill", "randomFill", "emSetImmediate", "emClearImmediate_deps", "emClearImmediate", "promiseMap", "getExceptionMessageCommon", "getCppExceptionTag", "getCppExceptionThrownObjectFromWebAssemblyException", "Browser", "requestFullscreen", "requestFullScreen", "setCanvasSize", "getUserMedia", "createContext", "getPreloadedImageData__data", "wget", "MONTH_DAYS_REGULAR", "MONTH_DAYS_LEAP", "MONTH_DAYS_REGULAR_CUMULATIVE", "MONTH_DAYS_LEAP_CUMULATIVE", "SYSCALLS", "preloadPlugins", "FS_createPreloadedFile", "FS_preloadFile", "FS_modeStringToFlags", "FS_getMode", "FS_stdin_getChar_buffer", "FS_stdin_getChar", "FS_unlink", "FS_createPath", "FS_createDevice", "FS_readFile", "FS_root", "FS_mounts", "FS_devices", "FS_streams", "FS_nextInode", "FS_nameTable", "FS_currentPath", "FS_initialized", "FS_ignorePermissions", "FS_filesystems", "FS_syncFSRequests", "FS_readFiles", "FS_lookupPath", "FS_getPath", "FS_hashName", "FS_hashAddNode", "FS_hashRemoveNode", "FS_lookupNode", "FS_createNode", "FS_destroyNode", "FS_isRoot", "FS_isMountpoint", "FS_isFile", "FS_isDir", "FS_isLink", "FS_isChrdev", "FS_isBlkdev", "FS_isFIFO", "FS_isSocket", "FS_flagsToPermissionString", "FS_nodePermissions", "FS_mayLookup", "FS_mayCreate", "FS_mayDelete", "FS_mayOpen", "FS_checkOpExists", "FS_nextfd", "FS_getStreamChecked", "FS_getStream", "FS_createStream", "FS_closeStream", "FS_dupStream", "FS_doSetAttr", "FS_chrdev_stream_ops", "FS_major", "FS_minor", "FS_makedev", "FS_registerDevice", "FS_getDevice", "FS_getMounts", "FS_syncfs", "FS_mount", "FS_unmount", "FS_lookup", "FS_mknod", "FS_statfs", "FS_statfsStream", "FS_statfsNode", "FS_create", "FS_mkdir", "FS_mkdev", "FS_symlink", "FS_rename", "FS_rmdir", "FS_readdir", "FS_readlink", "FS_stat", "FS_fstat", "FS_lstat", "FS_doChmod", "FS_chmod", "FS_lchmod", "FS_fchmod", "FS_doChown", "FS_chown", "FS_lchown", "FS_fchown", "FS_doTruncate", "FS_truncate", "FS_ftruncate", "FS_utime", "FS_open", "FS_close", "FS_isClosed", "FS_llseek", "FS_read", "FS_write", "FS_mmap", "FS_msync", "FS_ioctl", "FS_writeFile", "FS_cwd", "FS_chdir", "FS_createDefaultDirectories", "FS_createDefaultDevices", "FS_createSpecialDirectories", "FS_createStandardStreams", "FS_staticInit", "FS_init", "FS_quit", "FS_findObject", "FS_analyzePath", "FS_createFile", "FS_createDataFile", "FS_forceLoadFile", "FS_createLazyFile", "FS_absolutePath", "FS_createFolder", "FS_createLink", "FS_joinPath", "FS_mmapAlloc", "FS_standardizePath", "MEMFS", "TTY", "PIPEFS", "SOCKFS", "tempFixedLengthArray", "miniTempWebGLFloatBuffers", "miniTempWebGLIntBuffers", "GL", "AL", "GLUT", "EGL", "GLEW", "IDBStore", "SDL", "SDL_gfx", "print", "printErr", "jstoi_s", "snowNameToCString" ];
 
 unexportedSymbols.forEach(unexportedRuntimeSymbol);
 
@@ -4180,6 +4187,8 @@ var memory = makeInvalidEarlyAccess("memory");
 
 var __indirect_function_table = makeInvalidEarlyAccess("__indirect_function_table");
 
+var __ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E");
+
 var __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE");
 
 var __ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E");
@@ -4187,8 +4196,6 @@ var __ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E = Module["__ZN9sno
 var __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E");
 
 var __ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E");
-
-var __ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E");
 
 var ___cpp_exception = makeInvalidEarlyAccess("___cpp_exception");
 
@@ -4219,11 +4226,11 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports["__set_stack_limits"] != "undefined", "missing Wasm export: __set_stack_limits");
   assert(typeof wasmExports["memory"] != "undefined", "missing Wasm export: memory");
   assert(typeof wasmExports["__indirect_function_table"] != "undefined", "missing Wasm export: __indirect_function_table");
+  assert(typeof wasmExports["_ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E");
   assert(typeof wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE");
   assert(typeof wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E");
   assert(typeof wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E");
   assert(typeof wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E");
-  assert(typeof wasmExports["_ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E");
   assert(typeof wasmExports["__cpp_exception"] != "undefined", "missing Wasm export: __cpp_exception");
   _main = Module["_main"] = createExportWrapper("main", 2);
   _malloc = createExportWrapper("malloc", 1);
@@ -4249,11 +4256,11 @@ function assignWasmExports(wasmExports) {
   ___set_stack_limits = Module["___set_stack_limits"] = createExportWrapper("__set_stack_limits", 2);
   memory = wasmMemory = wasmExports["memory"];
   __indirect_function_table = wasmExports["__indirect_function_table"];
+  __ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"] = wasmExports["_ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"].value;
   __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE"] = wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE"].value;
   __ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E"] = wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E"].value;
   __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E"] = wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E"].value;
   __ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E"] = wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E"].value;
-  __ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"] = wasmExports["_ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"].value;
   ___cpp_exception = wasmExports["__cpp_exception"];
 }
 
@@ -4287,6 +4294,7 @@ var wasmImports = {
   /** @export */ js_blit: _js_blit,
   /** @export */ js_check_for_periodic_tasks: _js_check_for_periodic_tasks,
   /** @export */ js_consume_cdrom_name: _js_consume_cdrom_name,
+  /** @export */ js_consume_floppy_name: _js_consume_floppy_name,
   /** @export */ js_did_open_audio: _js_did_open_audio,
   /** @export */ js_did_open_video: _js_did_open_video,
   /** @export */ js_disk_close: _js_disk_close,

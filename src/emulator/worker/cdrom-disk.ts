@@ -22,7 +22,11 @@ export function createEmulatorWorkerCDROMDisk(
             },
             delegate
         );
-        disk.isCdrom = true;
+        if (cdrom.isFloppy) {
+            disk.isFloppy = true;
+        } else {
+            disk.isCdrom = true;
+        }
         return disk;
     }
 
@@ -35,7 +39,11 @@ export function createEmulatorWorkerCDROMDisk(
     if (cdrom.mode === "MODE1/2352") {
         disk = new EmulatorWorkerMode1SectorDisk(disk);
     }
-    disk.isCdrom = true;
+    if (cdrom.isFloppy) {
+        disk.isFloppy = true;
+    } else {
+        disk.isCdrom = true;
+    }
     return disk;
 }
 
