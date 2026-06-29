@@ -65,6 +65,7 @@ export type SystemDiskDef = EmulatorDiskDef & {
     isUnstable?: boolean;
     notable?: boolean;
     hiddenInBrowser?: boolean;
+    needsMouseDeltas?: boolean;
 };
 
 export type DiskFile = {
@@ -1991,6 +1992,7 @@ const AUX_3_1_1: SystemDiskDef = {
     generatedSpec: () => import("@/Data/AUX 3.1.1.dsk.json"),
     hasDeviceImageHeader: true,
     hiddenInBrowser: true,
+    needsMouseDeltas: true,
 };
 
 export const ALL_DISKS = [

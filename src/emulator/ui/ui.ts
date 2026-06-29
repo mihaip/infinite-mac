@@ -528,7 +528,9 @@ export class Emulator {
     refreshSettings() {
         const settings = this.#delegate?.emulatorSettings?.(this);
         const speed = settings?.speed;
-        const speedConfig = emulatorSpeedConfig(this.#config.machine.emulatorType);
+        const speedConfig = emulatorSpeedConfig(
+            this.#config.machine.emulatorType
+        );
         if (speedConfig && speed !== undefined) {
             const normalizedSpeed = speedConfig.speedOptions.has(speed)
                 ? speed

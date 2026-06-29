@@ -5,7 +5,10 @@ import {
     type EmulatorEthernetPeer,
     Emulator,
 } from "@/emulator/ui/ui";
-import {DEFAULT_EMULATOR_SETTINGS} from "@/emulator/ui/settings";
+import {
+    DEFAULT_EMULATOR_SETTINGS,
+    type EmulatorSettings,
+} from "@/emulator/ui/settings";
 import {
     type EmulatorCDROM,
     type EmulatorStats,
@@ -143,11 +146,18 @@ export default function Mac({
     const useEmulatorSettingsHook = fixedEmulatorSettings
         ? () => [fixedEmulatorSettings, () => {}] as const
         : usePersistentState;
-    const [emulatorSettings, setEmulatorSettings] = useEmulatorSettingsHook(
+    const [rawEmulatorSettings, setEmulatorSettings] = useEmulatorSettingsHook(
         DEFAULT_EMULATOR_SETTINGS,
         "emulator-settings",
         onEmulatorSettingsChange
     );
+    const bootDiskNeedsMouseDeltas = runDef.disks[0]?.needsMouseDeltas;
+    const emulatorSettings: EmulatorSettings = useMemo(() => {
+        if (bootDiskNeedsMouseDeltas) {
+            return {...rawEmulatorSettings, useMouseDeltas: true};
+        }
+        return rawEmulatorSettings;
+    }, [rawEmulatorSettings, bootDiskNeedsMouseDeltas]);
     const emulatorSettingsRef = useRef(emulatorSettings);
     emulatorSettingsRef.current = emulatorSettings;
 
