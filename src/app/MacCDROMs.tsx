@@ -7,7 +7,9 @@ import {Dialog} from "@/controls/Dialog";
 import {cdromLibrary, getCDROMInfo, systemCDROMCompare} from "@/defs/cdroms";
 import {Input} from "@/controls/Input";
 import {type MachinePlatform} from "@/defs/machines";
-import defaultFloppyImage from "@/Images/DefaultFloppy.png";
+import defaultFloppySDImage from "@/Images/DefaultFloppySD.png";
+import defaultFloppyDDImage from "@/Images/DefaultFloppyDD.png";
+import defaultFloppyHDImage from "@/Images/DefaultFloppyHD.png";
 import defaultCDROMImage from "@/Images/DefaultCDROM.png";
 import defaultCDROMNeXTImage from "@/Images/DefaultCDROM-NeXT.png";
 import cdromsIcon from "@/Images/CD-ROM.png";
@@ -265,6 +267,7 @@ function MacCDROM({cdrom, onRun}: {cdrom: EmulatorCDROM; onRun: () => void}) {
         coverImageHash,
         coverImageSize,
         coverImageType = "round",
+        fileSize,
     } = cdrom;
     let coverClassName, coverImageUrl, coverImageWidth, coverImageHeight;
     if (coverImageHash && coverImageSize) {
@@ -277,7 +280,13 @@ function MacCDROM({cdrom, onRun}: {cdrom: EmulatorCDROM; onRun: () => void}) {
         coverClassName = classNames("Mac-CDROM-Cover", "Default");
         coverImageWidth = coverImageHeight = 32;
         if (cdrom.isFloppy) {
-            coverImageUrl = defaultFloppyImage;
+            if (fileSize <= 500_000) {
+                coverImageUrl = defaultFloppySDImage;
+            } else if (fileSize <= 1_200_000) {
+                coverImageUrl = defaultFloppyDDImage;
+            } else {
+                coverImageUrl = defaultFloppyHDImage;
+            }
         } else if (cdrom.platform === "NeXT") {
             coverImageUrl = defaultCDROMNeXTImage;
             coverImageWidth = coverImageHeight = 48;
