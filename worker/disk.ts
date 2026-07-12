@@ -10,7 +10,7 @@ export async function handleRequest(
     if (!bucket) {
         // Locally we don't have a R2 bucket configured, serve files directly
         // from the build directory (where import-disks.py puts them and
-        // sync-disks.sh uploads them to R2from).
+        // sync-disks.sh uploads them to R2 from).
         if (import.meta.env.DEV) {
             const chunkUrl = new URL(`/Images/build/${key}`, url);
             return Response.redirect(chunkUrl.toString(), 302);

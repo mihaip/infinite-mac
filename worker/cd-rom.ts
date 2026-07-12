@@ -6,7 +6,9 @@ type CDROMSpec = {
     totalSize?: number;
 };
 
-export async function handleRequest(path: string, method: string) {
+export async function handleRequest(request: Request, bucket: R2Bucket) {
+    const url = new URL(request.url);
+    const path = url.pathname;
     const pathPieces = path.split("/");
     let specStr;
     try {
@@ -31,10 +33,10 @@ export async function handleRequest(path: string, method: string) {
         return errorResponse("Unexpected CD-ROM src URL: " + spec.srcUrl);
     }
 
-    if (method === "GET") {
-        return await handleGET(pathPieces, spec);
+    if (request.method === "GET") {
+        return await handleGET(pathPieces, spec, bucket, url);
     }
-    if (method === "PUT") {
+    if (request.method === "PUT") {
         return await handlePUT(spec.srcUrl);
     }
 
@@ -43,6 +45,9 @@ export async function handleRequest(path: string, method: string) {
 
 // Don't want to become a proxy for arbitrary URLs
 export function isValidSrcUrl(srcUrl: string) {
+    if (isR2MediaSrcUrl(srcUrl)) {
+        return true;
+    }
     let srcUrlParsed;
     try {
         srcUrlParsed = new URL(srcUrl);
@@ -64,7 +69,12 @@ export function isValidSrcUrl(srcUrl: string) {
     return false;
 }
 
-async function handleGET(pathPieces: string[], spec: CDROMSpec) {
+async function handleGET(
+    pathPieces: string[],
+    spec: CDROMSpec,
+    bucket: R2Bucket,
+    requestUrl: URL
+) {
     const chunkMatch = /(\d+)-(\d+).chunk$/.exec(pathPieces[3]);
     if (!chunkMatch) {
         return errorResponse("Malformed CD-ROM src chunk: " + pathPieces[3]);
@@ -76,11 +86,15 @@ async function handleGET(pathPieces: string[], spec: CDROMSpec) {
     let chunkFetchError;
     for (let retry = 0; retry < 3; retry++) {
         try {
-            const {chunk, contentLength} = await fetchChunk(
-                spec,
-                chunkStart,
-                chunkEnd
-            );
+            const {chunk, contentLength} = isR2MediaSrcUrl(spec.srcUrl)
+                ? await fetchMediaChunk(
+                      spec,
+                      chunkStart,
+                      chunkEnd,
+                      bucket,
+                      requestUrl
+                  )
+                : await fetchChunk(spec, chunkStart, chunkEnd);
             return new Response(chunk, {
                 status: 200,
                 headers: {
@@ -111,6 +125,9 @@ async function handleGET(pathPieces: string[], spec: CDROMSpec) {
  * get_output_manifest from import-cd-roms.py does.
  */
 async function handlePUT(srcUrl: string) {
+    if (isR2MediaSrcUrl(srcUrl)) {
+        return errorResponse("R2 media URLs are internal");
+    }
     const response = await fetch(srcUrl, {
         method: "HEAD",
         headers: {
@@ -167,7 +184,7 @@ async function fetchChunk(
     spec: CDROMSpec,
     chunkStart: number,
     chunkEnd: number
-) {
+): Promise<{chunk: ArrayBuffer; contentLength: number}> {
     // Don't allow Cloudflare to cache requests in large files, since it will attempt
     // to read the entire file (as opposed to just the range that we requested).
     const isLargeFile =
@@ -201,6 +218,79 @@ async function fetchChunk(
         chunk: srcBody,
         contentLength: srcBody.byteLength,
     };
+}
+
+async function fetchMediaChunk(
+    spec: CDROMSpec,
+    chunkStart: number,
+    chunkEnd: number,
+    bucket: R2Bucket,
+    requestUrl: URL
+) {
+    if (!bucket) {
+        if (import.meta.env.DEV) {
+            return fetchLocalMediaChunk(spec, chunkStart, chunkEnd, requestUrl);
+        }
+        throw new Error("Bucket not configured");
+    }
+    return fetchR2MediaChunk(spec, chunkStart, chunkEnd, bucket);
+}
+
+async function fetchR2MediaChunk(
+    spec: CDROMSpec,
+    chunkStart: number,
+    chunkEnd: number,
+    bucket: R2Bucket
+) {
+    const object = await bucket.get(r2MediaKey(spec), {
+        range: {
+            offset: chunkStart,
+            length: chunkEnd - chunkStart,
+        },
+    });
+    if (object === null) {
+        throw new Error("R2 media object not found");
+    }
+    if (!("body" in object)) {
+        throw new Error("R2 media object has no body");
+    }
+    const chunk = await object.arrayBuffer();
+    return {
+        chunk,
+        contentLength: chunk.byteLength,
+    };
+}
+
+async function fetchLocalMediaChunk(
+    spec: CDROMSpec,
+    chunkStart: number,
+    chunkEnd: number,
+    requestUrl: URL
+) {
+    // Locally we don't have a R2 bucket configured, serve files directly
+    // from the build directory (where import-cd-roms.py puts them).
+    const mediaUrl = new URL(`/CD-ROMs/build/${r2MediaKey(spec)}`, requestUrl);
+    const response = await fetch(mediaUrl, {
+        headers: {Range: `bytes=${chunkStart}-${chunkEnd - 1}`},
+    });
+    if (!response.ok) {
+        throw new Error(
+            `Local media fetch failed: ${response.status}/${response.statusText}`
+        );
+    }
+    let chunk = await response.arrayBuffer();
+    if (response.status !== 206) {
+        chunk = chunk.slice(chunkStart, chunkEnd);
+    }
+    return {chunk, contentLength: chunk.byteLength};
+}
+
+function isR2MediaSrcUrl(srcUrl: string) {
+    return /^r2:\/\/media\/[0-9a-f]{64}\.media$/.test(srcUrl);
+}
+
+function r2MediaKey(spec: CDROMSpec): string {
+    return spec.srcUrl.replace(/^r2:\/\//, "");
 }
 
 function errorResponse(message: string, status: number = 400): Response {

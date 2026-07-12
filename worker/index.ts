@@ -41,7 +41,7 @@ async function handleRequest(
         return varz.handleErrorzRequest(request, env.VARZ);
     }
     if (path[0] === "CD-ROM") {
-        return cdrom.handleRequest(url.pathname, request.method);
+        return cdrom.handleRequest(request, env.DISK_BUCKET);
     }
     if (path[0] === "Library") {
         return library.handleRequest(request, env.ASSETS);

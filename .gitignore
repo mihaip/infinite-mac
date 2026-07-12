@@ -31,6 +31,7 @@ src/Data/*.dsk.json
 # generated CD-ROM catalog
 src/Data/CD-ROMs.json
 public/Covers
+/CD-ROMs/build
 
 # generated library catalog (index and details)
 src/Data/Library-index.json

@@ -43,6 +43,7 @@ export default defineConfig(() => {
         assetsInclude: [
             "**/*.rom",
             "**/*.hda",
+            "**/*.media",
             "**/*nvram.bin",
             "**/*pram.bin",
         ],

@@ -11,6 +11,8 @@ time {
         sync \
         --progress \
         --fast-list \
+        --exclude "/media/**" \
+        --s3-no-check-bucket \
         --no-update-modtime \
         --size-only \
         --transfers 32 \
