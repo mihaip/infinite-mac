@@ -5,6 +5,9 @@
     "main": "worker/index.ts",
     "name": "infinite-mac",
     "workers_dev": false,
+    "cache": {
+        "enabled": false,
+    },
     "kv_namespaces": [
         {
             "binding": "VARZ",
@@ -34,6 +37,9 @@
     },
     "env": {
         "production": {
+            "cache": {
+                "enabled": true,
+            },
             "kv_namespaces": [
                 {
                     "binding": "VARZ",

@@ -66,6 +66,7 @@ async function renderSSRImpl(
         status: 200,
         statusText: "OK",
         headers: {
+            "Cache-Control": "private, no-store",
             "Content-Type": "text/html; charset=utf-8",
         },
     });
