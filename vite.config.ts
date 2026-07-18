@@ -19,13 +19,23 @@ export default defineConfig(() => {
         environments: {
             client: {
                 build: {
-                    rollupOptions: {
+                    rolldownOptions: {
                         input: {
                             main: path.resolve(__dirname, "index.html"),
                             monkey: path.resolve(
                                 __dirname,
                                 "monkey/index.html"
                             ),
+                        },
+                        output: {
+                            codeSplitting: {
+                                groups: [
+                                    {
+                                        name: "shared",
+                                        minShareCount: 2,
+                                    },
+                                ],
+                            },
                         },
                     },
                 },
