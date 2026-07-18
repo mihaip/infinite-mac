@@ -33,6 +33,7 @@ export default defineConfig(() => {
         },
         build: {
             outDir: "build",
+            assetsDir: "assets/0",
             minify: true,
             // the library index is 1.5MB (before gzip), which is unavoidable.
             chunkSizeWarningLimit: 2048,

@@ -52,10 +52,13 @@ async function handleRequest(
 
     const legacyDomainRedirect = getLegacyDomainRedirect(url);
     if (legacyDomainRedirect) {
-        return Response.redirect(
-            "https://infinitemac.org" + legacyDomainRedirect,
-            301
-        );
+        return new Response(null, {
+            status: 301,
+            headers: {
+                "Cache-Control": "private, no-store",
+                "Location": "https://infinitemac.org" + legacyDomainRedirect,
+            },
+        });
     }
 
     if (canRenderSSR(url)) {
@@ -67,8 +70,8 @@ async function handleRequest(
 
     try {
         const assetResponse = await env.ASSETS.fetch(request);
-        const response = new Response(assetResponse.body, assetResponse);
         const {pathname} = url;
+        const response = normalizeAssetResponse(assetResponse, pathname);
 
         // Force a MIME type from the list at
         // https://support.cloudflare.com/hc/en-us/articles/200168396 to ensure
@@ -84,6 +87,15 @@ async function handleRequest(
             response.headers.set("Content-Type", "multipart/mixed");
         }
 
+        // Static content uses a content hash in the URL, so it can be cached
+        // for a while (30 days).
+        if (isStaticAssetPath(pathname) && response.ok) {
+            response.headers.set(
+                "Cache-Control",
+                `max-age=${60 * 60 * 24 * 30}`
+            );
+        }
+
         return applyCommonHeaders(response, pathname);
     } catch (e) {
         console.error("Error serving asset:", e);
@@ -91,6 +103,32 @@ async function handleRequest(
         const err = e as Error;
         return new Response(err.message || err.toString(), {status: 500});
     }
+}
+
+function normalizeAssetResponse(response: Response, pathname: string) {
+    // The SPA fallback returns index.html with a 200 status for missing
+    // files. Never allow that response to be cached under an asset URL.
+    if (
+        isStaticAssetPath(pathname) &&
+        response.headers
+            .get("Content-Type")
+            ?.toLowerCase()
+            .startsWith("text/html")
+    ) {
+        return new Response("Not found", {
+            status: 404,
+            headers: {
+                "Cache-Control": "private, no-store",
+                "Content-Type": "text/plain; charset=utf-8",
+            },
+        });
+    }
+
+    return new Response(response.body, response);
+}
+
+function isStaticAssetPath(pathname: string) {
+    return pathname.startsWith("/assets/");
 }
 
 function applyCommonHeaders(response: Response, pathname: string) {
@@ -106,12 +144,6 @@ function applyCommonHeaders(response: Response, pathname: string) {
     // Allow the service worker to intercept all paths, even when
     // initiated from a year subpath.
     response.headers.set("Service-Worker-Allowed", "/");
-
-    // Static content uses a content hash in the URL, so it can be cached
-    // for a while (30 days).
-    if (pathname.startsWith("/assets")) {
-        response.headers.set("Cache-Control", `max-age=${60 * 60 * 24 * 30}`);
-    }
 
     return response;
 }
