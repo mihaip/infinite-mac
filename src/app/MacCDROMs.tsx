@@ -282,7 +282,7 @@ function MacCDROM({cdrom, onRun}: {cdrom: EmulatorCDROM; onRun: () => void}) {
         if (cdrom.isFloppy) {
             if (fileSize <= 500_000) {
                 coverImageUrl = defaultFloppySDImage;
-            } else if (fileSize <= 1_200_000) {
+            } else if (fileSize <= 1_300_000) {
                 coverImageUrl = defaultFloppyDDImage;
             } else {
                 coverImageUrl = defaultFloppyHDImage;
