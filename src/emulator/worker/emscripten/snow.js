@@ -4187,15 +4187,15 @@ var memory = makeInvalidEarlyAccess("memory");
 
 var __indirect_function_table = makeInvalidEarlyAccess("__indirect_function_table");
 
-var __ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E");
+var __ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E");
 
-var __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE");
+var __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE");
 
-var __ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E");
+var __ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE");
 
-var __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E");
+var __ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E");
 
-var __ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E");
+var __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E");
 
 var ___cpp_exception = makeInvalidEarlyAccess("___cpp_exception");
 
@@ -4226,11 +4226,11 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports["__set_stack_limits"] != "undefined", "missing Wasm export: __set_stack_limits");
   assert(typeof wasmExports["memory"] != "undefined", "missing Wasm export: memory");
   assert(typeof wasmExports["__indirect_function_table"] != "undefined", "missing Wasm export: __indirect_function_table");
-  assert(typeof wasmExports["_ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E");
-  assert(typeof wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE");
-  assert(typeof wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E");
-  assert(typeof wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E");
-  assert(typeof wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E");
+  assert(typeof wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E");
+  assert(typeof wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE");
+  assert(typeof wasmExports["_ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE");
+  assert(typeof wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E");
+  assert(typeof wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E");
   assert(typeof wasmExports["__cpp_exception"] != "undefined", "missing Wasm export: __cpp_exception");
   _main = Module["_main"] = createExportWrapper("main", 2);
   _malloc = createExportWrapper("malloc", 1);
@@ -4256,11 +4256,11 @@ function assignWasmExports(wasmExports) {
   ___set_stack_limits = Module["___set_stack_limits"] = createExportWrapper("__set_stack_limits", 2);
   memory = wasmMemory = wasmExports["memory"];
   __indirect_function_table = wasmExports["__indirect_function_table"];
-  __ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"] = wasmExports["_ZN9snow_core3mac4scsi7printer1_6__CTOR17hf0848195200fb618E"].value;
-  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE"] = wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h86b20c8714aa842fE"].value;
-  __ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E"] = wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h9ac91ae3d51b09c7E"].value;
-  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E"] = wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17hb7577b7f0fe65ef5E"].value;
-  __ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E"] = wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17hcbb4a8f3045fb6f9E"].value;
+  __ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E"] = wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E"].value;
+  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE"] = wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE"].value;
+  __ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE"] = wasmExports["_ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE"].value;
+  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"] = wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"].value;
+  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E"] = wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E"].value;
   ___cpp_exception = wasmExports["__cpp_exception"];
 }
 
