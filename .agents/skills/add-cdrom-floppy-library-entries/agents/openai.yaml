@@ -1,0 +1,4 @@
+interface:
+  display_name: "Add CD-ROM/Floppy Library Entries"
+  short_description: "Create Infinite Mac media library manifests"
+  default_prompt: "Use $add-cdrom-floppy-library-entries to add Internet Archive CD-ROM or floppy entries to the Infinite Mac library."
