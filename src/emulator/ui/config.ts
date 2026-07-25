@@ -458,6 +458,8 @@ export function configToSnowArgs(
     for (const diskFile of config.diskFiles) {
         if (diskFile.isCDROM) {
             args.push("--cdrom", diskFile.name);
+        } else if (diskFile.isFloppy) {
+            args.push("--floppy", diskFile.name);
         } else {
             args.push("--disk", diskFile.name);
         }

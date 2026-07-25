@@ -10,9 +10,12 @@ import {
     type EmulatorSettings,
 } from "@/emulator/ui/settings";
 import {
+    diskImageExtensions,
     type EmulatorCDROM,
     type EmulatorStats,
+    floppyDiskImageExtensions,
     isDiskImageFile,
+    isFloppyDiskImageFileName,
 } from "@/emulator/common/common";
 import {useDevicePixelRatio} from "@/lib/useDevicePixelRatio";
 import {usePersistentState} from "@/lib/usePersistentState";
@@ -204,8 +207,11 @@ export default function Mac({
     }, []);
 
     const {emulatorType} = machine;
-    const canLoadFiles =
-        runDefSupportsDownloadsFolder(runDef) || runDefSupportsCDROMs(runDef);
+    const canLoadFiles = runDefSupportsDownloadsFolder(runDef);
+    const canLoadCDROMs = runDefSupportsCDROMs(runDef);
+    const canLoadFloppies = runDefSupportsFloppies(runDef);
+    const canLoadFilesOrDisks =
+        canLoadFiles || canLoadCDROMs || canLoadFloppies;
 
     const onDoneRef = useRef(onDone);
     onDoneRef.current = onDone;
@@ -273,6 +279,7 @@ export default function Mac({
                     url: URL.createObjectURL(df.file),
                     size: df.file.size,
                     isCDROM: df.treatAsCDROM,
+                    isFloppy: df.treatAsFloppy,
                     hasDeviceImageHeader: df.hasDeviceImageHeader,
                 })),
                 delayedDisks,
@@ -752,7 +759,7 @@ export default function Mac({
     function handleDrop(event: React.DragEvent) {
         event.preventDefault();
         setDragCount(0);
-        if (!canLoadFiles) {
+        if (!canLoadFilesOrDisks) {
             setEmulatorErrorText(
                 "This emulator does not support loading files."
             );
@@ -768,6 +775,12 @@ export default function Mac({
             for (const item of event.dataTransfer.items) {
                 const entry = item.webkitGetAsEntry?.();
                 if (entry?.isDirectory) {
+                    if (!canLoadFiles) {
+                        setEmulatorErrorText(
+                            "This emulator only supports loading disk images."
+                        );
+                        return;
+                    }
                     uploadDirectory(
                         emulator,
                         entry as FileSystemDirectoryEntry,
@@ -802,6 +815,23 @@ export default function Mac({
             }
         }
 
+        if (!canLoadFiles) {
+            if (files.some(file => !isDiskImageFile(file))) {
+                setEmulatorErrorText(
+                    "This emulator only supports loading disk images."
+                );
+                return;
+            }
+            if (
+                !canLoadCDROMs &&
+                files.some(file => !isFloppyDiskImageFileName(file.name))
+            ) {
+                setEmulatorErrorText(
+                    "This emulator only supports loading floppy images."
+                );
+                return;
+            }
+        }
         uploadFiles(emulator, files, undefined, {
             onResourceForkUpload: handleResourceForkUpload,
         });
@@ -810,7 +840,14 @@ export default function Mac({
     function handleLoadFileClick() {
         const input = document.createElement("input");
         input.type = "file";
-        input.multiple = true;
+        if (canLoadFiles) {
+            input.multiple = true;
+        } else {
+            input.accept = canLoadCDROMs
+                ? diskImageExtensions.join(",")
+                : floppyDiskImageExtensions.join(",");
+        }
+
         input.onchange = () => {
             // Use the drag overlay to instruct users what will happen when they
             // select a file. We can't show this sooner (as as soon as we send
@@ -865,8 +902,13 @@ export default function Mac({
             handler: onDone,
             alwaysVisible: true,
         },
-        ...(canLoadFiles
-            ? [{label: "Load File", handler: handleLoadFileClick}]
+        ...(canLoadFilesOrDisks
+            ? [
+                  {
+                      label: canLoadFiles ? "Load File" : "Load Disk",
+                      handler: handleLoadFileClick,
+                  },
+              ]
             : []),
         {label: "Full Screen", handler: handleFullScreenClick},
         {label: "Settings", handler: handleSettingsClick},
@@ -972,7 +1014,7 @@ export default function Mac({
                     />
                 }>
                 {progress}
-                {canLoadFiles && dragCount > 0 && (
+                {canLoadFilesOrDisks && dragCount > 0 && (
                     <div
                         className={classNames(
                             "Mac-Overlay",

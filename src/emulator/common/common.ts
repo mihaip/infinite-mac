@@ -300,6 +300,7 @@ export type EmulatorFileUpload = {name: string; url: string; size: number};
 
 export type EmulatorDiskFile = EmulatorFileUpload & {
     isCDROM: boolean;
+    isFloppy?: boolean;
     hasDeviceImageHeader?: boolean;
 };
 
@@ -470,6 +471,15 @@ export type EmulatorWorkerDirectorExtractionDirectoryEntry = {
 export type EmulatorWorkerDirectorExtraction =
     EmulatorWorkerDirectorExtractionDirectoryEntry;
 
+export const floppyDiskImageExtensions = [
+    ".a2r",
+    ".dart",
+    ".dc42",
+    ".moof",
+    ".pri",
+    ".pfi",
+];
+
 export const diskImageExtensions = [
     ".iso",
     ".hda",
@@ -479,6 +489,7 @@ export const diskImageExtensions = [
     ".toast",
     ".cdr",
     ".smi",
+    ...floppyDiskImageExtensions,
 ];
 
 type File = {name: string; size: number};
@@ -489,6 +500,11 @@ export function isDiskImageFile(file: File): boolean {
         isCDROMBinFile(file) ||
         diskImageExtensions.some(ext => name.endsWith(ext))
     );
+}
+
+export function isFloppyDiskImageFileName(name: string): boolean {
+    name = name.toLowerCase();
+    return floppyDiskImageExtensions.some(ext => name.endsWith(ext));
 }
 
 export function isCDROMBinFile({name, size}: File): boolean {

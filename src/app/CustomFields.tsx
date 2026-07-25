@@ -18,6 +18,7 @@ import {
 } from "@/defs/disks";
 import {
     diskImageExtensions,
+    isFloppyDiskImageFileName,
     type EmulatorConfigFlags,
 } from "@/emulator/common/common";
 import {
@@ -33,11 +34,7 @@ import {
     machineSupportsInfiniteHD,
     machineSupportsSavedHD,
 } from "@/defs/machines";
-import {
-    runDefSupportsBlueSCSI,
-    type RunDef,
-    type ScreenSize,
-} from "@/defs/run-def";
+import {type RunDef, type ScreenSize} from "@/defs/run-def";
 import allowedCDROMDomains from "@/defs/cdrom-sites.json";
 
 const ALL_DISKS_BY_NAME = {
@@ -142,6 +139,9 @@ export function CustomFields({
                                     file.name.endsWith(".iso") ||
                                     file.name.endsWith(".toast") ||
                                     file.name.endsWith(".cdr"),
+                                treatAsFloppy: isFloppyDiskImageFileName(
+                                    file.name
+                                ),
                                 hasDeviceImageHeader:
                                     file.name.endsWith(".hda"),
                             },

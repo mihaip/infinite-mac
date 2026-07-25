@@ -18,6 +18,7 @@ import {
     ethernetMacAddressFromString,
     InputBufferAddresses,
     isCDROMBinFile,
+    isFloppyDiskImageFileName,
 } from "@/emulator/common/common";
 import {
     type EmulatorWorkerAudio,
@@ -218,6 +219,7 @@ class EmulatorWorkerApi {
                     if (
                         deviceImageType !== null &&
                         !spec.isCDROM &&
+                        !spec.isFloppy &&
                         !spec.hasDeviceImageHeader
                     ) {
                         return new EmulatorWorkerDeviceImageDisk(
@@ -456,6 +458,9 @@ class EmulatorWorkerApi {
                 );
                 if (isCDROMBinFile(upload)) {
                     disk = new EmulatorWorkerMode1SectorDisk(disk);
+                }
+                if (isFloppyDiskImageFileName(upload.name)) {
+                    disk.isFloppy = true;
                 }
                 this.disks.addDisk(disk);
             } else {
