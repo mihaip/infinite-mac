@@ -1049,17 +1049,17 @@ export default function Mac({
             </ScreenFrame>
             {drawersVisible && (
                 <DrawersContainer>
-                    {runDefSupportsCDROMs(runDef) && (
-                        <MacCDROMs
-                            onRun={loadCDROM}
-                            platform={machine.platform}
-                        />
-                    )}
                     {runDefSupportsFloppies(runDef) && (
                         <MacCDROMs
                             onRun={loadCDROM}
                             platform={machine.platform}
                             floppies
+                        />
+                    )}
+                    {runDefSupportsCDROMs(runDef) && (
+                        <MacCDROMs
+                            onRun={loadCDROM}
+                            platform={machine.platform}
                         />
                     )}
                     {includeLibrary &&

@@ -93,7 +93,7 @@ export function runDefSupportsCDROMs(runDef: RunDef): boolean {
 }
 
 export function runDefSupportsFloppies(runDef: RunDef): boolean {
-    if (runDef.machine.emulatorType === "Snow" && !runDef.machine.hasSCSI) {
+    if (runDef.machine.emulatorType === "Snow") {
         return true;
     }
     return false;
