@@ -51,6 +51,26 @@
     overflow: hidden;
 }
 
+.Mac-CDROM.Floppy {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    width: 240px;
+    max-width: none;
+    text-align: left;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.Mac-CDROM.Floppy .Mac-CDROM-Cover {
+    height: 32px;
+    flex-shrink: 0;
+}
+
+.Mac-CDROM.Floppy .Mac-CDROM-Name {
+    font-size: 14px;
+}
+
 @media (max-width: 640px) {
     .Mac-CDROMs-Controls {
         flex-direction: column;

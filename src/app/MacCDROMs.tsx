@@ -268,6 +268,7 @@ function MacCDROM({cdrom, onRun}: {cdrom: EmulatorCDROM; onRun: () => void}) {
         coverImageSize,
         coverImageType = "round",
         fileSize,
+        isFloppy,
     } = cdrom;
     let coverClassName, coverImageUrl, coverImageWidth, coverImageHeight;
     if (coverImageHash && coverImageSize) {
@@ -279,7 +280,7 @@ function MacCDROM({cdrom, onRun}: {cdrom: EmulatorCDROM; onRun: () => void}) {
     } else {
         coverClassName = classNames("Mac-CDROM-Cover", "Default");
         coverImageWidth = coverImageHeight = 32;
-        if (cdrom.isFloppy) {
+        if (isFloppy) {
             if (fileSize <= 500_000) {
                 coverImageUrl = defaultFloppySDImage;
             } else if (fileSize <= 1_300_000) {
@@ -295,7 +296,11 @@ function MacCDROM({cdrom, onRun}: {cdrom: EmulatorCDROM; onRun: () => void}) {
         }
     }
     return (
-        <div className="Mac-CDROM" onClick={onRun}>
+        <div
+            className={classNames("Mac-CDROM", {
+                "Floppy": isFloppy,
+            })}
+            onClick={onRun}>
             <img
                 className={coverClassName}
                 src={coverImageUrl}
