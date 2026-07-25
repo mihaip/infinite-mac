@@ -138,15 +138,19 @@ def get_source_info(
         raise Exception("Manifest must have exactly one of src_url or src_file")
     if has_src_file:
         media = load_media_file(input_manifest)
-        media_hash = hashlib.sha256(media).hexdigest()
-        media_key = f"{MEDIA_R2_PREFIX}/{media_hash}.media"
-        if write_media:
-            write_local_media(media_key, media)
-        if sync_media:
-            sync_media_to_r2(media_key, media, media_rclone_remote)
-        return f"r2://{media_key}", len(media)
+        return get_self_hosted_source_info(
+            media, write_media, sync_media, media_rclone_remote)
 
     src_url = input_manifest["src_url"]
+    if input_manifest.get("is_floppy"):
+        media = urls.read_url(
+            src_url,
+            on_cache_miss=lambda: sys.stderr.write(
+                "  Downloading media for self-hosting: %s\n" % src_url),
+        )
+        return get_self_hosted_source_info(
+            media, write_media, sync_media, media_rclone_remote)
+
     headers = urls.read_url_headers(src_url)
     file_size = int(headers["Content-Length"])
     accepts_ranges = headers.get("Accept-Ranges") == "bytes"
@@ -154,6 +158,21 @@ def get_source_info(
         sys.stderr.write("  WARNING: %s does not support range requests\n" %
                          src_url)
     return src_url, file_size
+
+
+def get_self_hosted_source_info(
+    media: bytes,
+    write_media: bool,
+    sync_media: bool,
+    media_rclone_remote: str,
+) -> typing.Tuple[str, int]:
+    media_hash = hashlib.sha256(media).hexdigest()
+    media_key = f"{MEDIA_R2_PREFIX}/{media_hash}.media"
+    if write_media:
+        write_local_media(media_key, media)
+    if sync_media:
+        sync_media_to_r2(media_key, media, media_rclone_remote)
+    return f"r2://{media_key}", len(media)
 
 
 def write_local_media(media_key: str, media: bytes) -> None:
@@ -332,7 +351,7 @@ def main():
     parser.add_argument(
         "--sync-media",
         action="store_true",
-        help="upload src_file media to Cloudflare R2 if missing",
+        help="upload self-hosted media to Cloudflare R2 if missing",
     )
     parser.add_argument(
         "--media-rclone-remote",

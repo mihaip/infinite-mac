@@ -48,9 +48,9 @@ Common development tasks, all done via `npm run`:
     - This will invoke the native macOS versions of Mini vMac and Basilisk II as a final step, to ensure that the generated disk has a valid desktop database. If they are not installed, a warning will be logged and the generated disk may take longer to mount.
     - To speed up the Mini vMac building step, you can change its speed: press Control-S to bring up the speed menu, and then the A to choose "All Out"
     - Note that both Mini vMac and Basilisk II will be launched as part of this process. Once they seem done and you can see Infinite HD, use the "Shut Down" command to cleanly turn off the emulated machine and then quit the respective emulator so that the task can continue.
-- `import-cd-roms`: Build CD-ROM library (actual CD-ROMs are hosted on archive.org and other sites, the library contains metadata)
+- `import-cd-roms`: Build CD-ROM and floppy libraries (most CD-ROMs are hosted on other sites, while floppies and local media are self-hosted)
     - `placeholder` may be passed in as an argument to make an empty CD-ROM library
-    - `--sync-media` may be passed in to sync local mmedia files to the Cloudflare R2 bucket (this is separate from the disk image sync process done by `sync-disks.sh`)
+    - `--sync-media` may be passed in to sync self-hosted media files to the Cloudflare R2 bucket (this is separate from the disk image sync process done by `sync-disks.sh`)
 - `import-library`: Build downloads library (actual downloads are hosted on macintoshgarden.org and other sites, the library contains metadata)
     - `placeholder` may be passed in as an argument to make the script generate a minimal library that does not depend on a Macintosh Garden data dump.
 
