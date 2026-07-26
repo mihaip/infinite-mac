@@ -23,6 +23,7 @@ import zipfile
 
 ImportFolders = typing.Tuple[
     typing.Dict[str, machfs.Folder],  # Universal folders
+    typing.Dict[str, machfs.Folder],  # Folders that for System 6 and earlier
     typing.Dict[str, machfs.Folder],  # Folders that need System 7
     typing.Dict[str, machfs.Folder],  # Folders that need Mac OS X
 ]
@@ -30,11 +31,13 @@ ImportFolders = typing.Tuple[
 
 def get_import_folders() -> ImportFolders:
     import_folders = {}
+    import_folders6 = {}
     import_folders7 = {}
     import_foldersX = {}
 
-    manifest_folders, manifest_folders7, manifest_foldersX = import_manifests()
+    manifest_folders, manifest_folders6, manifest_folders7, manifest_foldersX = import_manifests()
     import_folders.update(manifest_folders)
+    import_folders6.update(manifest_folders6)
     import_folders7.update(manifest_folders7)
     import_foldersX.update(manifest_foldersX)
 
@@ -43,12 +46,13 @@ def get_import_folders() -> ImportFolders:
     import_folders7.update(zip_folders7)
     import_foldersX.update(zip_foldersX)
 
-    return import_folders, import_folders7, import_foldersX
+    return import_folders, import_folders6, import_folders7, import_foldersX
 
 
 def import_manifests() -> ImportFolders:
     sys.stderr.write("Importing other images\n")
     import_folders = {}
+    import_folders6 = {}
     import_folders7 = {}
     import_foldersX = {}
     debug_filter = os.getenv("DEBUG_LIBRARY_FILTER")
@@ -91,10 +95,12 @@ def import_manifests() -> ImportFolders:
             import_foldersX[folder_path] = folder
         elif manifest_json.get("needs_system_7"):
             import_folders7[folder_path] = folder
+        elif manifest_json.get("system_6_only"):
+            import_folders6[folder_path] = folder
         else:
             import_folders[folder_path] = folder
 
-    return import_folders, import_folders7, import_foldersX
+    return import_folders, import_folders6, import_folders7, import_foldersX
 
 
 def import_manifest(manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:
@@ -562,6 +568,7 @@ SYSTEM7_ZIP_PATHS = {
     "Graphics/Adobe Photoshop 3.0",
     "Graphics/Canvas 3.5",
     "Graphics/Infini-D",
+    "Utilities/StuffIt Expander 5.5",
 }
 
 MAC_OS_X_ZIP_PATHS = {}
@@ -684,14 +691,16 @@ def clear_folder_window_position(folder: machfs.Folder) -> None:
 
 
 def build_images() -> typing.Tuple[bytes, bytes, bytes]:
-    import_folders, import_folders7, import_foldersX = get_import_folders()
+    import_folders, import_folders6, import_folders7, import_foldersX = get_import_folders()
 
-    v = machfs.Volume()
-    with open(os.path.join(paths.IMAGES_DIR, "Infinite HD.dsk"), "rb") as base:
-        v.read(base.read())
-    v.name = "Infinite HD"
+    def create_base_volume() -> machfs.Volume:
+        v = machfs.Volume()
+        with open(os.path.join(paths.IMAGES_DIR, "Infinite HD.dsk"), "rb") as base:
+            v.read(base.read())
+        v.name = "Infinite HD"
+        return v
 
-    def add_folders(folders: typing.Dict[str, machfs.Folder]) -> None:
+    def add_folders(v: machfs.Volume, folders: typing.Dict[str, machfs.Folder]) -> None:
         for folder_path, folder in folders.items():
             parent_folder_path, folder_name = os.path.split(folder_path)
             parent = traverse_folders(v, parent_folder_path)
@@ -703,31 +712,29 @@ def build_images() -> typing.Tuple[bytes, bytes, bytes]:
                 continue
             parent[folder_name] = folder
 
-    add_folders(import_folders)
-
-    image6 = v.write(
+    v6 = create_base_volume()
+    add_folders(v6, import_folders)
+    add_folders(v6, import_folders6)
+    image6 = v6.write(
         size=1000 * 1024 * 1024,
         align=512,
         desktopdb=False,
         bootable=False,
     )
 
-    add_folders(import_folders7)
-    image = v.write(
+    v7 = create_base_volume()
+    add_folders(v7, import_folders)
+    add_folders(v7, import_folders7)
+    image = v7.write(
         size=2000 * 1024 * 1024,
         align=512,
         desktopdb=False,
         bootable=False,
     )
 
-    # Not much point in including Classic software for the Mac OS X image, so
-    # we start with a fresh volume.
-    v = machfs.Volume()
-    with open(os.path.join(paths.IMAGES_DIR, "Infinite HD.dsk"), "rb") as base:
-        v.read(base.read())
-    v.name = "Infinite HD"
-    add_folders(import_foldersX)
-    imageX = v.write(
+    vX = create_base_volume()
+    add_folders(vX, import_foldersX)
+    imageX = vX.write(
         size=2500 * 1024 * 1024,
         align=512,
         desktopdb=False,

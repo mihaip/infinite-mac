@@ -317,7 +317,7 @@ const SYSTEM_6_0_5: SystemDiskDef = {
 
 const SYSTEM_6_0_6: PlaceholderDiskDef = {
     type: "placeholder",
-    displayName: "System 6.0.6.",
+    displayName: "System 6.0.6",
     releaseDate: [1990, 10, 15], // Official release date is not known.
     description: "Never officially released due to an AppleTalk bug.",
     preferredMachine: MAC_SE,
