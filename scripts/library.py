@@ -2,10 +2,13 @@ import copy
 import datetime
 import glob
 import json
+import logging
 import machfs
 import machfs.main
 import os
 import paths
+import plistlib
+import shutil
 import struct
 import subprocess
 import sys
@@ -731,4 +734,100 @@ def build_images() -> typing.Tuple[bytes, bytes, bytes]:
         bootable=False,
     )
 
+    if os.getenv("DEBUG_FSCK_HFS"):
+        check_hfs_images(
+            [
+                ("Infinite HD6.dsk", image6),
+                ("Infinite HD.dsk", image),
+                ("Infinite HDX.dsk", imageX),
+            ]
+        )
+
     return image6, image, imageX
+
+
+def check_hfs_images(images: typing.List[typing.Tuple[str, bytes]]) -> None:
+    fsck_hfs_path = shutil.which("fsck_hfs")
+    if not fsck_hfs_path:
+        logging.warning(
+            "DEBUG_FSCK_HFS is set, but fsck_hfs is not available; "
+            "skipping HFS checks"
+        )
+        return
+
+    if not os.path.exists(paths.HDIUTIL_PATH):
+        logging.warning(
+            "DEBUG_FSCK_HFS is set, but hdiutil is not available; "
+            "skipping HFS checks"
+        )
+        return
+
+    for image_name, image_data in images:
+        device = None
+        sys.stderr.write("Checking %s with fsck_hfs...\n" % image_name)
+        with tempfile.NamedTemporaryFile(suffix=".dsk") as image_file:
+            image_file.write(image_data)
+            image_file.flush()
+            try:
+                attach_result = subprocess.run(
+                    [
+                        paths.HDIUTIL_PATH,
+                        "attach",
+                        "-plist",
+                        "-imagekey",
+                        "diskimage-class=CRawDiskImage",
+                        "-nomount",
+                        "-readonly",
+                        image_file.name,
+                    ],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                )
+                attach_info = plistlib.loads(attach_result.stdout)
+                entities = attach_info.get("system-entities", [])
+                devices = [
+                    entity["dev-entry"]
+                    for entity in entities
+                    if "dev-entry" in entity
+                ]
+                if not devices:
+                    raise RuntimeError("hdiutil did not return an attached device")
+                device = next(
+                    (
+                        entity["dev-entry"]
+                        for entity in entities
+                        if entity.get("potentially-mountable")
+                        and "dev-entry" in entity
+                    ),
+                    devices[-1],
+                )
+
+                fsck_result = subprocess.run(
+                    [fsck_hfs_path, "-fn", device],
+                    check=False,
+                )
+                if fsck_result.returncode != 0:
+                    logging.warning(
+                        "fsck_hfs found problems with %s (exit status %d)",
+                        image_name,
+                        fsck_result.returncode,
+                    )
+            except (OSError, plistlib.InvalidFileException, RuntimeError) as error:
+                logging.warning(
+                    "Could not check %s with fsck_hfs: %s", image_name, error
+                )
+            except subprocess.CalledProcessError as error:
+                logging.warning(
+                    "Could not attach %s for fsck_hfs (exit status %d)",
+                    image_name,
+                    error.returncode,
+                )
+            finally:
+                if device:
+                    detach_result = subprocess.run(
+                        [paths.HDIUTIL_PATH, "detach", device],
+                        check=False,
+                    )
+                    if detach_result.returncode != 0:
+                        logging.warning("Could not detach %s after fsck_hfs", device)
+

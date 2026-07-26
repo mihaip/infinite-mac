@@ -5,7 +5,7 @@ description = "Infinite Mac build tooling"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "machfs @ git+https://github.com/mihaip/machfs.git@0d2a3b200b2bd08f64039fdfed34c7f535479398",
+    "machfs @ git+https://github.com/mihaip/machfs.git@b859c57fd12643c1f759512cc9e1b7ef5b385c89",
     "beautifulsoup4==4.12.2",
     "Pillow>=10.3.0",
     "xattr==1.1.4",
