@@ -264,6 +264,11 @@ class EmulatorWorkerApi {
         postMessage({type: "emulator_did_have_error", error});
     }
 
+    reportError(error: string) {
+        console.error(error);
+        postMessage({type: "emulator_did_have_error", error});
+    }
+
     exit() {
         this.#handleStop(true);
         for (;;) {
