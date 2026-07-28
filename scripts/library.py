@@ -463,7 +463,7 @@ def import_dmg_folder(
 
     with tempfile.TemporaryDirectory() as tmp_dir_path:
         hdiutil_code = subprocess.run(
-            [paths.HDIUTIL_PATH, "attach", archive_path, "-mountpoint", tmp_dir_path],
+            [paths.HDIUTIL_PATH, "attach", archive_path, "-mountpoint", tmp_dir_path, "-nobrowse"],
             # Pipe in a "y" to accept the license agreement (if any).
             input=b"y\n",
             stdout=subprocess.DEVNULL,

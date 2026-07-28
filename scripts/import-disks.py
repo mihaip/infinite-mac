@@ -249,7 +249,12 @@ def build_desktop_db6(images: typing.List[ImageDef]) -> None:
         boot_disk_path = os.path.join(
             paths.IMAGES_DIR, "System 6.0.8 - System Startup.img"
         )
-        minivmac.run([boot_disk_path] + [i.path for i in images])
+        # Mini vMac will then attempt to modify the boot disk, so make a
+        # temporary copy of it to avoid modifying the original.
+        with tempfile.NamedTemporaryFile(delete=False, prefix="boot_disk_", suffix=".img") as temp_boot_disk:
+            shutil.copyfile(boot_disk_path, temp_boot_disk.name)
+            boot_disk_path = temp_boot_disk.name
+            minivmac.run([boot_disk_path] + [i.path for i in images])
     except subprocess.CalledProcessError as e:
         sys.stderr.write("Failed to build System 6 Desktop, will continue.\n")
 
