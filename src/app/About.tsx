@@ -44,6 +44,7 @@ export function About({onDone}: {onDone: () => void}) {
                     <a href="https://persistent.info">Mihai Parparita</a> to
                     make classic Mac and NeXT emulation easily accessible. It
                     uses WebAssembly ports of{" "}
+                    <a href="https://snowemu.com/">Snow</a>,{" "}
                     <a href="https://www.gryphel.com/c/minivmac/">Mini vMac</a>,{" "}
                     <a href="https://basilisk.cebix.net/">Basilisk II</a>,{" "}
                     <a href="https://sheepshaver.cebix.net/">SheepShaver</a>,{" "}

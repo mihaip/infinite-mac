@@ -43,6 +43,7 @@ Common development tasks, all done via `npm run`:
     - `dingusppc`: DingusPPC from https://github.com/mihaip/dingusppc
     - `previous`: Previous from https://github.com/mihaip/previous
     - `pearpc`: PearPC from https://github.com/mihaip/pearpc
+    - `snow`: Snow from https://github.com/mihaip/snow
 - `import-disks`: Build disk images for serving. Copies base OS images for the above emulators, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving.
     - `placeholder` may be passed in as an argument to only build System 1 through 7.5.5, to skip populating the "Infinite HD" disk image.
     - This will invoke the native macOS versions of Mini vMac and Basilisk II as a final step, to ensure that the generated disk has a valid desktop database. If they are not installed, a warning will be logged and the generated disk may take longer to mount.
@@ -89,7 +90,7 @@ Common deployment tasks (also done via `npm run`)
 
 ### Building the emulators
 
-[Basilisk II](https://github.com/mihaip/macemu/tree/infinite-mac-kanjitalk755/BasiliskII), [SheepShaver](https://github.com/mihaip/macemu/tree/infinite-mac-kanjitalk755/SheepShaver), [Mini vMac](https://github.com/mihaip/minivmac/), [DingusPPC](https://github.com/mihaip/dingusppc), [Previous](https://github.com/mihaip/previous) and [PearPC](https://github.com/mihaip/pearpc) are the original 68K and PowerPC emulators that enable this project. They are hosted in separate repos and are included via Git submodules. Rebuilding them is only required when making changes to the emulator core, the generated files are in `src/emulator/worker/emscripten` and included in the Git repository.
+[Basilisk II](https://github.com/mihaip/macemu/tree/infinite-mac-kanjitalk755/BasiliskII), [SheepShaver](https://github.com/mihaip/macemu/tree/infinite-mac-kanjitalk755/SheepShaver), [Mini vMac](https://github.com/mihaip/minivmac/), [DingusPPC](https://github.com/mihaip/dingusppc), [Previous](https://github.com/mihaip/previous), [PearPC](https://github.com/mihaip/pearpc), and [Snow](https://github.com/mihaip/snow) are the original 68K and PowerPC emulators that enable this project. They are hosted in separate repos and are included via Git submodules. Rebuilding them is only required when making changes to the emulator core, the generated files are in `src/emulator/worker/emscripten` and included in the Git repository.
 
 To begin, ensure that you have a Docker image built with the Emscripten toolchain and supporting libraries:
 
