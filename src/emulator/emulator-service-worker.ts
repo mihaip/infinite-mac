@@ -203,14 +203,30 @@ async function handleDiskCacheRequest(request: Request): Promise<Response> {
         prefetchNextChunk(cache, request.url);
         const match = await cache.match(request);
         if (match) {
-            return match;
+            if (match.ok) {
+                return match;
+            }
+            // Remove error responses cached by older versions of the service
+            // worker before retrying the request against the network.
+            console.log(
+                "Deleting cached error response before retrying:",
+                request.url,
+                match.status
+            );
+            try {
+                await cache.delete(request);
+            } catch (e) {
+                console.error("Ignoring cache error: ", e);
+            }
         }
     }
     const response = await fetch(request);
-    try {
-        cache?.put(request, response.clone());
-    } catch (e) {
-        console.error("Ignoring cache error: ", e);
+    if (cache && response.ok) {
+        try {
+            await cache.put(request, response.clone());
+        } catch (e) {
+            console.error("Ignoring cache error: ", e);
+        }
     }
     return response;
 }
