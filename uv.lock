@@ -85,7 +85,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = "==4.12.2" },
-    { name = "machfs", git = "https://github.com/mihaip/machfs.git?rev=967b038d7be0b22926b3c7f8852592426ecab7ca" },
+    { name = "machfs", git = "https://github.com/mihaip/machfs.git?rev=51beb34983f80ff1890f8ef090655b250a766701" },
     { name = "pillow", specifier = ">=12.3.0" },
     { name = "xattr", specifier = "==1.1.4" },
 ]
@@ -93,7 +93,7 @@ requires-dist = [
 [[package]]
 name = "machfs"
 version = "1.2.4"
-source = { git = "https://github.com/mihaip/machfs.git?rev=967b038d7be0b22926b3c7f8852592426ecab7ca#967b038d7be0b22926b3c7f8852592426ecab7ca" }
+source = { git = "https://github.com/mihaip/machfs.git?rev=51beb34983f80ff1890f8ef090655b250a766701#51beb34983f80ff1890f8ef090655b250a766701" }
 dependencies = [
     { name = "macresources" },
 ]

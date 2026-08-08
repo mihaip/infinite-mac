@@ -698,6 +698,9 @@ def build_images() -> typing.Tuple[bytes, bytes, bytes]:
         with open(os.path.join(paths.IMAGES_DIR, "Infinite HD.dsk"), "rb") as base:
             v.read(base.read())
         v.name = "Infinite HD"
+        # Open the Infinite HD window by default, so that users are more enticed
+        # to explore it.
+        v.open_folder = v
         return v
 
     def add_folders(v: machfs.Volume, folders: typing.Dict[str, machfs.Folder]) -> None:
