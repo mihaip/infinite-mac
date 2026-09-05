@@ -80,7 +80,7 @@ export function runDefNeedsTheOutsideWorldDisk(runDef: RunDef): boolean {
 
 export function runDefSupportsCDROMs(runDef: RunDef): boolean {
     const type = runDef.machine.emulatorType;
-    if (type === "DingusPPC" || type === "PearPC") {
+    if (type === "PearPC") {
         return false;
     }
     if (type === "Snow" && !runDef.machine.hasSCSI) {

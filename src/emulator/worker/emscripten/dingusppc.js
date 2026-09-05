@@ -4494,6 +4494,8 @@ var _emscripten_asm_const_double = (code, sigPtr, argbuf) => runEmAsmFunction(co
 
 var _emscripten_asm_const_int = (code, sigPtr, argbuf) => runEmAsmFunction(code, sigPtr, argbuf);
 
+var _emscripten_asm_const_ptr = (code, sigPtr, argbuf) => runEmAsmFunction(code, sigPtr, argbuf);
+
 var abortOnCannotGrowMemory = requestedSize => {
   abort("OOM");
 };
@@ -4718,63 +4720,78 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 var ASM_CONSTS = {
-  202848: $0 => {
+  203856: $0 => {
     workerApi.setAbortError(UTF8ToString($0));
   },
-  202895: () => workerApi.acquireInputLock(),
-  202936: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
-  203025: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr),
-  203115: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
-  203205: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
-  203289: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
-  203373: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
-  203460: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
-  203547: () => {
+  203903: () => workerApi.acquireInputLock(),
+  203944: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
+  204033: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr),
+  204123: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
+  204213: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
+  204297: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
+  204381: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
+  204468: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
+  204555: () => {
     workerApi.releaseInputLock();
   },
-  203581: () => {
+  204589: () => {
     workerApi.sleep(0);
   },
-  203605: () => workerApi.acquireInputLock(),
-  203646: () => {
+  204613: () => workerApi.acquireInputLock(),
+  204654: () => {
     workerApi.releaseInputLock();
   },
-  203680: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
-  203765: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
-  203845: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
-  203926: ($0, $1, $2, $3) => {
+  204688: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
+  204773: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
+  204853: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
+  204934: () => {
+    const name = workerApi.disks.consumeCdromName();
+    if (!name) {
+      return 0;
+    }
+    const name_length = lengthBytesUTF8(name) + 1;
+    const name_cstr = _malloc(name_length);
+    stringToUTF8(name, name_cstr, name_length);
+    return name_cstr;
+  },
+  205161: $0 => {
+    workerApi.reportError(UTF8ToString($0));
+  },
+  205206: ($0, $1, $2, $3) => {
     workerApi.didOpenAudio($0, $1, $2, $3);
   },
-  203970: () => workerApi.audioBufferSize(),
-  204010: ($0, $1) => {
+  205250: () => workerApi.audioBufferSize(),
+  205290: ($0, $1) => {
     workerApi.enqueueAudio($0, $1);
   },
-  204046: ($0, $1) => {
+  205326: ($0, $1) => {
     workerApi.didOpenVideo($0, $1);
   },
-  204082: ($0, $1) => {
+  205362: ($0, $1) => {
     workerApi.blit($0, $1);
   },
-  204110: ($0, $1) => {
+  205390: ($0, $1) => {
     workerApi.blit($0, $1);
   },
-  204138: () => {
+  205418: () => {
     workerApi.blit(0, 0);
   },
-  204164: $0 => workerApi.disks.open(UTF8ToString($0)),
-  204215: $0 => {
+  205444: $0 => workerApi.disks.open(UTF8ToString($0)),
+  205495: $0 => {
     workerApi.disks.close($0);
   },
-  204246: $0 => workerApi.disks.size($0),
-  204283: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
-  204332: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3)
+  205526: $0 => workerApi.disks.size($0),
+  205563: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
+  205612: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3)
 };
 
 // Imports from the Wasm binary.
-var _main, _htons, _ntohs, __emscripten_timeout, _setThrew, __emscripten_stack_restore, __emscripten_stack_alloc, _emscripten_stack_get_current, memory, __indirect_function_table, wasmMemory, wasmTable;
+var _main, _free, _malloc, _htons, _ntohs, __emscripten_timeout, _setThrew, __emscripten_stack_restore, __emscripten_stack_alloc, _emscripten_stack_get_current, memory, __indirect_function_table, wasmMemory, wasmTable;
 
 function assignWasmExports(wasmExports) {
   _main = Module["_main"] = wasmExports["__main_argc_argv"];
+  _free = Module["_free"] = wasmExports["free"];
+  _malloc = Module["_malloc"] = wasmExports["malloc"];
   _htons = wasmExports["htons"];
   _ntohs = wasmExports["ntohs"];
   __emscripten_timeout = wasmExports["_emscripten_timeout"];
@@ -4815,6 +4832,7 @@ var wasmImports = {
   /** @export */ clock_time_get: _clock_time_get,
   /** @export */ emscripten_asm_const_double: _emscripten_asm_const_double,
   /** @export */ emscripten_asm_const_int: _emscripten_asm_const_int,
+  /** @export */ emscripten_asm_const_ptr: _emscripten_asm_const_ptr,
   /** @export */ emscripten_resize_heap: _emscripten_resize_heap,
   /** @export */ environ_get: _environ_get,
   /** @export */ environ_sizes_get: _environ_sizes_get,
