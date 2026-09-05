@@ -22,11 +22,7 @@
 }
 
 .Drawer-Title {
-    padding: 4px 4px 4px 28px;
-    background-position: 4px 50%;
-    background-size: 20px 20px;
-    background-repeat: no-repeat;
-    image-rendering: pixelated;
+    padding: 4px;
     border-radius: 4px 4px 0 0;
     border: solid 1px black;
     border-bottom-width: 0;
@@ -34,9 +30,21 @@
     top: 1px; /* to cover up the border of the list */
     pointer-events: auto;
     user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
 }
 
-.Drawer-Title-Smooth-Scale {
+.Drawer-Title-Icon {
+    width: 20px;
+    height: 20px;
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    image-rendering: pixelated;
+}
+
+.Drawer-Title-Icon.Smooth-Scale {
     image-rendering: auto;
 }
 
@@ -78,6 +86,22 @@
     border-left-color: #fff;
     border-bottom-color: #999;
     border-right-color: #999;
+}
+
+.Drawer-Aqua .Drawer-Title {
+    border-width: 0;
+    border-radius: 0;
+    background-color: transparent;
+    border-image: url("@/Images/AquaWindowTitlebar.png") 9 12 9 12 fill / 9px
+        12px 9px 12px;
+    image-rendering: pixelated;
+    border-image-repeat: repeat;
+    font-size: 15px;
+    font-weight: medium !important;
+}
+
+.Drawer-Aqua .Drawer-Title:active {
+    filter: brightness(0.9);
 }
 
 .Drawer-NeXT .Drawer-Title {
@@ -125,6 +149,10 @@
     image-rendering: pixelated;
 }
 
+.Drawer-Contents-Aqua {
+    border-color: #7f7f7f;
+}
+
 .Drawer-NeXT .Drawer-Contents {
     border-radius: 0;
     background: #aaa;
@@ -164,6 +192,12 @@
     border-right-color: #c0c0c0;
     border-bottom-color: #c0c0c0;
     pointer-events: none;
+}
+
+.Drawer-Aqua .Drawer-Header {
+    background: url("@/Images/AquaPinstripesHeader.png");
+    image-rendering: pixelated;
+    border-bottom: solid 1px #a3a3a3;
 }
 
 .Drawer-NeXT .Drawer-Header {

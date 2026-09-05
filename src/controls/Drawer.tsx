@@ -6,7 +6,7 @@ import {
     useContext,
     useState,
 } from "react";
-import {useAppearance} from "@/controls/Appearance";
+import {appearanceSystemFont, useAppearance} from "@/controls/Appearance";
 import classNames from "classnames";
 import "@/controls/Drawer.css";
 
@@ -57,13 +57,19 @@ export function Drawer({
     return (
         <div className={className} hidden={anyDrawerExpanded && !expanded}>
             <div
-                className={classNames("Drawer-Title", {
-                    "Drawer-Title-Smooth-Scale": titleIconSmoothScale,
-                })}
-                onClick={toggleExpanded}
-                style={{
-                    backgroundImage: `url(${titleIconUrl})`,
-                }}>
+                className={classNames(
+                    "Drawer-Title",
+                    appearanceSystemFont(appearance)
+                )}
+                onClick={toggleExpanded}>
+                <div
+                    className={classNames("Drawer-Title-Icon", {
+                        "Smooth-Scale": titleIconSmoothScale,
+                    })}
+                    style={{
+                        backgroundImage: `url(${titleIconUrl})`,
+                    }}
+                />
                 {title}
             </div>
             {expanded && contents(collapse)}
