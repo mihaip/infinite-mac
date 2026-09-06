@@ -26,6 +26,7 @@ import pearPCConfigPath from "@/Data/PearPCConfig.txt";
 import pearpcVideoXPath from "@/Data/PearPC-video-x.rom";
 import previousConfigPath from "@/Data/PreviousConfig.txt";
 import deviceImageHeaderPath from "@/Data/Device Image Header (All Drivers).hda";
+import macIIDisplayCardRomPath from "@/Data/mac-ii-display-card.rom";
 import macIIDisplayCard824RomPath from "@/Data/mac-ii-display-card-8-24.rom";
 import se30VideoRomPath from "@/Data/se30-video.rom";
 import {type EmulatorDef, type EmulatorCpu} from "@/emulator/common/emulators";
@@ -239,7 +240,7 @@ export const MAC_II_SNOW: MachineDef = {
     hasSCSI: true,
     ramSizes: ["8M", "4M", "2M", "1M"],
     extraFiles: {
-        "mac-ii-display-card-8-24.rom": macIIDisplayCard824RomPath,
+        "mac-ii-display-card.rom": macIIDisplayCardRomPath,
     },
 };
 
@@ -261,7 +262,7 @@ export const MAC_II_FDHD_SNOW: MachineDef = {
     hasSCSI: true,
     ramSizes: ["8M", "128M", "32M", "16M", "4M", "2M", "1M"],
     extraFiles: {
-        "mac-ii-display-card-8-24.rom": macIIDisplayCard824RomPath,
+        "mac-ii-display-card.rom": macIIDisplayCardRomPath,
     },
 };
 
