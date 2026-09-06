@@ -634,6 +634,9 @@ export function machineSupportsInfiniteHD(machine: MachineDef): boolean {
     if (machine.emulatorType === "Snow") {
         return machine.hasSCSI === true;
     }
+    if (machine.emulatorType === "Mini vMac") {
+        return !machine.mfsOnly;
+    }
     return true;
 }
 
