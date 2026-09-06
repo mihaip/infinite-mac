@@ -6,7 +6,7 @@ import classNames from "classnames";
 import {Dialog} from "@/controls/Dialog";
 import {cdromLibrary, getCDROMInfo, systemCDROMCompare} from "@/defs/cdroms";
 import {Input} from "@/controls/Input";
-import {type MachinePlatform} from "@/defs/machines";
+import {type MachineDef} from "@/defs/machines";
 import defaultFloppySDImage from "@/Images/DefaultFloppySD.png";
 import defaultFloppyDDImage from "@/Images/DefaultFloppyDD.png";
 import defaultFloppyHDImage from "@/Images/DefaultFloppyHD.png";
@@ -22,14 +22,15 @@ import {
     DrawerListCategory,
 } from "@/controls/Drawer";
 import allowedCDROMDomains from "@/defs/cdrom-sites.json";
+import {emulatorSupportsCDROMExtension} from "@/emulator/common/emulators";
 
 export function MacCDROMs({
     onRun,
-    platform,
+    machine,
     floppies,
 }: {
     onRun: (cdrom: EmulatorCDROM) => void;
-    platform?: MachinePlatform;
+    machine: MachineDef;
     floppies?: boolean;
 }) {
     const [search, setSearch] = useState("");
@@ -45,7 +46,7 @@ export function MacCDROMs({
                         collapse();
                         onRun(cdrom);
                     }}
-                    platform={platform}
+                    machine={machine}
                     floppies={floppies}
                 />
             )}
@@ -57,15 +58,16 @@ function MacCDROMsContents({
     search,
     setSearch,
     onRun,
-    platform = "Macintosh",
+    machine,
     floppies,
 }: {
     search: string;
     setSearch: (search: string) => void;
     onRun: (cdrom: EmulatorCDROM) => void;
-    platform?: MachinePlatform;
+    machine: MachineDef;
     floppies?: boolean;
 }) {
+    const {platform = "Macintosh", emulatorType} = machine;
     const cdroms = cdromLibrary;
     const folderPaths = Array.from(Object.keys(cdroms)).sort();
     const cdromsByCategory: {[category: string]: EmulatorCDROM[]} = {};
@@ -82,7 +84,14 @@ function MacCDROMsContents({
         if (cdromPlatform !== platform) {
             continue;
         }
-        if ((floppies && !cdrom.isFloppy) || (!floppies && cdrom.isFloppy)) {
+        if (
+            (floppies && !cdrom.isFloppy) ||
+            (!floppies && cdrom.isFloppy) ||
+            !(
+                cdrom.srcExtension &&
+                emulatorSupportsCDROMExtension(emulatorType, cdrom.srcExtension)
+            )
+        ) {
             continue;
         }
         const category = folderPath.substring(
@@ -127,6 +136,7 @@ function MacCDROMsContents({
                 <MacCustomCDROM
                     onRun={onRun}
                     onDone={() => setCustomCDROMVisible(false)}
+                    machine={machine}
                     floppies={floppies}
                 />
             )}
@@ -182,10 +192,12 @@ function MacCDROMsContents({
 function MacCustomCDROM({
     onRun,
     onDone,
+    machine,
     floppies,
 }: {
     onRun: (cdrom: EmulatorCDROM) => void;
     onDone: () => void;
+    machine: MachineDef;
     floppies?: boolean;
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -209,8 +221,13 @@ function MacCustomCDROM({
     };
     const noun = floppies ? "floppy" : "CD-ROM";
     const extensions = floppies
-        ? ".img or .moof"
-        : ".iso, .img, .toast, or .bin";
+        ? [".img", ".moof"]
+        : [".iso", ".img", ".toast", ".bin"];
+    const displayExtensions = extensions
+        .filter(ext =>
+            emulatorSupportsCDROMExtension(machine.emulatorType, ext)
+        )
+        .join(", ");
     return (
         <Dialog
             title={`Load custom ${noun}`}
@@ -223,7 +240,7 @@ function MacCustomCDROM({
                 aware of the following caveats:
             </p>
             <ul>
-                <li>Raw {extensions} files work best.</li>
+                <li>Raw files ({displayExtensions}) work best.</li>
                 <li>
                     Only a subset of sites are supported (currently{" "}
                     {allowedCDROMDomains.join(", ")}). If there is another site

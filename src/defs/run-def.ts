@@ -11,10 +11,7 @@ import {
 } from "@/defs/disks";
 import {type EmulatorEthernetProvider} from "@/emulator/ui/ui";
 import {type EmulatorConfigFlags} from "@/emulator/common/common";
-import {
-    emulatorHasOptionalBlueSCSI,
-    EmulatorType,
-} from "@/emulator/common/emulators";
+import {emulatorHasOptionalBlueSCSI} from "@/emulator/common/emulators";
 import {
     type EmulatorSettings,
     DEFAULT_EMULATOR_SETTINGS,
@@ -93,10 +90,7 @@ export function runDefSupportsCDROMs(runDef: RunDef): boolean {
 }
 
 export function runDefSupportsFloppies(runDef: RunDef): boolean {
-    if (runDef.machine.emulatorType === "Snow") {
-        return true;
-    }
-    return false;
+    return ["Snow", "Mini vMac"].includes(runDef.machine.emulatorType);
 }
 
 export function runDefFromUrl(urlString: string): RunDef | undefined {

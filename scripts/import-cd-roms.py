@@ -50,6 +50,7 @@ class InputManifest(typing.TypedDict):
 class OutputManifest(typing.TypedDict):
     name: str
     srcUrl: str
+    srcExtension: str
     coverImageType: typing.NotRequired[str]
     coverImageSize: typing.NotRequired[typing.Tuple[int, int]]
     coverImageHash: typing.NotRequired[str]
@@ -97,7 +98,7 @@ def get_output_manifest(
     sync_media: bool = False,
     media_rclone_remote: str = DEFAULT_MEDIA_RCLONE_REMOTE,
 ) -> OutputManifest:
-    src_url, file_size = get_source_info(
+    src_url, src_extension, file_size = get_source_info(
         input_manifest,
         write_media=write_media,
         sync_media=sync_media,
@@ -106,6 +107,7 @@ def get_output_manifest(
     output_manifest = {
         "name": input_manifest["name"],
         "srcUrl": src_url,
+        "srcExtension": src_extension.lower(),
         "fileSize": file_size,
     }
     if "cover_image" in input_manifest:
@@ -131,25 +133,28 @@ def get_source_info(
     write_media: bool = True,
     sync_media: bool = False,
     media_rclone_remote: str = DEFAULT_MEDIA_RCLONE_REMOTE,
-) -> typing.Tuple[str, int]:
+) -> typing.Tuple[str, str, int]:
     has_src_url = "src_url" in input_manifest
     has_src_file = "src_file" in input_manifest
     if has_src_url == has_src_file:
         raise Exception("Manifest must have exactly one of src_url or src_file")
     if has_src_file:
-        media = load_media_file(input_manifest)
-        return get_self_hosted_source_info(
+        media, src_extension = load_media_file(input_manifest)
+        hosted_url, file_size, = get_self_hosted_source_info(
             media, write_media, sync_media, media_rclone_remote)
+        return hosted_url, src_extension, file_size
 
     src_url = input_manifest["src_url"]
+    _, src_extension = os.path.splitext(input_manifest["src_url"])
     if input_manifest.get("is_floppy"):
         media = urls.read_url(
             src_url,
             on_cache_miss=lambda: sys.stderr.write(
                 "  Downloading media for self-hosting: %s\n" % src_url),
         )
-        return get_self_hosted_source_info(
+        hosted_url, file_size = get_self_hosted_source_info(
             media, write_media, sync_media, media_rclone_remote)
+        return hosted_url, src_extension, file_size
 
     headers = urls.read_url_headers(src_url)
     file_size = int(headers["Content-Length"])
@@ -157,7 +162,7 @@ def get_source_info(
     if not accepts_ranges:
         sys.stderr.write("  WARNING: %s does not support range requests\n" %
                          src_url)
-    return src_url, file_size
+    return src_url, src_extension, file_size
 
 
 def get_self_hosted_source_info(
@@ -186,7 +191,7 @@ def write_local_media(media_key: str, media: bytes) -> None:
     os.replace(temp_path, media_path)
 
 
-def load_media_file(input_manifest: InputManifest) -> bytes:
+def load_media_file(input_manifest: InputManifest) -> typing.Tuple[bytes, str]:
     manifest_path = input_manifest.get("_manifest_path")
     if not manifest_path:
         raise Exception("Cannot resolve src_file without manifest path")
@@ -197,16 +202,18 @@ def load_media_file(input_manifest: InputManifest) -> bytes:
         raise Exception("src_file does not exist: %s" % src_file)
     if zipfile.is_zipfile(src_path):
         return load_media_from_zip(src_path, input_manifest)
+    _, src_extension = os.path.splitext(src_path)
     with open(src_path, "rb") as f:
-        return f.read()
+        return f.read(), src_extension
 
 
-def load_media_from_zip(src_path: str, input_manifest: InputManifest) -> bytes:
+def load_media_from_zip(src_path: str, input_manifest: InputManifest) -> typing.Tuple[bytes, str]:
     with zipfile.ZipFile(src_path, "r") as zip_file:
         src_file_member = input_manifest.get("src_file_member")
         if src_file_member:
             try:
-                return zip_file.read(src_file_member)
+                _, src_extension = os.path.splitext(src_file_member)
+                return zip_file.read(src_file_member), src_extension
             except KeyError:
                 raise Exception(
                     "src_file_member not found in %s: %s" %
@@ -221,7 +228,8 @@ def load_media_from_zip(src_path: str, input_manifest: InputManifest) -> bytes:
             raise Exception(
                 "%s has %d media candidates (%s), specify src_file_member" %
                 (input_manifest["src_file"], len(candidates), ", ".join(candidates)))
-        return zip_file.read(candidates[0])
+        _, src_extension = os.path.splitext(candidates[0])
+        return zip_file.read(candidates[0]), src_extension
 
 
 def is_media_file(filename: str) -> bool:

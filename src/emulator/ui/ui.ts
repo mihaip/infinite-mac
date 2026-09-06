@@ -91,7 +91,6 @@ export type EmulatorConfig = {
     screenCanvas: HTMLCanvasElement;
     disks: EmulatorDiskDef[];
     diskFiles: EmulatorDiskFile[];
-    delayedDisks?: EmulatorDiskDef[];
     cdroms: EmulatorCDROM[];
     ethernetProvider?: EmulatorEthernetProvider;
     flags: EmulatorConfigFlags;
@@ -328,10 +327,7 @@ export class Emulator {
         let extraMachineFiles: {[fileName: string]: string} = {
             ...this.#config.machine.extraFiles,
         };
-        for (const disk of [
-            ...this.#config.disks,
-            ...(this.#config.delayedDisks ?? []),
-        ]) {
+        for (const disk of this.#config.disks) {
             extraMachineFiles = {
                 ...extraMachineFiles,
                 ...disk.extraMachineFiles?.get(this.#config.machine),
@@ -373,9 +369,6 @@ export class Emulator {
         const romFileName = romPathPieces[romPathPieces.length - 1];
 
         const disks = await loadDisks(this.#config.disks);
-        const delayedDisks = this.#config.delayedDisks
-            ? await loadDisks(this.#config.delayedDisks)
-            : undefined;
 
         const autoloadFiles: {[name: string]: ArrayBufferLike} = {};
         Object.keys(extraMachineFiles).forEach((fileName, i) => {
@@ -384,7 +377,6 @@ export class Emulator {
         if (emulatorNeedsDiskPlaceholderFiles(emulatorType)) {
             for (const entry of [
                 ...disks,
-                ...(delayedDisks ?? []),
                 ...this.#config.cdroms,
                 ...this.#config.diskFiles,
             ]) {
@@ -473,7 +465,6 @@ export class Emulator {
             workerId: this.#workerId,
             wasm,
             disks,
-            delayedDisks,
             diskFiles: this.#config.diskFiles,
             deviceImageHeader,
             cdroms: await this.#handleCDROMs(this.#config.cdroms),
@@ -497,7 +488,6 @@ export class Emulator {
         if (serviceWorkerAvailable) {
             const specs = [
                 ...config.disks,
-                ...(config.delayedDisks ?? []),
                 ...config.cdroms
                     .filter(
                         cdrom =>

@@ -160,7 +160,6 @@ export type EmulatorWorkerConfig = EmulatorDef & {
     workerId: string;
     wasm: ArrayBuffer;
     disks: EmulatorChunkedFileSpec[];
-    delayedDisks?: EmulatorChunkedFileSpec[];
     diskFiles: EmulatorDiskFile[];
     deviceImageHeader: ArrayBuffer;
     cdroms: EmulatorCDROM[];
@@ -535,6 +534,7 @@ export const ETHERNET_PONG_PACKET_LENGTH =
 export type EmulatorCDROM = {
     name: string;
     srcUrl: string;
+    srcExtension?: string;
     fileSize: number;
     coverImageHash?: string;
     coverImageSize?: [width: number, height: number];

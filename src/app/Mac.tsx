@@ -30,7 +30,6 @@ import {Dialog} from "@/controls/Dialog";
 import {
     type EmulatorDiskDef,
     INFINITE_HD,
-    INFINITE_HD_MFS,
     INFINITE_HD_NEXT,
     INFINITE_HD6,
     INFINITE_HDX,
@@ -219,7 +218,6 @@ export default function Mac({
     useEffect(() => {
         setEmulatorStats({});
         const emulatorDisks: EmulatorDiskDef[] = [...disks];
-        const delayedDisks: EmulatorDiskDef[] = [];
         if (includeInfiniteHD) {
             let infiniteHd;
             if (machine.platform === "NeXT") {
@@ -228,7 +226,8 @@ export default function Mac({
                 disks[0]?.infiniteHdSubset === "mfs" ||
                 machine.mfsOnly
             ) {
-                infiniteHd = INFINITE_HD_MFS;
+                // MFS machines don't really support large external drives, so
+                // no Infinite HD for them.
             } else if (
                 disks[0]?.infiniteHdSubset === "system6" ||
                 (disks.length === 0 && emulatorType === "Mini vMac")
@@ -239,12 +238,7 @@ export default function Mac({
             } else {
                 infiniteHd = INFINITE_HD;
             }
-            if (
-                disks[0]?.delayAdditionalDiskMount &&
-                emulatorType === "Mini vMac"
-            ) {
-                delayedDisks.push(infiniteHd);
-            } else {
+            if (infiniteHd) {
                 emulatorDisks.push(infiniteHd);
             }
         }
@@ -282,7 +276,6 @@ export default function Mac({
                     isFloppy: df.treatAsFloppy,
                     hasDeviceImageHeader: df.hasDeviceImageHeader,
                 })),
-                delayedDisks,
                 cdroms,
                 ethernetProvider,
                 flags,
@@ -1094,15 +1087,12 @@ export default function Mac({
                     {runDefSupportsFloppies(runDef) && (
                         <MacCDROMs
                             onRun={loadCDROM}
-                            platform={machine.platform}
+                            machine={machine}
                             floppies
                         />
                     )}
                     {runDefSupportsCDROMs(runDef) && (
-                        <MacCDROMs
-                            onRun={loadCDROM}
-                            platform={machine.platform}
-                        />
+                        <MacCDROMs onRun={loadCDROM} machine={machine} />
                     )}
                     {includeLibrary &&
                         runDefSupportsDownloadsFolder(runDef) && (

@@ -117,7 +117,6 @@ class EmulatorWorkerApi {
     #handledStop = false;
 
     disks: EmulatorWorkerDisksApi;
-    #delayedDiskSpecs: EmulatorChunkedFileSpec[] | undefined;
     #diskSavers: EmulatorWorkerDiskSaver[] = [];
     #ethernetMacAddress?: Uint8Array;
 
@@ -134,7 +133,6 @@ class EmulatorWorkerApi {
             ethernet: ethernetConfig,
             clipboard: clipboardConfig,
             disks,
-            delayedDisks,
             diskFiles,
             cdroms,
             speedGovernorTargetIPS,
@@ -237,7 +235,6 @@ class EmulatorWorkerApi {
             config.usePlaceholderDisks,
             this.#emscriptenModule
         );
-        this.#delayedDiskSpecs = delayedDisks;
         if (speedGovernorTargetIPS !== undefined) {
             this.#speedGovernor = new EmulatorWorkerSpeedGovernor(
                 speedGovernorTargetIPS
@@ -417,16 +414,6 @@ class EmulatorWorkerApi {
             this.#markedQuiescent = true;
             postMessage({type: "emulator_quiescent"});
             this.disks.validate();
-
-            if (this.#delayedDiskSpecs) {
-                for (const spec of this.#delayedDiskSpecs) {
-                    console.log("Mounting delayed disk", spec.name);
-                    this.disks.addDisk(
-                        new EmulatorWorkerChunkedDisk(spec, this)
-                    );
-                }
-                this.#delayedDiskSpecs = undefined;
-            }
         }
     }
 

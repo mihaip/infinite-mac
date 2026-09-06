@@ -59,7 +59,6 @@ export type SystemDiskDef = EmulatorDiskDef & {
     preferredMachine: MachineDef;
     appleTalkSupported?: boolean;
     infiniteHdSubset?: "mfs" | "system6" | "macosx";
-    delayAdditionalDiskMount?: boolean;
     appearance?: Appearance;
     appearanceVariant?: AppearanceVariant;
     isUnstable?: boolean;
@@ -103,10 +102,6 @@ const SYSTEM_1_0: SystemDiskDef = {
     prefetchChunks: [0, 1],
     preferredMachine: MAC_128K,
     infiniteHdSubset: "mfs",
-    // Loading the Infinite HD disk as part of the initial set of images does
-    // appear to work in System 1.0 under Mini vMac, but if we delay it until
-    // after the system is booted, it appears to work.
-    delayAdditionalDiskMount: true,
     generatedSpec: () => import("@/Data/System 1.0.dsk.json"),
     notable: true,
     isFloppy: true,
@@ -119,7 +114,6 @@ const SYSTEM_1_0_ORIGINAL: SystemDiskDef = {
     prefetchChunks: [0, 1],
     preferredMachine: MAC_128K,
     infiniteHdSubset: "mfs",
-    delayAdditionalDiskMount: true,
     generatedSpec: () => import("@/Data/System 1.0 (Original).dsk.json"),
     isFloppy: true,
 };
@@ -2198,12 +2192,6 @@ export const INFINITE_HD6: EmulatorDiskDef = {
 export const INFINITE_HDX: EmulatorDiskDef = {
     prefetchChunks: [0, 17, 7999],
     generatedSpec: () => import("@/Data/Infinite HDX.dsk.json"),
-};
-
-export const INFINITE_HD_MFS: EmulatorDiskDef = {
-    prefetchChunks: [0, 1, 2],
-    generatedSpec: () => import("@/Data/Infinite HD (MFS).dsk.json"),
-    isFloppy: true,
 };
 
 export const INFINITE_HD_NEXT: EmulatorDiskDef = {

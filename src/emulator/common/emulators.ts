@@ -80,6 +80,16 @@ export function emulatorHasOptionalBlueSCSI(type: EmulatorType): boolean {
     return type === "DingusPPC";
 }
 
+export function emulatorSupportsCDROMExtension(
+    type: EmulatorType,
+    srcExtension: string
+): boolean {
+    if (srcExtension === ".moof") {
+        return type === "Snow";
+    }
+    return true;
+}
+
 export function emulatorCpuId(
     type: EmulatorType,
     cpu: EmulatorCpu
