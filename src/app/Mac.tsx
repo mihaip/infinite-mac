@@ -866,7 +866,10 @@ export default function Mac({
     }
 
     function loadCDROM(cdrom: EmulatorCDROM) {
-        varz.increment("emulator_cdroms", 1);
+        varz.increment(
+            cdrom.isFloppy ? "emulator_floppies" : "emulator_cdroms",
+            1
+        );
         emulatorRef.current?.loadCDROM(cdrom);
     }
 
