@@ -1,5 +1,6 @@
 .MacResources {
     --resources-chrome: #fff;
+    --resources-paper: #fff;
     --resources-muted: #000;
     --resources-rule: #000;
     --resources-focus: #000;
@@ -27,21 +28,8 @@
     background: var(--resources-chrome);
 }
 .MacResources-Heading {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.MacResources-Heading img {
-    image-rendering: pixelated;
-}
-.MacResources-Heading strong {
-    font-size: 14px;
-}
-.MacResources-Status {
-    display: block;
-    margin-top: 4px;
-    font-size: 11px;
-    color: var(--resources-muted);
+    max-width: 70ch;
+    line-height: 1.4;
 }
 .MacResources-Toolbar {
     display: flex;
@@ -193,8 +181,7 @@
     > button.selected:focus-visible {
     outline-color: #fff;
 }
-.MacResources-TypeGrid,
-.MacResources-ResourceGrid {
+.MacResources-TypeGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
     align-content: start;
@@ -226,7 +213,9 @@
 .MacResources-ResourceGrid button.selected .MacResources-Thumbnail {
     background: #000;
 }
-.MacResources-ResourceGrid button.selected :is(canvas, .MacResources-TypeIcon) {
+.MacResources-ResourceGrid:not(.MacResources-PictureGrid)
+    button.selected
+    :is(canvas, .MacResources-TypeIcon) {
     filter: invert(1);
 }
 .MacResources-TypeIcon {
@@ -250,14 +239,32 @@
     object-fit: contain;
     image-rendering: pixelated;
 }
-.MacResources-GridPaging {
+.MacResources-Catalog-Grid {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    padding: 7px;
-    border-bottom: 1px solid #000;
-    background: var(--resources-chrome);
+    flex-direction: column;
+    overflow: hidden;
+}
+.MacResources-Catalog-Grid > .MacResources-ColumnTitle {
+    flex-shrink: 0;
+}
+.MacResources-ResourceGrid {
+    display: block;
+    padding: 0;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+    overflow-anchor: none;
+}
+.MacResources-ResourceGridRow {
+    position: absolute;
+    top: 0;
+    left: 8px;
+    right: 8px;
+    display: grid;
+    column-gap: 4px;
+    align-items: start;
 }
 .MacResources-ResourceName {
     overflow: hidden;
@@ -270,7 +277,7 @@
 .MacResources-ListHeading,
 .MacResources-ResourceList > button {
     display: grid;
-    grid-template-columns: 6ch 8ch minmax(0, 1fr) 10ch;
+    grid-template-columns: 6ch 8ch minmax(0, 1fr);
     gap: 8px;
     padding: 4px 8px;
     text-align: left;
@@ -280,10 +287,6 @@
     border-bottom: 1px solid #000;
 }
 .MacResources-ResourceSize {
-    text-align: right;
-}
-.MacResources-ListHeading .MacResources-ResourceStatus,
-.MacResources-ResourceList > button .MacResources-ResourceStatus {
     text-align: right;
 }
 .MacResources-ResourceList > button {
@@ -435,16 +438,30 @@
         10px/17px Menlo,
         monospace;
 }
+/* Messages occupy the existing footer line, never another layout row. */
 .MacResources-Footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 4px;
+    flex-shrink: 0;
+    gap: 8px;
     padding: 5px 8px;
     border-top: 1px solid #000;
     font-size: 10px;
     color: var(--resources-muted);
+}
+.MacResources-FooterMessage {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.MacResources-FooterActions {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 @media (max-width: 1100px) {
     .MacResources-Body-Inspecting {
@@ -490,4 +507,217 @@
 
 .MacResources-Thumbnail .MacResources-PatternSwatch {
     outline: 1px solid #888;
+}
+
+.MacResources-Tabs {
+    display: flex;
+    gap: 4px;
+    padding: 6px 8px 0;
+    border-bottom: 1px solid var(--resources-rule);
+    background: var(--resources-chrome);
+}
+.MacResources-Tabs button {
+    font: inherit;
+    color: inherit;
+    background: var(--resources-chrome);
+    border: 1px solid var(--resources-rule);
+    padding: 5px 12px;
+    cursor: pointer;
+}
+.MacResources-Tabs button[aria-selected="true"] {
+    background: var(--resources-paper);
+    border-bottom-color: var(--resources-paper);
+    font-weight: bold;
+    margin-bottom: -1px;
+}
+.MacResources-Events {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+.MacResources-Events > section {
+    grid-area: 1 / 1;
+}
+.MacResources-Events-Inspecting .MacResources-EventStream {
+    /* Keep the list's viewport and scroll position while showing details. */
+    visibility: hidden;
+}
+.MacResources-EventStream {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+}
+.MacResources-EventScroll {
+    overflow: auto;
+    flex: 1;
+    min-height: 0;
+    overflow-anchor: none;
+}
+.MacResources-EventToolbar {
+    flex-wrap: wrap;
+}
+
+.MacResources-EventColumns,
+.MacResources-EventRow {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1.3fr) minmax(0, 1fr) 8ch 11ch;
+    gap: 12px;
+    padding: 6px 8px;
+    align-items: center;
+    box-sizing: border-box;
+}
+.MacResources-EventColumns {
+    flex: none;
+    font: inherit;
+}
+.MacResources-EventColumns > span {
+    font-size: 11px;
+}
+.MacResources-EventRow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    background: var(--resources-paper);
+    border: 0;
+    border-bottom: 1px solid var(--resources-rule);
+    cursor: pointer;
+}
+.MacResources-EventRow[aria-pressed="true"] {
+    outline: 2px solid var(--resources-rule);
+    outline-offset: -3px;
+    background: var(--resources-chrome);
+}
+.MacResources-EventThumbnail {
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+}
+.MacResources-EventThumbnail canvas,
+.MacResources-EventThumbnail .PictPreview canvas {
+    max-width: 32px;
+    max-height: 32px;
+    object-fit: contain;
+    width: auto;
+    height: auto;
+    image-rendering: pixelated;
+}
+.MacResources-EventThumbnail .PictPreview {
+    margin: 0;
+    max-height: none;
+    overflow: hidden;
+}
+.MacResources-EventThumbnail .PictPreview figcaption {
+    display: none;
+}
+.MacResources-EventSummary,
+.MacResources-EventFile {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+}
+.MacResources-EventSummary > *,
+.MacResources-EventFile > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.MacResources-EventSummary small,
+.MacResources-EventFile small {
+    color: var(--resources-muted);
+    font-size: 11px;
+}
+.MacResources-EventSize,
+.MacResources-EventTime {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+}
+.MacResources-EventNavigation {
+    overflow-wrap: anywhere;
+    flex: none;
+}
+.MacResources-EventNavigation .Drawer-Header {
+    justify-content: flex-start;
+    font-size: 11px;
+}
+.MacResources-EventNavigation .Button {
+    flex-shrink: 0;
+}
+
+.MacResources-PictureThumbnail {
+    width: 100%;
+    height: 128px;
+    display: grid;
+    place-items: center;
+    border: 1px dotted var(--resources-muted);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+.MacResources-PictureThumbnail .PictPreview {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+.MacResources-PictureThumbnail .PictPreview canvas {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: contain;
+    filter: none;
+}
+.MacResources-PictureThumbnail figcaption {
+    display: none;
+}
+.MacResources-PictureThumbnail .MacResources-Notice {
+    margin: 4px;
+    font-size: 11px;
+}
+.MacResources-PictureGrid button.selected .MacResources-PictureThumbnail {
+    outline: 2px solid var(--resources-rule);
+    outline-offset: -2px;
+}
+.MacResources-PictureGrid .MacResources-IconLabel {
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+}
+
+.MacResources-SourceLink {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    text-decoration: underline;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+}
+.MacResources-CaptureTime {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: normal;
+    color: var(--resources-muted);
+    white-space: nowrap;
 }

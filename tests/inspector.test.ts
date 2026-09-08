@@ -1,3 +1,5 @@
+import {ResourceEventCapture} from "../src/emulator/worker/inspectors/resource-events";
+import {resourceEventCatalog} from "../src/emulator/common/resource-event-catalog";
 import assert from "node:assert/strict";
 import {test} from "node:test";
 import {resourceStructure} from "../src/emulator/common/resource-structure";
@@ -19,6 +21,7 @@ import {
 } from "../src/emulator/worker/inspectors/hfs-paths";
 import {
     INSPECTOR_GRACE_MS,
+    RESOURCE_EVENT_LIMIT,
     readInspectorControl,
     writeInspectorControl,
     type InspectorMessage,
@@ -129,8 +132,8 @@ test("structured controls and menu bars use reusable fields and bound corrupt co
     );
 });
 
-function fixture() {
-    const ram = new Uint8Array(0x10000);
+function fixture(ramSize = 0x10000) {
+    const ram = new Uint8Array(ramSize);
     const view = new DataView(ram.buffer);
     const u16 = (address: number, value: number) =>
         view.setUint16(address, value);
@@ -398,12 +401,16 @@ test("Basilisk capture selects 32-bit heaps even with a 24-bit Lo3Bytes mask", (
     assert.ok(snapshot && snapshot.type === "inspector_snapshot");
     assert.equal(snapshot.snapshot.pointerBits, 32);
     assert.equal(
-        snapshot.snapshot.files.find(f => f.name === "Test App")!.types[0]
-            .resources[0].size,
+        messages
+            .flatMap(m => (m.type === "inspector_events" ? m.events : []))
+            .find(e => e.file.name === "Test App")!.detail.size,
         5
     );
     worker.tick(f.ram);
-    assert.equal(messages.length, 2); // Capabilities and one throttled capture.
+    assert.equal(
+        messages.filter(m => m.type === "inspector_snapshot").length,
+        1
+    ); // One throttled snapshot, plus event data.
 });
 
 test("loader hints retain purged bytes, prefer live bytes, and reject stale or mismatched references", () => {
@@ -428,7 +435,7 @@ test("loader hints retain purged bytes, prefer live bytes, and reject stale or m
     assert.equal(readResourceMaps(f.reader, 200, hints)[0].data.size, 0);
 });
 
-test("loader hints do not publish snapshots and are ignored while paused or unsubscribed", () => {
+test("loader events are batched and ignored while paused or unsubscribed", () => {
     for (const mode of ["active", "paused", "inactive"] as const) {
         const f = fixture();
         let control: InspectorControl = {
@@ -448,14 +455,15 @@ test("loader hints do not publish snapshots and are ignored while paused or unsu
         f.u32(0x220, 0);
         control = {version: 1, subscriptions: ["resources"]};
         worker.tick(f.ram);
-        const message = messages.at(-1)!;
-        assert.equal(message.type, "inspector_snapshot");
-        if (message.type === "inspector_snapshot") {
-            const resource = message.snapshot.files.find(
-                f => f.name === "Test App"
-            )!.types[0].resources[0];
-            assert.equal(resource.cached, mode === "active");
-        }
+        const events = messages.flatMap(m =>
+            m.type === "inspector_events" ? m.events : []
+        );
+        assert.equal(events.length, mode === "active" ? 1 : 0);
+        if (events.length)
+            assert.deepEqual(
+                [...events[0].detail.data],
+                [4, 84, 101, 115, 116]
+            );
     }
 });
 
@@ -674,8 +682,8 @@ for (const shared of [true, false])
         assert.equal(worker.active(), true);
         worker.capture(f.ram);
         const before = ui.getSnapshot().snapshot!;
-        const key = before.files.find(f => f.name === "Test App")!.types[0]
-            .resources[0].key;
+        const firstEvent = ui.getSnapshot().events![0];
+        const key = firstEvent.resource.key;
         ui.setPaused(true);
         // A capture already in flight must not replace the paused display.
         ui.handleMessage({
@@ -699,13 +707,21 @@ for (const shared of [true, false])
         assert.equal(worker.active(), false);
         const frozen = ui.getSnapshot().snapshot!;
         assert.equal(frozen.capturedAt, before.capturedAt);
-        assert.deepEqual([...frozen.detail!.data], [4, 84, 101, 115, 116]);
-        assert.deepEqual(frozen.previews![0].data, frozen.detail!.data);
+        assert.deepEqual(
+            [...ui.getSnapshot().events![0].detail.data],
+            [4, 84, 101, 115, 116]
+        );
+        assert.equal(ui.getSnapshot().events![0], firstEvent);
         ui.setPaused(false);
         assert.equal(worker.active(), true);
+        worker.resourceLoaded(f.ram, 0x53545220, -128, 0x220, 0x2026);
+        worker.capture(f.ram);
+        assert.deepEqual(ui.getSnapshot().events, [firstEvent]);
+        f.u16(0x2026, 128); // A different resource can still be captured after resume.
+        worker.resourceLoaded(f.ram, 0x53545220, 128, 0x220, 0x2026);
         worker.capture(f.ram);
         assert.deepEqual(
-            [...ui.getSnapshot().snapshot!.detail!.data],
+            [...ui.getSnapshot().events!.at(-1)!.detail.data],
             [2, 79, 75]
         );
         assert.ok(ui.getSnapshot().snapshot!.capturedAt > before.capturedAt);
@@ -811,24 +827,24 @@ test("pre-close capture retains a transient file without publishing and respects
         );
         worker.initialize("BasiliskII");
         worker.beforeResourceFileClose(f.ram);
-        assert.equal(messages.length, 1); // Only capabilities, no hook publication.
+        assert.equal(
+            messages.filter(m => m.type === "inspector_snapshot").length,
+            0
+        ); // Close hooks may publish events, never a live snapshot.
         f.u32(0xa50, 0x204); // Close the application map before the next tick.
         f.u32(0x220, 0); // Its resource is no longer resident.
         control = {version: 1, subscriptions: ["resources"]};
         worker.tick(f.ram);
         const message = messages.at(-1);
         assert.ok(message?.type === "inspector_snapshot");
-        const file = message.snapshot.files.find(f => f.name === "Test App");
-        assert.equal(!!file, mode === "active");
-        if (file) {
-            assert.equal(file.recent, true);
-            control = {...control, resourceKey: file.types[0].resources[0].key};
-            worker.active();
-            worker.capture(f.ram);
-            const detail = messages.at(-1);
-            assert.ok(detail?.type === "inspector_snapshot");
+        const events = messages.flatMap(m =>
+            m.type === "inspector_events" ? m.events : []
+        );
+        assert.equal(events.length, mode === "active" ? 1 : 0);
+        if (events.length) {
+            assert.equal(events[0].file.name, "Test App");
             assert.deepEqual(
-                [...detail.snapshot.detail!.data],
+                [...events[0].detail.data],
                 [4, 84, 101, 115, 116]
             );
         }
@@ -837,4 +853,472 @@ test("pre-close capture retains a transient file without publishing and respects
         assert.doesNotThrow(() => worker.beforeResourceFileClose(f.ram));
         assert.equal(messages.length, count);
     }
+});
+
+test("first captures survive repeated callbacks, content changes, purge, and reload", () => {
+    const f = fixture();
+    const capture = new ResourceEventCapture();
+    const first = capture.capture(f.reader, "Initial scan", 100);
+    assert.equal(first.length, 1);
+    assert.equal(first[0].kind, "observed");
+    assert.equal(capture.capture(f.reader, "Another scan", 101).length, 0);
+    assert.equal(
+        capture.capture(f.reader, "Resource loader", 102, 0x220).length,
+        0
+    );
+    f.ram[0x4001] = 88;
+    assert.equal(first[0].detail.data[1], 84);
+    f.u32(0x220, 0);
+    assert.equal(capture.capture(f.reader, "Release", 103).length, 0);
+    f.block(0x220, 0x5000, new Uint8Array([1, 89]));
+    assert.equal(
+        capture.capture(f.reader, "LoadResource return", 104).length,
+        0
+    );
+    const catalog = resourceEventCatalog(first)!;
+    assert.equal(catalog.files.length, 1);
+    assert.equal(catalog.files[0].types[0].resources.length, 1);
+    const key = catalog.files[0].types[0].resources[0].key;
+    assert.deepEqual(
+        [...resourceEventCatalog(first, key)!.detail!.data],
+        [4, 84, 101, 115, 116]
+    );
+});
+
+test("first capture identity includes source file, type, and ID but not the executing application", () => {
+    const f = fixture();
+    f.u16(0x3f6, 94);
+    f.u32(0x34e, 0x6000);
+    f.u16(0x6000, 96);
+    f.pstring(0x6040, "Document");
+    f.u32(0x6016, 0x7000);
+    f.pstring(0x702c, "Disk");
+    f.u32(0x603c, 42);
+    const capture = new ResourceEventCapture();
+    const first = capture.capture(f.reader, "scan", 100)[0];
+    f.pstring(0x910, "Another application");
+    assert.equal(capture.capture(f.reader, "loader", 101, 0x220).length, 0);
+    // Identically named documents in different directories are distinct files.
+    f.u32(0x603c, 43);
+    const otherFile = capture.capture(f.reader, "scan", 102)[0];
+    assert.notEqual(first.file.key, otherFile.file.key);
+    f.ram.set([77, 69, 78, 85], 0x201e);
+    assert.equal(capture.capture(f.reader, "scan", 103)[0].type, "MENU");
+    f.u16(0x2026, 128);
+    assert.equal(capture.capture(f.reader, "scan", 104)[0].resource.id, 128);
+    // Reopening the original file under another map handle still deduplicates.
+    f.u32(0x603c, 42);
+    f.ram.set([83, 84, 82, 32], 0x201e);
+    f.u16(0x2026, -128);
+    f.block(0x208, 0x2100, f.ram.slice(0x2000, 0x2038));
+    f.u32(0xa50, 0x208);
+    assert.equal(capture.capture(f.reader, "reopened", 105, 0x220).length, 0);
+});
+
+test("resource event scans do not count process switches or relocation as loads", () => {
+    const f = fixture();
+    const capture = new ResourceEventCapture();
+    capture.capture(f.reader, "scan", 1);
+    f.u32(0xa50, 0x204);
+    assert.equal(capture.capture(f.reader, "other process", 2).length, 0);
+    f.u32(0xa50, 0x200);
+    f.block(0x220, 0x5000, new Uint8Array([4, 84, 101, 115, 116]));
+    assert.equal(capture.capture(f.reader, "relocated", 3).length, 0);
+});
+
+for (const core of ["Snow", "BasiliskII"] as const) {
+    test(`${core} loader events survive a document closing before any periodic scan`, () => {
+        const f = fixture();
+        const pict = new Uint8Array([
+            0, 14, 0, 0, 0, 0, 0, 10, 0, 10, 0x11, 1, 0xff, 0,
+        ]);
+        f.pstring(0x910, "TeachText");
+        f.ram.set([80, 73, 67, 84], 0x201e);
+        f.u16(0x2026, 1000);
+        f.block(0x220, 0x4000, pict);
+        const ui = new EmulatorInspector(true);
+        const worker = new EmulatorWorkerInspector(
+            ui.workerConfig(),
+            () => undefined,
+            m => ui.handleMessage(m)
+        );
+        worker.initialize(core === "Snow" ? 11 : "BasiliskII");
+        ui.setOpen(true);
+        if (core === "Snow") {
+            worker.callObserved(f.ram, 0x7f0, false, 0, 0, 0x50494354, 0x100);
+            worker.callObserved(
+                f.ram,
+                0x7f0,
+                true,
+                0x220,
+                0x2026,
+                0x50494354,
+                0x100
+            );
+        } else worker.resourceLoaded(f.ram, 0x50494354, 1000, 0x220, 0x2026);
+        // Destroy every live source of these bytes before publication.
+        f.u32(0xa50, 0x204);
+        f.u32(0x220, 0);
+        f.ram.fill(0, 0x4000, 0x4000 + pict.length);
+        worker.tick(f.ram);
+        const events = ui.getSnapshot().events!;
+        assert.equal(events.length, 1);
+        assert.equal(events[0].kind, "load");
+        assert.equal(events[0].type, "PICT");
+        assert.equal(events[0].resource.id, 1000);
+        assert.equal(events[0].processName, "TeachText");
+        assert.deepEqual(events[0].detail.data, pict);
+        assert.equal(resourceEventCatalog(events)!.files.length, 1);
+        ui.dispose();
+    });
+}
+
+test("a loader callback preserves bytes even when its file has left the current map chain", () => {
+    const f = fixture();
+    f.u32(0xa50, 0x204);
+    const events = new ResourceEventCapture().capture(
+        f.reader,
+        "loader",
+        1,
+        0x220,
+        undefined,
+        {type: 0x53545220, id: -128, reference: 0x2026}
+    );
+    assert.equal(events.length, 1);
+    assert.equal(events[0].file.name, "Source unavailable");
+    assert.equal(events[0].type, "STR ");
+    assert.deepEqual([...events[0].detail.data], [4, 84, 101, 115, 116]);
+    assert.equal(
+        new ResourceEventCapture().capture(
+            f.reader,
+            "loader",
+            1,
+            0x220,
+            undefined,
+            {type: 0x53545220, id: 99, reference: 0x2026}
+        ).length,
+        0
+    );
+});
+
+test("event eviction does not forget worker capture identities", () => {
+    const f = fixture();
+    const capture = new ResourceEventCapture();
+    const event = capture.capture(f.reader, "loader", 1, 0x220)[0];
+    const ui = new EmulatorInspector(false);
+    const events = Array.from({length: RESOURCE_EVENT_LIMIT + 2}, (_, i) => ({
+        ...event,
+        id: i + 1,
+        resource: i === 0 ? event.resource : {...event.resource, id: i},
+    }));
+    ui.handleMessage({type: "inspector_events", version: 1, events});
+    assert.equal(ui.getSnapshot().events!.length, RESOURCE_EVENT_LIMIT);
+    assert.equal(ui.getSnapshot().events![0].id, 3);
+    assert.equal(
+        capture.capture(f.reader, "repeat after eviction", 2, 0x220).length,
+        0
+    );
+    assert.equal(ui.getSnapshot().events!.at(-1)!.id, RESOURCE_EVENT_LIMIT + 2);
+    assert.equal(ui.getSnapshot().droppedEvents, 2);
+    ui.workerStopped();
+    assert.equal(ui.getSnapshot().events, undefined);
+    ui.dispose();
+});
+
+test("event data is not truncated to the old snapshot preview limit", () => {
+    const f = fixture(1024 * 1024);
+    const bytes = Uint8Array.from({length: 300 * 1024}, (_, i) => i & 255);
+    f.block(0x220, 0x4000, bytes);
+    const event = new ResourceEventCapture().capture(
+        f.reader,
+        "loader",
+        1,
+        0x220
+    )[0];
+    assert.equal(event.detail.data.length, bytes.length);
+    f.ram.fill(0, 0x4000);
+    assert.deepEqual(event.detail.data, bytes);
+});
+
+test("an invalid loader handle does not discard other newly observed resources", () => {
+    const f = fixture();
+    const capture = new ResourceEventCapture();
+    const events = capture.capture(f.reader, "loader", 1, 0x240, undefined, {
+        type: 0x50494354,
+        id: 1,
+        reference: 0xfffe,
+    });
+    assert.equal(events.length, 1);
+    assert.equal(events[0].type, "STR ");
+    assert.equal(events[0].kind, "observed");
+});
+
+test("catalog edits do not manufacture resource loads or a second source file", () => {
+    const f = fixture();
+    const capture = new ResourceEventCapture();
+    const initial = capture.capture(f.reader, "scan", 1);
+    const map = new Uint8Array(64);
+    map.set(f.ram.subarray(0x2000, 0x2026));
+    map.set(f.ram.subarray(0x2026, 0x2038), 46);
+    f.block(0x200, 0x2100, map);
+    f.u16(0x211c, 1); // Add an empty CODE type; STR and its handle are unchanged.
+    f.u16(0x211a, 58);
+    f.u16(0x2124, 18);
+    f.ram.set([67, 79, 68, 69], 0x2126);
+    f.u16(0x212a, 0xffff);
+    f.u16(0x212c, 18);
+    assert.equal(capture.capture(f.reader, "catalog changed", 2).length, 0);
+    const repeated = capture.capture(f.reader, "loader", 3, 0x220);
+    assert.equal(repeated.length, 0);
+    assert.equal(
+        resourceEventCatalog([...initial, ...repeated])!.files.length,
+        1
+    );
+});
+
+test("targeted loader reads avoid unrelated resources and preserve later scan discoveries", () => {
+    const f = fixture(0x40000);
+    const count = 1000;
+    const base = 0x5000;
+    f.block(0x200, base, new Uint8Array(38 + count * 12));
+    f.u16(base + 20, 2);
+    f.u16(base + 24, 28);
+    f.u16(base + 26, 38 + count * 12);
+    f.u16(base + 28, 0);
+    f.ram.set([83, 84, 82, 32], base + 30);
+    f.u16(base + 34, count - 1);
+    f.u16(base + 36, 10);
+    for (let i = 0; i < count; i++) {
+        const ref = base + 38 + i * 12;
+        f.u16(ref, i);
+        f.u16(ref + 2, 0xffff);
+        f.u32(ref + 8, 0x1000 + i * 4);
+        f.block(0x1000 + i * 4, 0x10000 + i * 16, new Uint8Array([1, 65]));
+    }
+    let reads = 0;
+    const reader = new GuestMemoryReader(
+        {
+            read: (address, length) => {
+                reads++;
+                return ramMemory(f.ram).read(address, length);
+            },
+        },
+        24
+    );
+    const full = readResourceMaps(reader, 1, undefined, true);
+    const fullReads = reads;
+    const capture = new ResourceEventCapture();
+    reads = 0;
+    const first = capture.capture(reader, "loader", 2, 0x1000, undefined, {
+        reference: base + 38,
+        type: 0x53545220,
+        id: 0,
+    });
+    assert.equal(first.length, 1);
+    assert.deepEqual(first[0].detail.data, full[0].data.get("STR :0")!.data);
+    assert.ok(
+        reads < fullReads / 20,
+        `${reads} targeted reads vs ${fullReads} full reads`
+    );
+    assert.equal(capture.capture(reader, "scan", 3).length, count - 1);
+    reads = 0;
+    assert.equal(capture.capture(reader, "unchanged scan", 4).length, 0);
+    assert.ok(
+        reads < fullReads / 2,
+        `${reads} cached reads vs ${fullReads} full reads`
+    );
+    // Same map bytes, but a master pointer is purged then reloaded.
+    f.u32(0x1000, 0);
+    assert.equal(capture.capture(reader, "purge", 5).length, 0);
+    f.block(0x1000, 0x10000, new Uint8Array([1, 66]));
+    const reloaded = capture.capture(reader, "reload", 6);
+    assert.equal(reloaded.length, 0);
+    assert.deepEqual([...first[0].detail.data], [1, 65]);
+});
+
+test("a failed map walk does not cache uncommitted discoveries", () => {
+    const f = fixture();
+    const capture = new ResourceEventCapture();
+    capture.capture(f.reader, "initial", 1);
+    f.u32(0x220, 0);
+    capture.capture(f.reader, "purged", 2);
+    f.block(0x220, 0x4000, new Uint8Array([1, 88]));
+    f.u16(0x2026, 128); // A previously unseen resource.
+    f.u32(0x3010, 0xffff); // Later map is corrupt after the reload is decoded.
+    assert.throws(() => capture.capture(f.reader, "broken chain", 3));
+    f.u32(0x3010, 0);
+    const events = capture.capture(f.reader, "repaired chain", 4);
+    assert.equal(events.length, 1);
+    assert.deepEqual([...events[0].detail.data], [1, 88]);
+});
+
+test("repeated callbacks do not reach the UI, and a new worker starts a fresh history", () => {
+    const f = fixture();
+    const ui = new EmulatorInspector(true);
+    const run = () => {
+        const worker = new EmulatorWorkerInspector(
+            ui.workerConfig(),
+            () => undefined,
+            m => ui.handleMessage(m)
+        );
+        worker.initialize(11);
+        ui.setOpen(true);
+        worker.resourceLoaded(f.ram, 0x53545220, -128, 0x220, 0x2026);
+        worker.capture(f.ram);
+        return worker;
+    };
+    const worker = run();
+    const first = ui.getSnapshot().events;
+    for (let i = 0; i < 100; i++)
+        worker.resourceLoaded(f.ram, 0x53545220, -128, 0x220, 0x2026);
+    worker.capture(f.ram);
+    assert.equal(ui.getSnapshot().events, first);
+    ui.workerStopped();
+    assert.equal(ui.getSnapshot().events, undefined);
+    run();
+    assert.equal(ui.getSnapshot().events!.length, 1);
+    ui.dispose();
+});
+
+test("targeted color-icon loads keep the companion mask as an immutable copy", () => {
+    const f = fixture();
+    f.block(0x200, 0x2000, new Uint8Array(70));
+    f.u16(0x2014, 2);
+    f.u16(0x2018, 28);
+    f.u16(0x201a, 70);
+    f.u16(0x201c, 1);
+    f.ram.set([105, 99, 108, 56], 0x201e); // icl8
+    f.u16(0x2022, 0);
+    f.u16(0x2024, 18);
+    f.ram.set([73, 67, 78, 35], 0x2026); // ICN#
+    f.u16(0x202a, 0);
+    f.u16(0x202c, 30);
+    f.u16(0x202e, 128);
+    f.u16(0x2030, 0xffff);
+    f.u32(0x2036, 0x220);
+    f.u16(0x203a, 128);
+    f.u16(0x203c, 0xffff);
+    f.u32(0x2042, 0x224);
+    f.block(0x220, 0x4000, new Uint8Array(1024));
+    f.block(0x224, 0x5000, new Uint8Array(256).fill(255));
+    const capture = new ResourceEventCapture();
+    f.u32(0x220, 0);
+    const mask = capture.capture(f.reader, "scan", 0);
+    assert.equal(mask.length, 1);
+    assert.equal(mask[0].type, "ICN#");
+    f.u32(0x220, 0x4000);
+    const event = capture
+        .capture(f.reader, "loader", 1, 0x220, undefined, {
+            type: 0x69636c38,
+            id: 128,
+            reference: 0x202e,
+        })
+        .find(e => e.kind === "load")!;
+    assert.equal(event.type, "icl8");
+    assert.equal(event.detail.mask!.length, 256);
+    f.ram.fill(0, 0x5000, 0x5100);
+    assert.ok(event.detail.mask!.every(byte => byte === 255));
+});
+
+test("known loader repeats skip payloads, handle validation, path lookup, and unknown fallback", context => {
+    const f = fixture();
+    f.u16(0x3f6, 94);
+    f.u32(0x34e, 0x6000);
+    f.u16(0x6000, 96);
+    f.pstring(0x6040, "Document");
+    f.u32(0x6016, 0x7000);
+    f.pstring(0x702c, "Disk");
+    f.u32(0x603c, 42);
+    const paths = new HFSPathResolver([]);
+    const resolve = context.mock.method(paths, "resolve");
+    const capture = new ResourceEventCapture(paths);
+    const loaded = {type: 0x53545220, id: -128, reference: 0x2026};
+    assert.equal(
+        capture.capture(f.reader, "loader", 1, 0x220, undefined, loaded).length,
+        1
+    );
+    assert.equal(resolve.mock.callCount(), 1);
+    let payloadReads = 0;
+    const reader = new GuestMemoryReader(
+        {
+            read(address, length) {
+                if (
+                    address === 0x220 ||
+                    (address < 0x4010 && address + length > 0x3ff8)
+                )
+                    payloadReads++;
+                return ramMemory(f.ram).read(address, length);
+            },
+        },
+        24
+    );
+    for (let i = 0; i < 100; i++)
+        assert.equal(
+            capture.capture(reader, "repeat", 2 + i, 0x220, undefined, loaded)
+                .length,
+            0
+        );
+    assert.equal(payloadReads, 0);
+    assert.equal(resolve.mock.callCount(), 1);
+});
+
+test("failed or purged payloads remain eligible for their first successful capture", () => {
+    const f = fixture();
+    const capture = new ResourceEventCapture();
+    f.u32(0x220, 0);
+    assert.equal(capture.capture(f.reader, "purged", 1).length, 0);
+    f.u32(0x220, 0x4000);
+    f.ram[0x3ff8] = 0;
+    assert.equal(capture.capture(f.reader, "invalid heap", 2).length, 0);
+    f.block(0x220, 0x4000, new Uint8Array([1, 65]));
+    assert.deepEqual(
+        [...capture.capture(f.reader, "repaired", 3)[0].detail.data],
+        [1, 65]
+    );
+    assert.equal(capture.capture(f.reader, "repeat", 4).length, 0);
+});
+
+test("map cache eviction does not forget captured resources", () => {
+    const f = fixture();
+    const capture = new ResourceEventCapture();
+    assert.equal(capture.capture(f.reader, "initial", 1).length, 1);
+    for (let i = 0; i < 1030; i++) {
+        const handle = 0x8000 + i * 4;
+        f.u32(handle, 0x2000);
+        f.u32(0xa50, handle);
+        capture.capture(f.reader, "another map", i + 2);
+    }
+    f.u32(0xa50, 0x200);
+    assert.equal(
+        capture.capture(f.reader, "original map", 2000, 0x220).length,
+        0
+    );
+});
+
+test("unattributed loader repeats deduplicate by validated allocation without conflating different handles", () => {
+    const f = fixture();
+    f.u32(0xa50, 0x204);
+    const capture = new ResourceEventCapture();
+    const loaded = {type: 0x53545220, id: -128, reference: 0x2026};
+    assert.equal(
+        capture.capture(f.reader, "loader", 1, 0x220, undefined, loaded).length,
+        1
+    );
+    assert.equal(
+        capture.capture(f.reader, "repeat", 2, 0x220, undefined, loaded).length,
+        0
+    );
+    f.u32(0x202e, 0x224);
+    f.block(0x224, 0x5000, new Uint8Array([1, 66]));
+    assert.equal(
+        capture.capture(
+            f.reader,
+            "another allocation",
+            3,
+            0x224,
+            undefined,
+            loaded
+        ).length,
+        1
+    );
 });

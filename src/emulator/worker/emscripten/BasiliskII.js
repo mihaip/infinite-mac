@@ -4737,45 +4737,47 @@ var ASM_CONSTS = {
         Module.inspectorInitialized = true;
       }
       inspector.tick(HEAPU8.subarray($0, $0 + $1));
+      return inspector.active();
     }
+    return false;
   },
-  454882: $0 => workerApi.acquireInputLock($0),
-  454925: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
-  455014: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
-  455104: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
-  455191: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
-  455275: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
-  455362: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
-  455446: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasFlagAddr),
-  455537: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasAddr),
-  455624: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
-  455709: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
-  455789: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
-  455870: () => workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr),
-  455964: () => {
+  454923: $0 => workerApi.acquireInputLock($0),
+  454966: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
+  455055: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
+  455145: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
+  455232: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
+  455316: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
+  455403: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
+  455487: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasFlagAddr),
+  455578: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasAddr),
+  455665: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
+  455750: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
+  455830: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
+  455911: () => workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr),
+  456005: () => {
     workerApi.releaseInputLock();
   },
-  455998: () => {
+  456039: () => {
     workerApi.sleep(.001);
   },
-  456026: $0 => {
+  456067: $0 => {
     workerApi.setClipboardText(UTF8ToString($0));
   },
-  456076: $0 => workerApi.disks.open(UTF8ToString($0)),
-  456127: $0 => {
+  456117: $0 => workerApi.disks.open(UTF8ToString($0)),
+  456168: $0 => {
     workerApi.disks.close($0);
   },
-  456158: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
-  456207: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3),
-  456257: $0 => workerApi.disks.size($0),
-  456294: $0 => workerApi.disks.isMediaPresent($0),
-  456341: $0 => workerApi.disks.isFixedDisk($0),
-  456385: $0 => {
+  456199: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
+  456248: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3),
+  456298: $0 => workerApi.disks.size($0),
+  456335: $0 => workerApi.disks.isMediaPresent($0),
+  456382: $0 => workerApi.disks.isFixedDisk($0),
+  456426: $0 => {
     workerApi.disks.eject($0);
   },
-  456416: ($0, $1) => {
+  456457: ($0, $1, $2, $3, $4) => {
     try {
-      workerApi.inspector?.beforeResourceFileClose(HEAPU8.subarray($0, $0 + $1));
+      workerApi.inspector?.callObserved(HEAPU8.subarray($0, $0 + $1), $2, !!$3, 0, 0, 0, $4);
     } catch (_) {}
   }
 };

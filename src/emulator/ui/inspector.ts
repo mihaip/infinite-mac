@@ -1,4 +1,6 @@
 import {
+    RESOURCE_EVENT_LIMIT,
+    RESOURCE_EVENT_BYTES,
     INSPECTOR_CONTROL_BYTES,
     INSPECTOR_GRACE_MS,
     type InspectorControl,
@@ -7,7 +9,6 @@ import {
     type InspectorWorkerConfig,
     writeInspectorControl,
 } from "../common/inspector";
-
 // Owned by the emulator session, independently of drawer contents or React.
 export class EmulatorInspector {
     #config: InspectorWorkerConfig;
@@ -24,6 +25,7 @@ export class EmulatorInspector {
     #previewKeys: string[] = [];
     #disposed = false;
     #open = false;
+    #eventBytes = 0;
 
     constructor(
         shared: boolean,
@@ -56,6 +58,31 @@ export class EmulatorInspector {
         if (this.#disposed || message.version !== 1) return;
         if (message.type === "inspector_capabilities") {
             this.#update({supported: message.inspectors.includes("resources")});
+        } else if (message.type === "inspector_events") {
+            const events = [...(this.#state.events ?? []), ...message.events];
+            this.#eventBytes += message.events.reduce(
+                (n, e) =>
+                    n +
+                    e.detail.data.byteLength +
+                    (e.detail.mask?.byteLength ?? 0),
+                0
+            );
+            let start = 0;
+            while (
+                start < events.length &&
+                (events.length - start > RESOURCE_EVENT_LIMIT ||
+                    this.#eventBytes > RESOURCE_EVENT_BYTES)
+            ) {
+                this.#eventBytes -=
+                    events[start].detail.data.byteLength +
+                    (events[start].detail.mask?.byteLength ?? 0);
+                start++;
+            }
+            const retained = start ? events.slice(start) : events;
+            this.#update({
+                events: retained,
+                droppedEvents: (this.#state.droppedEvents ?? 0) + start,
+            });
         } else if (
             message.type === "inspector_snapshot" &&
             message.sequence > this.#state.sequence &&
@@ -64,7 +91,7 @@ export class EmulatorInspector {
             this.#update({
                 sequence: message.sequence,
                 snapshot: message.snapshot,
-                error: undefined,
+                error: message.snapshot.warning,
             });
         } else if (message.type === "inspector_error" && !this.#state.paused) {
             this.#update({error: message.error});
@@ -127,11 +154,14 @@ export class EmulatorInspector {
         this.#open = false;
         this.#resourceKey = undefined;
         this.#previewKeys = [];
+        this.#eventBytes = 0;
         this.#update({
             capturing: false,
             paused: false,
             supported: false,
             sequence: 0,
+            events: undefined,
+            droppedEvents: 0,
             snapshot: undefined,
             error: undefined,
         });

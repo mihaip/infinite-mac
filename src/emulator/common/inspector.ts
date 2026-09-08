@@ -57,7 +57,27 @@ export type ResourceSnapshot = {
     previews?: ResourceDetail[];
     warning?: string;
 };
+export type ResourceLoadEvent = {
+    id: number;
+    capturedAt: number;
+    // "load" is a loader callback, not proof of a physical disk read. A
+    // callback can return a resident handle. Both paths retain only the first
+    // capture of a source file/type/ID in this emulator session.
+    kind: "load" | "observed";
+    source: string;
+    processName: string;
+    pointerBits: 24 | 32;
+    pc?: number;
+    file: Omit<ResourceFile, "types">;
+    type: string;
+    resource: ResourceInfo;
+    detail: ResourceDetail;
+};
+export const RESOURCE_EVENT_LIMIT = 50_000;
+export const RESOURCE_EVENT_BYTES = 256 * 1024 * 1024;
+
 export type InspectorMessage =
+    | {type: "inspector_events"; version: 1; events: ResourceLoadEvent[]}
     | {type: "inspector_capabilities"; version: 1; inspectors: InspectorId[]}
     | {
           type: "inspector_snapshot";
@@ -81,6 +101,8 @@ export type InspectorState = {
     sequence: number;
     snapshot?: ResourceSnapshot;
     error?: string;
+    events?: ResourceLoadEvent[];
+    droppedEvents?: number;
 };
 
 // A single writer publishes complete desired state, rather than a queue that

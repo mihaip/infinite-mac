@@ -1,6 +1,9 @@
+import {resourceEventCatalog} from "@/emulator/common/resource-event-catalog";
 import {
+    memo,
     useCallback,
     useEffect,
+    useLayoutEffect,
     useMemo,
     useRef,
     useState,
@@ -10,7 +13,6 @@ import {useVirtualizer} from "@tanstack/react-virtual";
 import {PictPreview} from "@/pict/PictPreview";
 import {Drawer, DrawerContents, DrawerHeader} from "@/controls/Drawer";
 import {Button} from "@/controls/Button";
-import {Checkbox} from "@/controls/Checkbox";
 import {Input} from "@/controls/Input";
 import {
     appearanceListHeader,
@@ -19,13 +21,12 @@ import {
 } from "@/controls/Appearance";
 import {type EmulatorInspector} from "@/emulator/ui/inspector";
 import {
-    INSPECTOR_PREVIEW_COUNT,
+    type ResourceLoadEvent,
     type ResourceDetail,
     type ResourceFile,
     type ResourceInfo,
     type ResourceType,
     type InspectorState,
-    type ResourceSnapshot,
 } from "@/emulator/common/inspector";
 import {
     hasResourceBitmap,
@@ -48,28 +49,33 @@ export function MacResources({inspector}: {inspector: EmulatorInspector}) {
         inspector.subscribe,
         inspector.getSnapshot
     );
+    const [tab, setTab] = useState<"events" | "browser">("events");
+    const [selectedEvent, setSelectedEvent] = useState<ResourceLoadEvent>();
     const [fileKey, setFileKey] = useState<string>();
     const [retainedFile, setRetainedFile] = useState<ResourceFile>();
     const [retainedDetail, setRetainedDetail] = useState<ResourceDetail>();
     const [type, setType] = useState<string>();
     const [resourceKey, setResourceKey] = useState<string>();
     const [search, setSearch] = useState("");
-    const [loadedOnly, setLoadedOnly] = useState(true);
-    const [showRecent, setShowRecent] = useState(false);
-    const [gridPage, setGridPage] = useState(0);
     const onExpandedChange = useCallback(
         (open: boolean) => inspector.setOpen(open),
         [inspector]
     );
     useEffect(() => () => inspector.setOpen(false), [inspector]);
     useEffect(() => {
-        inspector.selectResource(resourceKey);
-    }, [inspector, resourceKey]);
+        if (!state.supported) setSelectedEvent(undefined);
+    }, [state.supported]);
 
-    const snapshot = state.snapshot;
-    // The sampled resource chain belongs to the process currently executing,
-    // which can briefly be a background application. Selection belongs to the
-    // user, so keep it even when its map leaves that chain (or the history cache).
+    const snapshot = useMemo(
+        () =>
+            tab === "browser"
+                ? resourceEventCatalog(state.events ?? [], resourceKey)
+                : undefined,
+        [tab, state.events, resourceKey]
+    );
+    const events = state.events ?? [];
+    // Keep the selected file and detail even when the bounded event history
+    // evicts their last event. Browsing must not jump to a different file.
     const selectedFile = snapshot?.files.find(f => f.key === fileKey);
     const detachedFile =
         snapshot && retainedFile && retainedFile.key === fileKey
@@ -84,6 +90,7 @@ export function MacResources({inspector}: {inspector: EmulatorInspector}) {
         snapshot?.files.find(f => f.current) ??
         snapshot?.files[0];
     useEffect(() => {
+        if (tab !== "browser") return;
         if (!snapshot) {
             setFileKey(undefined);
             setRetainedFile(undefined);
@@ -92,24 +99,24 @@ export function MacResources({inspector}: {inspector: EmulatorInspector}) {
             setFileKey(file.key);
             setRetainedFile(file);
         }
-    }, [snapshot, file]);
-    const files =
-        snapshot?.files.filter(
-            f => showRecent || !f.recent || f.key === file?.key
-        ) ?? [];
+    }, [tab, snapshot, file]);
+    const files = [...(snapshot?.files ?? [])];
     if (file && !files.some(f => f.key === file.key)) files.push(file);
     const query = search.toLocaleLowerCase();
+    const fileMatchesQuery =
+        !!query &&
+        `${file?.path ?? file?.name}`.toLocaleLowerCase().includes(query);
     const visibleTypes =
         file?.types
             .map(t => ({
                 ...t,
                 resources: t.resources.filter(
                     r =>
-                        (!loadedOnly || r.resident || r.cached === true) &&
-                        (!query ||
-                            `${t.type} ${r.id} ${r.name ?? ""}`
-                                .toLocaleLowerCase()
-                                .includes(query))
+                        !query ||
+                        fileMatchesQuery ||
+                        `${t.type} ${r.id} ${r.name ?? ""}`
+                            .toLocaleLowerCase()
+                            .includes(query)
                 ),
             }))
             .filter(t => t.resources.length)
@@ -126,20 +133,6 @@ export function MacResources({inspector}: {inspector: EmulatorInspector}) {
         (snapshot && retainedDetail && retainedDetail.key === resourceKey
             ? {...retainedDetail, cached: true}
             : undefined);
-    const gridView = !!type && hasResourceBitmap(type);
-    const resources = resourceType?.resources ?? [];
-    const lastGridPage = Math.max(
-        0,
-        Math.ceil(resources.length / INSPECTOR_PREVIEW_COUNT) - 1
-    );
-    const currentGridPage = Math.min(gridPage, lastGridPage);
-    const gridResources = resources.slice(
-        currentGridPage * INSPECTOR_PREVIEW_COUNT,
-        (currentGridPage + 1) * INSPECTOR_PREVIEW_COUNT
-    );
-    useEffect(() => {
-        inspector.selectPreviews(gridView ? gridResources.map(r => r.key) : []);
-    }, [inspector, gridView, gridResources]);
     const previews = new Map(snapshot?.previews?.map(p => [p.key, p]));
     const selectResource = (resource: ResourceInfo) => {
         setResourceKey(resource.key);
@@ -147,7 +140,6 @@ export function MacResources({inspector}: {inspector: EmulatorInspector}) {
     const selectType = (type: string | undefined) => {
         setType(type);
         setResourceKey(undefined);
-        setGridPage(0);
     };
     if (!state.supported) return null;
 
@@ -161,66 +153,92 @@ export function MacResources({inspector}: {inspector: EmulatorInspector}) {
                 <DrawerContents tall>
                     <div className={`MacResources MacResources-${appearance}`}>
                         <ResourceHeader
-                            state={state}
-                            file={file}
                             isPopout={isPopout}
                             onWindowAction={isPopout ? collapse : popout}
                             search={search}
-                            loadedOnly={loadedOnly}
-                            showRecent={showRecent}
                             onSearch={value => {
                                 setSearch(value);
-                                setGridPage(0);
                             }}
-                            onLoadedOnly={value => {
-                                setLoadedOnly(value);
-                                setGridPage(0);
-                            }}
-                            onShowRecent={setShowRecent}
                         />
                         <div
-                            className={`MacResources-Body ${resource ? "MacResources-Body-Inspecting" : ""}`}>
-                            <ResourceFileList
-                                files={files}
-                                selectedKey={file?.key}
-                                hasSnapshot={!!snapshot}
-                                onSelect={key => {
-                                    setFileKey(key);
-                                    selectType(undefined);
-                                }}
-                            />
-                            <ResourceCatalog
-                                file={file}
-                                type={type}
-                                visibleTypes={visibleTypes}
-                                resourceKey={resourceKey}
-                                gridResources={gridResources}
-                                previews={previews}
-                                currentGridPage={currentGridPage}
-                                lastGridPage={lastGridPage}
-                                hasSnapshot={!!snapshot}
-                                onPageChange={setGridPage}
-                                onSelectType={selectType}
-                                onSelectResource={selectResource}
-                            />
-                            {resource && type && (
-                                <section
-                                    className="MacResources-Detail"
-                                    aria-label="Resource preview">
-                                    <ResourcePreview
-                                        key={resource.key}
-                                        resource={resource}
-                                        type={type}
-                                        detail={detail}
-                                        recent={!!file?.recent}
-                                    />
-                                </section>
-                            )}
+                            className="MacResources-Tabs"
+                            role="tablist"
+                            aria-label="Resource views">
+                            <button
+                                role="tab"
+                                aria-selected={tab === "events"}
+                                onClick={() => setTab("events")}>
+                                Timeline
+                            </button>
+                            <button
+                                role="tab"
+                                aria-selected={tab === "browser"}
+                                onClick={() => setTab("browser")}>
+                                Browser
+                            </button>
                         </div>
+                        {tab === "events" ? (
+                            <ResourceEventLog
+                                events={events}
+                                search={search}
+                                selected={selectedEvent}
+                                onSelect={setSelectedEvent}
+                                onBrowse={event => {
+                                    const history = events.includes(event)
+                                        ? events
+                                        : [...events, event];
+                                    const source = resourceEventCatalog(
+                                        history
+                                    )?.files.find(
+                                        f => f.key === event.file.key
+                                    );
+                                    setFileKey(event.file.key);
+                                    setRetainedFile(source);
+                                    setSearch("");
+                                    selectType(undefined);
+                                    setTab("browser");
+                                }}
+                                dropped={state.droppedEvents ?? 0}
+                            />
+                        ) : (
+                            <div
+                                className={`MacResources-Body ${resource ? "MacResources-Body-Inspecting" : ""}`}>
+                                <ResourceFileList
+                                    files={files}
+                                    selectedKey={file?.key}
+                                    hasSnapshot={!!snapshot}
+                                    onSelect={key => {
+                                        setFileKey(key);
+                                        selectType(undefined);
+                                    }}
+                                />
+                                <ResourceCatalog
+                                    key={`${file?.key}:${type}:${search}`}
+                                    file={file}
+                                    type={type}
+                                    visibleTypes={visibleTypes}
+                                    resourceKey={resourceKey}
+                                    previews={previews}
+                                    hasSnapshot={!!snapshot}
+                                    onSelectType={selectType}
+                                    onSelectResource={selectResource}
+                                />
+                                {resource && type && (
+                                    <section
+                                        className="MacResources-Detail"
+                                        aria-label="Resource preview">
+                                        <ResourcePreview
+                                            key={resource.key}
+                                            resource={resource}
+                                            type={type}
+                                            detail={detail}
+                                        />
+                                    </section>
+                                )}
+                            </div>
+                        )}
                         <ResourceFooter
-                            snapshot={snapshot}
                             state={state}
-                            file={file}
                             onTogglePaused={() =>
                                 inspector.setPaused(!state.paused)
                             }
@@ -232,37 +250,265 @@ export function MacResources({inspector}: {inspector: EmulatorInspector}) {
     );
 }
 
+const RESOURCE_EVENT_ROW_HEIGHT = 48;
+
+const ResourceEventLog = memo(function ResourceEventLog({
+    events,
+    search,
+    selected,
+    onSelect,
+    onBrowse,
+    dropped,
+}: {
+    events: ResourceLoadEvent[];
+    search: string;
+    selected?: ResourceLoadEvent;
+    onSelect: (event?: ResourceLoadEvent) => void;
+    onBrowse: (event: ResourceLoadEvent) => void;
+    dropped: number;
+}) {
+    const appearance = useAppearance();
+    const scroll = useRef<HTMLDivElement>(null);
+    const query = search.toLocaleLowerCase();
+    const visible = useMemo(
+        () =>
+            events
+                .filter(
+                    e =>
+                        !query ||
+                        `${e.type} ${e.resource.id} ${e.resource.name ?? ""} ${e.file.path ?? e.file.name} ${e.processName} ${e.source}`
+                            .toLocaleLowerCase()
+                            .includes(query)
+                )
+                .reverse(),
+        [events, query]
+    );
+    const virtualizer = useVirtualizer({
+        count: visible.length,
+        getScrollElement: () => scroll.current,
+        estimateSize: () => RESOURCE_EVENT_ROW_HEIGHT,
+        overscan: 5,
+        getItemKey: index => visible[index].id,
+    });
+    // Keep the top visible event stable when new events are prepended. At the
+    // top, follow the live stream. A changed filter starts a fresh view.
+    const previousView = useRef({visible, query});
+    useLayoutEffect(() => {
+        const element = scroll.current;
+        const previous = previousView.current;
+        previousView.current = {visible, query};
+        if (!element) return;
+        if (query !== previous.query) {
+            element.scrollTop = 0;
+        } else if (element.scrollTop > 0 && previous.visible.length) {
+            const index = Math.floor(
+                element.scrollTop / RESOURCE_EVENT_ROW_HEIGHT
+            );
+            const anchor = previous.visible[index];
+            const nextIndex = anchor
+                ? visible.findIndex(e => e.id === anchor.id)
+                : -1;
+            if (nextIndex >= 0)
+                element.scrollTop +=
+                    (nextIndex - index) * RESOURCE_EVENT_ROW_HEIGHT;
+        }
+    }, [visible, query]);
+    return (
+        <div
+            className={`MacResources-Events ${selected ? "MacResources-Events-Inspecting" : ""}`}>
+            <section
+                className="MacResources-EventStream"
+                aria-label="Resource load events">
+                <div className="MacResources-ColumnTitle MacResources-EventToolbar">
+                    <span>
+                        Newest first · {visible.length.toLocaleString()} events
+                        {dropped > 0
+                            ? ` · ${dropped.toLocaleString()} older events discarded`
+                            : ""}
+                    </span>
+                </div>
+                <div
+                    className={`MacResources-EventColumns ${appearanceListHeader(appearance)}`}>
+                    <span aria-hidden="true" />
+                    <span>Resource</span>
+                    <span>File / Application</span>
+                    <span className="MacResources-EventSize">Bytes</span>
+                    <span className="MacResources-EventTime">Time</span>
+                </div>
+                <div className="MacResources-EventScroll" ref={scroll}>
+                    {!visible.length && (
+                        <p className="MacResources-Empty">
+                            {query
+                                ? "No events match this search."
+                                : "Open an application or document to capture resource loads."}
+                        </p>
+                    )}
+                    <div
+                        style={{
+                            height: virtualizer.getTotalSize(),
+                            position: "relative",
+                        }}>
+                        {virtualizer.getVirtualItems().map(row => {
+                            const event = visible[row.index];
+                            return (
+                                <button
+                                    key={event.id}
+                                    className="MacResources-EventRow"
+                                    aria-pressed={event.id === selected?.id}
+                                    onClick={() => onSelect(event)}
+                                    style={{
+                                        height: row.size,
+                                        transform: `translateY(${row.start}px)`,
+                                    }}>
+                                    <div className="MacResources-EventThumbnail">
+                                        <EventContent event={event} />
+                                    </div>
+                                    <div className="MacResources-EventSummary">
+                                        <strong>
+                                            {event.type} {event.resource.id}
+                                        </strong>
+                                        <EventDescription event={event} />
+                                    </div>
+                                    <div
+                                        className="MacResources-EventFile"
+                                        title={
+                                            event.file.path ?? event.file.name
+                                        }>
+                                        <span>{event.file.name}</span>
+                                        <small>
+                                            {event.processName ||
+                                                "Unknown application"}
+                                        </small>
+                                    </div>
+                                    <span className="MacResources-EventSize">
+                                        {event.detail.size.toLocaleString()}
+                                    </span>
+                                    <time
+                                        className="MacResources-EventTime"
+                                        dateTime={new Date(
+                                            event.capturedAt
+                                        ).toISOString()}
+                                        title={`${new Date(event.capturedAt).toLocaleString()} · ${event.source}`}>
+                                        {new Date(
+                                            event.capturedAt
+                                        ).toLocaleTimeString([], {
+                                            hour: "numeric",
+                                            minute: "2-digit",
+                                            second: "2-digit",
+                                        })}
+                                    </time>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
+            {selected && (
+                <section
+                    className="MacResources-Detail"
+                    aria-label="Event resource preview">
+                    <div className="MacResources-EventNavigation">
+                        <DrawerHeader>
+                            <Button onClick={() => onSelect(undefined)}>
+                                ‹ Back
+                            </Button>
+                            <div>
+                                {selected.processName} · {selected.source}
+                                <br />
+                                <button
+                                    className="MacResources-SourceLink"
+                                    onClick={() => onBrowse(selected)}>
+                                    {selected.file.path ?? selected.file.name}
+                                </button>
+                            </div>
+                            <time
+                                className="MacResources-CaptureTime"
+                                dateTime={new Date(
+                                    selected.capturedAt
+                                ).toISOString()}
+                                title={new Date(
+                                    selected.capturedAt
+                                ).toLocaleString()}>
+                                {new Date(
+                                    selected.capturedAt
+                                ).toLocaleTimeString()}
+                            </time>
+                        </DrawerHeader>
+                    </div>
+                    <ResourcePreview
+                        key={selected.id}
+                        resource={selected.resource}
+                        type={selected.type}
+                        detail={selected.detail}
+                        showCaptureTime={false}
+                    />
+                </section>
+            )}
+        </div>
+    );
+});
+
+const EventContent = memo(function EventContent({
+    event,
+}: {
+    event: ResourceLoadEvent;
+}) {
+    if (event.type === "PICT")
+        return (
+            <PictPreview data={event.detail.data} size={event.detail.size} />
+        );
+    if (hasResourceBitmap(event.type))
+        return <ResourceThumbnail type={event.type} detail={event.detail} />;
+    return <ResourceTypeIcon type={event.type} />;
+});
+
+const EventDescription = memo(function EventDescription({
+    event,
+}: {
+    event: ResourceLoadEvent;
+}) {
+    if (event.type === "PICT" || hasResourceBitmap(event.type))
+        return event.resource.name ? (
+            <small title={event.resource.name}>{event.resource.name}</small>
+        ) : null;
+    const strings = resourceStrings(event.type, event.detail.data);
+    const structure = resourceStructure(event.type, event.detail.data);
+    const text =
+        strings?.join(" · ") ??
+        (structure
+            ? structure.fields
+                  .map(
+                      f =>
+                          `${f.name}: ${f.value ?? (f.children ? `${f.children.length} items` : "")}`
+                  )
+                  .join("\n")
+            : Array.from(event.detail.data.subarray(0, 48), b =>
+                  b.toString(16).padStart(2, "0")
+              ).join(" "));
+    const description = [event.resource.name, text.slice(0, 280)]
+        .filter(Boolean)
+        .join(" · ");
+    return <small title={description}>{description}</small>;
+});
+
 function ResourceHeader({
-    state,
-    file,
     isPopout,
     onWindowAction,
     search,
-    loadedOnly,
-    showRecent,
     onSearch,
-    onLoadedOnly,
-    onShowRecent,
 }: {
-    state: InspectorState;
-    file?: ResourceFile;
     isPopout: boolean;
     onWindowAction?: () => void;
     search: string;
-    loadedOnly: boolean;
-    showRecent: boolean;
     onSearch: (value: string) => void;
-    onLoadedOnly: (value: boolean) => void;
-    onShowRecent: (value: boolean) => void;
 }) {
-    const appearance = useAppearance();
-    const snapshot = state.snapshot;
     return (
         <>
             <DrawerHeader>
                 <div className="MacResources-Heading">
-                    Inspect resources that are currently loaded in the emulated
-                    Mac.
+                    Explore the images, text, and other resources loaded by the
+                    emulated Mac. Each resource is captured once. Select an
+                    event to inspect its contents, or browse resources by file.
                 </div>
                 <Button onClick={onWindowAction}>
                     {isPopout ? "Close" : "Popout"}
@@ -271,33 +517,11 @@ function ResourceHeader({
             <div className="MacResources-Toolbar">
                 <Input
                     aria-label="Find resources"
-                    placeholder="Find a type, ID, or name"
+                    placeholder="Find a type, ID, name, file, or application"
                     value={search}
                     onChange={e => onSearch(e.target.value)}
                 />
-                <label title="Show resources currently in guest memory or copies kept by the inspector from an earlier capture. Uncheck to show every entry in the resource catalog.">
-                    <Checkbox
-                        checked={loadedOnly}
-                        onChange={e => onLoadedOnly(e.target.checked)}
-                    />{" "}
-                    Loaded or saved
-                </label>
-                <label>
-                    <Checkbox
-                        checked={showRecent}
-                        onChange={e => onShowRecent(e.target.checked)}
-                    />{" "}
-                    Recently seen files
-                </label>
             </div>
-            {state.error && (
-                <div role="status" className="MacResources-Notice">
-                    {state.error}.{" "}
-                    {snapshot
-                        ? "Showing the last valid capture."
-                        : "The inspector will retry automatically."}
-                </div>
-            )}
         </>
     );
 }
@@ -358,12 +582,8 @@ function ResourceCatalog({
     type,
     visibleTypes,
     resourceKey,
-    gridResources,
     previews,
-    currentGridPage,
-    lastGridPage,
     hasSnapshot,
-    onPageChange,
     onSelectType,
     onSelectResource,
 }: {
@@ -371,20 +591,18 @@ function ResourceCatalog({
     type?: string;
     visibleTypes: ResourceType[];
     resourceKey?: string;
-    gridResources: ResourceInfo[];
     previews: Map<string, ResourceDetail>;
-    currentGridPage: number;
-    lastGridPage: number;
     hasSnapshot: boolean;
-    onPageChange: (page: number) => void;
     onSelectType: (type: string | undefined) => void;
     onSelectResource: (resource: ResourceInfo) => void;
 }) {
     const appearance = useAppearance();
     const resources = visibleTypes.find(t => t.type === type)?.resources ?? [];
-    const gridView = !!type && hasResourceBitmap(type);
+    const gridView = !!type && (type === "PICT" || hasResourceBitmap(type));
     return (
-        <section className="MacResources-Catalog" aria-label="Resource catalog">
+        <section
+            className={`MacResources-Catalog ${gridView ? "MacResources-Catalog-Grid" : ""}`}
+            aria-label="Resource catalog">
             <div className="MacResources-ColumnTitle">
                 {type && (
                     <button
@@ -429,12 +647,9 @@ function ResourceCatalog({
             ) : gridView ? (
                 <ResourceGrid
                     type={type}
-                    gridResources={gridResources}
+                    resources={resources}
                     resourceKey={resourceKey}
                     previews={previews}
-                    currentGridPage={currentGridPage}
-                    lastGridPage={lastGridPage}
-                    onPageChange={onPageChange}
                     onSelect={onSelectResource}
                 />
             ) : (
@@ -454,68 +669,142 @@ function ResourceCatalog({
     );
 }
 
+const RESOURCE_GRID_PADDING = 16;
+
 function ResourceGrid({
     type,
-    gridResources,
+    resources,
     resourceKey,
     previews,
-    currentGridPage,
-    lastGridPage,
-    onPageChange,
     onSelect,
 }: {
     type: string;
-    gridResources: ResourceInfo[];
+    resources: ResourceInfo[];
     resourceKey?: string;
     previews: Map<string, ResourceDetail>;
-    currentGridPage: number;
-    lastGridPage: number;
-    onPageChange: (page: number) => void;
     onSelect: (resource: ResourceInfo) => void;
 }) {
+    const pictures = type === "PICT";
+    const rowHeight = pictures ? 168 : 76;
+    const tileWidth = pictures ? 160 : 72;
+    const scroll = useRef<HTMLDivElement>(null);
+    const [columns, setColumns] = useState(1);
+    const columnsRef = useRef(1);
+    const pendingOffset = useRef<number>();
+    useLayoutEffect(() => {
+        const element = scroll.current;
+        if (!element) return;
+        const update = () => {
+            if (!element.isConnected || !element.clientWidth) return;
+            // Tile width plus 4px gaps and 8px padding on either side.
+            const next = Math.max(
+                1,
+                Math.floor((element.clientWidth - 12) / (tileWidth + 4))
+            );
+            if (next === columnsRef.current) return;
+            const first =
+                Math.floor(
+                    Math.max(0, element.scrollTop - RESOURCE_GRID_PADDING) /
+                        rowHeight
+                ) * columnsRef.current;
+            pendingOffset.current =
+                element.scrollTop === 0
+                    ? 0
+                    : RESOURCE_GRID_PADDING +
+                      Math.floor(first / next) * rowHeight;
+            columnsRef.current = next;
+            setColumns(next);
+        };
+        update();
+        const observer = new ResizeObserver(update);
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, [rowHeight, tileWidth]);
+    useLayoutEffect(() => {
+        if (scroll.current && pendingOffset.current !== undefined) {
+            scroll.current.scrollTop = pendingOffset.current;
+            pendingOffset.current = undefined;
+        }
+    }, [columns]);
+    const virtualizer = useVirtualizer({
+        count: Math.ceil(resources.length / columns),
+        getScrollElement: () => scroll.current,
+        estimateSize: () => rowHeight,
+        overscan: 3,
+        paddingStart: RESOURCE_GRID_PADDING,
+        paddingEnd: RESOURCE_GRID_PADDING,
+    });
     return (
-        <>
-            {lastGridPage > 0 && (
-                <div className="MacResources-GridPaging">
-                    <Button
-                        disabled={currentGridPage === 0}
-                        onClick={() => onPageChange(currentGridPage - 1)}>
-                        Previous
-                    </Button>
-                    <span>
-                        {currentGridPage + 1} / {lastGridPage + 1}
-                    </span>
-                    <Button
-                        disabled={currentGridPage === lastGridPage}
-                        onClick={() => onPageChange(currentGridPage + 1)}>
-                        Next
-                    </Button>
-                </div>
-            )}
-            <div className="MacResources-ResourceGrid">
-                {gridResources.map(r => (
-                    <button
-                        type="button"
-                        key={r.key}
-                        className={r.key === resourceKey ? "selected" : ""}
-                        aria-pressed={r.key === resourceKey}
-                        aria-label={`${type} ${r.id}${r.name ? ` ${r.name}` : ""} · ${resourceStatus(r)}`}
-                        title={`${r.id}${r.name ? `: ${r.name}` : ""} · ${resourceStatus(r)}${r.size === undefined ? "" : ` · ${r.size.toLocaleString()} bytes`}`}
-                        onClick={() => onSelect(r)}>
-                        <ResourceThumbnail
-                            type={type}
-                            detail={previews.get(r.key)}
-                        />
-                        <span className="MacResources-IconLabel">{r.id}</span>
-                        {!r.resident && (
-                            <small>
-                                {r.cached ? "Saved copy" : "Not loaded"}
-                            </small>
-                        )}
-                    </button>
+        <div
+            className={`MacResources-ResourceGrid ${pictures ? "MacResources-PictureGrid" : ""}`}
+            ref={scroll}
+            aria-label="Resource thumbnails"
+            tabIndex={0}>
+            <div
+                style={{
+                    height: virtualizer.getTotalSize(),
+                    position: "relative",
+                }}>
+                {virtualizer.getVirtualItems().map(row => (
+                    <div
+                        key={row.key}
+                        className="MacResources-ResourceGridRow"
+                        style={{
+                            height: row.size,
+                            transform: `translateY(${row.start}px)`,
+                            gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+                        }}>
+                        {resources
+                            .slice(
+                                row.index * columns,
+                                (row.index + 1) * columns
+                            )
+                            .map(r => (
+                                <button
+                                    type="button"
+                                    key={r.key}
+                                    className={
+                                        r.key === resourceKey ? "selected" : ""
+                                    }
+                                    aria-pressed={r.key === resourceKey}
+                                    aria-label={`${type} ${r.id}${r.name ? ` ${r.name}` : ""}`}
+                                    title={`${r.id}${r.name ? `: ${r.name}` : ""}${r.size === undefined ? "" : ` · ${r.size.toLocaleString()} bytes`}`}
+                                    onClick={() => onSelect(r)}>
+                                    {pictures ? (
+                                        <div className="MacResources-PictureThumbnail">
+                                            {previews.get(r.key) ? (
+                                                <PictPreview
+                                                    data={
+                                                        previews.get(r.key)!
+                                                            .data
+                                                    }
+                                                    size={
+                                                        previews.get(r.key)!
+                                                            .size
+                                                    }
+                                                />
+                                            ) : (
+                                                <ResourceTypeIcon type={type} />
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <ResourceThumbnail
+                                            type={type}
+                                            detail={previews.get(r.key)}
+                                        />
+                                    )}
+                                    <span className="MacResources-IconLabel">
+                                        {r.id}
+                                        {pictures && r.name
+                                            ? ` (${r.name})`
+                                            : ""}
+                                    </span>
+                                </button>
+                            ))}
+                    </div>
                 ))}
             </div>
-        </>
+        </div>
     );
 }
 
@@ -536,7 +825,6 @@ function ResourceList({
                 <span>ID</span>
                 <span className="MacResources-ResourceSize">Size</span>
                 <span>Name</span>
-                <span className="MacResources-ResourceStatus">Status</span>
             </div>
             {resources.map(r => (
                 <button
@@ -552,9 +840,6 @@ function ResourceList({
                     <span className="MacResources-ResourceName" title={r.name}>
                         {r.name}
                     </span>
-                    <span className="MacResources-ResourceStatus">
-                        {resourceStatus(r)}
-                    </span>
                 </button>
             ))}
         </div>
@@ -562,29 +847,30 @@ function ResourceList({
 }
 
 function ResourceFooter({
-    snapshot,
     state,
-    file,
     onTogglePaused,
 }: {
-    snapshot?: ResourceSnapshot;
     state: InspectorState;
-    file?: ResourceFile;
     onTogglePaused: () => void;
 }) {
-    const {capturedAt} = snapshot ?? {};
+    const latest = state.snapshot ?? state.events?.at(-1);
+    const capturedAt = latest?.capturedAt;
+    const message = state.error
+        ? `${state.error}. Capture will retry automatically.`
+        : latest
+          ? `${(state.events?.length ?? 0).toLocaleString()} captured events · ${latest.pointerBits}-bit`
+          : "Capturing resources…";
     return (
         <div className="MacResources-Footer">
-            {state.error
-                ? "Waiting for a valid snapshot"
-                : snapshot
-                  ? `${file?.name ?? "Macintosh"} · ${snapshot.pointerBits}-bit`
-                  : "Capturing resources…"}
-            <div style={{display: "flex", alignItems: "center", gap: "0.5em"}}>
+            <span
+                className="MacResources-FooterMessage"
+                role="status"
+                title={message}>
+                {message}
+            </span>
+            <div className="MacResources-FooterActions">
                 <CaptureStatus capturedAt={capturedAt} paused={state.paused} />
-                <Button
-                    disabled={capturedAt === undefined}
-                    onClick={onTogglePaused}>
+                <Button onClick={onTogglePaused}>
                     {state.paused ? "Resume capture" : "Pause capture"}
                 </Button>
             </div>
@@ -671,14 +957,6 @@ function fileGroupTitle(directory: string) {
     return directory.slice(directory.lastIndexOf(":") + 1);
 }
 
-function resourceStatus(resource: ResourceInfo) {
-    return resource.resident
-        ? "Loaded"
-        : resource.cached
-          ? "Saved copy"
-          : "Not loaded";
-}
-
 function ResourceTypeIcon({type}: {type: string}) {
     const index =
         (typeIconIndex as Record<string, number>)[type] ??
@@ -736,12 +1014,12 @@ function ResourcePreview({
     resource,
     type,
     detail,
-    recent,
+    showCaptureTime = true,
 }: {
     resource: ResourceInfo;
     type: string;
     detail?: ResourceDetail;
-    recent: boolean;
+    showCaptureTime?: boolean;
 }) {
     const [view, setView] = useState<"fields" | "json" | "hex">("fields");
     const structure = useMemo(
@@ -779,19 +1057,20 @@ function ResourcePreview({
                 <strong>
                     {type} {resource.id}
                 </strong>
+                {showCaptureTime && detail && (
+                    <time
+                        className="MacResources-CaptureTime"
+                        dateTime={new Date(detail.capturedAt).toISOString()}
+                        title={new Date(detail.capturedAt).toLocaleString()}>
+                        {new Date(detail.capturedAt).toLocaleTimeString()}
+                    </time>
+                )}
             </div>
             <div className="MacResources-DetailContents">
                 <h3>{resource.name ?? "Untitled resource"}</h3>
                 <p>
                     {detail?.size ?? resource.size ?? "Unknown size"}
-                    {detail || resource.size !== undefined
-                        ? " bytes"
-                        : ""} ·{" "}
-                    {detail?.cached || recent
-                        ? "Saved from an earlier capture"
-                        : resource.resident
-                          ? "Loaded in memory"
-                          : "Not loaded"}
+                    {detail || resource.size !== undefined ? " bytes" : ""}
                 </p>
                 <p className="MacResources-Attributes">
                     Attributes $
@@ -801,13 +1080,6 @@ function ResourcePreview({
                         .map(([, label]) => ` · ${label}`)
                         .join("")}
                 </p>
-                {detail?.cached && (
-                    <p className="MacResources-Notice">
-                        Captured at{" "}
-                        {new Date(detail.capturedAt).toLocaleTimeString()}.
-                        These bytes are no longer confirmed resident.
-                    </p>
-                )}
                 {type === "PAT#" && bytes && <PatternList data={bytes} />}
                 {type === "PICT" && detail && (
                     <PictPreview data={detail.data} size={detail.size} />

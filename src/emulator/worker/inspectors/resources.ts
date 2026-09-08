@@ -77,17 +77,30 @@ export class ResourceLoadHints {
     }
 }
 type ParsedFile = {
+    mapHandle: number;
     identity: string;
     file: ResourceFile;
     data: Map<string, CapturedData>;
+    handles: Map<string, number>;
+    references: Map<string, number>;
 };
 
 // Pure map walking, separate from transport/history so corrupt-memory fixtures
-// exercise the same reader as the live emulator.
+// exercise the same reader as the live emulator. With complete=true, data is
+// borrowed from this synchronous memory view; callers must copy before returning.
 export function readResourceMaps(
     memory: GuestMemoryReader,
     now: number,
-    hints?: ResourceLoadHints
+    hints?: ResourceLoadHints,
+    complete = false,
+    only?: {reference: number; type: string; id: number},
+    unchanged?: (
+        mapHandle: number,
+        base: number,
+        size: number,
+        identity: string
+    ) => boolean,
+    skipResource?: (file: ResourceFile, type: string, id: number) => boolean
 ): ParsedFile[] {
     let mapHandle = memory.pointer(0xa50); // TopMapHndl
     if (!mapHandle) throw new Error("Waiting for the Resource Manager");
@@ -100,7 +113,10 @@ export function readResourceMaps(
     let resourceCount = 0;
     let capturedBytes = 0;
     while (mapHandle) {
-        if (visited.has(mapHandle) || visited.size >= MAX_MAPS)
+        if (
+            visited.has(mapHandle) ||
+            visited.size >= (complete ? 1024 : MAX_MAPS)
+        )
             throw new Error("Resource map chain is cyclic or too long");
         visited.add(mapHandle);
         const block = memory.handle(mapHandle);
@@ -113,6 +129,16 @@ export function readResourceMaps(
             return base + offset;
         };
         const nextHandle = memory.pointer(base + 16);
+        // Loader callbacks already identify the reference entry. Walk only map
+        // headers until its owner is found, then decode that resource and mask.
+        // No cached guest addresses: map movement, closure, and reuse are safe.
+        if (
+            only &&
+            (only.reference < base || only.reference + 12 > base + size)
+        ) {
+            mapHandle = nextHandle;
+            continue;
+        }
         const refNum = memory.i16(base + 20);
         const typeOffset = memory.u16(base + 24);
         const nameOffset = memory.u16(base + 26);
@@ -130,8 +156,22 @@ export function readResourceMaps(
                   ? applicationName || "Application"
                   : `Resource file ${refNum}`);
         const identity = `${mapHandle}:${refNum}:${name}`;
+        if (
+            unchanged?.(
+                mapHandle,
+                base,
+                size,
+                `${identity}:${location?.volumeName ?? ""}:${location?.parentID ?? ""}`
+            )
+        ) {
+            mapHandle = nextHandle;
+            continue;
+        }
         const file: ResourceFile = {
-            key: "",
+            key:
+                location?.volumeName && location.parentID !== undefined
+                    ? `${location.volumeName}:${location.parentID}:${name}`
+                    : `${mapHandle}:${refNum}:${location?.volumeName ?? ""}:${location?.parentID ?? ""}:${name}`,
             name,
             ...location,
             refNum,
@@ -141,19 +181,52 @@ export function readResourceMaps(
             types: [],
         };
         const data = new Map<string, CapturedData>();
+        const handles = new Map<string, number>();
+        const references = new Map<string, number>();
         for (let t = 0; t < count; t++) {
             const entry = typeBase + 2 + t * 8;
             const type = String.fromCharCode(...memory.bytes(entry, 4));
+            const maskType = only?.type.startsWith("icl")
+                ? "ICN#"
+                : only?.type.startsWith("ics")
+                  ? "ics#"
+                  : undefined;
+            if (only && type !== only.type && type !== maskType) continue;
             const numResources = (memory.u16(entry + 4) + 1) & 0xffff;
             resourceCount += numResources;
-            if (resourceCount > MAX_RESOURCES)
+            if (resourceCount > (complete ? 200000 : MAX_RESOURCES))
                 throw new Error("Resource count is too large");
             const refOffset = typeOffset + memory.u16(entry + 6);
             inMap(refOffset, numResources * 12);
             const resources: ResourceInfo[] = [];
-            for (let r = 0; r < numResources; r++) {
+            const targetIndex =
+                only && type === only.type
+                    ? (only.reference - base - refOffset) / 12
+                    : undefined;
+            if (
+                targetIndex !== undefined &&
+                (!Number.isInteger(targetIndex) ||
+                    targetIndex < 0 ||
+                    targetIndex >= numResources)
+            )
+                continue;
+            for (
+                let r = targetIndex ?? 0;
+                r <
+                (targetIndex === undefined ? numResources : targetIndex + 1);
+                r++
+            ) {
                 const reference = base + refOffset + r * 12;
+                if (only && type === only.type && reference !== only.reference)
+                    continue;
                 const id = memory.i16(reference);
+                if (only && id !== only.id) continue;
+                const key = `${type}:${id}`;
+                references.set(key, reference);
+                // First-load capture rejects known resources before reading
+                // their name, handle, heap header, or payload. Keep the validated
+                // reference so a skipped loader is not mistaken for a missing one.
+                if (skipResource?.(file, type, id)) continue;
                 const resourceNameOffset = memory.u16(reference + 2);
                 let resourceName: string | undefined;
                 if (resourceNameOffset !== 0xffff) {
@@ -165,7 +238,6 @@ export function readResourceMaps(
                     resourceName = memory.pstring(nameAddr);
                     if (resourceName.length === 0) resourceName = undefined;
                 }
-                const key = `${type}:${id}`;
                 const resource: ResourceInfo = {
                     key,
                     id,
@@ -174,6 +246,7 @@ export function readResourceMaps(
                     resident: false,
                 };
                 const handle = memory.pointer(reference + 8);
+                handles.set(key, handle);
                 if (handle) {
                     try {
                         resource.resident = memory.pointer(handle) !== 0;
@@ -182,13 +255,24 @@ export function readResourceMaps(
                             resource.size = resourceBlock.size;
                             const length = Math.min(
                                 resourceBlock.size,
-                                MAX_RESOURCE_BYTES
+                                complete ? 16 * 1024 * 1024 : MAX_RESOURCE_BYTES
                             );
-                            if (capturedBytes + length <= MAX_CACHE_BYTES) {
+                            if (
+                                capturedBytes + length <=
+                                (complete ? 256 * 1024 * 1024 : MAX_CACHE_BYTES)
+                            ) {
                                 data.set(key, {
-                                    data: memory
-                                        .bytes(resourceBlock.address, length)
-                                        .slice(),
+                                    data: complete
+                                        ? memory.bytes(
+                                              resourceBlock.address,
+                                              length
+                                          )
+                                        : memory
+                                              .bytes(
+                                                  resourceBlock.address,
+                                                  length
+                                              )
+                                              .slice(),
                                     size: resourceBlock.size,
                                     capturedAt: now,
                                 });
@@ -219,10 +303,14 @@ export function readResourceMaps(
         // Include the catalog shape in identity to detect reuse of a map handle
         // and file reference number. Contents can change without changing IDs.
         files.push({
+            mapHandle,
             identity: `${identity}:${file.types.map(t => `${t.type}=${t.resources.map(r => r.id).join(",")}`).join(";")}`,
             file,
             data,
+            handles,
+            references,
         });
+        if (only) break;
         mapHandle = nextHandle;
     }
     return files;
