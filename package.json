@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "@anthropic-ai/sdk": "^0.55.1",
+        "@tanstack/react-virtual": "^3.14.10",
         "classnames": "^2.3.2",
         "cookie": "^0.7.2",
         "file-saver": "^2.0.5",
@@ -49,6 +50,7 @@
         "wrangler": "^4.114.0"
     },
     "scripts": {
+        "test:inspector": "bash scripts/test-inspector.sh",
         "import-emulator": "scripts/import-emulator.sh",
         "import-disks": "uv run scripts/import-disks.py",
         "import-cd-roms": "uv run scripts/import-cd-roms.py",

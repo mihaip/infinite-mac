@@ -1,3 +1,5 @@
+import {EmulatorWorkerInspector} from "./inspector";
+import {type InspectorControl} from "../common/inspector";
 import {
     type EmulatorFallbackSetClipboardDataCommand,
     type EmulatorCDROM,
@@ -95,6 +97,7 @@ addEventListener("unhandledrejection", (event: PromiseRejectionEvent) => {
 });
 
 class EmulatorWorkerApi {
+    inspector?: EmulatorWorkerInspector;
     InputBufferAddresses = InputBufferAddresses;
 
     #emscriptenModule: EmscriptenModule;
@@ -148,6 +151,14 @@ class EmulatorWorkerApi {
         function getFallbackEndpoint(): EmulatorFallbackEndpoint {
             fallbackEndpoint ??= new EmulatorFallbackEndpoint(config.workerId);
             return fallbackEndpoint;
+        }
+
+        if (config.inspector) {
+            this.inspector = new EmulatorWorkerInspector(
+                config.inspector,
+                () => getFallbackEndpoint().consumeInspectorControl(),
+                message => postMessage(message)
+            );
         }
 
         this.#video =
@@ -235,6 +246,7 @@ class EmulatorWorkerApi {
             config.usePlaceholderDisks,
             this.#emscriptenModule
         );
+        this.inspector?.setDisks(this.disks.readableDisks());
         if (speedGovernorTargetIPS !== undefined) {
             this.#speedGovernor = new EmulatorWorkerSpeedGovernor(
                 speedGovernorTargetIPS
@@ -602,6 +614,17 @@ class EmulatorWorkerApi {
 }
 
 export class EmulatorFallbackEndpoint {
+    consumeInspectorControl(): InspectorControl | undefined {
+        return this.#consumeCommands(
+            (
+                command
+            ): command is Extract<
+                EmulatorFallbackCommand,
+                {type: "inspector_control"}
+            > => command.type === "inspector_control",
+            command => command.control
+        ).at(-1);
+    }
     #workerId: string;
     #commandQueue: EmulatorFallbackCommand[] = [];
     #fetchFailures = 0;

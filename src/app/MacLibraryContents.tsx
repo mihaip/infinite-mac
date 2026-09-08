@@ -1,5 +1,9 @@
 import classNames from "classnames";
-import {appearanceSystemFont, useAppearance} from "@/controls/Appearance";
+import {
+    appearanceListHeader,
+    appearanceSystemFont,
+    useAppearance,
+} from "@/controls/Appearance";
 import {
     DrawerContents,
     DrawerHeader,
@@ -388,7 +392,7 @@ const MacLibraryTable = memo(function ({
             );
         return (
             <th
-                className={classNames({
+                className={classNames(appearanceListHeader(appearance), {
                     "selected": selected,
                     "narrow": narrow,
                     "wide": wide,

@@ -264,6 +264,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         debugFallback,
         debugPaused,
         flags: {
+            resEdit: searchParams.get("resedit") === "true" || undefined,
             customDate,
             debugAudio,
             debugLog,
@@ -360,6 +361,9 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
 
     if (runDef.flags.debugAudio) {
         url.searchParams.set("debug_audio", "true");
+    }
+    if (runDef.flags.resEdit) {
+        url.searchParams.set("resedit", "true");
     }
     if (runDef.flags.debugLog) {
         url.searchParams.set("debug_log", "true");

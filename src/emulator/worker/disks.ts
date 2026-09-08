@@ -183,6 +183,10 @@ export class EmulatorWorkerDisksApi {
         }
     }
 
+    readableDisks(): EmulatorWorkerDisk[] {
+        return this.#disks;
+    }
+
     isDoneWithDiskWrites(): boolean {
         return (
             this.#lastDiskWriteTime !== 0 &&

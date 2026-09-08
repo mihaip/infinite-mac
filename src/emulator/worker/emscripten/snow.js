@@ -3939,6 +3939,24 @@ function _js_has_speed_event() {
   return workerApi.getInputValue(workerApi.InputBufferAddresses.speedFlagAddr);
 }
 
+function _js_inspector_active() {
+  return workerApi.inspector?.active() ? 1 : 0;
+}
+
+function _js_inspector_before_close(ptr, length) {
+  try {
+    workerApi.inspector?.beforeResourceFileClose(HEAPU8.subarray(ptr, ptr + length));
+  } catch (_) {}
+}
+
+function _js_inspector_capture(ptr, length) {
+  workerApi.inspector?.capture(HEAPU8.subarray(ptr, ptr + length));
+}
+
+function _js_inspector_initialized(model) {
+  workerApi.inspector?.initialize(model);
+}
+
 function _js_release_input_lock() {
   workerApi.releaseInputLock();
 }
@@ -4191,13 +4209,13 @@ var memory = makeInvalidEarlyAccess("memory");
 
 var __indirect_function_table = makeInvalidEarlyAccess("__indirect_function_table");
 
+var __ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E");
+
 var __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E");
 
 var __ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E");
 
 var __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE");
-
-var __ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E");
 
 var __ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE"] = makeInvalidEarlyAccess("__ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE");
 
@@ -4230,10 +4248,10 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports["__set_stack_limits"] != "undefined", "missing Wasm export: __set_stack_limits");
   assert(typeof wasmExports["memory"] != "undefined", "missing Wasm export: memory");
   assert(typeof wasmExports["__indirect_function_table"] != "undefined", "missing Wasm export: __indirect_function_table");
+  assert(typeof wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E");
   assert(typeof wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E");
   assert(typeof wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E");
   assert(typeof wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE");
-  assert(typeof wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E");
   assert(typeof wasmExports["_ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE"] != "undefined", "missing Wasm export: _ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE");
   assert(typeof wasmExports["__cpp_exception"] != "undefined", "missing Wasm export: __cpp_exception");
   _main = Module["_main"] = createExportWrapper("main", 2);
@@ -4260,10 +4278,10 @@ function assignWasmExports(wasmExports) {
   ___set_stack_limits = Module["___set_stack_limits"] = createExportWrapper("__set_stack_limits", 2);
   memory = wasmMemory = wasmExports["memory"];
   __indirect_function_table = wasmExports["__indirect_function_table"];
+  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"] = wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"].value;
   __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E"] = wasmExports["_ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h8575bfb312f10749E"].value;
   __ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E"] = wasmExports["_ZN9snow_core3mac3adb5mouse1_6__CTOR17h060fa4acd5010588E"].value;
   __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE"] = wasmExports["_ZN9snow_core3mac3adb8keyboard1_6__CTOR17h1a6a33990b29d8cfE"].value;
-  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"] = wasmExports["_ZN9snow_core3mac4scsi4disk1_6__CTOR17h3265a8ed7f7551d3E"].value;
   __ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE"] = wasmExports["_ZN9snow_core3mac4scsi7printer1_6__CTOR17ha7d08de5b07bc22cE"].value;
   ___cpp_exception = wasmExports["__cpp_exception"];
 }
@@ -4319,6 +4337,10 @@ var wasmImports = {
   /** @export */ js_has_key_event: _js_has_key_event,
   /** @export */ js_has_mouse_position: _js_has_mouse_position,
   /** @export */ js_has_speed_event: _js_has_speed_event,
+  /** @export */ js_inspector_active: _js_inspector_active,
+  /** @export */ js_inspector_before_close: _js_inspector_before_close,
+  /** @export */ js_inspector_capture: _js_inspector_capture,
+  /** @export */ js_inspector_initialized: _js_inspector_initialized,
   /** @export */ js_release_input_lock: _js_release_input_lock,
   /** @export */ js_report_error: _js_report_error,
   /** @export */ js_set_clipboard_text: _js_set_clipboard_text,

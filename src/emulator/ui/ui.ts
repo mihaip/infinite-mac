@@ -1,3 +1,4 @@
+import {EmulatorInspector} from "./inspector";
 import {
     type EmulatorDiskFile,
     type EmulatorCDROM,
@@ -151,6 +152,7 @@ export type EmulatorFallbackCommandSender = (
 ) => Promise<void>;
 
 export class Emulator {
+    readonly inspector?: EmulatorInspector;
     #config: EmulatorConfig;
     #delegate?: EmulatorDelegate;
     #worker: Worker;
@@ -268,6 +270,17 @@ export class Emulator {
         this.#clipboard = useSharedMemory
             ? new SharedMemoryEmulatorClipboard()
             : new FallbackEmulatorClipboard(fallbackCommandSender!);
+        if (
+            config.flags.resEdit &&
+            ["Snow", "BasiliskII"].includes(config.machine.emulatorType)
+        ) {
+            this.inspector = new EmulatorInspector(useSharedMemory, control => {
+                void fallbackCommandSender!({
+                    type: "inspector_control",
+                    control,
+                });
+            });
+        }
         this.#trackpadController = new EmulatorTrackpadController({
             trackpadDidMove: (deltaX, deltaY) => {
                 this.#input.handleInput({
@@ -480,6 +493,7 @@ export class Emulator {
             files: this.#files.workerConfig(),
             ethernet: this.#ethernet.workerConfig(),
             clipboard: this.#clipboard.workerConfig(),
+            inspector: this.inspector?.workerConfig(),
             dateOffset,
             speedGovernorTargetIPS,
         };
@@ -540,6 +554,7 @@ export class Emulator {
     }
 
     stop() {
+        this.inspector?.dispose();
         const {screenCanvas: canvas} = this.#config;
         canvas.removeEventListener("pointermove", this.#handlePointerMove);
         canvas.removeEventListener("pointerdown", this.#handlePointerDown);
@@ -899,7 +914,9 @@ export class Emulator {
     };
 
     #handleWorkerMessage = (e: MessageEvent) => {
-        if (e.data.type === "emulator_ready") {
+        if (e.data.type.startsWith("inspector_")) {
+            this.inspector?.handleMessage(e.data);
+        } else if (e.data.type === "emulator_ready") {
             this.#delegate?.emulatorDidFinishLoading?.(this);
         } else if (e.data.type === "emulator_video_open") {
             console.log(
@@ -1117,6 +1134,7 @@ export class Emulator {
     }
 
     async #handleEmulatorStopped(isExit?: boolean) {
+        this.inspector?.workerStopped();
         this.#worker.removeEventListener("message", this.#handleWorkerMessage);
         this.#worker.terminate();
         this.#workerTerminated = true;

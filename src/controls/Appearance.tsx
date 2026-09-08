@@ -39,3 +39,7 @@ export function useAppearanceVariant(): AppearanceVariant | undefined {
 export function appearanceSystemFont(appearance: Appearance) {
     return `AppearanceSystemFont-${appearance}`;
 }
+
+export function appearanceListHeader(appearance: Appearance) {
+    return `AppearanceListHeader-${appearance}`;
+}

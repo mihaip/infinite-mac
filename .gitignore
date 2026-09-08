@@ -39,6 +39,7 @@ src/Data/Library-details.json
 
 # Cloudflare Worker wrangler CLI state
 .wrangler
+/src/pict/wasm/target
 
 # Claude Code
 .claude/

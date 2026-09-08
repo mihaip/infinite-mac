@@ -23,3 +23,6 @@
 [submodule "snow"]
 	path = snow
 	url = https://github.com/mihaip/snow.git
+[submodule "third-party/oxideav-pict"]
+	path = third-party/oxideav-pict
+	url = https://github.com/mihaip/oxideav-pict.git

@@ -65,6 +65,7 @@ import {
 } from "@/defs/run-def";
 import {viewTransitionNameForDisk} from "@/lib/view-transitions";
 import {DrawersContainer} from "@/controls/Drawer";
+import {MacResources} from "@/app/MacResources";
 import {
     handleLibraryURL,
     MacLibrary,
@@ -1085,6 +1086,15 @@ export default function Mac({
                     />
                 )}
             </ScreenFrame>
+            {drawersVisible &&
+                flags.resEdit &&
+                emulatorRef.current?.inspector && (
+                    <DrawersContainer placement="right">
+                        <MacResources
+                            inspector={emulatorRef.current.inspector}
+                        />
+                    </DrawersContainer>
+                )}
             {drawersVisible && (
                 <DrawersContainer>
                     {runDefSupportsFloppies(runDef) && (

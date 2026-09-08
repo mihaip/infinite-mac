@@ -1,0 +1,15 @@
+[package]
+name = "pict-renderer"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+oxideav-pict = { path = "../../../third-party/oxideav-pict", default-features = false }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

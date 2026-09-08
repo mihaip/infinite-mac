@@ -618,6 +618,29 @@ export function CustomFields({
                 </div>
             )}
 
+            {/* {["Snow", "BasiliskII"].includes(runDef.machine.emulatorType) && (
+                <div className="CustomFields-Row">
+                    <span className="CustomFields-Label" />
+                    <label>
+                        <Checkbox
+                            checked={flags.resEdit ?? false}
+                            onChange={e =>
+                                setFlags(flags => ({
+                                    ...flags,
+                                    resEdit: e.target.checked || undefined,
+                                }))
+                            }
+                        />
+                        ResEdit mode
+                    </label>
+                    <div className="CustomFields-Description Dialog-Description">
+                        Inspect loaded resources in a live Resources drawer.
+                        Read-only preview for classic Mac OS with virtual memory
+                        off.
+                    </div>
+                </div>
+            )} */}
+
             {debugLogSupported && (
                 <div className="CustomFields-Row">
                     <span className="CustomFields-Label" />

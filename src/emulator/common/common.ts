@@ -2,6 +2,7 @@ import {
     type EmulatorDef,
     type EmulatorSpeed,
 } from "@/emulator/common/emulators";
+import {type InspectorControl, type InspectorWorkerConfig} from "./inspector";
 
 export const InputBufferAddresses = {
     globalLockAddr: 0,
@@ -172,6 +173,7 @@ export type EmulatorWorkerConfig = EmulatorDef & {
     files: EmulatorWorkerFilesConfig;
     ethernet: EmulatorWorkerEthernetConfig;
     clipboard: EmulatorWorkerClipboardConfig;
+    inspector?: InspectorWorkerConfig;
     dateOffset: number;
     speedGovernorTargetIPS?: number;
 };
@@ -308,7 +310,8 @@ export type EmulatorFallbackCommand =
     | EmulatorFallbackUploadFileCommand
     | EmulatorFallbackLoadCDROMCommand
     | EmulatorFallbackEthernetReceiveCommand
-    | EmulatorFallbackSetClipboardDataCommand;
+    | EmulatorFallbackSetClipboardDataCommand
+    | {type: "inspector_control"; control: InspectorControl};
 
 export type EmulatorFallbackInputCommand = {
     type: "input";
@@ -580,6 +583,7 @@ export function generateChunkedFileSpecForCDROM(
     };
 }
 export type EmulatorConfigFlags = {
+    resEdit?: boolean;
     customDate?: Date;
     startPaused?: boolean;
     autoPause?: boolean;

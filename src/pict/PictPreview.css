@@ -1,0 +1,11 @@
+.PictPreview {
+    margin: 8px 0;
+    flex-shrink: 0;
+    max-height: 45%;
+    overflow: auto;
+}
+.PictPreview canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
