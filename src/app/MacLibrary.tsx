@@ -140,8 +140,7 @@ export function MacLibraryHeader({
                         </a>
                         's mission is to preserve software for the Macintosh
                         platform.{" "}
-                        {runDef?.machine.emulatorType === "Snow" &&
-                        runDefNeedsTheOutsideWorldDisk(runDef) ? (
+                        {runDef && runDefNeedsTheOutsideWorldDisk(runDef) ? (
                             <>
                                 You can browse its library and load files for
                                 import through BlueSCSI SD Transfer on “The
