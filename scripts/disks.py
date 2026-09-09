@@ -453,7 +453,9 @@ OPENSTEP_42 = Disk(
     ],
 )
 
-AUX_311 = Disk(name="AUX 3.1.1.dsk", compressed=True)
+AUX_11 = Disk(name="AUX 1.1.dsk", compressed=True)
+
+AUX_31 = Disk(name="AUX 3.1.dsk", compressed=True)
 
 
 ALL_DISKS = [
@@ -526,5 +528,6 @@ ALL_DISKS = [
     OPENSTEP_40,
     OPENSTEP_42,
     # A/UX
-    AUX_311,
+    AUX_11,
+    AUX_31,
 ]

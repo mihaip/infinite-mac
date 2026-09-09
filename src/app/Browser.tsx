@@ -10,6 +10,8 @@ import {
     NEXT_DISKS_BY_YEAR,
     MAC_OS_X_DISKS,
     MAC_OS_X_DISKS_BY_YEAR,
+    AUX_DISKS,
+    AUX_DISKS_BY_YEAR,
 } from "@/defs/disks";
 import {type MachineDef} from "@/defs/machines";
 import {ScreenFrame} from "@/controls/ScreenFrame";
@@ -29,6 +31,7 @@ import {AppearanceProvider} from "@/controls/Appearance";
 import {Embed} from "@/app/Embed";
 import {EmbedDocs} from "@/app/EmbedDocs";
 import {iso} from "@/lib/iso";
+import {isAUXLaunched} from "@/flags";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -40,7 +43,7 @@ export function Browser({
     initialCustomRunDef?: RunDef;
 }) {
     const [diskFilter, setDiskFilter] = useDiskFilter();
-    const {byYear: disksByYear} = disks[diskFilter];
+    const {byYear: disksByYear} = disks()[diskFilter];
 
     return (
         <div className="Browser">
@@ -106,6 +109,7 @@ function Description({
     const [embedDocsVisible, setEmbedDocsVisible] = useState(
         location.pathname === "/embed-docs"
     );
+    const auxLaunched = isAUXLaunched();
 
     return (
         <div className="Description">
@@ -115,10 +119,11 @@ function Description({
                 comfort of a web browser.
             </p>
             <p>
-                Pick any version of System Software, Mac OS, Mac OS X or
-                NeXTStep from the 1980s, 1990s or early 2000s and run it within
-                a virtual machine. An “Infinite HD” disk with representative
-                software from that era is also available. You can also{" "}
+                Pick any version of System Software, Mac OS,
+                {auxLaunched && " A/UX,"} Mac OS X or NeXTStep from the 1980s,
+                1990s or early 2000s and run it within a virtual machine. An
+                “Infinite HD” disk with representative software from that era is
+                also available. You can also{" "}
                 <a
                     href="/run"
                     onClick={e => {
@@ -177,28 +182,49 @@ function Description({
     );
 }
 
-const disks = {
-    "all": {label: "All", all: ALL_DISKS, byYear: DISKS_BY_YEAR},
-    "notable": {
-        label: "Notable",
-        all: NOTABLE_DISKS,
-        byYear: NOTABLE_DISKS_BY_YEAR,
-    },
-    "next": {label: "NeXT", all: NEXT_DISKS, byYear: NEXT_DISKS_BY_YEAR},
-    "macosx": {
-        label: "Mac OS X",
-        all: MAC_OS_X_DISKS,
-        byYear: MAC_OS_X_DISKS_BY_YEAR,
-    },
-};
-type DiskFilter = keyof typeof disks;
+function disks() {
+    const auxLaunched = isAUXLaunched();
+    return {
+        "all": {
+            label: "All",
+            all: auxLaunched
+                ? ALL_DISKS
+                : ALL_DISKS.filter(d => d.family !== "aux"),
+            byYear: auxLaunched
+                ? DISKS_BY_YEAR
+                : Object.fromEntries(
+                      Object.entries(DISKS_BY_YEAR).map(([year, disks]) => [
+                          year,
+                          disks.filter(d => d.family !== "aux"),
+                      ])
+                  ),
+        },
+        "notable": {
+            label: "Notable",
+            all: NOTABLE_DISKS,
+            byYear: NOTABLE_DISKS_BY_YEAR,
+        },
+        "aux": {
+            label: "A/UX",
+            all: auxLaunched ? AUX_DISKS : [],
+            byYear: auxLaunched ? AUX_DISKS_BY_YEAR : {},
+        },
+        "next": {label: "NeXT", all: NEXT_DISKS, byYear: NEXT_DISKS_BY_YEAR},
+        "macosx": {
+            label: "Mac OS X",
+            all: MAC_OS_X_DISKS,
+            byYear: MAC_OS_X_DISKS_BY_YEAR,
+        },
+    };
+}
+type DiskFilter = keyof ReturnType<typeof disks>;
 
 function useDiskFilter() {
     const filterParam = iso().location.searchParams.get("filter");
     let defaultValue: DiskFilter = "notable";
     let useClientState = false;
     // If using query params, we go into a temporary client state.
-    if (filterParam && filterParam.toLowerCase() in disks) {
+    if (filterParam && filterParam.toLowerCase() in disks()) {
         defaultValue = filterParam as DiskFilter;
         useClientState = true;
     }
@@ -222,15 +248,18 @@ function DiskFilters({
         <div className="Disk-Filters-Container">
             <div className="Disk-Filters">
                 <span className="Disk-Filters-Label">Releases:</span>
-                {Object.entries(disks).map(([filter, {label, all}]) => (
-                    <DiskFiltersButton
-                        key={filter}
-                        onClick={() => onChange(filter as DiskFilter)}
-                        selected={filter === value}
-                        label={label}
-                        count={all.length}
-                    />
-                ))}
+                {Object.entries(disks()).map(
+                    ([filter, {label, all}]) =>
+                        all.length && (
+                            <DiskFiltersButton
+                                key={filter}
+                                onClick={() => onChange(filter as DiskFilter)}
+                                selected={filter === value}
+                                label={label}
+                                count={all.length}
+                            />
+                        )
+                )}
             </div>
         </div>
     );

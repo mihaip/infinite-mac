@@ -18,6 +18,7 @@ import {
 } from "@/emulator/ui/settings";
 import {
     MACHINES_BY_NAME,
+    machineSupportsInfiniteHD,
     type MachineDefRAMSize,
     type MachineDef,
 } from "@/defs/machines";
@@ -64,6 +65,9 @@ export function runDefSupportsBlueSCSI(runDef: RunDef): boolean {
 }
 
 export function runDefSupportsDownloadsFolder(runDef: RunDef): boolean {
+    if (runDef.disks[0]?.family === "aux") {
+        return false;
+    }
     return (
         runDef.machine.emulatorType === "BasiliskII" ||
         runDef.machine.emulatorType === "SheepShaver" ||
@@ -75,6 +79,13 @@ export function runDefNeedsTheOutsideWorldDisk(runDef: RunDef): boolean {
     return runDefSupportsBlueSCSI(runDef);
 }
 
+export function runDefSupportsInfiniteHD(runDef: RunDef): boolean {
+    return (
+        machineSupportsInfiniteHD(runDef.machine) &&
+        runDef.disks[0]?.infiniteHdVariant !== "none"
+    );
+}
+
 export function runDefSupportsCDROMs(runDef: RunDef): boolean {
     const type = runDef.machine.emulatorType;
     if (type === "PearPC") {
@@ -83,7 +94,7 @@ export function runDefSupportsCDROMs(runDef: RunDef): boolean {
     if (type === "Snow" && !runDef.machine.hasSCSI) {
         return false;
     }
-    if (runDef.disks[0]?.infiniteHdSubset === "mfs") {
+    if (runDef.disks[0]?.supportsCDROMs === false) {
         return false;
     }
     return true;
@@ -284,12 +295,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
 export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
     const {disks, machine, ethernetProvider} = runDef;
     let url: URL;
-    if (
-        disks.length === 1 &&
-        ALL_DISKS.includes(disks[0]) &&
-        !disks[0].hiddenInBrowser &&
-        !toEmbed
-    ) {
+    if (disks.length === 1 && ALL_DISKS.includes(disks[0]) && !toEmbed) {
         url = new URL(diskToYearPath(disks[0]), location.href);
         if (!runDef.includeInfiniteHD) {
             url.searchParams.set("infinite_hd", "false");

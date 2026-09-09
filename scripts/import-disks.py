@@ -26,7 +26,6 @@ class InfiniteHD(enum.Enum):
     DEFAULT = "Infinite HD.dsk"
     SYSTEM_6 = "Infinite HD6.dsk"
     MAC_OS_X = "Infinite HDX.dsk"
-    MFS = "Infinite HD (MFS).dsk"
     NEXT = "Infinite HD (NeXT).dsk"
 
 
@@ -377,16 +376,13 @@ if __name__ == "__main__":
                 build_desktop_db([infinite_hd_image, infinite_hdX_image])
 
             images.append(
-                build_passthrough_image(InfiniteHD.MFS.value, dest_dir=temp_dir)
-            )
-            images.append(
                 build_passthrough_image(
                     InfiniteHD.NEXT.value, dest_dir=temp_dir, compressed=True
                 )
             )
         elif minimal_mode:
             for i in InfiniteHD:
-                if i in [InfiniteHD.DEFAULT, InfiniteHD.MFS]:
+                if i == InfiniteHD.DEFAULT:
                     images.append(build_passthrough_image(i.value, dest_dir=temp_dir))
                 else:
                     images.append(write_image_def(bytes(), i.value, temp_dir))

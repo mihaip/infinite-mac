@@ -31,10 +31,13 @@ import {
     type MachineDefRAMSize,
     ALL_MACHINES,
     MACHINES_BY_NAME,
-    machineSupportsInfiniteHD,
     machineSupportsSavedHD,
 } from "@/defs/machines";
-import {type RunDef, type ScreenSize} from "@/defs/run-def";
+import {
+    type RunDef,
+    type ScreenSize,
+    runDefSupportsInfiniteHD,
+} from "@/defs/run-def";
 import allowedCDROMDomains from "@/defs/cdrom-sites.json";
 
 const ALL_DISKS_BY_NAME = {
@@ -214,7 +217,7 @@ export function CustomFields({
         appleTalkSupported,
     ]);
 
-    const supportsInfiniteHD = machineSupportsInfiniteHD(runDef.machine);
+    const supportsInfiniteHD = runDefSupportsInfiniteHD(runDef);
     const supportsSavedHD =
         canSaveDisks() && machineSupportsSavedHD(runDef.machine);
 
@@ -672,11 +675,11 @@ function DiskOption({
     const nextDisks = [];
     const auxDisks = [];
     for (const disk of Object.values(SYSTEM_DISKS_BY_NAME)) {
-        if (disk.preferredMachine.platform === "NeXT") {
+        if (disk.family === "next") {
             nextDisks.push(disk);
-        } else if (disk.displayName.startsWith("Mac OS X")) {
+        } else if (disk.family === "macosx") {
             macOSXDisks.push(disk);
-        } else if (disk.displayName.startsWith("A/UX")) {
+        } else if (disk.family === "aux") {
             auxDisks.push(disk);
         } else {
             macDisks.push(disk);
@@ -723,10 +726,10 @@ function DiskOption({
                     {macDisks.map(diskOption)}
                     <option disabled>Mac OS X</option>
                     {macOSXDisks.map(diskOption)}
-                    <option disabled>NeXT</option>
-                    {nextDisks.map(diskOption)}
                     <option disabled>A/UX</option>
                     {auxDisks.map(diskOption)}
+                    <option disabled>NeXT</option>
+                    {nextDisks.map(diskOption)}
                     <option disabled>Floppy Disks</option>
                     {Object.values(FLOPPY_DISKS_BY_NAME).map(diskOption)}
                     <option disabled>Custom</option>

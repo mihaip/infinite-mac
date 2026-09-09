@@ -20,6 +20,9 @@ import {
     POWER_MACINTOSH_G3_BW_DPPC,
     POWER_MACINTOSH_G4_PEARPC,
     IMAC_G3,
+    MAC_II_SNOW,
+    MAC_II_FDHD_SNOW,
+    MAC_IIx_SNOW,
     MAC_IIcx_SNOW,
 } from "@/defs/machines";
 
@@ -58,14 +61,16 @@ export type SystemDiskDef = EmulatorDiskDef & {
     description: string;
     preferredMachine: MachineDef;
     appleTalkSupported?: boolean;
-    infiniteHdSubset?: "mfs" | "system6" | "macosx";
+    infiniteHdVariant?: "none" | "system6";
+    supportsCDROMs?: boolean;
     appearance?: Appearance;
     appearanceVariant?: AppearanceVariant;
     isUnstable?: boolean;
     notable?: boolean;
-    hiddenInBrowser?: boolean;
-    needsMouseDeltas?: boolean;
+    family?: SystemFamily;
 };
+
+export type SystemFamily = "aux" | "macosx" | "next";
 
 export type DiskFile = {
     file: File;
@@ -82,6 +87,7 @@ export type PlaceholderDiskDef = {
     description: string;
     preferredMachine: MachineDef;
     appearance?: Appearance;
+    family?: SystemFamily;
 };
 
 export function isPlaceholderDiskDef(
@@ -101,7 +107,8 @@ const SYSTEM_1_0: SystemDiskDef = {
     releaseDate: [1984, 1, 24],
     prefetchChunks: [0, 1],
     preferredMachine: MAC_128K,
-    infiniteHdSubset: "mfs",
+    infiniteHdVariant: "none",
+    supportsCDROMs: false,
     generatedSpec: () => import("@/Data/System 1.0.dsk.json"),
     notable: true,
     isFloppy: true,
@@ -113,7 +120,8 @@ const SYSTEM_1_0_ORIGINAL: SystemDiskDef = {
     releaseDate: [1984, 1, 24],
     prefetchChunks: [0, 1],
     preferredMachine: MAC_128K,
-    infiniteHdSubset: "mfs",
+    infiniteHdVariant: "none",
+    supportsCDROMs: false,
     generatedSpec: () => import("@/Data/System 1.0 (Original).dsk.json"),
     isFloppy: true,
 };
@@ -125,7 +133,8 @@ const SYSTEM_1_1: SystemDiskDef = {
     releaseDate: [1984, 5, 5],
     prefetchChunks: [0, 1],
     preferredMachine: MAC_128K,
-    infiniteHdSubset: "mfs",
+    infiniteHdVariant: "none",
+    supportsCDROMs: false,
     generatedSpec: () => import("@/Data/System 1.1.dsk.json"),
     isFloppy: true,
 };
@@ -137,7 +146,8 @@ const SYSTEM_2_0: SystemDiskDef = {
     releaseDate: [1985, 4, 8],
     prefetchChunks: [0, 1],
     preferredMachine: MAC_128K,
-    infiniteHdSubset: "mfs",
+    infiniteHdVariant: "none",
+    supportsCDROMs: false,
     generatedSpec: () => import("@/Data/System 2.0.dsk.json"),
     notable: true,
     isFloppy: true,
@@ -151,7 +161,7 @@ const SYSTEM_2_1: SystemDiskDef = {
     prefetchChunks: [0, 1, 2],
     // The Mac 128K is supported, but HFS is not loaded in that case.
     preferredMachine: MAC_512KE,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 2.1.dsk.json"),
     notable: true,
     isFloppy: true,
@@ -164,7 +174,7 @@ const SYSTEM_3_0: SystemDiskDef = {
     releaseDate: [1986, 1, 16],
     prefetchChunks: [0, 1, 2],
     preferredMachine: MAC_PLUS,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 3.0.dsk.json"),
     notable: true,
     isFloppy: true,
@@ -186,7 +196,7 @@ const SYSTEM_3_2: SystemDiskDef = {
     releaseDate: [1986, 6, 2],
     prefetchChunks: [0, 1, 2],
     preferredMachine: MAC_PLUS,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 3.2.dsk.json"),
     isFloppy: true,
 };
@@ -198,7 +208,7 @@ const SYSTEM_3_3: SystemDiskDef = {
     releaseDate: [1987, 1, 12],
     prefetchChunks: [0, 1, 2],
     preferredMachine: MAC_PLUS,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 3.3.dsk.json"),
     isFloppy: true,
 };
@@ -210,7 +220,7 @@ const SYSTEM_4_0: SystemDiskDef = {
     releaseDate: [1987, 3, 2],
     prefetchChunks: [0, 1, 2],
     preferredMachine: MAC_SE,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 4.0.dsk.json"),
 };
 
@@ -221,7 +231,7 @@ const SYSTEM_4_1: SystemDiskDef = {
     releaseDate: [1987, 4, 14],
     prefetchChunks: [0, 1, 2],
     preferredMachine: MAC_II,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 4.1.dsk.json"),
 };
 
@@ -232,7 +242,7 @@ const SYSTEM_5_0: SystemDiskDef = {
     releaseDate: [1987, 10, 8],
     prefetchChunks: [0, 1, 2],
     preferredMachine: MAC_SE,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 5.0 HD.dsk.json"),
     notable: true,
 };
@@ -243,7 +253,7 @@ const SYSTEM_5_1: SystemDiskDef = {
     releaseDate: [1987, 12, 1],
     prefetchChunks: [0, 1, 2],
     preferredMachine: MAC_SE,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 5.1 HD.dsk.json"),
 };
 
@@ -253,7 +263,7 @@ const SYSTEM_6_0: SystemDiskDef = {
     releaseDate: [1988, 4, 30],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     preferredMachine: MAC_SE,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0 HD.dsk.json"),
     notable: true,
 };
@@ -272,7 +282,7 @@ const SYSTEM_6_0_2: SystemDiskDef = {
     releaseDate: [1988, 9, 19],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     preferredMachine: MAC_SE,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.2 HD.dsk.json"),
 };
 
@@ -282,7 +292,7 @@ const SYSTEM_6_0_3: SystemDiskDef = {
     releaseDate: [1989, 3, 7],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     preferredMachine: MAC_SE,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.3 HD.dsk.json"),
 };
 
@@ -293,7 +303,7 @@ const SYSTEM_6_0_4: SystemDiskDef = {
     releaseDate: [1989, 9, 20],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     preferredMachine: MAC_SE,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.4 HD.dsk.json"),
 };
 
@@ -304,7 +314,7 @@ const SYSTEM_6_0_5: SystemDiskDef = {
     releaseDate: [1990, 3, 19],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     preferredMachine: MAC_SE,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.5 HD.dsk.json"),
     notable: true,
 };
@@ -324,7 +334,7 @@ const SYSTEM_6_0_7: SystemDiskDef = {
     releaseDate: [1990, 10, 15],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     preferredMachine: MAC_SE,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.7 HD.dsk.json"),
 };
 
@@ -335,7 +345,7 @@ const SYSTEM_6_0_8: SystemDiskDef = {
     releaseDate: [1991, 4, 17],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
     preferredMachine: MAC_SE,
-    infiniteHdSubset: "system6",
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.8 HD.dsk.json"),
 };
 
@@ -942,6 +952,7 @@ const dppcExtraMachineFiles = new Map([
 ]);
 
 const MAC_OS_X_10_0_PUBLIC_BETA: SystemDiskDef = {
+    family: "macosx",
     displayName: "Mac OS X 10.0",
     displaySubtitle: "Public Beta",
     description:
@@ -996,12 +1007,12 @@ const MAC_OS_X_10_0_PUBLIC_BETA: SystemDiskDef = {
         import("@/Data/Mac OS X 10.0 (Public Beta) HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
     notable: true,
-    infiniteHdSubset: "macosx",
     isUnstable: true,
     hasDeviceImageHeader: true,
 };
 
 const MAC_OS_X_10_0_4: SystemDiskDef = {
+    family: "macosx",
     displayName: "Mac OS X 10.0",
     description:
         "Successor to classic Mac OS based on NeXTSTEP. Featured the Aqua interface, Quartz graphics system, the Dock, access to the UNIX command line, Mail and other built-in applications.",
@@ -1035,12 +1046,12 @@ const MAC_OS_X_10_0_4: SystemDiskDef = {
     generatedSpec: () => import("@/Data/Mac OS X 10.0.4 HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
     notable: true,
-    infiniteHdSubset: "macosx",
     isUnstable: true,
     hasDeviceImageHeader: true,
 };
 
 const MAC_OS_X_10_1_5: SystemDiskDef = {
+    family: "macosx",
     displayName: "Mac OS X 10.1",
     description:
         "Added performance enhancements, CD and DVD burning, DVD playback support, Image Capture and Menu Extras.",
@@ -1114,11 +1125,11 @@ const MAC_OS_X_10_1_5: SystemDiskDef = {
     generatedSpec: () => import("@/Data/Mac OS X 10.1.5 HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
     notable: true,
-    infiniteHdSubset: "macosx",
     hasDeviceImageHeader: true,
 };
 
 const MAC_OS_X_10_2_8: SystemDiskDef = {
+    family: "macosx",
     displayName: "Mac OS X 10.2",
     displaySubtitle: "Jaguar",
     description:
@@ -1197,12 +1208,12 @@ const MAC_OS_X_10_2_8: SystemDiskDef = {
     generatedSpec: () => import("@/Data/Mac OS X 10.2.8 HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
     notable: true,
-    infiniteHdSubset: "macosx",
     isUnstable: true,
     hasDeviceImageHeader: true,
 };
 
 const MAC_OS_X_10_3_9: SystemDiskDef = {
+    family: "macosx",
     displayName: "Mac OS X 10.3",
     displaySubtitle: "Panther",
     description:
@@ -1332,11 +1343,11 @@ const MAC_OS_X_10_3_9: SystemDiskDef = {
     generatedSpec: () => import("@/Data/Mac OS X 10.3.9 HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
     notable: true,
-    infiniteHdSubset: "macosx",
     hasDeviceImageHeader: true,
 };
 
 const MAC_OS_X_10_4_11: SystemDiskDef = {
+    family: "macosx",
     displayName: "Mac OS X 10.4",
     displaySubtitle: "Tiger",
     description:
@@ -1478,12 +1489,12 @@ const MAC_OS_X_10_4_11: SystemDiskDef = {
     generatedSpec: () => import("@/Data/Mac OS X 10.4.11 HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
     notable: true,
-    infiniteHdSubset: "macosx",
     isUnstable: true,
     hasDeviceImageHeader: true,
 };
 
 const NEXTSTEP_0_8: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTStep 0.8",
     description:
         "First publicly-available preview release. Included the Mach kernel, an object-oriented API based on Objective-C, a Display PostScript-powered UI, and several applications.",
@@ -1513,6 +1524,7 @@ const NEXTSTEP_0_8: SystemDiskDef = {
 };
 
 const NEXTSTEP_0_9: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTStep 0.9",
     description:
         "Introduces the Preferences application, a window resize control, indicator in the dock of running apps, and other UI polish. Bundles FrameMaker, Mathematica and additional demo apps.",
@@ -1542,6 +1554,7 @@ const NEXTSTEP_0_9: SystemDiskDef = {
 };
 
 const NEXTSTEP_1_0: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTStep 1.0",
     description:
         "Includes the ability to kill applications from Workspace Manager, a redesigned Preferences application with additional features and other polish.",
@@ -1571,6 +1584,7 @@ const NEXTSTEP_1_0: SystemDiskDef = {
 };
 
 const NEXTSTEP_1_0a: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTStep 1.0a",
     description: "Bugfix release.",
     releaseDate: [1989, 12, 21],
@@ -1597,6 +1611,7 @@ const NEXTSTEP_1_0a: SystemDiskDef = {
 };
 
 const NEXTSTEP_2_0: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTStep 2.0",
     description:
         "Added support for the NeXTstation and NeXTCube and associated hardware (floppy disks, CD-ROM drives). Also included a revamped Workspace Manager with the Recycler replacing the black hole and an improved browser.",
@@ -1624,6 +1639,7 @@ const NEXTSTEP_2_0: SystemDiskDef = {
 };
 
 const NEXTSTEP_2_1: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTStep 2.1",
     description:
         "Added support for the NeXTdimension board and improved internationalization support.",
@@ -1653,6 +1669,7 @@ const NEXTSTEP_2_1: SystemDiskDef = {
 };
 
 const NEXTSTEP_2_2: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTStep 2.2",
     description: "Added support for the NeXTstation Turbo.",
     releaseDate: [1992, 3, 25],
@@ -1681,6 +1698,7 @@ const NEXTSTEP_2_2: SystemDiskDef = {
 };
 
 const NEXTSTEP_3_0: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTStep 3.0",
     description:
         "Introduced Distributed Objects, Project Builder and several development kits. Improved compatibility with other networking and file systems.",
@@ -1720,6 +1738,7 @@ const NEXTSTEP_3_0: SystemDiskDef = {
 };
 
 const NEXTSTEP_3_1: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTSTEP 3.1",
     description:
         "Added support for the Intel architecture and introduced Multiple Architecture Binaries.",
@@ -1757,6 +1776,7 @@ const NEXTSTEP_3_1: SystemDiskDef = {
 };
 
 const NEXTSTEP_3_2: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTSTEP 3.2",
     description:
         "New startup progress display, improved Intel hardware support.",
@@ -1794,6 +1814,7 @@ const NEXTSTEP_3_2: SystemDiskDef = {
 };
 
 const NEXTSTEP_3_3: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTSTEP 3.3",
     description:
         "Final NeXTSTEP release, improved Intel support and added MIME support to NeXTmail.",
@@ -1832,6 +1853,7 @@ const NEXTSTEP_3_3: SystemDiskDef = {
 };
 
 const NEXTSTEP_4_0: SystemDiskDef = {
+    family: "next",
     displayName: "NeXTSTEP 4.0 PR1",
     description:
         "Preview release of NeXTSTEP 4.0, featuring a revamped look-and-feel. Abandoned in favor of OPENSTEP 4.0, which reverted back to the NexTSTEP 3.3 UI.",
@@ -1868,6 +1890,7 @@ const NEXTSTEP_4_0: SystemDiskDef = {
 };
 
 const OPENSTEP_4_0: SystemDiskDef = {
+    family: "next",
     displayName: "OPENSTEP 4.0",
     description:
         "First release to implement the OPENSTEP specification. Also includes NEXTIME, Samba, PPP, Perl5 and Taylor UUCP support.",
@@ -1920,6 +1943,7 @@ const OPENSTEP_4_0: SystemDiskDef = {
 };
 
 const OPENSTEP_4_1: PlaceholderDiskDef = {
+    family: "next",
     type: "placeholder",
     displayName: "OPENSTEP 4.1",
     releaseDate: [1996, 10, 23],
@@ -1929,6 +1953,7 @@ const OPENSTEP_4_1: PlaceholderDiskDef = {
 };
 
 const OPENSTEP_4_2: SystemDiskDef = {
+    family: "next",
     displayName: "OPENSTEP 4.2",
     description: "Final OPENSTEP release, primarily with bug fixes.",
     releaseDate: [1997, 1, 24],
@@ -1980,11 +2005,108 @@ const OPENSTEP_4_2: SystemDiskDef = {
     generatedSpec: () => import("@/Data/OPENSTEP 4.2 HD.dsk.json"),
 };
 
-const AUX_3_1_1: SystemDiskDef = {
-    displayName: "A/UX 3.1.1",
+const AUX_1_0: PlaceholderDiskDef = {
+    family: "aux",
+    type: "placeholder",
+    displayName: "A/UX 1.0",
     description:
-        "Final A/UX release, incorporates bug fixes from AWS Tune Up 2.0.",
-    releaseDate: [1994, 11, 17],
+        "Initial release, combining UNIX System V Release 2 with BSD networking, TCP/IP and NFS. Could run only one Macintosh Toolbox application at a time.",
+    releaseDate: [1988, 2, 9],
+    preferredMachine: MAC_II_SNOW,
+};
+
+const AUX_1_0_1: PlaceholderDiskDef = {
+    family: "aux",
+    type: "placeholder",
+    displayName: "A/UX 1.0.1",
+    description:
+        "Hardware compatibility update adding support for the Macintosh IIx and Macintosh II FDHD or logic-board upgrades.",
+    releaseDate: [1988, 9, 1], // Precise day is not known.
+    preferredMachine: MAC_II_FDHD_SNOW,
+};
+
+const AUX_1_1: SystemDiskDef = {
+    family: "aux",
+    displayName: "A/UX 1.1",
+    description:
+        "Expanded Macintosh compatibility with HyperCard, color displays and CD-ROM support, plus much faster disk and SCSI I/O.",
+    releaseDate: [1989, 2, 10],
+    prefetchChunks: [
+        0, 12, 13, 15, 16, 17, 18, 21, 22, 23, 25, 26, 27, 29, 30, 31, 32, 33,
+        34, 36, 37, 41, 42, 45, 46, 47, 48, 49, 50, 52, 56, 57, 63, 69, 70, 89,
+        93, 95, 96, 105, 106, 111, 121, 122, 285, 286, 288, 290,
+    ],
+    preferredMachine: MAC_II_FDHD_SNOW,
+    generatedSpec: () => import("@/Data/AUX 1.1.dsk.json"),
+    hasDeviceImageHeader: true,
+};
+
+const AUX_1_1_1: PlaceholderDiskDef = {
+    family: "aux",
+    type: "placeholder",
+    displayName: "A/UX 1.1.1",
+    description:
+        "Final 1.x release, adding official Macintosh IIci and SE/30 support and a universal update from every earlier 1.x release.",
+    releaseDate: [1989, 9, 12],
+    preferredMachine: MAC_II_FDHD_SNOW,
+};
+
+const AUX_2_0: PlaceholderDiskDef = {
+    family: "aux",
+    type: "placeholder",
+    displayName: "A/UX 2.0",
+    description:
+        "Introduced a Finder desktop that ran multiple Macintosh, UNIX and X applications, with UNIX files accessible directly in the Finder.",
+    releaseDate: [1990, 5, 9],
+    preferredMachine: MAC_IIx_SNOW,
+};
+
+const AUX_2_0_1: PlaceholderDiskDef = {
+    family: "aux",
+    type: "placeholder",
+    displayName: "A/UX 2.0.1",
+    description:
+        "Added Macintosh IIsi and multiple-monitor support, System 6.0.7, MacX 1.1 and final POSIX 1003.1-1990 conformance.",
+    releaseDate: [1991, 1, 30],
+    preferredMachine: MAC_IIcx_SNOW,
+};
+
+const AUX_3_0: PlaceholderDiskDef = {
+    family: "aux",
+    type: "placeholder",
+    displayName: "A/UX 3.0",
+    description:
+        "Integrated System 7.0.1 features including file sharing, aliases, TrueType and QuickTime; added Quadra support and an easier installer.",
+    releaseDate: [1992, 3, 9],
+    preferredMachine: MAC_IIcx_SNOW,
+};
+
+const AUX_3_0_1: PlaceholderDiskDef = {
+    family: "aux",
+    type: "placeholder",
+    displayName: "A/UX 3.0.1",
+    description:
+        "Added asynchronous I/O, multibus SCSI and SCSI DMA, plus support for the Quadra 800, Centris models and Workgroup Server 95.",
+    releaseDate: [1993, 4, 9],
+    preferredMachine: MAC_IIcx_SNOW,
+};
+
+const AUX_3_0_2: PlaceholderDiskDef = {
+    family: "aux",
+    type: "placeholder",
+    displayName: "A/UX 3.0.2",
+    description:
+        "Maintenance tune-up improving Finder file handling, locking and crash recovery, security, server performance and hardware compatibility.",
+    releaseDate: [1993, 9, 1],
+    preferredMachine: MAC_IIcx_SNOW,
+};
+
+const AUX_3_1: SystemDiskDef = {
+    family: "aux",
+    displayName: "A/UX 3.1",
+    description:
+        "Improved I/O and Macintosh compatibility; added removable SCSI and broader CD-ROM support, 4 GB UNIX file systems and updated networking.",
+    releaseDate: [1994, 2, 25],
     prefetchChunks: [
         0, 1, 2, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30, 32, 33, 34,
         35, 48, 53, 57, 64, 80, 96, 112, 128, 144, 160, 176, 192, 193, 208, 209,
@@ -2021,10 +2143,18 @@ const AUX_3_1_1: SystemDiskDef = {
         3731, 3732, 3733, 3734, 3735, 3736, 3737, 3738, 3739, 3740,
     ],
     preferredMachine: MAC_IIcx_SNOW,
-    generatedSpec: () => import("@/Data/AUX 3.1.1.dsk.json"),
+    generatedSpec: () => import("@/Data/AUX 3.1.dsk.json"),
     hasDeviceImageHeader: true,
-    hiddenInBrowser: true,
-    needsMouseDeltas: true,
+};
+
+const AUX_3_1_1: PlaceholderDiskDef = {
+    family: "aux",
+    type: "placeholder",
+    displayName: "A/UX 3.1.1",
+    description:
+        "Final maintenance release, improving Finder and resource-fork performance and fixing Macintosh, AppleTalk, NFS, kernel and locking failures.",
+    releaseDate: [1994, 11, 17],
+    preferredMachine: MAC_IIcx_SNOW,
 };
 
 export const ALL_DISKS = [
@@ -2101,6 +2231,16 @@ export const ALL_DISKS = [
     OPENSTEP_4_1,
     OPENSTEP_4_2,
 
+    AUX_1_0,
+    AUX_1_0_1,
+    AUX_1_1,
+    AUX_1_1_1,
+    AUX_2_0,
+    AUX_2_0_1,
+    AUX_3_0,
+    AUX_3_0_1,
+    AUX_3_0_2,
+    AUX_3_1,
     AUX_3_1_1,
 ];
 
@@ -2132,7 +2272,8 @@ export function systemDiskName(disk: SystemDiskDef) {
 
 export const NOTABLE_DISKS: SystemDiskDef[] = [];
 export const NEXT_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
-export const MAC_OS_X_DISKS: SystemDiskDef[] = [];
+export const MAC_OS_X_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
+export const AUX_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
 
 export const DISKS_BY_YEAR: {
     [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
@@ -2144,38 +2285,39 @@ export const NEXT_DISKS_BY_YEAR: {
     [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
 } = {};
 export const MAC_OS_X_DISKS_BY_YEAR: {
-    [year: number]: SystemDiskDef[];
+    [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
+} = {};
+export const AUX_DISKS_BY_YEAR: {
+    [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
 } = {};
 
 ALL_DISKS.forEach(disk => {
-    if ("hiddenInBrowser" in disk && disk.hiddenInBrowser) {
-        return;
-    }
     const [year] = disk.releaseDate;
     if (!DISKS_BY_YEAR[year]) {
         DISKS_BY_YEAR[year] = [];
     }
     DISKS_BY_YEAR[year].push(disk);
+    const addDisk = (
+        allDisks: typeof ALL_DISKS,
+        disksByYear: typeof DISKS_BY_YEAR
+    ) => {
+        allDisks.push(disk);
+        if (!disksByYear[year]) {
+            disksByYear[year] = [];
+        }
+        disksByYear[year].push(disk);
+    };
     if ("notable" in disk && disk.notable) {
-        NOTABLE_DISKS.push(disk);
-        if (!NOTABLE_DISKS_BY_YEAR[year]) {
-            NOTABLE_DISKS_BY_YEAR[year] = [];
-        }
-        NOTABLE_DISKS_BY_YEAR[year].push(disk);
+        addDisk(NOTABLE_DISKS, NOTABLE_DISKS_BY_YEAR);
     }
-    if (disk.preferredMachine.platform === "NeXT") {
-        NEXT_DISKS.push(disk);
-        if (!NEXT_DISKS_BY_YEAR[year]) {
-            NEXT_DISKS_BY_YEAR[year] = [];
-        }
-        NEXT_DISKS_BY_YEAR[year].push(disk);
+    if (disk.family === "next") {
+        addDisk(NEXT_DISKS, NEXT_DISKS_BY_YEAR);
     }
-    if ("infiniteHdSubset" in disk && disk.infiniteHdSubset === "macosx") {
-        MAC_OS_X_DISKS.push(disk);
-        if (!MAC_OS_X_DISKS_BY_YEAR[year]) {
-            MAC_OS_X_DISKS_BY_YEAR[year] = [];
-        }
-        MAC_OS_X_DISKS_BY_YEAR[year].push(disk);
+    if (disk.family === "macosx") {
+        addDisk(MAC_OS_X_DISKS, MAC_OS_X_DISKS_BY_YEAR);
+    }
+    if (disk.family === "aux") {
+        addDisk(AUX_DISKS, AUX_DISKS_BY_YEAR);
     }
 });
 

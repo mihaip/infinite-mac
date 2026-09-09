@@ -39,7 +39,6 @@ import {
 import {
     type MachineDef,
     DEFAULT_SUPPORTED_SCREEN_SIZES,
-    machineSupportsInfiniteHD,
     machineSupportsSavedHD,
 } from "@/defs/machines";
 import classNames from "classnames";
@@ -60,6 +59,7 @@ import {
     runDefSupportsCDROMs,
     runDefSupportsDownloadsFolder,
     runDefSupportsFloppies,
+    runDefSupportsInfiniteHD,
     type RunDef,
     type ScreenSize,
 } from "@/defs/run-def";
@@ -108,7 +108,7 @@ export default function Mac({
         settings: fixedEmulatorSettings,
     } = runDef;
     const includeInfiniteHD =
-        runDef.includeInfiniteHD && machineSupportsInfiniteHD(runDef.machine);
+        runDef.includeInfiniteHD && runDefSupportsInfiniteHD(runDef);
     const includeSavedHD =
         runDef.includeSavedHD && machineSupportsSavedHD(runDef.machine);
     const needsTheOutsideWorldDisk = runDefNeedsTheOutsideWorldDisk(runDef);
@@ -153,7 +153,8 @@ export default function Mac({
         "emulator-settings",
         onEmulatorSettingsChange
     );
-    const bootDiskNeedsMouseDeltas = runDef.disks[0]?.needsMouseDeltas;
+    // A/UX does not read from Toolbox globals, so it does not support absolute coordinates.
+    const bootDiskNeedsMouseDeltas = runDef.disks[0]?.family === "aux";
     const emulatorSettings: EmulatorSettings = useMemo(() => {
         if (bootDiskNeedsMouseDeltas) {
             return {...rawEmulatorSettings, useMouseDeltas: true};
@@ -223,17 +224,11 @@ export default function Mac({
             if (machine.platform === "NeXT") {
                 infiniteHd = INFINITE_HD_NEXT;
             } else if (
-                disks[0]?.infiniteHdSubset === "mfs" ||
-                machine.mfsOnly
-            ) {
-                // MFS machines don't really support large external drives, so
-                // no Infinite HD for them.
-            } else if (
-                disks[0]?.infiniteHdSubset === "system6" ||
+                disks[0]?.infiniteHdVariant === "system6" ||
                 (disks.length === 0 && emulatorType === "Mini vMac")
             ) {
                 infiniteHd = INFINITE_HD6;
-            } else if (disks[0]?.infiniteHdSubset === "macosx") {
+            } else if (disks[0]?.family === "macosx") {
                 infiniteHd = INFINITE_HDX;
             } else {
                 infiniteHd = INFINITE_HD;
@@ -648,9 +643,7 @@ export default function Mac({
 
     const [showMacOSXSlowNotification, clearMacOSXSlowNotification] =
         useTemporaryNotification(
-            !progress &&
-                emulatorLoaded &&
-                disks[0]?.infiniteHdSubset === "macosx",
+            !progress && emulatorLoaded && disks[0]?.family === "macosx",
             "mac-os-x-slow-notification-count"
         );
     if (showMacOSXSlowNotification) {
