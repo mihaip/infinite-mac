@@ -171,7 +171,7 @@ export const MAC_SE: MachineDef = {
 export const MAC_SE_SNOW: MachineDef = {
     name: "Mac SE (Snow)",
     cpu: "68000",
-    romPath: macSEFDHDRomPath,
+    romPath: macSERomPath,
     gestaltID: 5,
     emulatorType: "Snow",
     prefsPath: emptyPrefsPath,
@@ -184,7 +184,7 @@ export const MAC_SE_SNOW: MachineDef = {
 export const MAC_SE_FDHD_SNOW: MachineDef = {
     name: "Mac SE FDHD (Snow)",
     cpu: "68000",
-    romPath: macSERomPath,
+    romPath: macSEFDHDRomPath,
     gestaltID: 5,
     modifier: "FDHD",
     emulatorType: "Snow",
