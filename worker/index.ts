@@ -69,7 +69,20 @@ async function handleRequest(
     }
 
     try {
-        const assetResponse = await env.ASSETS.fetch(request);
+        let assetRequest: RequestInfo | URL = request;
+        if (url.pathname.includes("%2F")) {
+            // The standard worker fetch handler will issue a 307 redirect for
+            // encoded slashes, but this breaks A/UX paths. Treat them as a
+            // root-level request (the client-side request will rout them to
+            // the appropriate machine).
+            console.log(
+                "rewriting asset request for encoded path",
+                url.pathname
+            );
+            assetRequest = new URL(request.url);
+            assetRequest.pathname = "/";
+        }
+        const assetResponse = await env.ASSETS.fetch(assetRequest);
         const {pathname} = url;
         const response = normalizeAssetResponse(assetResponse, pathname);
 
