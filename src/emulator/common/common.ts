@@ -2,6 +2,7 @@ import {
     type EmulatorDef,
     type EmulatorSpeed,
 } from "@/emulator/common/emulators";
+import {type DeviceImageType} from "./device-image";
 
 export const InputBufferAddresses = {
     globalLockAddr: 0,
@@ -161,6 +162,7 @@ export type EmulatorWorkerConfig = EmulatorDef & {
     wasm: ArrayBuffer;
     disks: EmulatorChunkedFileSpec[];
     diskFiles: EmulatorDiskFile[];
+    deviceImageType: DeviceImageType | null;
     deviceImageHeader: ArrayBuffer;
     cdroms: EmulatorCDROM[];
     usePlaceholderDisks: boolean;

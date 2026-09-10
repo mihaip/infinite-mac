@@ -56,6 +56,9 @@ export type MachineDef = EmulatorDef & {
     // verbose boot.
     verboseBootEnvVars?: {[name: string]: string};
     hasSCSI?: boolean;
+    // If true, the ROM ends up with a more system heap and needs an older and
+    // smaller SCSI driver in the injeected device image header.
+    requiresCompactSCSIDriver?: boolean;
     isHidden?: boolean;
 };
 
@@ -152,6 +155,7 @@ export const MAC_PLUS_SNOW: MachineDef = {
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Beige",
     hasSCSI: true,
+    requiresCompactSCSIDriver: true,
     ramSizes: ["4M", "2M", "1M"],
 };
 
@@ -178,6 +182,7 @@ export const MAC_SE_SNOW: MachineDef = {
     fixedScreenSize: {width: 512, height: 342},
     bezelStyle: "Platinum",
     hasSCSI: true,
+    requiresCompactSCSIDriver: true,
     ramSizes: ["4M", "2M", "1M"],
 };
 

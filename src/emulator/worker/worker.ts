@@ -75,7 +75,6 @@ import {
 import {type EmulatorSpeed} from "@/emulator/common/emulators";
 import {EmulatorWorkerDeviceImageDisk} from "@/emulator/worker/device-image-disk";
 import {EmulatorWorkerSpeedGovernor} from "@/emulator/worker/speed-governor";
-import {emulatorNeedsDeviceImage} from "@/emulator/common/device-image";
 
 addEventListener("message", async event => {
     const {data} = event;
@@ -136,6 +135,7 @@ class EmulatorWorkerApi {
             diskFiles,
             cdroms,
             speedGovernorTargetIPS,
+            deviceImageType,
         } = config;
         const blitSender = (
             data: EmulatorWorkerVideoBlit,
@@ -187,7 +187,6 @@ class EmulatorWorkerApi {
                       getFallbackEndpoint()
                   );
 
-        const deviceImageType = emulatorNeedsDeviceImage(config.emulatorType);
         this.disks = new EmulatorWorkerDisksApi(
             [
                 ...disks.map(spec => {

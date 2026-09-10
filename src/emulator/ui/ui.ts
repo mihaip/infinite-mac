@@ -11,9 +11,9 @@ import {
     type EmulatorConfigFlags,
 } from "@/emulator/common/common";
 import {
-    emulatorNeedsDeviceImage,
+    emulatorDeviceImage,
     getDeviceImageHeaderPath,
-} from "@/emulator/common/device-image";
+} from "@/defs/device-image";
 import {
     emulatorUsesPlaceholderDisks,
     emulatorNeedsMouseDeltas,
@@ -336,6 +336,10 @@ export class Emulator {
 
         const {emulatorType, emulatorSubtype, speedGovernorTargetIPS} =
             this.#config.machine;
+        const deviceImageType = emulatorDeviceImage(
+            emulatorType,
+            this.#config.machine
+        );
 
         // Fetch all of the dependent files ourselves, to avoid a waterfall
         // if we let Emscripten handle it (it would first load the JS, and
@@ -351,9 +355,7 @@ export class Emulator {
                 emulatorWasmPath,
                 this.#config.machine.romPath,
                 this.#config.machine.prefsPath,
-                getDeviceImageHeaderPath(
-                    emulatorNeedsDeviceImage(emulatorType)
-                ),
+                getDeviceImageHeaderPath(deviceImageType),
                 ...Object.values(extraMachineFiles),
             ],
             (total, left) => {
@@ -466,6 +468,7 @@ export class Emulator {
             wasm,
             disks,
             diskFiles: this.#config.diskFiles,
+            deviceImageType,
             deviceImageHeader,
             cdroms: await this.#handleCDROMs(this.#config.cdroms),
             usePlaceholderDisks: emulatorUsesPlaceholderDisks(emulatorType),

@@ -3,11 +3,11 @@ import {saveAs} from "file-saver";
 import {type EmulatorDiskDef} from "@/defs/disks";
 import {dirtyChunksFileName, dataFileName} from "@/emulator/common/disk-saver";
 import {generateChunkUrl} from "@/emulator/common/common";
+import {DeviceImageType} from "@/emulator/common/device-image";
 import {
-    DeviceImageType,
     generateDeviceImageHeader,
     getDeviceImageHeaderPath,
-} from "@/emulator/common/device-image";
+} from "@/defs/device-image";
 
 export async function resetDiskSaver(disk: EmulatorDiskDef) {
     const spec = (await disk.generatedSpec()).default;

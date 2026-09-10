@@ -1,7 +1,5 @@
-import {
-    type DeviceImageType,
-    generateDeviceImageHeader,
-} from "@/emulator/common/device-image";
+import {generateDeviceImageHeader} from "@/defs/device-image";
+import {type DeviceImageType} from "@/emulator/common/device-image";
 import {type EmulatorWorkerDisk} from "@/emulator/worker/disks";
 
 export class EmulatorWorkerDeviceImageDisk implements EmulatorWorkerDisk {
