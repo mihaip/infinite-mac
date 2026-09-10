@@ -1,3 +1,4 @@
 {
-    "src_url": "https://github.com/cy384/ssheven/releases/download/0.8.9/ssheven-0.8.9-fat.bin"
+    "src_url": "https://github.com/cy384/ssheven/releases/download/0.8.9/ssheven-0.8.9-fat.bin",
+    "needs_system_7": true
 }

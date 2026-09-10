@@ -1,4 +1,5 @@
 {
     "src_url": "https://gardenmirror.oldapplestuff.com/games/Starbound.img_.sit",
-    "src_image": "Starbound.img"
+    "src_image": "Starbound.img",
+    "needs_system_7": true
 }

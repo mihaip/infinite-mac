@@ -727,7 +727,7 @@ def build_images() -> typing.Tuple[bytes, bytes, bytes]:
     add_folders(v6, import_folders)
     add_folders(v6, import_folders6)
     image6 = v6.write(
-        size=1000 * 1024 * 1024,
+        size=400 * 1024 * 1024,
         align=512,
         desktopdb=False,
         bootable=False,

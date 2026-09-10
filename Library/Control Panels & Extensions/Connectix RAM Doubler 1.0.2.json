@@ -1,4 +1,5 @@
 {
     "src_url": "https://download.macintoshgarden.org/apps/ram_doubler_1-0-1_1-0-2.zip",
-    "src_image": "RAM Doubler 1.0.2/RAM Doubler.image"
+    "src_image": "RAM Doubler 1.0.2/RAM Doubler.image",
+    "needs_system_7": true
 }

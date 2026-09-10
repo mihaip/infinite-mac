@@ -1,3 +1,4 @@
 {
-    "src_url": "https://download.panic.com/ancient/LinkPad_1.0_68k.sit.bin"
+    "src_url": "https://download.panic.com/ancient/LinkPad_1.0_68k.sit.bin",
+    "needs_system_7": true
 }

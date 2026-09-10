@@ -1,3 +1,4 @@
 {
-    "src_url": "https://download.panic.com/transmit/Transmit%201/Transmit%201.7%20for%20Mac%20OS%209.sit.bin"
+    "src_url": "https://download.panic.com/transmit/Transmit%201/Transmit%201.7%20for%20Mac%20OS%209.sit.bin",
+    "needs_system_7": true
 }

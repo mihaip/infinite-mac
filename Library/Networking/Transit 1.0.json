@@ -1,3 +1,4 @@
 {
-    "src_url": "https://download.panic.com/transmit/Transmit%201/transit_1.0_fat.sit"
+    "src_url": "https://download.panic.com/transmit/Transmit%201/transit_1.0_fat.sit",
+    "needs_system_7": true
 }
