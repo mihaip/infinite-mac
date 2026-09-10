@@ -1,0 +1,12 @@
+{
+    "src_url": "https://gardenmirror.oldapplestuff.com/apps/QuarkStyle1.0_0.sit",
+    "system_6_only": true,
+    "src_images": {
+        "": ["QuarkStyle™ Program.dc42", "QuarkStyle™ Data.dc42"],
+        "Templates": [
+            "Template Disk 1.dc42",
+            "Template Disk 2.dc42",
+            "Template Disk 3.dc42"
+        ]
+    }
+}

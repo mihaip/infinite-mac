@@ -258,16 +258,24 @@ def import_archive(manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder
 
         if "src_images" in manifest_json:
             folder = machfs.Folder()
-            for src_image in manifest_json["src_images"]:
-                try:
-                    image_path = os.path.join(tmp_dir_path, src_image)
-                    image_folder = import_disk_image_data(image_path, manifest_json)
-                    folder[src_image] = image_folder
-                except FileNotFoundError:
-                    sys.stderr.write("Directory contents:\n")
-                    for f in os.listdir(tmp_dir_path):
-                        sys.stderr.write("  %s\n" % f)
-                    raise
+            for dest_folder_name, src_images in manifest_json["src_images"].items():
+                if dest_folder_name:
+                    dest_folder = machfs.Folder()
+                    folder[dest_folder_name] = dest_folder
+                else:
+                    dest_folder = folder
+                for src_image in src_images:
+                    try:
+                        image_path = os.path.join(tmp_dir_path, src_image)
+                        image_folder = import_disk_image_data(image_path, manifest_json)
+                        for name, item in image_folder.items():
+                            dest_folder[name] = item
+                    except FileNotFoundError:
+                        sys.stderr.write("File not found in %s\n" % image_path)
+                        sys.stderr.write("Directory contents:\n")
+                        for f in os.listdir(tmp_dir_path):
+                            sys.stderr.write("  %s\n" % f)
+                        raise
             return folder
 
         if root_dir_path is None:
