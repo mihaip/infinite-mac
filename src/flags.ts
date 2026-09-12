@@ -3,5 +3,11 @@ import {iso} from "@/lib/iso";
 
 export function isAUXLaunched() {
     const cookieSource = iso().cookie.get();
-    return cookieSource !== undefined && parse(cookieSource).aux === "true";
+    if (cookieSource !== undefined && parse(cookieSource).aux === "true") {
+        return true;
+    }
+    if (iso().location.searchParams.get("filter") === "aux") {
+        return true;
+    }
+    return false;
 }
