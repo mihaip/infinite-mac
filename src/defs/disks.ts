@@ -24,6 +24,7 @@ import {
     MAC_II_FDHD_SNOW,
     MAC_IIx_SNOW,
     MAC_IIcx_SNOW,
+    MAC_128K_SNOW,
 } from "@/defs/machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -106,7 +107,7 @@ const SYSTEM_1_0: SystemDiskDef = {
     description: "Initial system software release, shipped with the Mac 128K.",
     releaseDate: [1984, 1, 24],
     prefetchChunks: [0, 1],
-    preferredMachine: MAC_128K,
+    preferredMachine: MAC_128K_SNOW,
     infiniteHdVariant: "none",
     supportsCDROMs: false,
     generatedSpec: () => import("@/Data/System 1.0.dsk.json"),
@@ -119,7 +120,7 @@ const SYSTEM_1_0_ORIGINAL: SystemDiskDef = {
     description: "Initial system software release, shipped with the Mac 128K.",
     releaseDate: [1984, 1, 24],
     prefetchChunks: [0, 1],
-    preferredMachine: MAC_128K,
+    preferredMachine: MAC_128K_SNOW,
     infiniteHdVariant: "none",
     supportsCDROMs: false,
     generatedSpec: () => import("@/Data/System 1.0 (Original).dsk.json"),
@@ -132,7 +133,7 @@ const SYSTEM_1_1: SystemDiskDef = {
         "Maintenance release that improved disk copying speeds and added the “Set Startup” command and the Finder about box.",
     releaseDate: [1984, 5, 5],
     prefetchChunks: [0, 1],
-    preferredMachine: MAC_128K,
+    preferredMachine: MAC_128K_SNOW,
     infiniteHdVariant: "none",
     supportsCDROMs: false,
     generatedSpec: () => import("@/Data/System 1.1.dsk.json"),
@@ -145,7 +146,7 @@ const SYSTEM_2_0: SystemDiskDef = {
         "Introduced the ”New Folder” and ”Shut Down” commands, the MiniFinder, and the Choose Printer DA. Also added icons to list view and the Command-Shift-3 screenshot FKEY.",
     releaseDate: [1985, 4, 8],
     prefetchChunks: [0, 1],
-    preferredMachine: MAC_128K,
+    preferredMachine: MAC_128K_SNOW,
     infiniteHdVariant: "none",
     supportsCDROMs: false,
     generatedSpec: () => import("@/Data/System 2.0.dsk.json"),
@@ -357,7 +358,7 @@ const SYSTEM_7_0: SystemDiskDef = {
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     ],
-    preferredMachine: MAC_IIFX,
+    preferredMachine: MAC_IIcx_SNOW,
     appleTalkSupported: true,
     appearanceVariant: "System7",
     generatedSpec: () => import("@/Data/System 7.0 HD.dsk.json"),
@@ -372,7 +373,7 @@ const SYSTEM_7_0_1: SystemDiskDef = {
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     ],
-    preferredMachine: MAC_IIFX,
+    preferredMachine: MAC_IIcx_SNOW,
     appleTalkSupported: true,
     appearanceVariant: "System7",
     generatedSpec: () => import("@/Data/System 7.0.1 HD.dsk.json"),
