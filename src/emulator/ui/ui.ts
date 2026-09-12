@@ -1,5 +1,6 @@
 import {
     type EmulatorDiskFile,
+    type EmulatorDiskOverlay,
     type EmulatorCDROM,
     type EmulatorChunkedFileSpec,
     type EmulatorFallbackCommand,
@@ -81,6 +82,7 @@ import {
 } from "@/emulator/ui/config";
 import {stringToArrayBuffer} from "@/lib/strings";
 import {type EmulatorSettings} from "@/emulator/ui/settings";
+import {createScrnResourceOverlay} from "@/emulator/ui/scrn-resource-overlay";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -370,7 +372,7 @@ export class Emulator {
         const romPathPieces = this.#config.machine.romPath.split("/");
         const romFileName = romPathPieces[romPathPieces.length - 1];
 
-        const disks = await loadDisks(this.#config.disks);
+        const disks = await loadDisks(this.#config);
 
         const autoloadFiles: {[name: string]: ArrayBufferLike} = {};
         Object.keys(extraMachineFiles).forEach((fileName, i) => {
@@ -1147,19 +1149,37 @@ async function load(
 }
 
 async function loadDisks(
-    disks: EmulatorDiskDef[]
+    config: EmulatorConfig
 ): Promise<EmulatorChunkedFileSpec[]> {
+    const {disks} = config;
     const diskSpecs = await Promise.all(
         disks.map(d => d.generatedSpec().then(i => i.default))
     );
-    return disks.map((d, i) => ({
-        ...diskSpecs[i],
-        baseUrl: "/Disk",
-        prefetchChunks: d.prefetchChunks,
-        persistent: d.persistent,
-        isFloppy: d.isFloppy,
-        hasDeviceImageHeader: d.hasDeviceImageHeader,
-    }));
+    return disks.map((d, i) => {
+        const spec = diskSpecs[i];
+        let overlays: EmulatorDiskOverlay[] | undefined = undefined;
+        if (spec.scrnResourceOffset !== undefined) {
+            const overlay = createScrnResourceOverlay(
+                config.machine,
+                config.screenWidth,
+                config.screenHeight,
+                spec.scrnResourceOffset
+            );
+            if (overlay) {
+                overlays = [overlay];
+            }
+        }
+
+        return {
+            ...spec,
+            baseUrl: "/Disk",
+            prefetchChunks: d.prefetchChunks,
+            persistent: d.persistent,
+            isFloppy: d.isFloppy,
+            hasDeviceImageHeader: d.hasDeviceImageHeader,
+            overlays,
+        };
+    });
 }
 
 const HAS_HOVER_EVENTS =

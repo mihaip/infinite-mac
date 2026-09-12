@@ -53,7 +53,7 @@
         "import-disks": "uv run scripts/import-disks.py",
         "import-cd-roms": "uv run scripts/import-cd-roms.py",
         "import-library": "uv run scripts/import-library.py",
-        "load-placeholder-stickies-file": "uv run scripts/load-placeholder-stickies-file.py",
+        "load-placeholder-files": "uv run scripts/load-placeholder-files.py",
         "build-tools": "scripts/build-tools.sh",
         "generate-local-ca-bundle": "node scripts/generate-local-ca-bundle.mjs",
         "start": "scripts/start-dev.sh",

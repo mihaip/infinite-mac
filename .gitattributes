@@ -1,4 +1,7 @@
 # Ignore Emscripten-generated JavaScript files
 src/emulator/worker/emscripten/*.js linguist-generated
 *.zip !text !filter !merge !diff
-*.dsk !text !filter !merge !diff
+# One-time setup for each clone:
+# git config --local diff.hfs.command 'scripts/diff-disks.py --git'
+# git config --local diff.hfs.trustExitCode true
+*.dsk -text !filter !merge diff=hfs

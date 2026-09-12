@@ -577,10 +577,10 @@ SYSTEM7_ZIP_PATHS = {
     "Graphics/Canvas 3.5",
     "Graphics/Infini-D",
     "Utilities/StuffIt Expander 5.5",
+    "Utilities/Norton Utilities 3.2.1",
 }
 
 MAC_OS_X_ZIP_PATHS = {}
-
 
 def import_zips() -> ImportFolders:
     sys.stderr.write("Importing .zips\n")
@@ -600,59 +600,7 @@ def import_zips() -> ImportFolders:
             continue
 
         sys.stderr.write("  Importing %s\n" % folder_path)
-
-        folder = machfs.Folder()
-        files_by_path = {}
-        with zipfile.ZipFile(zip_path, "r") as zip:
-            for zip_info in zip.infolist():
-                if zip_info.is_dir():
-                    continue
-                file_data = zip.read(zip_info)
-                if zip_info.filename == "DInfo":
-                    folder.usrInfo = file_data[0:16]
-                    folder.fndrInfo = file_data[16:]
-                    continue
-                path = zip_info.filename
-                if ".rsrc/" in path:
-                    path = path.replace(".rsrc/", "")
-                    files_by_path.setdefault(path, machfs.File()).rsrc = file_data
-                    continue
-                if ".finf/" in path:
-                    # May actually be the DInfo for a folder, check for that.
-                    path = path.replace(".finf/", "")
-                    try:
-                        # Will throw if there isn't a corresponding directory,
-                        # no need to actually do anything with the return value.
-                        zip.getinfo(path + "/")
-                        nested_folder_path, nested_folder_name = os.path.split(path)
-                        parent = traverse_folders(folder, nested_folder_path)
-                        nested_folder = machfs.Folder()
-                        (nested_folder.usrInfo, nested_folder.fndrInfo) = struct.unpack(
-                            ">16s16s", file_data
-                        )
-                        parent[fix_name(nested_folder_name)] = nested_folder
-                        continue
-                    except KeyError:
-                        pass
-                    file = files_by_path.setdefault(path, machfs.File())
-                    (
-                        file.type,
-                        file.creator,
-                        file.flags,
-                        file.y,
-                        file.x,
-                        _,
-                        file.fndrInfo,
-                    ) = struct.unpack(">4s4sHhhH16s", file_data)
-                    continue
-                files_by_path.setdefault(path, machfs.File()).data = file_data
-
-        for path, file in files_by_path.items():
-            file_folder_path, file_name = os.path.split(path)
-            parent = traverse_folders(folder, file_folder_path)
-
-            parent[fix_name(file_name)] = file
-
+        folder = import_zip(zip_path)
         if folder_path in SYSTEM7_ZIP_PATHS:
             import_folders7[folder_path] = folder
         elif folder_path in MAC_OS_X_ZIP_PATHS:
@@ -661,6 +609,61 @@ def import_zips() -> ImportFolders:
             import_folders[folder_path] = folder
 
     return import_folders, import_folders7, import_foldersX
+
+
+def import_zip(zip_path: str) -> machfs.Folder:
+    folder = machfs.Folder()
+    files_by_path = {}
+    with zipfile.ZipFile(zip_path, "r") as zip:
+        for zip_info in zip.infolist():
+            if zip_info.is_dir():
+                continue
+            file_data = zip.read(zip_info)
+            if zip_info.filename == "DInfo":
+                folder.usrInfo = file_data[0:16]
+                folder.fndrInfo = file_data[16:]
+                continue
+            path = zip_info.filename
+            if ".rsrc/" in path:
+                path = path.replace(".rsrc/", "")
+                files_by_path.setdefault(path, machfs.File()).rsrc = file_data
+                continue
+            if ".finf/" in path:
+                # May actually be the DInfo for a folder, check for that.
+                path = path.replace(".finf/", "")
+                try:
+                    # Will throw if there isn't a corresponding directory,
+                    # no need to actually do anything with the return value.
+                    zip.getinfo(path + "/")
+                    nested_folder_path, nested_folder_name = os.path.split(path)
+                    parent = traverse_folders(folder, nested_folder_path)
+                    nested_folder = machfs.Folder()
+                    (nested_folder.usrInfo, nested_folder.fndrInfo) = struct.unpack(
+                        ">16s16s", file_data
+                    )
+                    parent[fix_name(nested_folder_name)] = nested_folder
+                    continue
+                except KeyError:
+                    pass
+                file = files_by_path.setdefault(path, machfs.File())
+                (
+                    file.type,
+                    file.creator,
+                    file.flags,
+                    file.y,
+                    file.x,
+                    _,
+                    file.fndrInfo,
+                ) = struct.unpack(">4s4sHhhH16s", file_data)
+                continue
+            files_by_path.setdefault(path, machfs.File()).data = file_data
+
+    for path, file in files_by_path.items():
+        file_folder_path, file_name = os.path.split(path)
+        parent = traverse_folders(folder, file_folder_path)
+
+        parent[fix_name(file_name)] = file
+    return folder
 
 
 def traverse_folders(parent: machfs.Folder, folder_path: str) -> machfs.Folder:
@@ -781,71 +784,75 @@ def check_hfs_images(images: typing.List[typing.Tuple[str, bytes]]) -> None:
         return
 
     for image_name, image_data in images:
-        device = None
         sys.stderr.write("Checking %s with fsck_hfs...\n" % image_name)
         with tempfile.NamedTemporaryFile(suffix=".dsk") as image_file:
             image_file.write(image_data)
             image_file.flush()
-            try:
-                attach_result = subprocess.run(
-                    [
-                        paths.HDIUTIL_PATH,
-                        "attach",
-                        "-plist",
-                        "-imagekey",
-                        "diskimage-class=CRawDiskImage",
-                        "-nomount",
-                        "-readonly",
-                        image_file.name,
-                    ],
-                    check=True,
-                    stdout=subprocess.PIPE,
-                )
-                attach_info = plistlib.loads(attach_result.stdout)
-                entities = attach_info.get("system-entities", [])
-                devices = [
-                    entity["dev-entry"]
-                    for entity in entities
-                    if "dev-entry" in entity
-                ]
-                if not devices:
-                    raise RuntimeError("hdiutil did not return an attached device")
-                device = next(
-                    (
-                        entity["dev-entry"]
-                        for entity in entities
-                        if entity.get("potentially-mountable")
-                        and "dev-entry" in entity
-                    ),
-                    devices[-1],
-                )
+            check_hfs_image(image_name, image_file.name)
 
-                fsck_result = subprocess.run(
-                    [fsck_hfs_path, "-fn", device],
-                    check=False,
-                )
-                if fsck_result.returncode != 0:
-                    logging.warning(
-                        "fsck_hfs found problems with %s (exit status %d)",
-                        image_name,
-                        fsck_result.returncode,
-                    )
-            except (OSError, plistlib.InvalidFileException, RuntimeError) as error:
-                logging.warning(
-                    "Could not check %s with fsck_hfs: %s", image_name, error
-                )
-            except subprocess.CalledProcessError as error:
-                logging.warning(
-                    "Could not attach %s for fsck_hfs (exit status %d)",
-                    image_name,
-                    error.returncode,
-                )
-            finally:
-                if device:
-                    detach_result = subprocess.run(
-                        [paths.HDIUTIL_PATH, "detach", device],
-                        check=False,
-                    )
-                    if detach_result.returncode != 0:
-                        logging.warning("Could not detach %s after fsck_hfs", device)
+def check_hfs_image(image_name: str, image_path: str) -> None:
+    fsck_hfs_path = shutil.which("fsck_hfs")
+    device = None
+    try:
+        attach_result = subprocess.run(
+            [
+                paths.HDIUTIL_PATH,
+                "attach",
+                "-plist",
+                "-imagekey",
+                "diskimage-class=CRawDiskImage",
+                "-nomount",
+                "-readonly",
+                image_path,
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+        )
+        attach_info = plistlib.loads(attach_result.stdout)
+        entities = attach_info.get("system-entities", [])
+        devices = [
+            entity["dev-entry"]
+            for entity in entities
+            if "dev-entry" in entity
+        ]
+        if not devices:
+            raise RuntimeError("hdiutil did not return an attached device")
+        device = next(
+            (
+                entity["dev-entry"]
+                for entity in entities
+                if entity.get("potentially-mountable")
+                and "dev-entry" in entity
+            ),
+            devices[-1],
+        )
+
+        fsck_result = subprocess.run(
+            [fsck_hfs_path, "-fn", device],
+            check=False,
+        )
+        if fsck_result.returncode != 0:
+            logging.warning(
+                "fsck_hfs found problems with %s (exit status %d)",
+                image_name,
+                fsck_result.returncode,
+            )
+    except (OSError, plistlib.InvalidFileException, RuntimeError) as error:
+        logging.warning(
+            "Could not check %s with fsck_hfs: %s", image_name, error
+        )
+    except subprocess.CalledProcessError as error:
+        logging.warning(
+            "Could not attach %s for fsck_hfs (exit status %d)",
+            image_name,
+            error.returncode,
+        )
+    finally:
+        if device:
+            detach_result = subprocess.run(
+                [paths.HDIUTIL_PATH, "detach", device],
+                check=False,
+            )
+            if detach_result.returncode != 0:
+                logging.warning("Could not detach %s after fsck_hfs", device)
 

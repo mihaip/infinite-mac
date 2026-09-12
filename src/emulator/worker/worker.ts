@@ -74,6 +74,7 @@ import {
 } from "@/emulator/worker/disk-saver";
 import {type EmulatorSpeed} from "@/emulator/common/emulators";
 import {EmulatorWorkerDeviceImageDisk} from "@/emulator/worker/device-image-disk";
+import {EmulatorWorkerOverlayDisk} from "@/emulator/worker/overlay-disk";
 import {EmulatorWorkerSpeedGovernor} from "@/emulator/worker/speed-governor";
 
 addEventListener("message", async event => {
@@ -190,13 +191,19 @@ class EmulatorWorkerApi {
         this.disks = new EmulatorWorkerDisksApi(
             [
                 ...disks.map(spec => {
-                    let disk;
+                    let disk: EmulatorWorkerDisk;
                     if (spec.persistent) {
                         const saver = new EmulatorWorkerDiskSaver(spec, this);
                         this.#diskSavers.push(saver);
                         disk = new EmulatorWorkerChunkedDisk(spec, saver);
                     } else {
                         disk = new EmulatorWorkerChunkedDisk(spec, this);
+                    }
+                    if (spec.overlays?.length) {
+                        disk = new EmulatorWorkerOverlayDisk(
+                            disk,
+                            spec.overlays
+                        );
                     }
                     if (
                         deviceImageType !== null &&

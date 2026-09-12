@@ -114,6 +114,16 @@ export type EmulatorChunkedFileSpec = {
     persistent?: boolean;
     isFloppy?: boolean;
     hasDeviceImageHeader?: boolean;
+    // Raw byte offset of the System file's scrn resource, for disks that have
+    // that placeholder value.
+    scrnResourceOffset?: number;
+    overlays?: EmulatorDiskOverlay[];
+};
+
+export type EmulatorDiskOverlay = {
+    offset: number;
+    data: Uint8Array;
+    expected?: Uint8Array;
 };
 
 export function generateChunkUrl(

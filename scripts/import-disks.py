@@ -11,6 +11,7 @@ import logging
 import minivmac
 import os
 import paths
+import placeholders
 import shutil
 import sys
 import tempfile
@@ -32,13 +33,14 @@ class InfiniteHD(enum.Enum):
 class ImageDef(typing.NamedTuple):
     name: str
     path: str
+    scrn_resource_offset: typing.Optional[int] = None
 
 
-def write_image_def(image: bytes, name: str, dest_dir: str) -> ImageDef:
+def write_image_def(image: bytes, name: str, dest_dir: str, scrn_resource_offset: typing.Optional[int] = None) -> ImageDef:
     image_path = os.path.join(dest_dir, name)
     with open(image_path, "wb") as image_file:
         image_file.write(image)
-    return ImageDef(name, image_path)
+    return ImageDef(name, image_path, scrn_resource_offset=scrn_resource_offset)
 
 
 ZERO_CHUNK = b"\0" * CHUNK_SIZE
@@ -91,17 +93,16 @@ def write_chunked_image(image: ImageDef) -> None:
         sys.stderr.write("Chunked %s: 0 chunks\n" % image.name)
 
     manifest_path = os.path.join(paths.DATA_DIR, f"{image.name}.json")
+    manifest = {
+        "name": os.path.splitext(image.name)[0],
+        "totalSize": total_size,
+        "chunks": chunks,
+        "chunkSize": CHUNK_SIZE,
+    }
+    if image.scrn_resource_offset is not None:
+        manifest["scrnResourceOffset"] = image.scrn_resource_offset
     with open(manifest_path, "w+") as manifest_file:
-        json.dump(
-            {
-                "name": os.path.splitext(image.name)[0],
-                "totalSize": total_size,
-                "chunks": chunks,
-                "chunkSize": CHUNK_SIZE,
-            },
-            manifest_file,
-            indent=4,
-        )
+        json.dump(manifest, manifest_file, indent=4)
 
 
 def build_system_image(
@@ -168,8 +169,30 @@ def build_system_image(
                 + image_data[stickies_index + len(stickies_placeholder) :]
             )
 
-    return write_image_def(image_data, disk.name, dest_dir)
+    # System 5.0 to 7.x images are prepared with a placeholder scrn resource.
+    # We replace it at runtime with the active NuBus card and monitor
+    # configuration.
+    scrn_resource_offset = image_data.find(placeholders.SCRN_RESOURCE)
+    if scrn_resource_offset != -1:
+        duplicate_offset = image_data.find(
+            placeholders.SCRN_RESOURCE, scrn_resource_offset + 1
+        )
+        if duplicate_offset != -1:
+            logging.warning(
+                "Multiple placeholder scrn resources found in %s, skipping overlay metadata",
+                image.name,
+            )
+            scrn_resource_offset = None
+    else:
+        scrn_resource_offset = None
 
+
+    return write_image_def(
+        image_data,
+        disk.name,
+        dest_dir,
+        scrn_resource_offset=scrn_resource_offset,
+    )
 
 def build_library_images(dest_dir: str) -> typing.Tuple[ImageDef, ImageDef, ImageDef]:
     image6, image, imageX = library.build_images()
