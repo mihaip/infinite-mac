@@ -443,6 +443,9 @@ export function configToSnowArgs(
     if (useMouseDeltas) {
         args.push("--use-mouse-deltas");
     }
+    if (config.flags.debugLog) {
+        args.push("--debug-log");
+    }
     if (config.machine.hasSCSI) {
         args.push("--bluescsi-dir", "/Shared/Downloads");
         args.push("--bluescsi-send-dir", "/Shared/Uploads");

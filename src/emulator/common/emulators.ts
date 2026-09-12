@@ -73,7 +73,12 @@ export function emulatorNeedsDiskPlaceholderFiles(type: EmulatorType): boolean {
 }
 
 export function emulatorSupportsDebugLog(type: EmulatorType): boolean {
-    return type === "DingusPPC" || type === "Previous" || type === "PearPC";
+    return (
+        type === "DingusPPC" ||
+        type === "Previous" ||
+        type === "PearPC" ||
+        type === "Snow"
+    );
 }
 
 export function emulatorHasOptionalBlueSCSI(type: EmulatorType): boolean {
