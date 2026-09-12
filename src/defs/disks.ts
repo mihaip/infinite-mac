@@ -2038,6 +2038,7 @@ const AUX_1_1: SystemDiskDef = {
         93, 95, 96, 105, 106, 111, 121, 122, 285, 286, 288, 290,
     ],
     preferredMachine: MAC_II_FDHD_SNOW,
+    infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/AUX 1.1.dsk.json"),
     hasDeviceImageHeader: true,
 };
@@ -2052,14 +2053,27 @@ const AUX_1_1_1: PlaceholderDiskDef = {
     preferredMachine: MAC_II_FDHD_SNOW,
 };
 
-const AUX_2_0: PlaceholderDiskDef = {
+const AUX_2_0: SystemDiskDef = {
     family: "aux",
-    type: "placeholder",
     displayName: "A/UX 2.0",
     description:
         "Introduced a Finder desktop that ran multiple Macintosh, UNIX and X applications, with UNIX files accessible directly in the Finder.",
     releaseDate: [1990, 5, 9],
-    preferredMachine: MAC_IIx_SNOW,
+    prefetchChunks: [
+        0, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 24, 25, 30, 32,
+        33, 34, 35, 36, 42, 43, 46, 48, 50, 51, 54, 56, 57, 60, 61, 62, 63, 64,
+        65, 66, 68, 72, 73, 74, 75, 77, 78, 84, 85, 86, 87, 90, 91, 92, 93, 94,
+        95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 108, 109, 112,
+        113, 114, 115, 116, 117, 118, 119, 120, 121, 125, 126, 127, 132, 135,
+        136, 138, 139, 140, 141, 143, 144, 145, 148, 149, 150, 152, 153, 154,
+        155, 156, 157, 158, 159, 162, 163, 164, 165, 166, 167, 168, 170, 174,
+        180, 186, 187, 192, 195, 198, 201, 202, 203, 204, 207, 210, 211, 212,
+        297, 298, 299, 300, 301, 302, 303, 304, 305,
+    ],
+    preferredMachine: MAC_IIcx_SNOW,
+    infiniteHdVariant: "system6",
+    generatedSpec: () => import("@/Data/AUX 2.0.dsk.json"),
+    hasDeviceImageHeader: true,
 };
 
 const AUX_2_0_1: PlaceholderDiskDef = {
