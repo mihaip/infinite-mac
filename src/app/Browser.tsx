@@ -250,7 +250,7 @@ function DiskFilters({
                 <span className="Disk-Filters-Label">Releases:</span>
                 {Object.entries(disks()).map(
                     ([filter, {label, all}]) =>
-                        all.length && (
+                        all.length > 0 && (
                             <DiskFiltersButton
                                 key={filter}
                                 onClick={() => onChange(filter as DiskFilter)}
