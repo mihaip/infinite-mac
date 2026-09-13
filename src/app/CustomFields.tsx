@@ -182,13 +182,14 @@ export function CustomFields({
     }
 
     useEffect(() => {
-        // Need a disk
+        // Need a disk or a machine configured to boot from ROM
         setCanRun(
             (runDef.disks.length > 0 ||
                 runDef.diskFiles.length > 0 ||
                 runDef.cdromURLs.length > 0 ||
                 (runDef.diskURLs?.length ?? 0) > 0 ||
-                runDef.includeSavedHD) &&
+                runDef.includeSavedHD ||
+                runDef.bootFromROM === true) &&
                 // Need AppleTalk to be configured if enabled.
                 (!appleTalkSupported ||
                     !appleTalkEnabled ||
@@ -212,6 +213,7 @@ export function CustomFields({
         runDef.cdromURLs.length,
         runDef.diskURLs?.length,
         runDef.includeSavedHD,
+        runDef.bootFromROM,
         appleTalkEnabled,
         appleTalkZoneName,
         appleTalkSupported,
@@ -230,6 +232,9 @@ export function CustomFields({
                     onChange={e => {
                         const machine = MACHINES_BY_NAME[e.target.value];
                         const update: Partial<RunDef> = {machine};
+                        if (!machine.canBootFromROM) {
+                            update.bootFromROM = undefined;
+                        }
                         if (
                             runDef.ramSize &&
                             !machine.ramSizes.includes(runDef.ramSize)
@@ -566,6 +571,29 @@ export function CustomFields({
                     Allows time-limited software to be used.
                 </div>
             </div>
+
+            {runDef.machine.canBootFromROM && (
+                <div className="CustomFields-Row">
+                    <span className="CustomFields-Label" />
+                    <label>
+                        <Checkbox
+                            checked={runDef.bootFromROM ?? false}
+                            onChange={e =>
+                                setRunDef({
+                                    ...runDef,
+                                    bootFromROM: e.target.checked,
+                                })
+                            }
+                        />
+                        Boot from ROM
+                    </label>
+                    <div className="CustomFields-Description Dialog-Description">
+                        Boot from the system folder that's included in the Mac
+                        Classic ROM. Simulates Command-Option-X-O being pressed
+                        at startup to trigger this behavior.
+                    </div>
+                </div>
+            )}
 
             {appleTalkSupported && (
                 <div className="CustomFields-Row CustomFields-InputCompensate">

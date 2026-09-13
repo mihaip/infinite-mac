@@ -56,6 +56,7 @@ export type MachineDef = EmulatorDef & {
     // verbose boot.
     verboseBootEnvVars?: {[name: string]: string};
     hasSCSI?: boolean;
+    canBootFromROM?: boolean;
     // If true, the ROM ends up with a more system heap and needs an older and
     // smaller SCSI driver in the injeected device image header.
     requiresCompactSCSIDriver?: boolean;
@@ -202,6 +203,7 @@ export const MAC_SE_FDHD_SNOW: MachineDef = {
 
 export const MAC_CLASSIC_SNOW: MachineDef = {
     name: "Mac Classic (Snow)",
+    canBootFromROM: true,
     cpu: "68000",
     romPath: macClassicRomPath,
     // SHA-256: c1c47260bacac2473e21849925fbfdf48e5ab584aaef7c6d54569d0cb6b41cce

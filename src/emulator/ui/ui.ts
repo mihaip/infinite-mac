@@ -72,6 +72,7 @@ import {
 import {type MachineDefRAMSize, type MachineDef} from "@/defs/machines";
 import {isSystemDiskDef, type EmulatorDiskDef} from "@/defs/disks";
 import {fetchCDROM} from "@/emulator/ui/cdrom";
+import {BootFromROMHelper} from "@/emulator/ui/boot-from-rom";
 import {EmulatorTrackpadController} from "@/emulator/ui/trackpad";
 import {
     configToDingusPPCArgs,
@@ -87,6 +88,7 @@ import {createScrnResourceOverlay} from "@/emulator/ui/scrn-resource-overlay";
 export type EmulatorConfig = {
     machine: MachineDef;
     ramSize?: MachineDefRAMSize;
+    bootFromROM?: boolean;
     useSharedMemory: boolean;
     screenWidth: number;
     screenHeight: number;
@@ -122,6 +124,7 @@ export interface EmulatorDelegate {
         left: number
     ): void;
     emulatorDidFinishLoading?(emulator: Emulator): void;
+    emulatorShowBootFromROMKeys?(show: boolean): void;
     emulatorDidStartToLoadDiskChunk?(emulator: Emulator): void;
     emulatorDidFinishLoadingDiskChunk?(emulator: Emulator): void;
     emulatorDidBecomeQuiescent?(emulator: Emulator): void;
@@ -175,6 +178,7 @@ export class Emulator {
     #serviceWorkerReady?: Promise<boolean>;
 
     #gotFirstBlit = false;
+    #bootFromROMHelper?: BootFromROMHelper;
     #intersectionObserver?: IntersectionObserver;
 
     #ethernetPinger: EthernetPinger;
@@ -188,9 +192,6 @@ export class Emulator {
     #trackpadController: EmulatorTrackpadController;
 
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
-        console.time("Emulator first blit");
-        console.time("Emulator quiescent");
-
         this.#config = config;
         this.#delegate = delegate;
         this.#worker = new Worker();
@@ -238,6 +239,12 @@ export class Emulator {
         this.#input = useSharedMemory
             ? new SharedMemoryEmulatorInput(config)
             : new FallbackEmulatorInput(config, fallbackCommandSender!);
+        if (config.bootFromROM) {
+            this.#bootFromROMHelper = new BootFromROMHelper(
+                event => this.#input.handleInput(event),
+                show => this.#delegate?.emulatorShowBootFromROMKeys?.(show)
+            );
+        }
         this.#audio = useSharedMemory
             ? new SharedMemoryEmulatorAudio(this.#input)
             : new FallbackEmulatorAudio(this.#input);
@@ -319,6 +326,9 @@ export class Emulator {
     }
 
     async #startWorker() {
+        this.#gotFirstBlit = false;
+        console.time("Emulator first blit");
+        console.time("Emulator quiescent");
         if (this.#workerTerminated) {
             this.#worker = new Worker();
         }
@@ -563,6 +573,7 @@ export class Emulator {
         this.#input.handleInput({type: "stop"});
         this.#ethernetPinger.stop();
         this.#audio.stop();
+        this.#bootFromROMHelper?.stop();
 
         if (this.#intersectionObserver) {
             this.#intersectionObserver.unobserve(canvas);
@@ -572,6 +583,7 @@ export class Emulator {
     }
 
     restart(whileStopped?: () => Promise<void>): Promise<void> {
+        this.#bootFromROMHelper?.stop();
         this.#audio.stop();
         this.#input.handleInput({type: "stop"});
         // Wait for handleEmulatorStopped to be invoked, so that disk savers
@@ -598,6 +610,7 @@ export class Emulator {
     }
 
     pause() {
+        this.#bootFromROMHelper?.stop();
         this.#input.handleInput({type: "pause"});
     }
 
@@ -928,6 +941,7 @@ export class Emulator {
             if (!this.#gotFirstBlit) {
                 this.#gotFirstBlit = true;
                 console.timeEnd("Emulator first blit");
+                this.#bootFromROMHelper?.start();
             }
             const blitData: EmulatorWorkerVideoBlit = e.data.data;
             this.#video.blit(blitData);
@@ -1122,6 +1136,7 @@ export class Emulator {
     }
 
     async #handleEmulatorStopped(isExit?: boolean) {
+        this.#bootFromROMHelper?.stop();
         this.#worker.removeEventListener("message", this.#handleWorkerMessage);
         this.#worker.terminate();
         this.#workerTerminated = true;

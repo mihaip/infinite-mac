@@ -26,6 +26,7 @@ import {
 export type RunDef = {
     machine: MachineDef;
     ramSize?: MachineDefRAMSize;
+    bootFromROM?: boolean;
     screenSize: ScreenSize;
     screenScale?: number;
     disks: SystemDiskDef[];
@@ -241,6 +242,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     const debugLog = searchParams.get("debug_log") === "true";
     const debugTrackpad = searchParams.get("debug_trackpad") === "true";
     const blueSCSI = searchParams.get("blue_scsi") === "true";
+    const bootFromROM = searchParams.get("boot_from_rom") === "true";
     const emulatorSettingsParam = searchParams.get("settings");
     let settings: EmulatorSettings | undefined = isEmbed
         ? DEFAULT_EMULATOR_SETTINGS
@@ -264,6 +266,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         libraryDownloadURLs,
         machine,
         ramSize,
+        bootFromROM,
         screenSize,
         screenScale,
         ethernetProvider,
@@ -340,6 +343,9 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
         machine !== disks[0].preferredMachine
     ) {
         url.searchParams.set("machine", machine.name);
+    }
+    if (runDef.bootFromROM) {
+        url.searchParams.set("boot_from_rom", "true");
     }
     if (runDef.ramSize && runDef.ramSize !== machine.ramSizes[0]) {
         url.searchParams.set("ram", runDef.ramSize);

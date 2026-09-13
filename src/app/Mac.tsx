@@ -97,6 +97,7 @@ export default function Mac({
         diskFiles,
         machine,
         ramSize,
+        bootFromROM,
         screenSize: screenSizeProp,
         screenScale: screenScaleProp,
         screenUpdateMessages,
@@ -132,6 +133,7 @@ export default function Mac({
     const [ethernetPeers, setEthernetPeers] = useState<
         readonly EmulatorEthernetPeer[]
     >([]);
+    const [showBootFromROMKeys, setShowBootFromROMKeys] = useState(false);
     const [emulatorStats, setEmulatorStats] = useState<EmulatorStats>({});
     const [emulatorStatsExpanded, setEmulatorStatsExpanded] = useState(false);
     // Don't clear the loading state immediately, to make it clearer that I/O
@@ -225,7 +227,8 @@ export default function Mac({
                 infiniteHd = INFINITE_HD_NEXT;
             } else if (
                 disks[0]?.infiniteHdVariant === "system6" ||
-                (disks.length === 0 && emulatorType === "Mini vMac")
+                (disks.length === 0 && emulatorType === "Mini vMac") ||
+                bootFromROM === true // The Classic boot ROM includes System 6.0.3
             ) {
                 infiniteHd = INFINITE_HD6;
             } else if (disks[0]?.family === "macosx") {
@@ -258,6 +261,7 @@ export default function Mac({
             {
                 machine,
                 ramSize,
+                bootFromROM,
                 useSharedMemory,
                 screenWidth: initialScreenWidth,
                 screenHeight: initialScreenHeight,
@@ -282,6 +286,7 @@ export default function Mac({
                 emulatorDidChangeScreenSize(width, height) {
                     setScreenSize({width, height});
                 },
+                emulatorShowBootFromROMKeys: setShowBootFromROMKeys,
                 emulatorDidFinishLoading(emulator: Emulator) {
                     setEmulatorLoaded(true);
                     emulator.refreshSettings();
@@ -493,6 +498,7 @@ export default function Mac({
             }
         };
     }, [
+        bootFromROM,
         disks,
         diskFiles,
         includeInfiniteHD,
@@ -637,6 +643,14 @@ export default function Mac({
                 ) : (
                     <>Loaded {emulatorFileLoadingProgress.name}</>
                 )}
+            </div>
+        );
+    }
+
+    if (showBootFromROMKeys) {
+        progress = (
+            <div className="Mac-Loading Mac-Loading-Non-Modal Mac-Loading-OneLine">
+                Holding Command-Option-X-O to boot from ROM…
             </div>
         );
     }
