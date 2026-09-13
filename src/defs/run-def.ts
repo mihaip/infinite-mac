@@ -358,7 +358,7 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
                 : runDef.screenSize
         );
     }
-    if (runDef.screenScale && runDef.screenScale !== 1) {
+    if (runDef.screenScale !== undefined) {
         url.searchParams.set("screen_scale", runDef.screenScale.toString());
     }
     if (ethernetProvider instanceof CloudflareWorkerEthernetProvider) {

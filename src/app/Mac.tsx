@@ -116,7 +116,12 @@ export default function Mac({
     const supportsDownloadsFolder = runDefSupportsDownloadsFolder(runDef);
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
-    const [scale, setScale] = useState<number | undefined>(screenScaleProp);
+    const initialScale = useInitialScreenScale(
+        machine,
+        screenSizeProp,
+        screenScaleProp
+    );
+    const [scale, setScale] = useState(initialScale);
     const [fullscreen, setFullscreen] = useState(false);
     const [emulatorLoadingProgress, setEmulatorLoadingProgress] = useState([
         0, 0,
@@ -166,10 +171,10 @@ export default function Mac({
     const emulatorSettingsRef = useRef(emulatorSettings);
     emulatorSettingsRef.current = emulatorSettings;
 
-    const initialScreenSize = useMemo(
-        () =>
-            computeInitialScreenSize(machine, screenSizeProp, screenScaleProp),
-        [machine, screenSizeProp, screenScaleProp]
+    const initialScreenSize = useInitialScreenSize(
+        machine,
+        screenSizeProp,
+        screenScaleProp
     );
     const {width: initialScreenWidth, height: initialScreenHeight} =
         initialScreenSize;
@@ -551,9 +556,9 @@ export default function Mac({
                 window.screen.availWidth / screenRef.current!.width;
             setScale(Math.min(heightScale, widthScale));
         } else {
-            setScale(undefined);
+            setScale(initialScale);
         }
-    }, [screenSizeProp]);
+    }, [screenSizeProp, initialScale]);
     useEffect(() => {
         document.addEventListener("fullscreenchange", handleFullScreenChange);
         document.addEventListener(
@@ -1228,45 +1233,77 @@ function uploadFiles(
 const SMALL_BEZEL_THRESHOLD = 80;
 const MEDIUM_BEZEL_THRESHOLD = 168;
 
-function computeInitialScreenSize(
+function useInitialScreenScale(
+    machine: MachineDef,
+    screenSizeProp?: ScreenSize,
+    screenScaleProp?: number
+): number | undefined {
+    return useMemo(() => {
+        if (screenScaleProp !== undefined) {
+            return screenScaleProp;
+        }
+        if (
+            !machine.fixedScreenSize ||
+            (screenSizeProp !== undefined && screenSizeProp !== "auto")
+        ) {
+            return undefined;
+        }
+        const {width, height} = machine.fixedScreenSize;
+        for (const scale of [2, 1.5]) {
+            // Scaling transforms the whole frame, including the bezel. Reserve
+            // the same space as automatic screen sizing, scaled along with it.
+            if (
+                (width + MEDIUM_BEZEL_THRESHOLD) * scale <= window.innerWidth &&
+                (height + MEDIUM_BEZEL_THRESHOLD) * scale <= window.innerHeight
+            ) {
+                return scale;
+            }
+        }
+        return undefined;
+    }, [machine, screenSizeProp, screenScaleProp]);
+}
+
+function useInitialScreenSize(
     machine: MachineDef,
     screenSizeProp?: ScreenSize,
     screenScaleProp?: number
 ): {width: number; height: number} {
-    if (machine.fixedScreenSize) {
-        return machine.fixedScreenSize;
-    }
-    if (typeof screenSizeProp === "object") {
-        return screenSizeProp;
-    }
-    let {innerWidth: windowWidth, innerHeight: windowHeight} = window;
-    let {width: screenWidth, height: screenHeight} = window.screen;
-    if (screenScaleProp) {
-        windowWidth = Math.floor(windowWidth / screenScaleProp);
-        windowHeight = Math.floor(windowHeight / screenScaleProp);
-        screenWidth = Math.floor(screenWidth / screenScaleProp);
-        screenHeight = Math.floor(screenHeight / screenScaleProp);
-    }
-    switch (screenSizeProp) {
-        case undefined:
-        case "auto": {
-            const availableWidth = windowWidth - MEDIUM_BEZEL_THRESHOLD;
-            const availableHeight = windowHeight - MEDIUM_BEZEL_THRESHOLD;
-            const {supportedScreenSizes = DEFAULT_SUPPORTED_SCREEN_SIZES} =
-                machine;
-            for (const {width, height} of supportedScreenSizes) {
-                if (width <= availableWidth && height <= availableHeight) {
-                    return {width, height};
-                }
-            }
-            return {width: 640, height: 480};
+    return useMemo(() => {
+        if (machine.fixedScreenSize) {
+            return machine.fixedScreenSize;
         }
-        case "window":
-        case "embed":
-            return {width: windowWidth, height: windowHeight};
-        case "fullscreen":
-            return {width: screenWidth, height: screenHeight};
-    }
+        if (typeof screenSizeProp === "object") {
+            return screenSizeProp;
+        }
+        let {innerWidth: windowWidth, innerHeight: windowHeight} = window;
+        let {width: screenWidth, height: screenHeight} = window.screen;
+        if (screenScaleProp) {
+            windowWidth = Math.floor(windowWidth / screenScaleProp);
+            windowHeight = Math.floor(windowHeight / screenScaleProp);
+            screenWidth = Math.floor(screenWidth / screenScaleProp);
+            screenHeight = Math.floor(screenHeight / screenScaleProp);
+        }
+        switch (screenSizeProp) {
+            case undefined:
+            case "auto": {
+                const availableWidth = windowWidth - MEDIUM_BEZEL_THRESHOLD;
+                const availableHeight = windowHeight - MEDIUM_BEZEL_THRESHOLD;
+                const {supportedScreenSizes = DEFAULT_SUPPORTED_SCREEN_SIZES} =
+                    machine;
+                for (const {width, height} of supportedScreenSizes) {
+                    if (width <= availableWidth && height <= availableHeight) {
+                        return {width, height};
+                    }
+                }
+                return {width: 640, height: 480};
+            }
+            case "window":
+            case "embed":
+                return {width: windowWidth, height: windowHeight};
+            case "fullscreen":
+                return {width: screenWidth, height: screenHeight};
+        }
+    }, [machine, screenSizeProp, screenScaleProp]);
 }
 
 // Assume that mobile devices that can't do hover events also need an explicit
