@@ -29,15 +29,16 @@ export async function handleRequest(request: Request, bucket: R2Bucket) {
         spec = {srcUrl: specStr};
     }
 
+    if (request.method === "PUT") {
+        return await handlePUT(spec.srcUrl, url.origin);
+    }
+
     if (!isValidSrcUrl(spec.srcUrl)) {
         return errorResponse("Unexpected CD-ROM src URL: " + spec.srcUrl);
     }
 
     if (request.method === "GET") {
         return await handleGET(pathPieces, spec, bucket, url);
-    }
-    if (request.method === "PUT") {
-        return await handlePUT(spec.srcUrl);
     }
 
     return errorResponse("Method not allowed", 405);
@@ -124,16 +125,28 @@ async function handleGET(
  * Generates a CD-ROM manifest from a source URL on the fly, equivalent to what
  * get_output_manifest from import-cd-roms.py does.
  */
-async function handlePUT(srcUrl: string) {
+async function handlePUT(srcUrl: string, origin: string) {
     if (isR2MediaSrcUrl(srcUrl)) {
         return errorResponse("R2 media URLs are internal");
     }
-    const response = await fetch(srcUrl, {
-        method: "HEAD",
-        headers: {
-            "User-Agent": "Infinite Mac (+https://infinitemac.org)",
-        },
-    });
+    if (!isHTTPSUrl(srcUrl)) {
+        return errorResponse("Unexpected CD-ROM src URL: " + srcUrl);
+    }
+    let response;
+    try {
+        response = await fetchMetadata(srcUrl, origin);
+    } catch (e) {
+        return errorResponse(`CD-ROM HEAD request failed: ${e}`);
+    }
+    // Prefer direct fetching even for allowlisted sites, so that hosts which
+    // enable CORS no longer need our data proxy.
+    const allowedOrigin = response.headers.get("Access-Control-Allow-Origin");
+    const useCORS = allowedOrigin === "*" || allowedOrigin === origin;
+    if (!useCORS && !isValidSrcUrl(srcUrl)) {
+        return errorResponse(
+            "Unsupported CD-ROM site: the server must allow cross-origin requests (CORS)"
+        );
+    }
     if (!response.ok) {
         return errorResponse(
             `CD-ROM HEAD request failed: ${response.status} (${response.statusText})`
@@ -144,17 +157,15 @@ async function handlePUT(srcUrl: string) {
         return errorResponse(`CD-ROM HEAD request failed: no Content-Length`);
     }
 
-    const fileSize = parseInt(contentLength);
-    if (isNaN(fileSize)) {
+    const fileSize = Number(contentLength);
+    if (!Number.isSafeInteger(fileSize) || fileSize <= 0) {
         return errorResponse(
             `CD-ROM HEAD request failed: invalid Content-Length (${contentLength})`
         );
     }
 
-    // It would be nice to also check that the Accept-Ranges header contains
-    // `bytes`, but it seems to be stripped from the response when running in
-    // a Cloudflare Worker.
-
+    // Range support is checked in the browser for CORS URLs, since HEAD
+    // headers alone do not tell us whether a cross-origin range GET works.
     const cdrom: EmulatorCDROM = {
         // The name is not that important, but try to use the filename from the
         // URL if possible.
@@ -165,11 +176,13 @@ async function handlePUT(srcUrl: string) {
         // blank.
         coverImageHash: "",
         coverImageSize: [0, 0],
+        ...(useCORS ? {fetchMode: "cors"} : {}),
     };
-    if (srcUrl.endsWith(".bin")) {
+    const pathname = new URL(srcUrl).pathname.toLowerCase();
+    if (pathname.endsWith(".bin")) {
         cdrom.mode = "MODE1/2352";
     }
-    if (srcUrl.endsWith(".dsk")) {
+    if (pathname.endsWith(".dsk")) {
         cdrom.mountReadWrite = true;
     }
     return new Response(JSON.stringify(cdrom), {
@@ -178,6 +191,48 @@ async function handlePUT(srcUrl: string) {
             "Content-Type": "application/json",
         },
     });
+}
+
+function isHTTPSUrl(value: string): boolean {
+    try {
+        const url = new URL(value);
+        return url.protocol === "https:" && !url.username && !url.password;
+    } catch {
+        return false;
+    }
+}
+
+async function fetchMetadata(
+    srcUrl: string,
+    origin?: string
+): Promise<Response> {
+    // Only metadata is fetched for arbitrary hosts, never image data. Check
+    // redirects as well so that they cannot bypass the HTTPS restriction.
+    const signal = AbortSignal.timeout(10000);
+    for (let redirects = 0; redirects <= 5; redirects++) {
+        if (!isHTTPSUrl(srcUrl)) {
+            throw new Error("Unexpected CD-ROM redirect URL");
+        }
+        const response = await fetch(srcUrl, {
+            method: "HEAD",
+            headers: {
+                "User-Agent": "Infinite Mac (+https://infinitemac.org)",
+                "Accept-Encoding": "identity",
+                ...(origin ? {Origin: origin} : {}),
+            },
+            redirect: "manual",
+            signal,
+        });
+        if (![301, 302, 303, 307, 308].includes(response.status)) {
+            return response;
+        }
+        const location = response.headers.get("Location");
+        if (!location) {
+            throw new Error("CD-ROM redirect has no Location");
+        }
+        srcUrl = new URL(location, srcUrl).href;
+    }
+    throw new Error("Too many CD-ROM redirects");
 }
 
 async function fetchChunk(

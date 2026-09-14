@@ -101,7 +101,7 @@ function isCompressedCDROMURL(srcUrl: string) {
 async function fetchCompressedCDROMInfo(
     srcUrl: string
 ): Promise<EmulatorCDROM> {
-    const cacheKey = `compressed_cdrom:${srcUrl}`;
+    const cacheKey = `compressed_cdrom:v2:${srcUrl}`;
     if (cacheKey in localStorage) {
         return JSON.parse(localStorage[cacheKey]);
     }
@@ -154,7 +154,7 @@ async function fetchCompressedCDROMInfo(
         // blank.
         coverImageHash: "",
         coverImageSize: [0, 0],
-        fetchClientSide: true,
+        fetchMode: "cors",
     } satisfies EmulatorCDROM;
 
     localStorage[cacheKey] = JSON.stringify(cdrom);

@@ -554,7 +554,9 @@ export type EmulatorCDROM = {
     mode?: "MODE1/2352"; // TODO: other modes
     platform?: "Macintosh" | "NeXT";
     isFloppy?: boolean;
-    fetchClientSide?: boolean;
+    // Fetch directly from the source, probing for range support and falling
+    // back to a full download. Unset: use the CD-ROM proxy.
+    fetchMode?: "cors";
     mountReadWrite?: boolean;
     prefetchChunks?: number[];
 };

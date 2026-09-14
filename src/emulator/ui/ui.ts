@@ -71,7 +71,7 @@ import {
 } from "@/emulator/ui/clipboard";
 import {type MachineDefRAMSize, type MachineDef} from "@/defs/machines";
 import {isSystemDiskDef, type EmulatorDiskDef} from "@/defs/disks";
-import {fetchCDROM} from "@/emulator/ui/cdrom";
+import {fetchCDROM, probeCORSRangeSupport} from "@/emulator/ui/cdrom";
 import {BootFromROMHelper} from "@/emulator/ui/boot-from-rom";
 import {EmulatorTrackpadController} from "@/emulator/ui/trackpad";
 import {
@@ -506,8 +506,7 @@ export class Emulator {
                 ...config.cdroms
                     .filter(
                         cdrom =>
-                            !cdrom.fetchClientSide &&
-                            cdrom.prefetchChunks?.length
+                            !cdrom.fetchMode && cdrom.prefetchChunks?.length
                     )
                     .map(generateChunkedFileSpecForCDROM),
             ];
@@ -676,7 +675,10 @@ export class Emulator {
     async #handleCDROMs(cdroms: EmulatorCDROM[]): Promise<EmulatorCDROM[]> {
         const result = [];
         for (const cdrom of cdroms) {
-            if (cdrom.fetchClientSide) {
+            if (
+                cdrom.fetchMode === "cors" &&
+                !(await probeCORSRangeSupport(cdrom))
+            ) {
                 result.push(
                     await fetchCDROM(cdrom, loadedFraction => {
                         this.#delegate?.emulatorDidMakeCDROMLoadingProgress?.(

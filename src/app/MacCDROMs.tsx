@@ -242,17 +242,16 @@ function MacCustomCDROM({
             <ul>
                 <li>Raw files ({displayExtensions}) work best.</li>
                 <li>
-                    Only a subset of sites are supported (currently{" "}
-                    {allowedCDROMDomains.join(", ")}). If there is another site
-                    that you wish to be supported, please contact the
-                    maintainer.
+                    Supported sites include {allowedCDROMDomains.join(", ")} and
+                    HTTPS sites that allow cross-origin requests (CORS).
                 </li>
                 <li>
-                    The site must support{" "}
+                    Sites that support{" "}
                     <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests">
                         range requests
                     </a>{" "}
-                    so that the image can be streamed in.
+                    allow the image to be streamed in. CORS sites without range
+                    support require downloading the entire image before use.
                 </li>
             </ul>
             <p>

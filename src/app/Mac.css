@@ -51,6 +51,25 @@ body.embed {
     margin-right: 8px;
 }
 
+.Mac-Loading-File {
+    flex-direction: column;
+    gap: 0.5em;
+    padding: 16px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.Mac-Loading-File.Mac-Loading-Non-Modal {
+    width: max-content;
+    max-width: calc(100% - 32px);
+}
+
+.Mac-Loading-Warning {
+    max-width: 28em;
+    font-size: 0.85em;
+    opacity: 0.65;
+}
+
 .Mac-Loading-Fraction {
     opacity: 0.5;
     padding-left: 0.5em;

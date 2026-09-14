@@ -1,5 +1,6 @@
 import {
     type EmulatorCDROM,
+    type EmulatorChunkedFileSpec,
     generateChunkedFileSpecForCDROM,
 } from "@/emulator/common/common";
 import {
@@ -13,8 +14,9 @@ export function createEmulatorWorkerCDROMDisk(
     cdrom: EmulatorCDROM,
     delegate: EmulatorWorkerChunkedDiskDelegate
 ): EmulatorWorkerDisk {
+    let disk: EmulatorWorkerDisk;
     if (cdrom.srcUrl.startsWith("blob:")) {
-        const disk: EmulatorWorkerDisk = new EmulatorWorkerUploadDisk(
+        disk = new EmulatorWorkerUploadDisk(
             {
                 name: cdrom.name,
                 size: cdrom.fileSize,
@@ -22,20 +24,15 @@ export function createEmulatorWorkerCDROMDisk(
             },
             delegate
         );
-        if (cdrom.isFloppy) {
-            disk.isFloppy = true;
-        } else {
-            disk.isCdrom = true;
-        }
-        return disk;
+    } else if (cdrom.fetchMode === "cors") {
+        disk = new EmulatorWorkerCORSCDROMDisk(cdrom, delegate);
+    } else {
+        disk = new EmulatorWorkerChunkedDisk(
+            generateChunkedFileSpecForCDROM(cdrom),
+            delegate
+        );
     }
 
-    const spec = generateChunkedFileSpecForCDROM(cdrom);
-
-    let disk: EmulatorWorkerDisk = new EmulatorWorkerChunkedDisk(
-        spec,
-        delegate
-    );
     if (cdrom.mode === "MODE1/2352") {
         disk = new EmulatorWorkerMode1SectorDisk(disk);
     }
@@ -45,6 +42,57 @@ export function createEmulatorWorkerCDROMDisk(
         disk.isCdrom = true;
     }
     return disk;
+}
+
+/** Reads remote image ranges directly, without the CD-ROM proxy. */
+class EmulatorWorkerCORSCDROMDisk extends EmulatorWorkerChunkedDisk {
+    #srcUrl: string;
+
+    constructor(
+        cdrom: EmulatorCDROM,
+        delegate: EmulatorWorkerChunkedDiskDelegate
+    ) {
+        super(generateChunkedFileSpecForCDROM(cdrom), delegate);
+        this.#srcUrl = cdrom.srcUrl;
+    }
+
+    protected override doChunkRequest(
+        spec: EmulatorChunkedFileSpec,
+        chunkIndex: number
+    ): {chunk: Uint8Array} | {error: string; chunkUrl: string} {
+        const chunkUrl = this.#srcUrl;
+        const start = chunkIndex * spec.chunkSize;
+        const end = Math.min(start + spec.chunkSize, spec.totalSize);
+        try {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", chunkUrl, false);
+            xhr.responseType = "arraybuffer";
+            xhr.setRequestHeader("Range", `bytes=${start}-${end - 1}`);
+            xhr.send();
+            if (xhr.status !== 206) {
+                throw new Error(
+                    `Expected a range response, got HTTP ${xhr.status}`
+                );
+            }
+            const chunk = new Uint8Array(xhr.response as ArrayBuffer);
+            if (chunk.byteLength !== end - start) {
+                throw new Error(
+                    `Expected ${end - start} bytes, got ${chunk.byteLength}`
+                );
+            }
+            // Content-Range is only readable if explicitly exposed by CORS.
+            const range = xhr.getResponseHeader("Content-Range");
+            if (
+                range &&
+                range !== `bytes ${start}-${end - 1}/${spec.totalSize}`
+            ) {
+                throw new Error(`Unexpected Content-Range: ${range}`);
+            }
+            return {chunk};
+        } catch (e) {
+            return {error: `Error: ${e}`, chunkUrl};
+        }
+    }
 }
 
 /**

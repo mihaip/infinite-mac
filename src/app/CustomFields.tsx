@@ -99,7 +99,7 @@ export function CustomFields({
     const [customDateEnabled, setCustomDateEnabled] = useState(
         runDef.flags.customDate !== undefined
     );
-    const [showCDROMDomains, setShowCDROMDomains] = useState(false);
+    const [showCDROMSiteDetails, setShowCDROMSiteDetails] = useState(false);
     const [diskURLs, setDiskURLs] = useState<DiskURL[]>([
         ...(runDef.diskURLs?.map(url => ({
             url,
@@ -467,15 +467,22 @@ export function CustomFields({
                     .iso/.img/.toast/.bin file (i.e. not compressed) and from{" "}
                     <span
                         className={classNames({
-                            "CustomFields-Description-Link": !showCDROMDomains,
+                            "CustomFields-Description-Link":
+                                !showCDROMSiteDetails,
                         })}
-                        onClick={() => setShowCDROMDomains(true)}>
+                        onClick={() => setShowCDROMSiteDetails(true)}>
                         a supported site
                     </span>
-                    {showCDROMDomains && (
-                        <> ({allowedCDROMDomains.join(", ")})</>
-                    )}
                     .
+                    {showCDROMSiteDetails && (
+                        <div>
+                            Supported sites include{" "}
+                            {allowedCDROMDomains.join(", ")} and HTTPS sites
+                            that allow cross-origin requests (CORS). Sites
+                            without range support require downloading the entire
+                            image before use.
+                        </div>
+                    )}
                 </div>
             </div>
 

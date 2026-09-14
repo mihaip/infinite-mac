@@ -127,7 +127,12 @@ export default function Mac({
         0, 0,
     ]);
     const [emulatorFileLoadingProgress, setEmulatorFileLoadingProgress] =
-        useState<{fraction: number; name: string; linger?: boolean}>({
+        useState<{
+            fraction: number;
+            name: string;
+            linger?: boolean;
+            warning?: string;
+        }>({
             name: "",
             fraction: 1.0,
         });
@@ -383,7 +388,12 @@ export default function Mac({
                     return emulatorSettingsRef.current;
                 },
                 emulatorDidMakeCDROMLoadingProgress(emulator, cdrom, fraction) {
-                    setEmulatorFileLoadingProgress({name: "CD-ROM", fraction});
+                    setEmulatorFileLoadingProgress({
+                        name: "CD-ROM",
+                        fraction,
+                        warning:
+                            "Streaming unavailable, downloading entire image",
+                    });
                 },
                 emulatorDidDrawScreen(emulator, imageData) {
                     if (screenUpdateMessages) {
@@ -632,18 +642,25 @@ export default function Mac({
     ) {
         progress = (
             <div
-                className={classNames("Mac-Loading", {
+                className={classNames("Mac-Loading Mac-Loading-File", {
                     "Mac-Loading-Non-Modal": emulatorLoaded,
                 })}>
                 {emulatorFileLoadingProgress.fraction < 1.0 ? (
                     <>
-                        Loading {emulatorFileLoadingProgress.name}…
-                        <span className="Mac-Loading-Fraction">
-                            {(
-                                emulatorFileLoadingProgress.fraction * 100
-                            ).toFixed(0)}
-                            %
-                        </span>
+                        <div>
+                            Loading {emulatorFileLoadingProgress.name}…
+                            <span className="Mac-Loading-Fraction">
+                                {(
+                                    emulatorFileLoadingProgress.fraction * 100
+                                ).toFixed(0)}
+                                %
+                            </span>
+                        </div>
+                        {emulatorFileLoadingProgress.warning && (
+                            <div className="Mac-Loading-Warning">
+                                {emulatorFileLoadingProgress.warning}
+                            </div>
+                        )}
                     </>
                 ) : (
                     <>Loaded {emulatorFileLoadingProgress.name}</>
