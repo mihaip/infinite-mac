@@ -115,6 +115,14 @@ export interface EmulatorEthernetProviderDelegate {
 
 export type EmulatorEthernetPeer = EthernetPingerPeer;
 
+export type EmulatorFileLoadingProgress = {
+    name: string;
+    fraction: number;
+    operation?: string;
+    linger?: boolean;
+    warning?: string;
+};
+
 export interface EmulatorDelegate {
     emulatorDidExit?(emulator: Emulator): void;
     emulatorDidChangeScreenSize?(width: number, height: number): void;
@@ -143,10 +151,9 @@ export interface EmulatorDelegate {
         errorRaw: string
     ): void;
     emulatorSettings?(emulator: Emulator): EmulatorSettings;
-    emulatorDidMakeCDROMLoadingProgress?(
+    emulatorDidMakeFileLoadingProgress?(
         emulator: Emulator,
-        cdrom: EmulatorCDROM,
-        progress: number
+        progress: EmulatorFileLoadingProgress
     ): void;
     emulatorDidDrawScreen?(emulator: Emulator, data: ImageData): void;
 }
@@ -647,7 +654,12 @@ export class Emulator {
         const remainingNames: string[] = [];
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            const uploads = await uploadsFromFile(file);
+            const uploads = await uploadsFromFile(file, progress =>
+                this.#delegate?.emulatorDidMakeFileLoadingProgress?.(
+                    this,
+                    progress
+                )
+            );
             if (uploads) {
                 this.#files.uploadFiles(uploads);
                 continue;
@@ -681,10 +693,14 @@ export class Emulator {
             ) {
                 result.push(
                     await fetchCDROM(cdrom, loadedFraction => {
-                        this.#delegate?.emulatorDidMakeCDROMLoadingProgress?.(
+                        this.#delegate?.emulatorDidMakeFileLoadingProgress?.(
                             this,
-                            cdrom,
-                            loadedFraction
+                            {
+                                name: "CD-ROM",
+                                fraction: loadedFraction,
+                                warning:
+                                    "Streaming unavailable, downloading entire image",
+                            }
                         );
                     })
                 );

@@ -5,47 +5,57 @@ import {
     type EmulatorFileUpload,
     type EmulatorWorkerDirectorExtraction,
     type EmulatorWorkerDirectorExtractionEntry,
+    isDiskImageFile,
 } from "@/emulator/common/common";
 import * as varz from "@/lib/varz";
 import {buildAppleDouble, parseAppleDouble} from "@/emulator/ui/appledouble";
+import {type OpenedArchive, openArchive} from "@/emulator/ui/archive";
+import {type EmulatorFileLoadingProgress} from "@/emulator/ui/ui";
 
 export async function uploadsFromFile(
-    file: File
+    file: File,
+    onProgress?: OnProgress
 ): Promise<EmulatorFileUpload[] | undefined> {
+    const archive = await openArchive(file);
+    if (!archive) {
+        return undefined;
+    }
     return (
-        (await uploadsFromDirectoryExtractionFile(file)) ??
-        (await uploadsFromMacOSArchive(file))
+        (await uploadsFromDirectoryExtractionFile(file, archive)) ??
+        (await uploadsFromMacOSArchive(file, archive)) ??
+        (await uploadsFromDiskImageArchive(archive, onProgress))
     );
 }
 
 async function uploadsFromDirectoryExtractionFile(
-    file: File
+    file: File,
+    archive: OpenedArchive
 ): Promise<EmulatorFileUpload[] | undefined> {
-    if (!file.name.endsWith(".zip")) {
+    if (archive.format !== "zip") {
         return undefined;
     }
-    const zip = await JSZip.loadAsync(file);
     // Make sure it's a zip that we generated.
     if (
-        !Object.keys(zip.files).some(
-            name => name.startsWith(".finf") || name.startsWith(".rsrc")
+        !archive.entries.some(
+            entry =>
+                entry.name.startsWith(".finf") || entry.name.startsWith(".rsrc")
         )
     ) {
         return undefined;
     }
     const parentName = file.name.slice(0, -4);
-    const files = Object.values(zip.files).filter(
+    const files = archive.entries.filter(
         // Directories are implicitly created, and the parent-level finder
         // information is not worth the special-casing in path handling for
         // now.
-        f => !f.dir && f.name !== "DInfo"
+        entry => !entry.isDirectory && entry.name !== "DInfo"
     );
-    const fileBlobs = await Promise.all(files.map(f => f.async("blob")));
-    return files.map((f, i) => {
+    const fileBlobs = await Promise.all(files.map(entry => entry.contents()));
+    return files.map((entry, i) => {
         const blob = fileBlobs[i];
         const url = URL.createObjectURL(blob);
         return {
-            name: parentName + "/" + f.name,
+            name: parentName + "/" + entry.name,
             url,
             size: blob.size,
         };
@@ -58,14 +68,14 @@ async function uploadsFromDirectoryExtractionFile(
  * structure using AppleDouble-encoded files.
  */
 async function uploadsFromMacOSArchive(
-    file: File
+    file: File,
+    archive: OpenedArchive
 ): Promise<EmulatorFileUpload[] | undefined> {
-    if (!file.name.endsWith(".zip")) {
+    if (archive.format !== "zip") {
         return undefined;
     }
-    const zip = await JSZip.loadAsync(file);
-    const appleDoubleFiles = Object.values(zip.files).filter(
-        f => !f.dir && f.name.startsWith("__MACOSX")
+    const appleDoubleFiles = archive.entries.filter(
+        entry => !entry.isDirectory && entry.name.startsWith("__MACOSX")
     );
     // Not a macOS-created archive.
     if (!appleDoubleFiles.length) {
@@ -73,26 +83,28 @@ async function uploadsFromMacOSArchive(
     }
     const parentName = file.name.slice(0, -4);
     // Directories are implicitly created
-    const files = Object.values(zip.files).filter(
-        f => !f.dir && !f.name.startsWith("__MACOSX")
+    const files = archive.entries.filter(
+        entry => !entry.isDirectory && !entry.name.startsWith("__MACOSX")
     );
-    const prefix = files.every(f => f.name.startsWith(parentName))
+    const prefix = files.every(entry => entry.name.startsWith(parentName))
         ? ""
         : parentName + "/";
 
-    const fileBlobs = await Promise.all(files.map(f => f.async("blob")));
-    const uploads = files.map((f, i) => {
+    const fileBlobs = await Promise.all(files.map(entry => entry.contents()));
+    const uploads = files.map((entry, i) => {
         const blob = fileBlobs[i];
         const url = URL.createObjectURL(blob);
         return {
-            name: prefix + f.name,
+            name: prefix + entry.name,
             url,
             size: blob.size,
         };
     });
 
     const appleDoubleBuffers = await Promise.all(
-        appleDoubleFiles.map(f => f.async("arraybuffer"))
+        appleDoubleFiles.map(async entry =>
+            (await entry.contents()).arrayBuffer()
+        )
     );
     for (let i = 0; i < appleDoubleFiles.length; i++) {
         const file = appleDoubleFiles[i];
@@ -127,6 +139,89 @@ async function uploadsFromMacOSArchive(
 
     return uploads;
 }
+
+/**
+ * Extracts disk images from an otherwise ordinary archive. Returning only
+ * disk images causes the existing upload path to mount them automatically.
+ */
+async function uploadsFromDiskImageArchive(
+    archive: OpenedArchive,
+    onProgress?: OnProgress
+): Promise<EmulatorFileUpload[] | undefined> {
+    const diskImageEntries = archive.entries.filter(
+        entry =>
+            !entry.isDirectory &&
+            isDiskImageFile({
+                name: entry.name,
+                // A .bin entry's size is not known until it is expanded. Treat
+                // it as a candidate here and validate its real size below.
+                size: Number.MAX_SAFE_INTEGER,
+            })
+    );
+    if (!diskImageEntries.length) {
+        return undefined;
+    }
+
+    const diskImageName =
+        diskImageEntries.length === 1
+            ? diskImageEntries[0].name
+            : `${diskImageEntries.length} disk images`;
+    const entryProgress = diskImageEntries.map(() => 0);
+    const reportDecompressionProgress = (index: number, fraction: number) => {
+        entryProgress[index] = fraction;
+        onProgress?.({
+            operation: "Decompressing",
+            name: diskImageName,
+            fraction:
+                entryProgress.reduce((total, value) => total + value, 0) /
+                entryProgress.length,
+        });
+    };
+    onProgress?.({
+        operation: "Decompressing",
+        name: diskImageName,
+        fraction: 0,
+    });
+    const blobs = await Promise.all(
+        diskImageEntries.map((entry, index) =>
+            entry.contents(fraction =>
+                reportDecompressionProgress(index, fraction)
+            )
+        )
+    );
+    const uploads = diskImageEntries
+        .map((entry, i) => {
+            const blob = blobs[i];
+            const name = entry.name;
+            if (!isDiskImageFile({name, size: blob.size})) {
+                return undefined;
+            }
+            return {
+                name,
+                url: URL.createObjectURL(blob),
+                size: blob.size,
+            };
+        })
+        .filter(upload => upload !== undefined);
+    if (!uploads.length) {
+        onProgress?.({name: diskImageName, fraction: 1});
+        return undefined;
+    }
+
+    onProgress?.({
+        operation: "Preparing",
+        name:
+            uploads.length === 1
+                ? `${uploads[0].name} for mounting`
+                : `${uploads.length} disk images for mounting`,
+        fraction: 1,
+        linger: true,
+    });
+    varz.increment(`emulator_uploads:${archive.format}_disk_images`);
+    return uploads;
+}
+
+type OnProgress = (progress: EmulatorFileLoadingProgress) => void;
 
 function isDirectoryEntry(
     entry: EmulatorWorkerDirectorExtractionEntry

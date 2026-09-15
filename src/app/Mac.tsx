@@ -3,6 +3,7 @@ import "@/app/Mac.css";
 import {
     type EmulatorEthernetProvider,
     type EmulatorEthernetPeer,
+    type EmulatorFileLoadingProgress,
     Emulator,
 } from "@/emulator/ui/ui";
 import {
@@ -127,12 +128,7 @@ export default function Mac({
         0, 0,
     ]);
     const [emulatorFileLoadingProgress, setEmulatorFileLoadingProgress] =
-        useState<{
-            fraction: number;
-            name: string;
-            linger?: boolean;
-            warning?: string;
-        }>({
+        useState<EmulatorFileLoadingProgress>({
             name: "",
             fraction: 1.0,
         });
@@ -207,16 +203,21 @@ export default function Mac({
                 linger: true,
             });
             uploadFiles(emulator, [file], undefined, {fromLibrary: true});
-            setTimeout(
-                () =>
-                    setEmulatorFileLoadingProgress({
-                        name: file.name,
-                        fraction: 1.0,
-                    }),
-                1000
-            );
         }
     }, []);
+
+    useEffect(() => {
+        if (!emulatorFileLoadingProgress.linger) {
+            return;
+        }
+        const progress = emulatorFileLoadingProgress;
+        const timeout = window.setTimeout(() => {
+            setEmulatorFileLoadingProgress(current =>
+                current === progress ? {...current, linger: false} : current
+            );
+        }, 2000);
+        return () => window.clearTimeout(timeout);
+    }, [emulatorFileLoadingProgress]);
 
     const {emulatorType} = machine;
     const canLoadFiles = runDefSupportsDownloadsFolder(runDef);
@@ -387,13 +388,8 @@ export default function Mac({
                 emulatorSettings(emulator) {
                     return emulatorSettingsRef.current;
                 },
-                emulatorDidMakeCDROMLoadingProgress(emulator, cdrom, fraction) {
-                    setEmulatorFileLoadingProgress({
-                        name: "CD-ROM",
-                        fraction,
-                        warning:
-                            "Streaming unavailable, downloading entire image",
-                    });
+                emulatorDidMakeFileLoadingProgress(emulator, progress) {
+                    setEmulatorFileLoadingProgress(progress);
                 },
                 emulatorDidDrawScreen(emulator, imageData) {
                     if (screenUpdateMessages) {
@@ -641,31 +637,10 @@ export default function Mac({
             emulatorFileLoadingProgress.linger)
     ) {
         progress = (
-            <div
-                className={classNames("Mac-Loading Mac-Loading-File", {
-                    "Mac-Loading-Non-Modal": emulatorLoaded,
-                })}>
-                {emulatorFileLoadingProgress.fraction < 1.0 ? (
-                    <>
-                        <div>
-                            Loading {emulatorFileLoadingProgress.name}…
-                            <span className="Mac-Loading-Fraction">
-                                {(
-                                    emulatorFileLoadingProgress.fraction * 100
-                                ).toFixed(0)}
-                                %
-                            </span>
-                        </div>
-                        {emulatorFileLoadingProgress.warning && (
-                            <div className="Mac-Loading-Warning">
-                                {emulatorFileLoadingProgress.warning}
-                            </div>
-                        )}
-                    </>
-                ) : (
-                    <>Loaded {emulatorFileLoadingProgress.name}</>
-                )}
-            </div>
+            <FileLoadingProgress
+                progress={emulatorFileLoadingProgress}
+                emulatorLoaded={emulatorLoaded}
+            />
         );
     }
 
@@ -1138,6 +1113,43 @@ export default function Mac({
                 </DrawersContainer>
             )}
         </>
+    );
+}
+
+function FileLoadingProgress({
+    progress,
+    emulatorLoaded,
+}: {
+    progress: EmulatorFileLoadingProgress;
+    emulatorLoaded: boolean;
+}) {
+    return (
+        <div
+            className={classNames("Mac-Loading Mac-Loading-File", {
+                "Mac-Loading-Non-Modal": emulatorLoaded,
+            })}>
+            {progress.fraction < 1.0 ? (
+                <>
+                    <div>
+                        {progress.operation ?? "Loading"} {progress.name}…
+                        <span className="Mac-Loading-Fraction">
+                            {(progress.fraction * 100).toFixed(0)}%
+                        </span>
+                    </div>
+                    {progress.warning && (
+                        <div className="Mac-Loading-Warning">
+                            {progress.warning}
+                        </div>
+                    )}
+                </>
+            ) : progress.operation ? (
+                <>
+                    {progress.operation} {progress.name}…
+                </>
+            ) : (
+                <>Loaded {progress.name}</>
+            )}
+        </div>
     );
 }
 
