@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+# Invoked inside macemu_emsdk by rebuild-emulators.sh.
 echo "Building emulators inside Docker container."
 
 source /emsdk/emsdk_env.sh

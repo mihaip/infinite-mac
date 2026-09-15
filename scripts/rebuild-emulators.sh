@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo "Building emulators in Docker..."
-"$SCRIPT_DIR/docker-shell.sh" /scripts/rebuild-all-emulators.sh
+"$SCRIPT_DIR/docker-shell.sh" /scripts/rebuild-emulators-in-docker.sh
 
 echo "Importing emulators..."
 cd "$PROJECT_ROOT"

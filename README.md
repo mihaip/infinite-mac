@@ -101,7 +101,7 @@ docker build -t macemu_emsdk .
 To rebuild all the emulators, run the following script which automate all of the steps below:
 
 ```sh
-scripts/rebuild-and-import-emulators.sh
+scripts/rebuild-emulators.sh
 ```
 
 To manually build individual emulators, open a shell into the Docker container:
