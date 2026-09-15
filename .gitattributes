@@ -1,5 +1,7 @@
 # Ignore Emscripten-generated JavaScript files
 src/emulator/worker/emscripten/*.js linguist-generated
+# Ignore wasm-bindgen-generated files
+src/stuffit/generated/* linguist-generated
 *.zip !text !filter !merge !diff
 # One-time setup for each clone:
 # git config --local diff.hfs.command 'scripts/diff-disks.py --git'

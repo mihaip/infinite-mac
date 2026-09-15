@@ -19,6 +19,7 @@ VOLUME_MOUNTS=(
     -v "$PROJECT_ROOT/pearpc":/pearpc
     -v "$PROJECT_ROOT/snow":/snow
     -v "$PROJECT_ROOT/scripts":/scripts
+    -v "$PROJECT_ROOT/src/stuffit":/stuffit
 )
 
 if [ $# -eq 0 ]; then

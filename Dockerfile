@@ -20,5 +20,7 @@ RUN /tmp/_em_build_mpfr.sh
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     --default-toolchain 1.95.0 \
-    --target wasm32-unknown-emscripten
+    --target wasm32-unknown-emscripten,wasm32-unknown-unknown
 ENV PATH="/root/.cargo/bin:${PATH}"
+
+RUN cargo install wasm-bindgen-cli --version 0.2.128 --locked --root /usr/local

@@ -20,11 +20,15 @@ export async function uploadsFromFile(
     if (!archive) {
         return undefined;
     }
-    return (
-        (await uploadsFromDirectoryExtractionFile(file, archive)) ??
-        (await uploadsFromMacOSArchive(file, archive)) ??
-        (await uploadsFromDiskImageArchive(archive, onProgress))
-    );
+    try {
+        return (
+            (await uploadsFromDirectoryExtractionFile(file, archive)) ??
+            (await uploadsFromMacOSArchive(file, archive)) ??
+            (await uploadsFromDiskImageArchive(archive, onProgress))
+        );
+    } finally {
+        archive.close?.();
+    }
 }
 
 async function uploadsFromDirectoryExtractionFile(

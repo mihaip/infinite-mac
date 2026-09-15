@@ -1,0 +1,19 @@
+[package]
+name = "stuffit-decoder"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+stuffit = { version = "0.2.3", default-features = false }
+wasm-bindgen = "=0.2.128"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

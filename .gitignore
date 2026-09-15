@@ -36,6 +36,7 @@ public/Covers
 # generated library catalog (index and details)
 src/Data/Library-index.json
 src/Data/Library-details.json
+/src/stuffit/wasm/target
 
 # Cloudflare Worker wrangler CLI state
 .wrangler
