@@ -81,6 +81,10 @@ export function emulatorSupportsDebugLog(type: EmulatorType): boolean {
     );
 }
 
+export function emulatorSupportsDiskCopy42Disks(type: EmulatorType): boolean {
+    return type === "Mini vMac" || type === "Snow";
+}
+
 export function emulatorHasOptionalBlueSCSI(type: EmulatorType): boolean {
     return type === "DingusPPC";
 }

@@ -72,10 +72,14 @@ import {
     EmulatorWorkerDiskSaver,
     initDiskSavers,
 } from "@/emulator/worker/disk-saver";
-import {type EmulatorSpeed} from "@/emulator/common/emulators";
+import {
+    type EmulatorType,
+    type EmulatorSpeed,
+} from "@/emulator/common/emulators";
 import {EmulatorWorkerDeviceImageDisk} from "@/emulator/worker/device-image-disk";
 import {EmulatorWorkerOverlayDisk} from "@/emulator/worker/overlay-disk";
 import {EmulatorWorkerSpeedGovernor} from "@/emulator/worker/speed-governor";
+import {prepareDiskCopy42Disk} from "@/emulator/worker/disk-copy-42-disk";
 
 addEventListener("message", async event => {
     const {data} = event;
@@ -98,6 +102,7 @@ class EmulatorWorkerApi {
     InputBufferAddresses = InputBufferAddresses;
 
     #emscriptenModule: EmscriptenModule;
+    #emulatorType: EmulatorType;
 
     #video: EmulatorWorkerVideo;
     #input: EmulatorWorkerInput;
@@ -126,6 +131,7 @@ class EmulatorWorkerApi {
     ) {
         this.#emscriptenModule = emscriptenModule;
         const {
+            emulatorType,
             video: videoConfig,
             input: inputConfig,
             audio: audioConfig,
@@ -151,6 +157,7 @@ class EmulatorWorkerApi {
             return fallbackEndpoint;
         }
 
+        this.#emulatorType = emulatorType;
         this.#video =
             videoConfig.type === "shared-memory"
                 ? new SharedMemoryEmulatorWorkerVideo(videoConfig, blitSender)
@@ -219,14 +226,19 @@ class EmulatorWorkerApi {
                     return disk;
                 }),
                 ...diskFiles.map(spec => {
-                    const disk = new EmulatorWorkerUploadDisk(spec, this);
+                    let disk: EmulatorWorkerDisk = new EmulatorWorkerUploadDisk(
+                        spec,
+                        this
+                    );
+                    disk = prepareDiskCopy42Disk(disk, this.#emulatorType);
                     if (
                         deviceImageType !== null &&
                         !spec.isCDROM &&
                         !spec.isFloppy &&
+                        !disk.isFloppy &&
                         !spec.hasDeviceImageHeader
                     ) {
-                        return new EmulatorWorkerDeviceImageDisk(
+                        disk = new EmulatorWorkerDeviceImageDisk(
                             disk,
                             config.deviceImageHeader,
                             deviceImageType
@@ -454,6 +466,7 @@ class EmulatorWorkerApi {
                     upload,
                     this
                 );
+                disk = prepareDiskCopy42Disk(disk, this.#emulatorType);
                 if (isCDROMBinFile(upload)) {
                     disk = new EmulatorWorkerMode1SectorDisk(disk);
                 }
