@@ -188,6 +188,7 @@ export default function Mac({
     const handleMacLibraryProgress = useCallback(
         (name: string, fraction: number) => {
             setEmulatorFileLoadingProgress({
+                operation: "Downloading",
                 name,
                 fraction,
             });
