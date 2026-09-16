@@ -69,7 +69,7 @@ export function createScrnResourceOverlay(
     view.setUint16(12, 0x77fe); // Device-state flag mask
     view.setUint16(14, 0xa801); // Active, main, color screen
     view.setUint16(16, 0xffff); // Default color table
-    view.setUint16(18, 0xffff); // Default gamma table
+    view.setUint16(18, 0xfffe); // ID -2 is for linear (uncorrected) gamma
     view.setUint16(20, 0); // Global rectangle: top
     view.setUint16(22, 0); // Global rectangle: left
     view.setUint16(24, resourceHeight); // Global rectangle: bottom
