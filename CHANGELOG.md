@@ -6,6 +6,8 @@
 
 2026-07-15: Improved compatibility with early version of Mac OS X, allowing the 10.0 public beta to boot.
 
+2026-06-28: Added a "Floppies" drawer, allowing early Mac software to be more easily loaded.
+
 2025-12-30: Added an on-screen keyboard to allow easier input on mobile devices and to make it possible to send special keys like "power" and "interrupt".
 
 2025-09-15: Better support for importing and exporting files with resource forks. See https://blog.persistent.info/2025/09/infinite-mac-resource-forks.html for more details.

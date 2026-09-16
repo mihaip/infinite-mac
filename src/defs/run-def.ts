@@ -102,7 +102,9 @@ export function runDefSupportsCDROMs(runDef: RunDef): boolean {
 }
 
 export function runDefSupportsFloppies(runDef: RunDef): boolean {
-    return ["Snow", "Mini vMac"].includes(runDef.machine.emulatorType);
+    return ["Snow", "Mini vMac", "BasiliskII", "SheepShaver"].includes(
+        runDef.machine.emulatorType
+    );
 }
 
 export function runDefFromUrl(urlString: string): RunDef | undefined {

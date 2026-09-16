@@ -21,6 +21,7 @@ export class EmulatorWorkerDisksApi {
     #diskIdCounter = 0;
 
     #removableDisks: EmulatorRemovableDisk[] = [];
+    #removableFloppyDisks: EmulatorRemovableDisk[] = [];
     #useRemovableDisks: boolean;
 
     #emscriptenModule: EmscriptenModule;
@@ -39,6 +40,7 @@ export class EmulatorWorkerDisksApi {
         if (useRemovableDisks) {
             for (let i = 0; i < EMULATOR_REMOVABLE_DISK_COUNT; i++) {
                 this.#removableDisks.push(new EmulatorRemovableDisk());
+                this.#removableFloppyDisks.push(new EmulatorRemovableDisk());
             }
         }
         // Expose the validation function globally in case the user wants to
@@ -80,15 +82,16 @@ export class EmulatorWorkerDisksApi {
 
     addDisk(disk: EmulatorWorkerDisk) {
         if (this.#useRemovableDisks) {
-            const removableDisk = this.#removableDisks.find(
-                cd => !cd.hasDisk()
-            );
+            const removableDisks = disk.isFloppy
+                ? this.#removableFloppyDisks
+                : this.#removableDisks;
+            const removableDisk = removableDisks.find(disk => !disk.hasDisk());
             if (removableDisk) {
                 removableDisk.insert(disk);
                 return;
             } else {
                 console.warn(
-                    "No empty removable disk drive found, discarding disk"
+                    `No empty removable ${disk.isFloppy ? "floppy " : ""}disk drive found, discarding disk`
                 );
             }
             return;
@@ -100,9 +103,16 @@ export class EmulatorWorkerDisksApi {
     open(name: string): DiskId {
         const diskId = this.#diskIdCounter++;
         let disk: EmulatorWorkerDisk | undefined;
-        if (name.startsWith("/placeholder/")) {
-            const index = parseInt(name.slice("/placeholder/".length));
-            disk = this.#removableDisks[index];
+        const placeholderMatch = name.match(
+            /^\/placeholder\/(disk|floppy)\/(\d+)$/
+        );
+        if (placeholderMatch) {
+            const [, type, indexString] = placeholderMatch;
+            const removableDisks =
+                type === "floppy"
+                    ? this.#removableFloppyDisks
+                    : this.#removableDisks;
+            disk = removableDisks[parseInt(indexString, 10)];
         } else {
             disk = this.#disks.find(d => d.name === name);
         }

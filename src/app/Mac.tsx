@@ -1021,13 +1021,12 @@ export default function Mac({
                             "Mac-Overlay",
                             "Mac-Drag-Overlay",
                             {
-                                "Mac-Drag-Overlay-Downloads":
-                                    runDefSupportsDownloadsFolder(runDef),
+                                "Mac-Drag-Overlay-Downloads": canLoadFiles,
                                 "Mac-Drag-Overlay-BlueSCSI":
                                     runDefSupportsBlueSCSI(runDef),
                                 "Mac-Drag-Overlay-Outside-World":
                                     !runDefSupportsBlueSCSI(runDef) &&
-                                    runDefSupportsDownloadsFolder(runDef),
+                                    canLoadFiles,
                             }
                         )}
                     />
@@ -1092,25 +1091,24 @@ export default function Mac({
             </ScreenFrame>
             {drawersVisible && (
                 <DrawersContainer>
-                    {runDefSupportsFloppies(runDef) && (
+                    {canLoadFloppies && (
                         <MacCDROMs
                             onRun={loadCDROM}
                             machine={machine}
                             floppies
                         />
                     )}
-                    {runDefSupportsCDROMs(runDef) && (
+                    {canLoadCDROMs && (
                         <MacCDROMs onRun={loadCDROM} machine={machine} />
                     )}
-                    {includeLibrary &&
-                        runDefSupportsDownloadsFolder(runDef) && (
-                            <MacLibrary
-                                runDef={runDef}
-                                onLoadProgress={handleMacLibraryProgress}
-                                onRun={handleMacLibraryRun}
-                                onRunCDROM={loadCDROM}
-                            />
-                        )}
+                    {includeLibrary && canLoadFiles && (
+                        <MacLibrary
+                            runDef={runDef}
+                            onLoadProgress={handleMacLibraryProgress}
+                            onRun={handleMacLibraryRun}
+                            onRunCDROM={loadCDROM}
+                        />
+                    )}
                 </DrawersContainer>
             )}
         </>

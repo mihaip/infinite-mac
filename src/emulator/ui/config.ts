@@ -69,13 +69,18 @@ export function configToMacemuPrefs(
     for (const diskFile of config.diskFiles) {
         if (diskFile.isCDROM) {
             prefsStr += `cdrom ${diskFile.name}\n`;
+        } else if (diskFile.isFloppy) {
+            prefsStr += `floppy ${diskFile.name}\n`;
         } else {
             prefsStr += `disk ${diskFile.name}\n`;
         }
     }
     if (emulatorUsesPlaceholderDisks(machine.emulatorType)) {
         for (let i = 0; i < EMULATOR_REMOVABLE_DISK_COUNT; i++) {
-            prefsStr += `disk */placeholder/${i}\n`;
+            prefsStr += `disk */placeholder/disk/${i}\n`;
+        }
+        for (let i = 0; i < EMULATOR_REMOVABLE_DISK_COUNT; i++) {
+            prefsStr += `floppy /placeholder/floppy/${i}\n`;
         }
     }
     if (config.ethernetProvider) {
