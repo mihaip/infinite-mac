@@ -211,7 +211,7 @@ MAC_OS_86 = Disk(
     name="Mac OS 8.6 HD.dsk",
     compressed=True,
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.8.6.HD.dsk.zip?v=3"
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.8.6.HD.dsk.zip?v=4"
     ],
 )
 
@@ -220,7 +220,7 @@ MAC_OS_9 = Disk(
     name="Mac OS 9.0 HD.dsk",
     compressed=True,
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.9.0.HD.dsk.zip?v=3"
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.9.0.HD.dsk.zip?v=4"
     ],
 )
 
@@ -229,7 +229,7 @@ MAC_OS_904 = Disk(
     name="Mac OS 9.0.4 HD.dsk",
     compressed=True,
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.9.0.4.HD.dsk.zip?v=3"
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.9.0.4.HD.dsk.zip?v=4"
     ],
 )
 
@@ -238,7 +238,7 @@ MAC_OS_91 = Disk(
     name="Mac OS 9.1 HD.dsk",
     compressed=True,
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.9.1.HD.dsk.zip"
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.9.1.HD.dsk.zip?v=2"
     ],
 )
 
