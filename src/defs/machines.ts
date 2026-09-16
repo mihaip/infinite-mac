@@ -67,6 +67,14 @@ export type MachineDefRAMSize = `${number}M` | `${number}K`;
 
 export type MachinePlatform = "Macintosh" | "NeXT";
 
+const snowSupportedScreenSizes = [
+    {width: 1152, height: 870, monitorId: "RGB21"},
+    {width: 832, height: 624, monitorId: "RGB16"},
+    {width: 640, height: 870, monitorId: "PortraitBW"},
+    {width: 640, height: 480, monitorId: "HiRes14"},
+    {width: 512, height: 384, monitorId: "RGB12"},
+];
+
 export const MAC_128K: MachineDef = {
     name: "Mac 128K",
     cpu: "68000",
@@ -237,12 +245,7 @@ export const MAC_II_SNOW: MachineDef = {
     gestaltID: 6,
     emulatorType: "Snow",
     prefsPath: emptyPrefsPath,
-    supportedScreenSizes: [
-        {width: 1152, height: 870, monitorId: "RGB21"},
-        {width: 640, height: 870, monitorId: "PortraitBW"},
-        {width: 640, height: 480, monitorId: "HiRes14"},
-        {width: 512, height: 384, monitorId: "RGB12"},
-    ],
+    supportedScreenSizes: snowSupportedScreenSizes,
     bezelStyle: "Platinum",
     hasSCSI: true,
     ramSizes: ["8M", "4M", "2M", "1M"],
@@ -259,12 +262,7 @@ export const MAC_II_FDHD_SNOW: MachineDef = {
     modifier: "FDHD",
     emulatorType: "Snow",
     prefsPath: emptyPrefsPath,
-    supportedScreenSizes: [
-        {width: 1152, height: 870, monitorId: "RGB21"},
-        {width: 640, height: 870, monitorId: "PortraitBW"},
-        {width: 640, height: 480, monitorId: "HiRes14"},
-        {width: 512, height: 384, monitorId: "RGB12"},
-    ],
+    supportedScreenSizes: snowSupportedScreenSizes,
     bezelStyle: "Platinum",
     hasSCSI: true,
     ramSizes: ["8M", "128M", "32M", "16M", "4M", "2M", "1M"],
@@ -293,12 +291,7 @@ export const MAC_IIx_SNOW: MachineDef = {
     gestaltID: 7,
     emulatorType: "Snow",
     prefsPath: emptyPrefsPath,
-    supportedScreenSizes: [
-        {width: 1152, height: 870, monitorId: "RGB21"},
-        {width: 640, height: 870, monitorId: "PortraitBW"},
-        {width: 640, height: 480, monitorId: "HiRes14"},
-        {width: 512, height: 384, monitorId: "RGB12"},
-    ],
+    supportedScreenSizes: snowSupportedScreenSizes,
     bezelStyle: "Platinum",
     hasSCSI: true,
     ramSizes: ["8M", "128M", "32M", "16M", "4M", "2M", "1M"],
@@ -314,12 +307,7 @@ export const MAC_IIcx_SNOW: MachineDef = {
     gestaltID: 8,
     emulatorType: "Snow",
     prefsPath: emptyPrefsPath,
-    supportedScreenSizes: [
-        {width: 1152, height: 870, monitorId: "RGB21"},
-        {width: 640, height: 870, monitorId: "PortraitBW"},
-        {width: 640, height: 480, monitorId: "HiRes14"},
-        {width: 512, height: 384, monitorId: "RGB12"},
-    ],
+    supportedScreenSizes: snowSupportedScreenSizes,
     bezelStyle: "Platinum",
     hasSCSI: true,
     ramSizes: ["8M", "128M", "32M", "16M", "4M", "2M", "1M"],
