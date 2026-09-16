@@ -2,6 +2,8 @@
 
 80's, 90's and early 2000s classic Macs that load instantly in a browser and have access to a large software library. The full collection is at [infinitemac.org](https://infinitemac.org). Shortcuts are available for [System 6](https://system6.app/), [System 7](https://system7.app/), [Mac OS 8](https://macos8.app/), [Mac OS 9](https://macos9.app/) and [KanjiTalk](https://kanjitalk7.app) (Japanese). For a high-level overview and the backstory, see [the launch blog post](https://blog.persistent.info/2022/03/blog-post.html) and [subsequent ones](https://blog.persistent.info/search/label/Infinite%20Mac).
 
+Infinite Mac-powered emulated Macs can also be embedded in other websites and controlled programmatically. See [the embedding guide](https://infinitemac.org/embed-docs) and [this blog post](https://blog.persistent.info/2025/07/infinite-mac-embedding.html) for more details.
+
 ## Development
 
 ### Getting Started
