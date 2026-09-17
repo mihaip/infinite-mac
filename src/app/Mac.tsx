@@ -379,7 +379,7 @@ export default function Mac({
                     } else {
                         varz.incrementError(
                             `emulator_error:${emulatorType}:other`,
-                            errorRaw
+                            `${errorRaw} (URL: ${window.location.href})`
                         );
                     }
                     setEmulatorErrorText(
