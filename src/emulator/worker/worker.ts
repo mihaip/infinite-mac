@@ -19,6 +19,7 @@ import {
     InputBufferAddresses,
     isCDROMBinFile,
     isFloppyDiskImageFile,
+    isCDROMDiskImageFile,
 } from "@/emulator/common/common";
 import {
     type EmulatorWorkerAudio,
@@ -472,6 +473,8 @@ class EmulatorWorkerApi {
                 }
                 if (isFloppyDiskImageFile(upload)) {
                     disk.isFloppy = true;
+                } else if (isCDROMDiskImageFile(upload)) {
+                    disk.isCdrom = true;
                 }
                 this.disks.addDisk(disk);
             } else {

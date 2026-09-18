@@ -491,15 +491,15 @@ export const floppyDiskImageExtensions = [
     ".pfi",
 ];
 
+const cdromDiskImageExtensions = [".iso", ".toast", ".cdr"];
+
 export const diskImageExtensions = [
-    ".iso",
     ".hda",
     ".dsk",
     ".img",
     ".image",
-    ".toast",
-    ".cdr",
     ".smi",
+    ...cdromDiskImageExtensions,
     ...floppyDiskImageExtensions,
 ];
 
@@ -527,6 +527,11 @@ export function isFloppyDiskImageFile({name, size}: File): boolean {
         );
     }
     return false;
+}
+
+export function isCDROMDiskImageFile({name}: File): boolean {
+    name = name.toLowerCase();
+    return cdromDiskImageExtensions.some(ext => name.endsWith(ext));
 }
 
 export function isCDROMBinFile({name, size}: File): boolean {
