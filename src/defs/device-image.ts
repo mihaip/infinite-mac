@@ -66,6 +66,11 @@ export function getDeviceImageHeaderPath(type: DeviceImageType | null): string {
     return def.headerPath;
 }
 
+export function getDeviceImageHFSPartitionNumber(type: DeviceImageType): number {
+    // Apple Partition Map numbers are one-based.
+    return DEVICE_IMAGE_DEFS[type].hfsPartitionIndex + 1;
+}
+
 export function generateDeviceImageHeader(
     baseHeader: ArrayBuffer,
     hfsPartitionSize: number,

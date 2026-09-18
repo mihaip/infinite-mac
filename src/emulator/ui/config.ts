@@ -8,6 +8,8 @@ import {
     IMAC_G3,
 } from "@/defs/machines";
 import {arrayBufferToString, replacePlaceholders} from "@/lib/strings";
+import {getDeviceImageHFSPartitionNumber} from "@/defs/device-image";
+import {DeviceImageType} from "@/emulator/common/device-image";
 import {type EmulatorChunkedFileSpec} from "@/emulator/common/common";
 import {
     emulatorCpuId,
@@ -197,10 +199,29 @@ export function configToDingusPPCArgs(
             args.push("--machine", "pmg3nw");
             args.push("--gfxmem_size", "8");
             break;
-        case IMAC_G3:
+        case IMAC_G3: {
             args.push("--machine", "imacg3");
             args.push("--gfxmem_size", "8");
+            // Pre-select the appropriate partition to avoid a flashing question
+            // mark when booting from classic bare HFS partitions. We rely on
+            // DingusPPC wrapping them with all-drivers header via MetaImgFile.
+            const firstDisk = disks[0];
+            if (
+                firstDisk &&
+                !firstDisk.isFloppy &&
+                !firstDisk.hasDeviceImageHeader &&
+                !isBuiltNonBootableDisk(firstDisk)
+            ) {
+                const bootPartition = getDeviceImageHFSPartitionNumber(
+                    DeviceImageType.AllDrivers
+                );
+                args.push(
+                    "--setenv",
+                    `boot-device=ide0/@0:${bootPartition},\\\\:tbxi`
+                );
+            }
             break;
+        }
     }
 
     // Map screen sizes to the a monitor ID

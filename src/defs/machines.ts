@@ -16,6 +16,8 @@ import powerMacintoshG3RomPath from "@/Data/Power-Macintosh-G3.rom";
 import atiMach64RomPath from "@/Data/ATI-Mach64.rom";
 import powerMacintoshG3BWBootRomPath from "@/Data/Power-Macintosh-G3-BW-Boot.rom";
 import iMacG3233BootRomPath from "@/Data/iMac-G3-233-Boot.rom";
+import iMacG3233NvramPath from "@/Data/iMac-G3-233-nvram.bin?url";
+import iMacG3233PramPath from "@/Data/iMac-G3-233-pram.bin?url";
 import nextRev10V41RomPath from "@/Data/NeXT-Rev_1.0_v41.rom";
 import nextRev25V66RomPath from "@/Data/NeXT-Rev_2.5_v66.rom";
 import nextRev33V74RomPath from "@/Data/NeXT-Rev_3.3_v74.rom";
@@ -489,6 +491,8 @@ export const IMAC_G3: MachineDef = {
     extraFiles: {
         "113-32900-004_Apple_MACH64.bin": atiMach64RomPath,
         "apm_all_drivers.bin": deviceImageHeaderPath,
+        "nvram.bin": iMacG3233NvramPath,
+        "pram.bin": iMacG3233PramPath,
     },
     verboseBootEnvVars: {
         "boot-args": "-v",
