@@ -16,7 +16,7 @@ import {
     type EmulatorStats,
     floppyDiskImageExtensions,
     isDiskImageFile,
-    isFloppyDiskImageFileName,
+    isFloppyDiskImageFile,
 } from "@/emulator/common/common";
 import {useDevicePixelRatio} from "@/lib/useDevicePixelRatio";
 import {usePersistentState} from "@/lib/usePersistentState";
@@ -822,7 +822,7 @@ export default function Mac({
             }
             if (
                 !canLoadCDROMs &&
-                files.some(file => !isFloppyDiskImageFileName(file.name))
+                files.some(file => !isFloppyDiskImageFile(file))
             ) {
                 setEmulatorErrorText(
                     "This emulator only supports loading floppy images."

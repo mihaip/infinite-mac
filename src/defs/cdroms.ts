@@ -1,7 +1,7 @@
 import {
     type EmulatorCDROMLibrary,
     type EmulatorCDROM,
-    isFloppyDiskImageFileName,
+    isFloppyDiskImageFile,
 } from "@/emulator/common/common";
 import * as varz from "@/lib/varz";
 import cdromsManifest from "@/Data/CD-ROMs.json";
@@ -82,7 +82,12 @@ async function fetchCDROMInfo(cdromURL: string): Promise<EmulatorCDROM> {
         throw new Error(error);
     }
     const cdrom = (await response.json()) as EmulatorCDROM;
-    if (isFloppyDiskImageFileName(cdrom.name)) {
+    if (
+        isFloppyDiskImageFile({
+            name: cdrom.name,
+            size: cdrom.fileSize,
+        })
+    ) {
         cdrom.isFloppy = true;
     }
     varz.increment("emulator_cdrom:custom_url");

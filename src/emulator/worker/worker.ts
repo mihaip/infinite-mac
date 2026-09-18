@@ -18,7 +18,7 @@ import {
     ethernetMacAddressFromString,
     InputBufferAddresses,
     isCDROMBinFile,
-    isFloppyDiskImageFileName,
+    isFloppyDiskImageFile,
 } from "@/emulator/common/common";
 import {
     type EmulatorWorkerAudio,
@@ -470,7 +470,7 @@ class EmulatorWorkerApi {
                 if (isCDROMBinFile(upload)) {
                     disk = new EmulatorWorkerMode1SectorDisk(disk);
                 }
-                if (isFloppyDiskImageFileName(upload.name)) {
+                if (isFloppyDiskImageFile(upload)) {
                     disk.isFloppy = true;
                 }
                 this.disks.addDisk(disk);

@@ -513,9 +513,20 @@ export function isDiskImageFile(file: File): boolean {
     );
 }
 
-export function isFloppyDiskImageFileName(name: string): boolean {
+export function isFloppyDiskImageFile({name, size}: File): boolean {
     name = name.toLowerCase();
-    return floppyDiskImageExtensions.some(ext => name.endsWith(ext));
+    if (floppyDiskImageExtensions.some(ext => name.endsWith(ext))) {
+        return true;
+    }
+    if (diskImageExtensions.some(ext => name.endsWith(ext))) {
+        // Size-based heuristics to detect floppy-sized images
+        return (
+            (size >= 380 * 1024 && size <= 420 * 1024) ||
+            (size >= 780 * 1024 && size <= 820 * 1024) ||
+            (size >= 1380 * 1024 && size <= 1460 * 1024)
+        );
+    }
+    return false;
 }
 
 export function isCDROMBinFile({name, size}: File): boolean {

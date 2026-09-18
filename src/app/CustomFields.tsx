@@ -18,7 +18,7 @@ import {
 } from "@/defs/disks";
 import {
     diskImageExtensions,
-    isFloppyDiskImageFileName,
+    isFloppyDiskImageFile,
     type EmulatorConfigFlags,
 } from "@/emulator/common/common";
 import {
@@ -142,9 +142,7 @@ export function CustomFields({
                                     file.name.endsWith(".iso") ||
                                     file.name.endsWith(".toast") ||
                                     file.name.endsWith(".cdr"),
-                                treatAsFloppy: isFloppyDiskImageFileName(
-                                    file.name
-                                ),
+                                treatAsFloppy: isFloppyDiskImageFile(file),
                                 hasDeviceImageHeader:
                                     file.name.endsWith(".hda"),
                             },
