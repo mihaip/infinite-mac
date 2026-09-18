@@ -157,7 +157,8 @@ const SYSTEM_2_1: SystemDiskDef = {
     releaseDate: [1985, 9, 17],
     prefetchChunks: [0, 1, 2],
     // The Mac 128K is supported, but HFS is not loaded in that case. The 512K
-    // should also be be bootable, but in practice it results in a Sad Mac.
+    // should also be be bootable, but we have an 800K disk image, so we need to
+    // use the 512Ke.
     preferredMachine: MAC_512KE_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 2.1.dsk.json"),
