@@ -2,27 +2,25 @@ import {type AppearanceVariant, type Appearance} from "@/controls/Appearance";
 import {type EmulatorChunkedFileSpec} from "@/emulator/common/common";
 import {
     type MachineDef,
-    MAC_128K,
-    MAC_512KE,
-    MAC_SE,
-    MAC_II,
-    MAC_IIFX,
-    MAC_PLUS,
-    POWER_MACINTOSH_G3_BW,
-    POWER_MACINTOSH_9500,
-    QUADRA_650,
-    POWER_MACINTOSH_6100,
-    NEXT_COMPUTER,
-    NEXT_STATION,
-    NEXT_STATION_TURBO_COLOR,
-    POWER_MACINTOSH_G3_BEIGE,
-    POWER_MACINTOSH_7500,
-    POWER_MACINTOSH_G3_BW_DPPC,
-    POWER_MACINTOSH_G4_PEARPC,
-    MAC_II_SNOW,
-    MAC_II_FDHD_SNOW,
-    MAC_IIcx_SNOW,
     MAC_128K_SNOW,
+    MAC_512KE_SNOW,
+    MAC_II_FDHD_SNOW,
+    MAC_II_SNOW,
+    MAC_IIcx_SNOW,
+    MAC_PLUS_SNOW,
+    MAC_SE_SNOW,
+    MAC_SE30_SNOW,
+    NEXT_COMPUTER,
+    NEXT_STATION_TURBO_COLOR,
+    NEXT_STATION,
+    POWER_MACINTOSH_6100,
+    POWER_MACINTOSH_7500,
+    POWER_MACINTOSH_9500,
+    POWER_MACINTOSH_G3_BEIGE,
+    POWER_MACINTOSH_G3_BW_DPPC,
+    POWER_MACINTOSH_G3_BW,
+    POWER_MACINTOSH_G4_PEARPC,
+    QUADRA_650,
 } from "@/defs/machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -158,8 +156,9 @@ const SYSTEM_2_1: SystemDiskDef = {
         "Added support for the Hard Disk 20 drive and the HFS file system.",
     releaseDate: [1985, 9, 17],
     prefetchChunks: [0, 1, 2],
-    // The Mac 128K is supported, but HFS is not loaded in that case.
-    preferredMachine: MAC_512KE,
+    // The Mac 128K is supported, but HFS is not loaded in that case. The 512K
+    // should also be be bootable, but in practice it results in a Sad Mac.
+    preferredMachine: MAC_512KE_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 2.1.dsk.json"),
     notable: true,
@@ -172,7 +171,7 @@ const SYSTEM_3_0: SystemDiskDef = {
         "Added more complete support for HFS, a RAM disk cache, zoom boxes for windows and a redesigned control panel. Introduced with the Mac Plus.",
     releaseDate: [1986, 1, 16],
     prefetchChunks: [0, 1, 2],
-    preferredMachine: MAC_PLUS,
+    preferredMachine: MAC_PLUS_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 3.0.dsk.json"),
     notable: true,
@@ -185,7 +184,7 @@ const SYSTEM_3_1: PlaceholderDiskDef = {
     releaseDate: [1986, 2, 14], // Precise date is not known
     description:
         "Caused data corruption and was superseded by 3.2 shortly after release.",
-    preferredMachine: MAC_PLUS,
+    preferredMachine: MAC_PLUS_SNOW,
 };
 
 const SYSTEM_3_2: SystemDiskDef = {
@@ -194,7 +193,7 @@ const SYSTEM_3_2: SystemDiskDef = {
         "Includes redesigned Calculator and Chooser desktop accessories.",
     releaseDate: [1986, 6, 2],
     prefetchChunks: [0, 1, 2],
-    preferredMachine: MAC_PLUS,
+    preferredMachine: MAC_PLUS_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 3.2.dsk.json"),
     isFloppy: true,
@@ -206,7 +205,7 @@ const SYSTEM_3_3: SystemDiskDef = {
         "Enhanced AppleShare file serving support. The Trash can icon now bulges when it's not empty.",
     releaseDate: [1987, 1, 12],
     prefetchChunks: [0, 1, 2],
-    preferredMachine: MAC_PLUS,
+    preferredMachine: MAC_PLUS_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 3.3.dsk.json"),
     isFloppy: true,
@@ -218,7 +217,7 @@ const SYSTEM_4_0: SystemDiskDef = {
         "Added the Find File desktop accessory and the Restart command. Features a redesigned control panel. Released with the Mac SE.",
     releaseDate: [1987, 3, 2],
     prefetchChunks: [0, 1, 2],
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 4.0.dsk.json"),
 };
@@ -229,7 +228,7 @@ const SYSTEM_4_1: SystemDiskDef = {
         "Added Easy Access accessibility features. Improved compatibility with larger hard drives. Released with the Mac II.",
     releaseDate: [1987, 4, 14],
     prefetchChunks: [0, 1, 2],
-    preferredMachine: MAC_II,
+    preferredMachine: MAC_II_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 4.1.dsk.json"),
 };
@@ -240,7 +239,7 @@ const SYSTEM_5_0: SystemDiskDef = {
         "Introduced the MultiFinder, revised the Finder about box, and improved printing support.",
     releaseDate: [1987, 10, 8],
     prefetchChunks: [0, 1, 2],
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 5.0 HD.dsk.json"),
     notable: true,
@@ -251,7 +250,7 @@ const SYSTEM_5_1: SystemDiskDef = {
     description: "Updated the LaserWriter Driver and Apple HD SC Setup.",
     releaseDate: [1987, 12, 1],
     prefetchChunks: [0, 1, 2],
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 5.1 HD.dsk.json"),
 };
@@ -261,7 +260,7 @@ const SYSTEM_6_0: SystemDiskDef = {
     description: "Added MacroMaker, Map and CloseView utilities.",
     releaseDate: [1988, 4, 30],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0 HD.dsk.json"),
     notable: true,
@@ -272,7 +271,7 @@ const SYSTEM_6_0_1: PlaceholderDiskDef = {
     displayName: "System 6.0.1",
     description: "Released with the Mac IIx, buggy and short-lived.",
     releaseDate: [1988, 9, 19],
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE_SNOW,
 };
 
 const SYSTEM_6_0_2: SystemDiskDef = {
@@ -280,7 +279,7 @@ const SYSTEM_6_0_2: SystemDiskDef = {
     description: "Updated LaserWriter and other printing-related utilites.",
     releaseDate: [1988, 9, 19],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.2 HD.dsk.json"),
 };
@@ -290,7 +289,7 @@ const SYSTEM_6_0_3: SystemDiskDef = {
     description: "Added support for the Mac IIcx and SE/30.",
     releaseDate: [1989, 3, 7],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE30_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.3 HD.dsk.json"),
 };
@@ -301,7 +300,7 @@ const SYSTEM_6_0_4: SystemDiskDef = {
         "Added support for the Mac IIci and Portable. Improved the installer. Holding down the option key when double-clicking in the Finder closes the parent window.",
     releaseDate: [1989, 9, 20],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE30_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.4 HD.dsk.json"),
 };
@@ -312,7 +311,7 @@ const SYSTEM_6_0_5: SystemDiskDef = {
         "Bundled 32-bit QuickDraw (previously a separate package). Added support for the Mac IIfx.",
     releaseDate: [1990, 3, 19],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE30_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.5 HD.dsk.json"),
     notable: true,
@@ -323,7 +322,7 @@ const SYSTEM_6_0_6: PlaceholderDiskDef = {
     displayName: "System 6.0.6",
     releaseDate: [1990, 10, 15], // Official release date is not known.
     description: "Never officially released due to an AppleTalk bug.",
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE30_SNOW,
 };
 
 const SYSTEM_6_0_7: SystemDiskDef = {
@@ -332,7 +331,7 @@ const SYSTEM_6_0_7: SystemDiskDef = {
         "First release to ship on 1440K disks. Added support for the Classic, LC and IIsi.",
     releaseDate: [1990, 10, 15],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE30_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.7 HD.dsk.json"),
 };
@@ -343,7 +342,7 @@ const SYSTEM_6_0_8: SystemDiskDef = {
         "Final release of System 6, updated printing software to match the printing software of System 7.",
     releaseDate: [1991, 4, 17],
     prefetchChunks: [0, 1, 2, 3, 4, 5, 6, 8],
-    preferredMachine: MAC_SE,
+    preferredMachine: MAC_SE30_SNOW,
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/System 6.0.8 HD.dsk.json"),
 };

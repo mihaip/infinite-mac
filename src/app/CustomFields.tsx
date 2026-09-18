@@ -160,9 +160,10 @@ export function CustomFields({
 
     const groupedMachines: {[group: string]: MachineDef[]} = {
         "68K": [],
-        "68K (Experimental)": [],
         "PowerPC": [],
         "NeXT": [],
+        // Mini vMac-based based machines, put at bottom to deemphasize them.
+        "68K (Legacy)": [],
     };
     for (const machine of ALL_MACHINES) {
         if (machine.isHidden) {
@@ -170,8 +171,8 @@ export function CustomFields({
         }
         if (machine.platform === "NeXT") {
             groupedMachines["NeXT"].push(machine);
-        } else if (machine.emulatorType === "Snow") {
-            groupedMachines["68K (Experimental)"].push(machine);
+        } else if (machine.emulatorType === "Mini vMac") {
+            groupedMachines["68K (Legacy)"].push(machine);
         } else if (machine.cpu.startsWith("68")) {
             groupedMachines["68K"].push(machine);
         } else {
