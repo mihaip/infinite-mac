@@ -53,7 +53,7 @@ export function CustomFields({
     allowAutoScreenSize = true,
     allowSavedHD = true,
     allowAppleTalk = true,
-    allowScreenScale = false,
+    automaticScreenScale = false,
     setCanRun,
 }: {
     runDef: RunDef;
@@ -63,7 +63,7 @@ export function CustomFields({
     allowAutoScreenSize?: boolean;
     allowSavedHD?: boolean;
     allowAppleTalk?: boolean;
-    allowScreenScale?: boolean;
+    automaticScreenScale?: boolean;
     setCanRun: (canRun: boolean) => void;
 }) {
     const displayMachineName = useCallback((machine: MachineDef) => {
@@ -314,19 +314,16 @@ export function CustomFields({
                             setRunDef({...runDef, screenSize})
                         }
                     />
-                )}
-                {allowScreenScale && (
-                    <>
-                        {" "}
-                        @{" "}
-                        <ScreenScalePicker
-                            value={runDef.screenScale}
-                            onChange={screenScale =>
-                                setRunDef({...runDef, screenScale})
-                            }
-                        />
-                    </>
-                )}
+                )}{" "}
+                @{" "}
+                <ScreenScalePicker
+                    value={runDef.screenScale}
+                    onChange={screenScale =>
+                        setRunDef({...runDef, screenScale})
+                    }
+                    automaticScreenScale={automaticScreenScale}
+                />{" "}
+                scale
                 {allowAutoScreenSize && (
                     <div className="CustomFields-Description Dialog-Description">
                         Not all machines support custom screen sizes, some sizes
@@ -1048,19 +1045,33 @@ function ScreenSizePickerConstrained({
 }
 
 function ScreenScalePicker({
-    value = 1,
+    value,
     onChange,
+    automaticScreenScale,
 }: {
     value: number | undefined;
     onChange: (value: number | undefined) => void;
+    automaticScreenScale: boolean;
 }) {
     return (
         <Select
-            value={value.toString()}
+            value={
+                value === undefined
+                    ? automaticScreenScale
+                        ? "auto"
+                        : "1"
+                    : value.toString()
+            }
             onChange={e => {
-                const value = parseFloat(e.currentTarget.value);
-                onChange(value === 1 ? undefined : value);
+                const value =
+                    e.currentTarget.value === "auto"
+                        ? undefined
+                        : parseFloat(e.currentTarget.value);
+                onChange(
+                    value === 1 && !automaticScreenScale ? undefined : value
+                );
             }}>
+            {automaticScreenScale && <option value="auto">Auto</option>}
             <option value="0.5">0.5×</option>
             <option value="1">1×</option>
             <option value="1.5">1.5×</option>

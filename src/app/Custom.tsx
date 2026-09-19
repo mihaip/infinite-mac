@@ -75,6 +75,7 @@ export function Custom({
                     setRunDef={setRunDef}
                     defaultDisk={defaultDisk}
                     setCanRun={setCanRun}
+                    automaticScreenScale
                 />
             </Dialog>
         </AppearanceProvider>

@@ -148,7 +148,6 @@ export function Embed({
                     allowAutoScreenSize={false}
                     allowSavedHD={false}
                     allowAppleTalk={false}
-                    allowScreenScale={true}
                 />
                 <div className="CustomFields-Row">
                     <span className="CustomFields-Label" />
