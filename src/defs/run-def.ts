@@ -77,6 +77,9 @@ export function runDefSupportsDownloadsFolder(runDef: RunDef): boolean {
 }
 
 export function runDefNeedsTheOutsideWorldDisk(runDef: RunDef): boolean {
+    if (!runDefSupportsDownloadsFolder(runDef)) {
+        return false;
+    }
     return runDefSupportsBlueSCSI(runDef);
 }
 
@@ -165,6 +168,8 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     if (ramSizeParam && machine.ramSizes.includes(ramSizeParam)) {
         ramSize = ramSizeParam;
         isCustom = true;
+    } else if (disks[0].preferredRAMSize) {
+        ramSize = disks[0].preferredRAMSize;
     }
     let screenSize: ScreenSize = isEmbed ? "embed" : "auto";
     const screenSizeParam = searchParams.get("screenSize");
@@ -349,7 +354,11 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
     if (runDef.bootFromROM) {
         url.searchParams.set("boot_from_rom", "true");
     }
-    if (runDef.ramSize && runDef.ramSize !== machine.ramSizes[0]) {
+    if (
+        runDef.ramSize &&
+        runDef.ramSize !== machine.ramSizes[0] &&
+        runDef.ramSize !== disks[0]?.preferredRAMSize
+    ) {
         url.searchParams.set("ram", runDef.ramSize);
     }
     if (runDef.screenSize !== "auto") {

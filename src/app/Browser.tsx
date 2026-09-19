@@ -201,8 +201,19 @@ function disks() {
         },
         "notable": {
             label: "Notable",
-            all: NOTABLE_DISKS,
-            byYear: NOTABLE_DISKS_BY_YEAR,
+            all: auxLaunched
+                ? NOTABLE_DISKS
+                : NOTABLE_DISKS.filter(d => d.family !== "aux"),
+            byYear: auxLaunched
+                ? NOTABLE_DISKS_BY_YEAR
+                : Object.fromEntries(
+                      Object.entries(NOTABLE_DISKS_BY_YEAR).map(
+                          ([year, disks]) => [
+                              year,
+                              disks.filter(d => d.family !== "aux"),
+                          ]
+                      )
+                  ),
         },
         "aux": {
             label: "A/UX",
@@ -370,6 +381,7 @@ function DiskContents({disk, onRun}: DiskContentsProps) {
             includeLibrary: true,
             libraryDownloadURLs: [],
             machine: disk.preferredMachine,
+            ramSize: disk.preferredRAMSize,
             cdromURLs: [],
             cdromPrefetchChunks: [],
             diskFiles: [],

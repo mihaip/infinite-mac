@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import copy
 import basilisk
+import copy
 import disks
 import enum
 import hashlib
@@ -12,13 +12,14 @@ import minivmac
 import os
 import paths
 import placeholders
+import re
 import shutil
+import stickies
+import subprocess
 import sys
 import tempfile
 import typing
 import zipfile
-import subprocess
-import stickies
 
 CHUNK_SIZE = 256 * 1024
 
@@ -33,14 +34,14 @@ class InfiniteHD(enum.Enum):
 class ImageDef(typing.NamedTuple):
     name: str
     path: str
-    scrn_resource_offset: typing.Optional[int] = None
+    scrn_resource_offsets: typing.List[int] = None
 
 
-def write_image_def(image: bytes, name: str, dest_dir: str, scrn_resource_offset: typing.Optional[int] = None) -> ImageDef:
+def write_image_def(image: bytes, name: str, dest_dir: str, scrn_resource_offsets: typing.List[int] = None) -> ImageDef:
     image_path = os.path.join(dest_dir, name)
     with open(image_path, "wb") as image_file:
         image_file.write(image)
-    return ImageDef(name, image_path, scrn_resource_offset=scrn_resource_offset)
+    return ImageDef(name, image_path, scrn_resource_offsets=scrn_resource_offsets)
 
 
 ZERO_CHUNK = b"\0" * CHUNK_SIZE
@@ -99,8 +100,8 @@ def write_chunked_image(image: ImageDef) -> None:
         "chunks": chunks,
         "chunkSize": CHUNK_SIZE,
     }
-    if image.scrn_resource_offset is not None:
-        manifest["scrnResourceOffset"] = image.scrn_resource_offset
+    if image.scrn_resource_offsets is not None and len(image.scrn_resource_offsets) > 0:
+        manifest["scrnResourceOffsets"] = image.scrn_resource_offsets
     with open(manifest_path, "w+") as manifest_file:
         json.dump(manifest, manifest_file, indent=4)
 
@@ -172,26 +173,15 @@ def build_system_image(
     # System 5.0 to 7.x images are prepared with a placeholder scrn resource.
     # We replace it at runtime with the active NuBus card and monitor
     # configuration.
-    scrn_resource_offset = image_data.find(placeholders.SCRN_RESOURCE)
-    if scrn_resource_offset != -1:
-        duplicate_offset = image_data.find(
-            placeholders.SCRN_RESOURCE, scrn_resource_offset + 1
-        )
-        if duplicate_offset != -1:
-            logging.warning(
-                "Multiple placeholder scrn resources found in %s, skipping overlay metadata",
-                image.name,
-            )
-            scrn_resource_offset = None
-    else:
-        scrn_resource_offset = None
-
+    scrn_resource_offsets = []
+    for match in re.finditer(re.escape(placeholders.SCRN_RESOURCE), image_data):
+        scrn_resource_offsets.append(match.start())
 
     return write_image_def(
         image_data,
         disk.name,
         dest_dir,
-        scrn_resource_offset=scrn_resource_offset,
+        scrn_resource_offsets=scrn_resource_offsets,
     )
 
 def build_library_images(dest_dir: str) -> typing.Tuple[ImageDef, ImageDef, ImageDef]:

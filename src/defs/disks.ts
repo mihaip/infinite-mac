@@ -2,6 +2,7 @@ import {type AppearanceVariant, type Appearance} from "@/controls/Appearance";
 import {type EmulatorChunkedFileSpec} from "@/emulator/common/common";
 import {
     type MachineDef,
+    type MachineDefRAMSize,
     MAC_128K_SNOW,
     MAC_512KE_SNOW,
     MAC_II_FDHD_SNOW,
@@ -57,6 +58,7 @@ export type SystemDiskDef = EmulatorDiskDef & {
     customDate?: Date;
     description: string;
     preferredMachine: MachineDef;
+    preferredRAMSize?: MachineDefRAMSize;
     appleTalkSupported?: boolean;
     infiniteHdVariant?: "none" | "system6";
     supportsCDROMs?: boolean;
@@ -84,6 +86,7 @@ export type PlaceholderDiskDef = {
     description: string;
     preferredMachine: MachineDef;
     appearance?: Appearance;
+    notable?: boolean;
     family?: SystemFamily;
 };
 
@@ -2003,6 +2006,7 @@ const AUX_1_0: PlaceholderDiskDef = {
         "Initial release, combining UNIX System V Release 2 with BSD networking, TCP/IP and NFS. Could run only one Macintosh Toolbox application at a time.",
     releaseDate: [1988, 2, 9],
     preferredMachine: MAC_II_SNOW,
+    notable: true,
 };
 
 const AUX_1_0_1: PlaceholderDiskDef = {
@@ -2030,6 +2034,7 @@ const AUX_1_1: SystemDiskDef = {
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/AUX 1.1.dsk.json"),
     hasDeviceImageHeader: true,
+    notable: true, // Not necessarily notable, but the first release that is archived.
 };
 
 const AUX_1_1_1: PlaceholderDiskDef = {
@@ -2060,9 +2065,11 @@ const AUX_2_0: SystemDiskDef = {
         297, 298, 299, 300, 301, 302, 303, 304, 305,
     ],
     preferredMachine: MAC_IIcx_SNOW,
+    preferredRAMSize: "32M",
     infiniteHdVariant: "system6",
     generatedSpec: () => import("@/Data/AUX 2.0.dsk.json"),
     hasDeviceImageHeader: true,
+    notable: true,
 };
 
 const AUX_2_0_1: PlaceholderDiskDef = {
@@ -2075,14 +2082,38 @@ const AUX_2_0_1: PlaceholderDiskDef = {
     preferredMachine: MAC_IIcx_SNOW,
 };
 
-const AUX_3_0: PlaceholderDiskDef = {
+const AUX_3_0: SystemDiskDef = {
     family: "aux",
-    type: "placeholder",
     displayName: "A/UX 3.0",
     description:
-        "Integrated System 7.0.1 features including file sharing, aliases, TrueType and QuickTime; added Quadra support and an easier installer.",
+        "Integrated System 7 features including file sharing, aliases, TrueType and QuickTime; added Quadra support and an easier installer. Improved peripheral compatibility and UNIX communications.",
     releaseDate: [1992, 3, 9],
     preferredMachine: MAC_IIcx_SNOW,
+    preferredRAMSize: "32M",
+    generatedSpec: () => import("@/Data/AUX 3.0.dsk.json"),
+    prefetchChunks: [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 14, 15, 16, 17, 18, 20, 21, 22, 1088,
+        1089, 1090, 1104, 1120, 1136, 1152, 1168, 1184, 1200, 1201, 1202, 1203,
+        1204, 1205, 1206, 1207, 1208, 1209, 1211, 1216, 1232, 1248, 1264, 1312,
+        1313, 1329, 1344, 1360, 1376, 1392, 1408, 1424, 1440, 1441, 1442, 1456,
+        1457, 1458, 1459, 1460, 1461, 1462, 1463, 1464, 1465, 1466, 1469, 1520,
+        1536, 1537, 1552, 1553, 1554, 1648, 1649, 1664, 1665, 1680, 1681, 1682,
+        1683, 1712, 1728, 1729, 1730, 1731, 1732, 1733, 1734, 1735, 1742, 1743,
+        1744, 1760, 1761, 1762, 1763, 1764, 1765, 1766, 1776, 1824, 1825, 1826,
+        1827, 1828, 1829, 1830, 1831, 1832, 1833, 1834, 1835, 1837, 1838, 1839,
+        1888, 1889, 1890, 1891, 1892, 1893, 1894, 1920, 1936, 1938, 1941, 1942,
+        1952, 1968, 1984, 2000, 2016, 2144, 2145, 2160, 2161, 2176, 2177, 2178,
+        2192, 2193, 2194, 2195, 2320, 2321, 2336, 2337, 2352, 2353, 2354, 2368,
+        2370, 2384, 2385, 2400, 2416, 2432, 2448, 2464, 2465, 2466, 2480, 2496,
+        2497, 2498, 2512, 2528, 2544, 2547, 2560, 2561, 2576, 2577, 2592, 2593,
+        2608, 2609, 2624, 2640, 2656, 2657, 2658, 2672, 2688, 2752, 2768, 2800,
+        2802, 2803, 2811, 2816, 2817, 2818, 2819, 2826, 2832, 2833, 2848, 2849,
+        3152, 3168, 3170, 3171, 3172, 3173, 3184, 3232, 3248, 3264, 3280, 3296,
+        3312, 3313, 3408, 3520, 3536, 3552, 3584, 3585, 3616, 3617, 3648, 3920,
+        3952, 3955, 4064, 4080,
+    ],
+    hasDeviceImageHeader: true,
+    notable: true,
 };
 
 const AUX_3_0_1: PlaceholderDiskDef = {
@@ -2147,6 +2178,7 @@ const AUX_3_1: SystemDiskDef = {
         3731, 3732, 3733, 3734, 3735, 3736, 3737, 3738, 3739, 3740,
     ],
     preferredMachine: MAC_IIcx_SNOW,
+    preferredRAMSize: "32M",
     generatedSpec: () => import("@/Data/AUX 3.1.dsk.json"),
     hasDeviceImageHeader: true,
 };

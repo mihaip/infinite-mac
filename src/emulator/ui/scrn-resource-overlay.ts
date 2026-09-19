@@ -34,12 +34,12 @@ const SNOW_VIDEO_CARDS: {[romName: string]: SnowVideoCard} = {
 
 const BLACK_AND_WHITE_MONITORS = new Set(["PortraitBW", "TwoPageBW"]);
 
-export function createScrnResourceOverlay(
+export function createScrnResourceOverlays(
     machine: MachineDef,
     screenWidth: number,
     screenHeight: number,
-    offset: number
-): EmulatorDiskOverlay | undefined {
+    offsets: number[]
+): EmulatorDiskOverlay[] | undefined {
     if (machine.emulatorType !== "Snow") {
         return undefined;
     }
@@ -76,9 +76,9 @@ export function createScrnResourceOverlay(
     view.setUint16(26, resourceWidth); // Global rectangle: right
     view.setUint16(28, 0); // No saved control calls
 
-    return {
+    return offsets.map(offset => ({
         offset,
         data,
         expected: PLACEHOLDER_SCRN_RESOURCE,
-    };
+    }));
 }

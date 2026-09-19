@@ -29,7 +29,7 @@ export function Custom({
                 : {...initialRunDef, isCustom: true}
             : {
                   machine: defaultDisk.preferredMachine,
-                  ramSize: undefined,
+                  ramSize: defaultDisk.preferredRAMSize,
                   screenSize: "auto",
                   disks: [defaultDisk],
                   cdromURLs: [],

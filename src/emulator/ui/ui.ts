@@ -83,7 +83,7 @@ import {
 } from "@/emulator/ui/config";
 import {stringToArrayBuffer} from "@/lib/strings";
 import {type EmulatorSettings} from "@/emulator/ui/settings";
-import {createScrnResourceOverlay} from "@/emulator/ui/scrn-resource-overlay";
+import {createScrnResourceOverlays} from "@/emulator/ui/scrn-resource-overlay";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -1191,16 +1191,13 @@ async function loadDisks(
     return disks.map((d, i) => {
         const spec = diskSpecs[i];
         let overlays: EmulatorDiskOverlay[] | undefined = undefined;
-        if (spec.scrnResourceOffset !== undefined) {
-            const overlay = createScrnResourceOverlay(
+        if (spec.scrnResourceOffsets !== undefined) {
+            overlays = createScrnResourceOverlays(
                 config.machine,
                 config.screenWidth,
                 config.screenHeight,
-                spec.scrnResourceOffset
+                spec.scrnResourceOffsets
             );
-            if (overlay) {
-                overlays = [overlay];
-            }
         }
 
         return {
