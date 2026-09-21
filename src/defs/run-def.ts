@@ -168,7 +168,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     if (ramSizeParam && machine.ramSizes.includes(ramSizeParam)) {
         ramSize = ramSizeParam;
         isCustom = true;
-    } else if (disks[0].preferredRAMSize) {
+    } else if (disks[0]?.preferredRAMSize) {
         ramSize = disks[0].preferredRAMSize;
     }
     let screenSize: ScreenSize = isEmbed ? "embed" : "auto";
