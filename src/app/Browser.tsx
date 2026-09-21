@@ -132,19 +132,10 @@ function Description({
                     }}>
                     run a custom version
                 </a>{" "}
-                with your choice of machine and disks and{" "}
-                <a
-                    href="/embed"
-                    onClick={e => {
-                        e.preventDefault();
-                        setEmbedVisible(true);
-                    }}>
-                    embed it into your own site
-                </a>
-                . On some operating systems files and disk images can be
-                imported and exported using drag and drop and virtual CD-ROMs
-                can be mounted – refer to the welcome screen in each machine for
-                more details.
+                with your choice of machine and disks. On some operating systems
+                files and disk images can be imported and exported using drag
+                and drop and virtual CD-ROMs can be mounted – refer to the
+                welcome screen in each machine for more details.
                 {customVisible && (
                     <Custom
                         initialRunDef={initialCustomRunDef}
@@ -171,7 +162,15 @@ function Description({
                 )}
                 You can{" "}
                 <span onClick={() => setAboutVisible(true)}>learn more</span>,{" "}
-                <a href="/monkey">monkey around</a>,{" "}
+                <a
+                    href="/embed"
+                    onClick={e => {
+                        e.preventDefault();
+                        setEmbedVisible(true);
+                    }}>
+                    embed instances into your own site
+                </a>
+                , <a href="/monkey">monkey around</a>,{" "}
                 <span onClick={() => setChangelogVisible(true)}>
                     see what's changed recently
                 </span>{" "}
