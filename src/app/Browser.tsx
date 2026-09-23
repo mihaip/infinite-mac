@@ -31,7 +31,6 @@ import {AppearanceProvider} from "@/controls/Appearance";
 import {Embed} from "@/app/Embed";
 import {EmbedDocs} from "@/app/EmbedDocs";
 import {iso} from "@/lib/iso";
-import {isAUXLaunched} from "@/flags";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -109,7 +108,6 @@ function Description({
     const [embedDocsVisible, setEmbedDocsVisible] = useState(
         location.pathname === "/embed-docs"
     );
-    const auxLaunched = isAUXLaunched();
 
     return (
         <div className="Description">
@@ -119,11 +117,10 @@ function Description({
                 comfort of a web browser.
             </p>
             <p>
-                Pick any version of System Software, Mac OS,
-                {auxLaunched && " A/UX,"} Mac OS X or NeXTStep from the 1980s,
-                1990s or early 2000s and run it within a virtual machine. An
-                “Infinite HD” disk with representative software from that era is
-                also available. You can also{" "}
+                Pick any version of System Software, Mac OS, A/UX, Mac OS X or
+                NeXTStep from the 1980s, 1990s or early 2000s and run it within
+                a virtual machine. An “Infinite HD” disk with representative
+                software from that era is also available. You can also{" "}
                 <a
                     href="/run"
                     onClick={e => {
@@ -182,42 +179,21 @@ function Description({
 }
 
 function disks() {
-    const auxLaunched = isAUXLaunched();
     return {
         "all": {
             label: "All",
-            all: auxLaunched
-                ? ALL_DISKS
-                : ALL_DISKS.filter(d => d.family !== "aux"),
-            byYear: auxLaunched
-                ? DISKS_BY_YEAR
-                : Object.fromEntries(
-                      Object.entries(DISKS_BY_YEAR).map(([year, disks]) => [
-                          year,
-                          disks.filter(d => d.family !== "aux"),
-                      ])
-                  ),
+            all: ALL_DISKS,
+            byYear: DISKS_BY_YEAR,
         },
         "notable": {
             label: "Notable",
-            all: auxLaunched
-                ? NOTABLE_DISKS
-                : NOTABLE_DISKS.filter(d => d.family !== "aux"),
-            byYear: auxLaunched
-                ? NOTABLE_DISKS_BY_YEAR
-                : Object.fromEntries(
-                      Object.entries(NOTABLE_DISKS_BY_YEAR).map(
-                          ([year, disks]) => [
-                              year,
-                              disks.filter(d => d.family !== "aux"),
-                          ]
-                      )
-                  ),
+            all: NOTABLE_DISKS,
+            byYear: NOTABLE_DISKS_BY_YEAR,
         },
         "aux": {
             label: "A/UX",
-            all: auxLaunched ? AUX_DISKS : [],
-            byYear: auxLaunched ? AUX_DISKS_BY_YEAR : {},
+            all: AUX_DISKS,
+            byYear: AUX_DISKS_BY_YEAR,
         },
         "next": {label: "NeXT", all: NEXT_DISKS, byYear: NEXT_DISKS_BY_YEAR},
         "macosx": {
