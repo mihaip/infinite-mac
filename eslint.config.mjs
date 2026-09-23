@@ -16,7 +16,10 @@ const compat = new FlatCompat({
 });
 
 export default defineConfig([
-    globalIgnores(["src/emulator/worker/emscripten/*.js"]),
+    globalIgnores([
+        "src/emulator/worker/emscripten/*.js",
+        "src/stuffit/generated/*",
+    ]),
     {
         extends: fixupConfigRules(
             compat.extends(
@@ -38,7 +41,7 @@ export default defineConfig([
 
             parserOptions: {
                 project: true,
-                tsconfigRootDir: "./",
+                tsconfigRootDir: __dirname,
             },
         },
 

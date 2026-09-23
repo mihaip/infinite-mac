@@ -21,9 +21,9 @@ export default defineConfig(() => {
                 build: {
                     rolldownOptions: {
                         input: {
-                            main: path.resolve(__dirname, "index.html"),
+                            main: path.resolve(import.meta.dirname, "index.html"),
                             monkey: path.resolve(
-                                __dirname,
+                                import.meta.dirname,
                                 "monkey/index.html"
                             ),
                         },
@@ -60,7 +60,7 @@ export default defineConfig(() => {
         ],
         resolve: {
             alias: {
-                "@": path.resolve(__dirname, "src"),
+                "@": path.resolve(import.meta.dirname, "src"),
             },
         },
         server: {
