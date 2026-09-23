@@ -459,6 +459,8 @@ AUX_20 = Disk(name="AUX 2.0.dsk", compressed=True)
 
 AUX_30 = Disk(name="AUX 3.0.dsk", compressed=True)
 
+AUX_301 = Disk(name="AUX 3.0.1.dsk", compressed=True)
+
 AUX_31 = Disk(name="AUX 3.1.dsk", compressed=True)
 
 
@@ -535,5 +537,6 @@ ALL_DISKS = [
     AUX_11,
     AUX_20,
     AUX_30,
+    AUX_301,
     AUX_31,
 ]
