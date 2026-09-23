@@ -453,16 +453,45 @@ OPENSTEP_42 = Disk(
     ],
 )
 
-AUX_11 = Disk(name="AUX 1.1.dsk", compressed=True)
+AUX_11 = Disk(
+    name="AUX 1.1.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/aux-disk-images-2026-09-23/AUX.1.1.dsk.zip"
+    ],
+)
 
-AUX_20 = Disk(name="AUX 2.0.dsk", compressed=True)
+AUX_20 = Disk(
+    name="AUX 2.0.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/aux-disk-images-2026-09-23/AUX.2.0.dsk.zip"
+    ],
+)
 
-AUX_30 = Disk(name="AUX 3.0.dsk", compressed=True)
+AUX_30 = Disk(
+    name="AUX 3.0.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/aux-disk-images-2026-09-23/AUX.3.0.dsk.zip"
+    ],
+)
 
-AUX_301 = Disk(name="AUX 3.0.1.dsk", compressed=True)
+AUX_301 = Disk(
+    name="AUX 3.0.1.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/aux-disk-images-2026-09-23/AUX.3.0.1.dsk.zip"
+    ],
+)
 
-AUX_31 = Disk(name="AUX 3.1.dsk", compressed=True)
-
+AUX_31 = Disk(
+    name="AUX 3.1.dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/aux-disk-images-2026-09-23/AUX.3.1.dsk.zip"
+    ],
+)
 
 ALL_DISKS = [
     # Classic
