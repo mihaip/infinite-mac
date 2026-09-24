@@ -23,6 +23,7 @@ export type ScreenFrameProps = {
 
 type ScreenControlDisplay = {
     label: string;
+    title?: string;
     alwaysVisible?: boolean;
     selected?: boolean;
 };
@@ -36,6 +37,7 @@ type ScreenMenuControl = ScreenControlDisplay & {
     handler?: never;
     items: {
         label: string;
+        title?: string;
         handler: () => void;
     }[];
 };
@@ -145,7 +147,7 @@ function ScreenFrameButtonControl({
     control: ScreenButtonControl;
     expandedControl?: ScreenMenuControl | null;
 }) {
-    const {label, handler, alwaysVisible, selected} = control;
+    const {label, title, handler, alwaysVisible, selected} = control;
     return (
         <button
             type="button"
@@ -157,6 +159,7 @@ function ScreenFrameButtonControl({
                 visibility:
                     alwaysVisible || !!expandedControl ? "visible" : undefined,
             }}
+            title={title}
             onClick={handler}>
             {label}
         </button>
@@ -225,6 +228,7 @@ function ScreenFrameMenuContent({
                     <ScreenFrameButtonControl
                         control={{
                             label: item.label,
+                            title: item.title,
                             handler: item.handler,
                             alwaysVisible: true,
                         }}

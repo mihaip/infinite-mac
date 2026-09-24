@@ -14,6 +14,7 @@
     --screen-controls-bottom: -46px;
     --screen-led-display: block;
     --screen-led-bottom: -40px;
+    --screen-led-color: #00ff00;
     --screen-ethernet-status-bottom: -46px;
     --screen-ethernet-status-display: block;
 
@@ -131,6 +132,10 @@
     background: rgba(0, 0, 0, 0.4);
     border-radius: 4px;
     outline: solid 2px rgba(0, 0, 0, 0.4);
+}
+
+.ScreenFrame-Control.ScreenFrame-Bezel-Text:active {
+    color: color-mix(var(--screen-bezel-color-dark1), var(--screen-led-color));
 }
 
 .ScreenFrame-Control-MenuContent {
@@ -267,7 +272,7 @@
     right: 0;
     width: 28px;
     height: 8px;
-    background: #00ff00;
+    background: var(--screen-led-color);
 }
 
 .ScreenFrame-Led.ScreenFrame-Led-Clickable {
@@ -281,7 +286,7 @@
 
 @keyframes Mac-Led-Blink {
     from {
-        background: #00ff00;
+        background: var(--screen-led-color);
     }
     to {
         background: #000000;

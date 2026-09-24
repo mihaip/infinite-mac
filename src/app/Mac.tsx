@@ -64,6 +64,7 @@ import {
     type RunDef,
     type ScreenSize,
 } from "@/defs/run-def";
+import {useHotkeys} from "@/lib/useHotkeys";
 import {viewTransitionNameForDisk} from "@/lib/view-transitions";
 import {DrawersContainer} from "@/controls/Drawer";
 import {
@@ -586,16 +587,32 @@ export default function Mac({
         };
     }, [handleFullScreenChange]);
 
-    const handleCopyScreenshotClick = async () => {
-        screenRef.current?.toBlob(async blob => {
-            if (blob) {
-                await navigator.clipboard.write([
-                    new ClipboardItem({"image/png": blob}),
-                ]);
+    const handleCopyScreenshotClick = () => {
+        const canvas = screenRef.current;
+        if (!canvas) {
+            return;
+        }
+        // Begin the clipboard write during the user gesture. In Safari, waiting
+        // for toBlob's callback before calling write loses user activation.
+        const blob = new Promise<Blob>((resolve, reject) => {
+            canvas.toBlob(blob => {
+                if (blob) {
+                    resolve(blob);
+                } else {
+                    reject(new Error("Could not create screenshot"));
+                }
+            }, "image/png");
+        });
+        navigator.clipboard
+            .write([new ClipboardItem({"image/png": blob})])
+            .then(() => {
                 setEmulatorToastText("Screenshot copied to clipboard.");
                 varz.increment("emulator_screenshot:clipboard");
-            }
-        }, "image/png");
+            })
+            .catch(error => {
+                console.error("Could not copy screenshot", error);
+                setEmulatorToastText("Could not copy screenshot.");
+            });
     };
     const handleSaveScreenshotClick = async () => {
         screenRef.current?.toBlob(blob => {
@@ -614,6 +631,18 @@ export default function Mac({
     const handleSettingsClick = () => {
         setSettingsVisible(true);
     };
+
+    useHotkeys(
+        [
+            {
+                code: "Digit2",
+                modKey: true,
+                shiftKey: true,
+                handler: handleSaveScreenshotClick,
+            },
+        ],
+        !settingsVisible && !emulatorErrorText
+    );
 
     const {isKeyboardVisible, setIsKeyboardVisible} = useMacKeyboard();
     const handleKeyboardClick = () => {
@@ -977,6 +1006,7 @@ export default function Mac({
             },
             {
                 label: "Save Screenshot",
+                title: `${navigator.platform.startsWith("Mac") ? "⌘⇧2" : "Ctrl+Shift+2"}`,
                 handler: handleSaveScreenshotClick,
             },
         ],
