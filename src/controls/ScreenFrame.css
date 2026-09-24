@@ -147,7 +147,7 @@
     transform: translateY(100%);
     left: 0;
     right: 0;
-    height: 50px;
+    height: 60px;
     pointer-events: none;
 }
 
@@ -370,6 +370,38 @@
     box-shadow: inset 0 0 0 2px #282c34;
 }
 
+.ScreenFrame-Bezel-Pinstripes .ScreenFrame-Control-MenuContent-Items {
+    /* Match the pinstripe pattern gradient and size from the bezel */
+    background: repeating-linear-gradient(
+        0deg,
+        hsl(0deg 0% 95%) 0px,
+        hsl(0deg 0% 95%) 2px,
+        hsl(0deg 0% 90%) 2px 4px
+    );
+    background-size: 60px 60px;
+    /* Inner dark border, but we don't want it around the top, so we offset
+    everything up by 2 pixels. */
+    margin-top: -2px;
+    border-color: var(--screen-bezel-color);
+    box-shadow: inset 0 0 0 2px #282c34;
+    /* Compensate for the negative margin by increasing top padding */
+    padding-top: 16px;
+    /* Also increase bottom padding because we don't have the chamfer at the bottom. */
+    padding-bottom: 12px;
+}
+
+.ScreenFrame-Bezel-Pinstripes.ScreenFrame-Bezel-Medium
+    .ScreenFrame-Control-MenuContent-Items {
+    background-size: 40px 40px;
+}
+
+.ScreenFrame-Bezel-Pinstripes.ScreenFrame-Bezel-Small
+    .ScreenFrame-Control-MenuContent-Items,
+.ScreenFrame-Bezel-Pinstripes.ScreenFrame-Bezel-Small-ish
+    .ScreenFrame-Control-MenuContent-Items {
+    background-size: 30px 30px;
+}
+
 /* Center Apple logo by making the entire container full-width */
 .ScreenFrame-CenterLogo .ScreenFrame-Controls-Container {
     width: 100%;
@@ -379,7 +411,7 @@
     .ScreenFrame-Controls-Container
     .ScreenFrame-Logo
     + .ScreenFrame-Control {
-    margin-left: 0;
+    margin-left: -16px;
 }
 
 .ScreenFrame-CenterLogo .ScreenFrame-Logo {
