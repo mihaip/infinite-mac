@@ -4720,31 +4720,31 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 var ASM_CONSTS = {
-  203856: $0 => {
+  204048: $0 => {
     workerApi.setAbortError(UTF8ToString($0));
   },
-  203903: () => workerApi.acquireInputLock(),
-  203944: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
-  204033: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr),
-  204123: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
-  204213: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
-  204297: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
-  204381: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
-  204468: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
-  204555: () => {
+  204095: () => workerApi.acquireInputLock(),
+  204136: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
+  204225: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr),
+  204315: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
+  204405: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
+  204489: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
+  204573: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
+  204660: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
+  204747: () => {
     workerApi.releaseInputLock();
   },
-  204589: () => {
+  204781: () => {
     workerApi.sleep(0);
   },
-  204613: () => workerApi.acquireInputLock(),
-  204654: () => {
+  204805: () => workerApi.acquireInputLock(),
+  204846: () => {
     workerApi.releaseInputLock();
   },
-  204688: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
-  204773: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
-  204853: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
-  204934: () => {
+  204880: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
+  204965: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
+  205045: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
+  205126: () => {
     const name = workerApi.disks.consumeCdromName();
     if (!name) {
       return 0;
@@ -4754,35 +4754,35 @@ var ASM_CONSTS = {
     stringToUTF8(name, name_cstr, name_length);
     return name_cstr;
   },
-  205161: $0 => {
+  205353: $0 => {
     workerApi.reportError(UTF8ToString($0));
   },
-  205206: ($0, $1, $2, $3) => {
+  205398: ($0, $1, $2, $3) => {
     workerApi.didOpenAudio($0, $1, $2, $3);
   },
-  205250: () => workerApi.audioBufferSize(),
-  205290: ($0, $1) => {
+  205442: () => workerApi.audioBufferSize(),
+  205482: ($0, $1) => {
     workerApi.enqueueAudio($0, $1);
   },
-  205326: ($0, $1) => {
+  205518: ($0, $1) => {
     workerApi.didOpenVideo($0, $1);
   },
-  205362: ($0, $1) => {
+  205554: ($0, $1) => {
     workerApi.blit($0, $1);
   },
-  205390: ($0, $1) => {
+  205582: ($0, $1) => {
     workerApi.blit($0, $1);
   },
-  205418: () => {
+  205610: () => {
     workerApi.blit(0, 0);
   },
-  205444: $0 => workerApi.disks.open(UTF8ToString($0)),
-  205495: $0 => {
+  205636: $0 => workerApi.disks.open(UTF8ToString($0)),
+  205687: $0 => {
     workerApi.disks.close($0);
   },
-  205526: $0 => workerApi.disks.size($0),
-  205563: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
-  205612: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3)
+  205718: $0 => workerApi.disks.size($0),
+  205755: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
+  205804: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3)
 };
 
 // Imports from the Wasm binary.
@@ -4842,7 +4842,7 @@ var wasmImports = {
   /** @export */ fd_seek: _fd_seek,
   /** @export */ fd_write: _fd_write,
   /** @export */ invoke_ii,
-  /** @export */ invoke_ji,
+  /** @export */ invoke_j,
   /** @export */ invoke_v,
   /** @export */ invoke_vi,
   /** @export */ proc_exit: _proc_exit
@@ -4881,10 +4881,10 @@ function invoke_vi(index, a1) {
   }
 }
 
-function invoke_ji(index, a1) {
+function invoke_j(index) {
   var sp = stackSave();
   try {
-    return getWasmTableEntry(index)(a1);
+    return getWasmTableEntry(index)();
   } catch (e) {
     stackRestore(sp);
     if (e !== e + 0) throw e;
