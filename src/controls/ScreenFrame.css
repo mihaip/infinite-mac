@@ -1,9 +1,9 @@
 .ScreenFrame {
     --screen-bezel-color: hsl(39deg 36% 80%);
-    --screen-bezel-color-dark1: hsl(39deg 36% 75%);
-    --screen-bezel-color-dark2: hsl(39deg 36% 70%);
-    --screen-bezel-color-light1: hsl(39deg 36% 85%);
-    --screen-bezel-color-light2: hsl(39deg 36% 90%);
+    --screen-bezel-color-dark1: hsl(39deg 36% 75%); /* bottom */
+    --screen-bezel-color-dark2: hsl(39deg 36% 70%); /* left */
+    --screen-bezel-color-light1: hsl(39deg 36% 85%); /* right */
+    --screen-bezel-color-light2: hsl(39deg 36% 90%); /* top */
     --screen-bezel-size: 60px;
     --screen-outer-chamfer-size: 4px;
     --screen-inner-chamfer-size: 8px;
@@ -109,19 +109,88 @@
     bottom: var(--screen-controls-bottom);
     display: var(--screen-controls-display);
     left: 0;
+    right: 0;
     align-items: center;
 }
 
 .ScreenFrame-Controls-Container .ScreenFrame-Control {
     margin-left: 16px;
+}
+
+.ScreenFrame-Control {
+    appearance: none;
+    border: none;
+    background: transparent;
+    font-size: inherit;
+    font-family: inherit;
+    padding: 0;
     cursor: pointer;
 }
 
-.ScreenFrame-Controls-Container
-    .ScreenFrame-Control.ScreenFrame-Control-Selected {
+.ScreenFrame-Control.ScreenFrame-Control-Selected {
     background: rgba(0, 0, 0, 0.4);
     border-radius: 4px;
     outline: solid 2px rgba(0, 0, 0, 0.4);
+}
+
+.ScreenFrame-Control-MenuContent {
+    position: absolute;
+    overflow: hidden;
+    bottom: calc(
+        var(--screen-bezel-size) * -1 - var(--screen-outer-chamfer-size)
+    );
+    transform: translateY(100%);
+    left: 0;
+    right: 0;
+    height: 50px;
+    pointer-events: none;
+}
+
+.ScreenFrame-Control-MenuContent-Items {
+    z-index: 0;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    transition-property: transform;
+    transition-duration: 200ms;
+    transition-timing-function: ease-in-out;
+    padding: 14px 16px 8px;
+    display: flex;
+    gap: 16px;
+    background: var(--screen-bezel-color);
+    border-bottom-left-radius: var(--screen-outer-corner-radius);
+    border-bottom-right-radius: var(--screen-outer-corner-radius);
+    white-space: nowrap;
+    border-bottom: solid var(--screen-outer-chamfer-size)
+        var(--screen-bezel-color-dark1);
+    border-right: solid var(--screen-outer-chamfer-size)
+        var(--screen-bezel-color-dark2);
+    border-left: solid var(--screen-outer-chamfer-size)
+        var(--screen-bezel-color-light1);
+}
+
+.ScreenFrame-Control-MenuContent-Items.Visible {
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+.ScreenFrame-Control-MenuItems .ScreenFrame-Control:first-child {
+    margin-left: 0;
+}
+
+.ScreenFrame-Control-MenuContent-Shadow {
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    right: calc(var(--screen-outer-chamfer-size) * -2);
+    left: calc(var(--screen-outer-chamfer-size) * -2);
+    height: 6px;
+    background: linear-gradient(
+        180deg,
+        rgba(40, 44, 52, 0.8) 0%,
+        transparent 100%
+    );
 }
 
 @media (hover: hover) {

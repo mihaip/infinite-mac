@@ -77,6 +77,7 @@ import {
 } from "@/embed-types";
 import {MacEmulatorStats} from "@/app/MacEmulatorStats";
 import {MacEthernetStatus} from "@/app/MacEthernetStatus";
+import {saveAs} from "file-saver";
 
 export type MacProps = {
     runDef: RunDef;
@@ -132,6 +133,7 @@ export default function Mac({
             name: "",
             fraction: 1.0,
         });
+    const [emulatorToastText, setEmulatorToastText] = useToastNotification();
     const [emulatorLoadingDiskChunk, setEmulatorLoadingDiskChunk] =
         useState(false);
     const [emulatorErrorText, setEmulatorErrorText] =
@@ -584,6 +586,30 @@ export default function Mac({
         };
     }, [handleFullScreenChange]);
 
+    const handleCopyScreenshotClick = async () => {
+        screenRef.current?.toBlob(async blob => {
+            if (blob) {
+                await navigator.clipboard.write([
+                    new ClipboardItem({"image/png": blob}),
+                ]);
+                setEmulatorToastText("Screenshot copied to clipboard.");
+                varz.increment("emulator_screenshot:clipboard");
+            }
+        }, "image/png");
+    };
+    const handleSaveScreenshotClick = async () => {
+        screenRef.current?.toBlob(blob => {
+            if (blob) {
+                saveAs(
+                    blob,
+                    `infinite-mac-screenshot-${new Date().toISOString().replaceAll(":", "-")}.png`
+                );
+                setEmulatorToastText(`Screenshot downloaded.`);
+                varz.increment("emulator_screenshot:save");
+            }
+        }, "image/png");
+    };
+
     const [settingsVisible, setSettingsVisible] = useState(false);
     const handleSettingsClick = () => {
         setSettingsVisible(true);
@@ -654,7 +680,7 @@ export default function Mac({
     }
 
     const [showMacOSXSlowNotification, clearMacOSXSlowNotification] =
-        useTemporaryNotification(
+        useOnboardingNotification(
             !progress && emulatorLoaded && disks[0]?.family === "macosx",
             "mac-os-x-slow-notification-count"
         );
@@ -674,7 +700,7 @@ export default function Mac({
 
     const [mouseHasMoved, setMouseHasMoved] = useState(false);
     const [showPointerLockNotification, clearPointerLockNotification] =
-        useTemporaryNotification(
+        useOnboardingNotification(
             !progress &&
                 emulatorLoaded &&
                 mouseHasMoved &&
@@ -731,7 +757,7 @@ export default function Mac({
     const [
         showResourceForkUploadNotification,
         clearResourceForkUploadNotification,
-    ] = useTemporaryNotification(
+    ] = useOnboardingNotification(
         hasUploadedResourceForks,
         "resource-fork-upload-notification-count"
     );
@@ -750,6 +776,14 @@ export default function Mac({
                     learn more
                 </a>
                 ).
+            </div>
+        );
+    }
+
+    if (emulatorToastText) {
+        progress = (
+            <div className="Mac-Loading Mac-Loading-Non-Modal Mac-Loading-OneLine">
+                {emulatorToastText}
             </div>
         );
     }
@@ -893,7 +927,7 @@ export default function Mac({
     let bezelSize: ScreenFrameProps["bezelSize"] = "Large";
     if (availableSpace < SMALL_BEZEL_THRESHOLD) {
         bezelSize = "Small";
-    } else if (availableSpace < MEDIUM_BEZEL_THRESHOLD) {
+    } else if (availableSpace < MEDIUM_BEZEL_WIDTH_THRESHOLD) {
         bezelSize = "Medium";
     }
 
@@ -903,14 +937,6 @@ export default function Mac({
             handler: onDone,
             alwaysVisible: true,
         },
-        ...(canLoadFilesOrDisks
-            ? [
-                  {
-                      label: canLoadFiles ? "Load File" : "Load Disk",
-                      handler: handleLoadFileClick,
-                  },
-              ]
-            : []),
         {label: "Full Screen", handler: handleFullScreenClick},
         {label: "Settings", handler: handleSettingsClick},
         {
@@ -934,6 +960,27 @@ export default function Mac({
             selected: alwaysUsingTrackpadMode || emulatorSettings.trackpadMode,
         });
     }
+    controls.push({
+        label: "More…",
+        items: [
+            ...(canLoadFilesOrDisks
+                ? [
+                      {
+                          label: canLoadFiles ? "Load File…" : "Load Disk…",
+                          handler: handleLoadFileClick,
+                      },
+                  ]
+                : []),
+            {
+                label: "Copy Screenshot",
+                handler: handleCopyScreenshotClick,
+            },
+            {
+                label: "Save Screenshot",
+                handler: handleSaveScreenshotClick,
+            },
+        ],
+    });
     if (debugPaused && !emulatorLoaded) {
         controls.splice(1, 0, {
             label: "Start",
@@ -1259,7 +1306,8 @@ function uploadFiles(
 }
 
 const SMALL_BEZEL_THRESHOLD = 80;
-const MEDIUM_BEZEL_THRESHOLD = 168;
+const MEDIUM_BEZEL_WIDTH_THRESHOLD = 168;
+const MEDIUM_BEZEL_HEIGHT_THRESHOLD = 168 + 120; // Leave room for the screen frame menu controls
 
 function useInitialScreenScale(
     machine: MachineDef,
@@ -1281,8 +1329,10 @@ function useInitialScreenScale(
             // Scaling transforms the whole frame, including the bezel. Reserve
             // the same space as automatic screen sizing, scaled along with it.
             if (
-                (width + MEDIUM_BEZEL_THRESHOLD) * scale <= window.innerWidth &&
-                (height + MEDIUM_BEZEL_THRESHOLD) * scale <= window.innerHeight
+                (width + MEDIUM_BEZEL_WIDTH_THRESHOLD) * scale <=
+                    window.innerWidth &&
+                (height + MEDIUM_BEZEL_HEIGHT_THRESHOLD) * scale <=
+                    window.innerHeight
             ) {
                 return scale;
             }
@@ -1314,8 +1364,10 @@ function useInitialScreenSize(
         switch (screenSizeProp) {
             case undefined:
             case "auto": {
-                const availableWidth = windowWidth - MEDIUM_BEZEL_THRESHOLD;
-                const availableHeight = windowHeight - MEDIUM_BEZEL_THRESHOLD;
+                const availableWidth =
+                    windowWidth - MEDIUM_BEZEL_WIDTH_THRESHOLD;
+                const availableHeight =
+                    windowHeight - MEDIUM_BEZEL_HEIGHT_THRESHOLD;
                 const {supportedScreenSizes = DEFAULT_SUPPORTED_SCREEN_SIZES} =
                     machine;
                 for (const {width, height} of supportedScreenSizes) {
@@ -1347,7 +1399,7 @@ function MacError({text, onDone}: {text: string; onDone: () => void}) {
     );
 }
 
-function useTemporaryNotification(canShow: boolean, key: string) {
+function useOnboardingNotification(canShow: boolean, key: string) {
     const [count, setCount] = usePersistentState(10, key);
     const [hide, setHide] = useState(false);
     const shouldShow = count > 0 && canShow;
@@ -1361,4 +1413,20 @@ function useTemporaryNotification(canShow: boolean, key: string) {
 
     const clearNotification = useCallback(() => setCount(0), [setCount]);
     return [shouldShow && !hide, clearNotification] as const;
+}
+
+function useToastNotification() {
+    const [toast, setToastImpl] = useState("");
+    const toastRef = useRef({});
+    const setToast = useCallback((message: string) => {
+        const sentinel = (toastRef.current = {});
+        setToastImpl(message);
+        setTimeout(() => {
+            if (toastRef.current === sentinel) {
+                setToastImpl("");
+            }
+        }, 3000);
+    }, []);
+
+    return [toast, setToast] as const;
 }
