@@ -1,5 +1,7 @@
 # CHANGELOG
 
+2026-09-21: Added A/UX releases (1.1 to 3.1). See https://blog.persistent.info/2026/09/infinite-mac-snow-and-aux.html for more details.
+
 2026-09-15: Added support for directly mounting StuffIt- or Zip-compressed disk images from local files and the Macintosh Garden.
 
 2026-09-14: Added option to boot the Mac Classic directly from ROM.
