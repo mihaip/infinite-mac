@@ -114,7 +114,7 @@ export function configToDingusPPCArgs(
         disks: EmulatorChunkedFileSpec[];
     }
 ): string[] {
-    const args = ["--realtime", "--bootrom", romFileName];
+    const args = ["--bootrom", romFileName];
     if (config.flags.blueSCSI) {
         args.push("--bluescsi_dir", "/Shared/Downloads");
         args.push("--bluescsi_send_dir", "/Shared/Uploads");
