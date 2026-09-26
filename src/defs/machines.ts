@@ -11,6 +11,8 @@ import quadra650RomPath from "@/Data/Quadra-650.rom";
 import newWorldRomPath from "@/Data/New-World.rom";
 import powerMacintosh6100RomPath from "@/Data/Power-Macintosh-6100.rom";
 import powerMacintosh7300RomPath from "@/Data/Power-Macintosh-7300.rom";
+import powerMacintosh7300NvramPath from "@/Data/Power-Macintosh-7300-nvram.bin?url";
+import powerMacintosh7300PramPath from "@/Data/Power-Macintosh-7300-pram.bin?url";
 import powerMacintosh7500RomPath from "@/Data/Power-Macintosh-7500.rom";
 import powerMacintosh9500RomPath from "@/Data/Power-Macintosh-9500.rom";
 import powerMacintoshG3RomPath from "@/Data/Power-Macintosh-G3.rom";
@@ -423,6 +425,10 @@ export const POWER_MACINTOSH_7300: MachineDef = {
         {width: 640, height: 870, monitorId: "MacRGB15in"},
         {width: 640, height: 480, monitorId: "Multiscan15in"},
     ],
+    extraFiles: {
+        "nvram.bin": powerMacintosh7300NvramPath,
+        "pram.bin": powerMacintosh7300PramPath,
+    },
     ramSizes: ["16M", "32M", "64M", "128M", "256M"],
 };
 
