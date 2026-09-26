@@ -10,6 +10,7 @@ import macIIfxRomPath from "@/Data/Mac-IIfx.rom";
 import quadra650RomPath from "@/Data/Quadra-650.rom";
 import newWorldRomPath from "@/Data/New-World.rom";
 import powerMacintosh6100RomPath from "@/Data/Power-Macintosh-6100.rom";
+import powerMacintosh7300RomPath from "@/Data/Power-Macintosh-7300.rom";
 import powerMacintosh7500RomPath from "@/Data/Power-Macintosh-7500.rom";
 import powerMacintosh9500RomPath from "@/Data/Power-Macintosh-9500.rom";
 import powerMacintoshG3RomPath from "@/Data/Power-Macintosh-G3.rom";
@@ -408,6 +409,23 @@ export const POWER_MACINTOSH_7200: MachineDef = {
     ramSizes: ["16M", "32M", "64M", "128M", "256M"],
 };
 
+export const POWER_MACINTOSH_7300: MachineDef = {
+    name: "Power Macintosh 7300",
+    cpu: "604",
+    romPath: powerMacintosh7300RomPath,
+    gestaltID: 109,
+    emulatorType: "DingusPPC",
+    prefsPath: emptyPrefsPath,
+    bezelStyle: "Platinum",
+    supportedScreenSizes: [
+        {width: 1152, height: 870, monitorId: "Multiscan20in"},
+        {width: 832, height: 624, monitorId: "Multiscan17in"},
+        {width: 640, height: 870, monitorId: "MacRGB15in"},
+        {width: 640, height: 480, monitorId: "Multiscan15in"},
+    ],
+    ramSizes: ["16M", "32M", "64M", "128M", "256M"],
+};
+
 export const POWER_MACINTOSH_7500: MachineDef = {
     name: "Power Macintosh 7500",
     cpu: "601",
@@ -604,6 +622,7 @@ export const ALL_MACHINES = [
     QUADRA_650,
     POWER_MACINTOSH_6100,
     POWER_MACINTOSH_7200,
+    POWER_MACINTOSH_7300,
     POWER_MACINTOSH_7500,
     POWER_MACINTOSH_9500,
     POWER_MACINTOSH_G3_BEIGE,
