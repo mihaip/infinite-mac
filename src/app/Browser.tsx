@@ -12,6 +12,8 @@ import {
     MAC_OS_X_DISKS_BY_YEAR,
     AUX_DISKS,
     AUX_DISKS_BY_YEAR,
+    BEOS_DISKS,
+    BEOS_DISKS_BY_YEAR,
 } from "@/defs/disks";
 import {type MachineDef} from "@/defs/machines";
 import {ScreenFrame} from "@/controls/ScreenFrame";
@@ -31,6 +33,7 @@ import {AppearanceProvider} from "@/controls/Appearance";
 import {Embed} from "@/app/Embed";
 import {EmbedDocs} from "@/app/EmbedDocs";
 import {iso} from "@/lib/iso";
+import {isBeOSLaunched} from "@/flags";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -108,6 +111,7 @@ function Description({
     const [embedDocsVisible, setEmbedDocsVisible] = useState(
         location.pathname === "/embed-docs"
     );
+    const beosLaunched = isBeOSLaunched();
 
     return (
         <div className="Description">
@@ -117,10 +121,11 @@ function Description({
                 comfort of a web browser.
             </p>
             <p>
-                Pick any version of System Software, Mac OS, A/UX, Mac OS X or
-                NeXTStep from the 1980s, 1990s or early 2000s and run it within
-                a virtual machine. An “Infinite HD” disk with representative
-                software from that era is also available. You can also{" "}
+                Pick any version of System Software, Mac OS, A/UX Mac OS X,{" "}
+                {beosLaunched && " BeOS,"} or NeXTStep from the 1980s, 1990s or
+                early 2000s and run it within a virtual machine. An “Infinite
+                HD” disk with representative software from that era is also
+                available. You can also{" "}
                 <a
                     href="/run"
                     onClick={e => {
@@ -179,16 +184,37 @@ function Description({
 }
 
 function disks() {
+    const beosLaunched = isBeOSLaunched();
     return {
         "all": {
             label: "All",
-            all: ALL_DISKS,
-            byYear: DISKS_BY_YEAR,
+            all: beosLaunched
+                ? ALL_DISKS
+                : ALL_DISKS.filter(d => d.family !== "beos"),
+            byYear: beosLaunched
+                ? DISKS_BY_YEAR
+                : Object.fromEntries(
+                      Object.entries(DISKS_BY_YEAR).map(([year, disks]) => [
+                          year,
+                          disks.filter(d => d.family !== "beos"),
+                      ])
+                  ),
         },
         "notable": {
             label: "Notable",
-            all: NOTABLE_DISKS,
-            byYear: NOTABLE_DISKS_BY_YEAR,
+            all: beosLaunched
+                ? NOTABLE_DISKS
+                : NOTABLE_DISKS.filter(d => d.family !== "beos"),
+            byYear: beosLaunched
+                ? NOTABLE_DISKS_BY_YEAR
+                : Object.fromEntries(
+                      Object.entries(NOTABLE_DISKS_BY_YEAR).map(
+                          ([year, disks]) => [
+                              year,
+                              disks.filter(d => d.family !== "beos"),
+                          ]
+                      )
+                  ),
         },
         "aux": {
             label: "A/UX",
@@ -196,6 +222,11 @@ function disks() {
             byYear: AUX_DISKS_BY_YEAR,
         },
         "next": {label: "NeXT", all: NEXT_DISKS, byYear: NEXT_DISKS_BY_YEAR},
+        "beos": {
+            label: "BeOS",
+            all: beosLaunched ? BEOS_DISKS : [],
+            byYear: beosLaunched ? BEOS_DISKS_BY_YEAR : {},
+        },
         "macosx": {
             label: "Mac OS X",
             all: MAC_OS_X_DISKS,

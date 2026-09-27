@@ -22,6 +22,7 @@ import {
     POWER_MACINTOSH_G3_BW,
     POWER_MACINTOSH_G4_PEARPC,
     QUADRA_650,
+    POWER_MACINTOSH_7300,
 } from "@/defs/machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -69,7 +70,7 @@ export type SystemDiskDef = EmulatorDiskDef & {
     family?: SystemFamily;
 };
 
-export type SystemFamily = "aux" | "macosx" | "next";
+export type SystemFamily = "aux" | "macosx" | "next" | "beos";
 
 export type DiskFile = {
     file: File;
@@ -2217,6 +2218,19 @@ const AUX_3_1_1: PlaceholderDiskDef = {
     preferredMachine: MAC_IIcx_SNOW,
 };
 
+const BEOS_R3: SystemDiskDef = {
+    family: "beos",
+    displayName: "BeOS Release 3",
+    description:
+        "Added support for the Intel architecture. Added “Open With”, scripting, and more find options to Tracker. Added the Translation Kit, slider and tab controls to Interface Kit. Added the DiskProbe and ShowImage apps, improved NetPositive, and offered focus-follows-mouse.",
+    releaseDate: [1998, 4, 6],
+    prefetchChunks: [0],
+    preferredMachine: POWER_MACINTOSH_7300,
+    preferredRAMSize: "32M",
+    generatedSpec: () => import("@/Data/BeOS R3 HD.dsk.json"),
+    hasDeviceImageHeader: true,
+};
+
 export const ALL_DISKS = [
     SYSTEM_1_0,
     SYSTEM_1_1,
@@ -2302,6 +2316,8 @@ export const ALL_DISKS = [
     AUX_3_0_2,
     AUX_3_1,
     AUX_3_1_1,
+
+    BEOS_R3,
 ];
 
 export const FLOPPY_DISKS = [
@@ -2334,6 +2350,7 @@ export const NOTABLE_DISKS: SystemDiskDef[] = [];
 export const NEXT_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
 export const MAC_OS_X_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
 export const AUX_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
+export const BEOS_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
 
 export const DISKS_BY_YEAR: {
     [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
@@ -2348,6 +2365,9 @@ export const MAC_OS_X_DISKS_BY_YEAR: {
     [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
 } = {};
 export const AUX_DISKS_BY_YEAR: {
+    [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
+} = {};
+export const BEOS_DISKS_BY_YEAR: {
     [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
 } = {};
 
@@ -2378,6 +2398,9 @@ ALL_DISKS.forEach(disk => {
     }
     if (disk.family === "aux") {
         addDisk(AUX_DISKS, AUX_DISKS_BY_YEAR);
+    }
+    if (disk.family === "beos") {
+        addDisk(BEOS_DISKS, BEOS_DISKS_BY_YEAR);
     }
 });
 

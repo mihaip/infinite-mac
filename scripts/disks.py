@@ -493,6 +493,9 @@ AUX_31 = Disk(
     ],
 )
 
+BEOS_R3 = Disk(name="BeOS R3 HD.dsk")
+
+
 ALL_DISKS = [
     # Classic
     SYSTEM_10_ORIGINAL,
@@ -568,4 +571,6 @@ ALL_DISKS = [
     AUX_30,
     AUX_301,
     AUX_31,
+    # BeOS
+    BEOS_R3,
 ]
