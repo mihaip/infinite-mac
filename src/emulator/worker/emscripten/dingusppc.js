@@ -4720,31 +4720,31 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 var ASM_CONSTS = {
-  204688: $0 => {
+  204720: $0 => {
     workerApi.setAbortError(UTF8ToString($0));
   },
-  204735: () => workerApi.acquireInputLock(),
-  204776: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
-  204865: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr),
-  204955: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
-  205045: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
-  205129: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
-  205213: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
-  205300: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
-  205387: () => {
+  204767: () => workerApi.acquireInputLock(),
+  204808: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
+  204897: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr),
+  204987: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
+  205077: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
+  205161: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
+  205245: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
+  205332: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
+  205419: () => {
     workerApi.releaseInputLock();
   },
-  205421: () => {
+  205453: () => {
     workerApi.sleep(0);
   },
-  205445: () => workerApi.acquireInputLock(),
-  205486: () => {
+  205477: () => workerApi.acquireInputLock(),
+  205518: () => {
     workerApi.releaseInputLock();
   },
-  205520: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
-  205605: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
-  205685: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
-  205766: () => {
+  205552: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
+  205637: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
+  205717: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
+  205798: () => {
     const name = workerApi.disks.consumeCdromName();
     if (!name) {
       return 0;
@@ -4754,35 +4754,35 @@ var ASM_CONSTS = {
     stringToUTF8(name, name_cstr, name_length);
     return name_cstr;
   },
-  205993: $0 => {
+  206025: $0 => {
     workerApi.reportError(UTF8ToString($0));
   },
-  206038: ($0, $1, $2, $3) => {
+  206070: ($0, $1, $2, $3) => {
     workerApi.didOpenAudio($0, $1, $2, $3);
   },
-  206082: () => workerApi.audioBufferSize(),
-  206122: ($0, $1) => {
+  206114: () => workerApi.audioBufferSize(),
+  206154: ($0, $1) => {
     workerApi.enqueueAudio($0, $1);
   },
-  206158: ($0, $1) => {
+  206190: ($0, $1) => {
     workerApi.didOpenVideo($0, $1);
   },
-  206194: ($0, $1) => {
+  206226: ($0, $1) => {
     workerApi.blit($0, $1);
   },
-  206222: ($0, $1) => {
+  206254: ($0, $1) => {
     workerApi.blit($0, $1);
   },
-  206250: () => {
+  206282: () => {
     workerApi.blit(0, 0);
   },
-  206276: $0 => workerApi.disks.open(UTF8ToString($0)),
-  206327: $0 => {
+  206308: $0 => workerApi.disks.open(UTF8ToString($0)),
+  206359: $0 => {
     workerApi.disks.close($0);
   },
-  206358: $0 => workerApi.disks.size($0),
-  206395: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
-  206444: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3)
+  206390: $0 => workerApi.disks.size($0),
+  206427: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
+  206476: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3)
 };
 
 // Imports from the Wasm binary.
