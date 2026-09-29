@@ -52,7 +52,7 @@
     background-color: white;
 }
 
-.Drawer-Classic .Drawer-Title:active {
+.Drawer-Classic .Drawer-Title:is(:active, .Control-Active) {
     background-color: #eee;
 }
 
@@ -60,7 +60,7 @@
     background-color: #ddd;
 }
 
-.Drawer-Platinum .Drawer-Title:active {
+.Drawer-Platinum .Drawer-Title:is(:active, .Control-Active) {
     background-color: #ccc;
 }
 
@@ -68,7 +68,7 @@
     background-color: #ccc;
 }
 
-.Drawer-Platinum.Drawer-Expanded .Drawer-Title:active {
+.Drawer-Platinum.Drawer-Expanded .Drawer-Title:is(:active, .Control-Active) {
     background-color: #bbb;
 }
 
@@ -100,7 +100,7 @@
     font-weight: medium !important;
 }
 
-.Drawer-Aqua .Drawer-Title:active {
+.Drawer-Aqua .Drawer-Title:is(:active, .Control-Active) {
     filter: brightness(0.9);
 }
 
@@ -275,6 +275,79 @@
     padding: 8px;
     text-align: center;
     opacity: 0.7;
+}
+
+/* BeOS has no drawers: borrow its yellow window tab and gray window frame. */
+.Drawer-BeOS {
+    align-items: flex-start;
+    filter: none;
+    font-family: "Helvetica", "Arial", sans-serif;
+    color: #000;
+}
+
+.Drawer-BeOS .Drawer-Title {
+    /* Gray window frame outside the yellow tab's highlight and shadow. */
+    top: 0;
+    padding: 2px 12px 2px 4px;
+    border: 1px solid;
+    border-bottom-width: 0;
+    border-color: #989898 #606060 #989898 #989898;
+    border-radius: 0;
+    box-shadow:
+        inset 1px 1px #ffff66,
+        inset -1px 0 #ff9800;
+    background: #ffcb00;
+    font-weight: bold;
+}
+
+.Drawer-BeOS .Drawer-Title:is(:active, .Control-Active) {
+    box-shadow:
+        inset 1px 1px #e68600,
+        inset -1px 0 #ffff66;
+}
+
+.Drawer-BeOS.Drawer-Expanded .Drawer-Title {
+    top: 1px;
+}
+
+.Drawer-BeOS.Drawer-Expanded .Drawer-Title::after {
+    /* Blend the bottom of the tab with the frame. */
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0.5px;
+    bottom: -2px;
+    height: 2px;
+    border-left: solid 1px #fff;
+    background-color: #d8d8d8;
+}
+
+.Drawer-Contents-BeOS {
+    border-image: url("@/Images/BeOSDialogFrame.png") 5 fill / 5px;
+    border-width: 5px;
+    border-radius: 0;
+    background: #d8d8d8;
+    image-rendering: pixelated;
+}
+
+.Drawer-BeOS .Drawer-Header {
+    background: #d8d8d8;
+    border-bottom: 1px solid #818181;
+    box-shadow: 0 1px #fff;
+}
+
+.Drawer-List-BeOS {
+    background: #fff;
+}
+
+.Drawer-List-BeOS.Drawer-List-Tall {
+    min-height: 100%;
+}
+
+.Drawer-BeOS .Drawer-List-Category h3 {
+    background: #d8d8d8;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #818181;
 }
 
 @media (max-width: 440px) {

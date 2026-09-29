@@ -48,3 +48,8 @@ https://tinkerdifferent.com/resources/collection-of-classic-apple-fonts-for-your
 .AppearanceSystemFont-NeXT {
     font-family: "Helvetica", "Arial", sans-serif;
 }
+
+.AppearanceSystemFont-BeOS {
+    /* BeOS uses Swiss 721, which is a variant of Helvetica. */
+    font-family: "Helvetica", "Arial", sans-serif;
+}

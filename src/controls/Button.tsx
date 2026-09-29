@@ -4,14 +4,16 @@ import {appearanceSystemFont, useAppearance} from "@/controls/Appearance";
 
 export function Button({
     className,
+    defaultButton = false,
     children,
     ...buttonProps
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {defaultButton?: boolean}) {
     const appearance = useAppearance();
     const buttonClassName = classNames(
         "Button",
         `Button-${appearance}`,
         appearanceSystemFont(appearance),
+        {"Button-Default": defaultButton},
         className
     );
     return (

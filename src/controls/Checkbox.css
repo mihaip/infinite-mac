@@ -33,7 +33,7 @@
     background-image: url("@/Images/ClassicCheckbox.png");
 }
 
-.Checkbox-Classic:active::before {
+.Checkbox-Classic:is(:active, .Control-Active)::before {
     background-image: url("@/Images/ClassicCheckbox-Active.png");
 }
 
@@ -41,7 +41,7 @@
     background-image: url("@/Images/ClassicCheckbox-Checked.png");
 }
 
-.Checkbox-Classic:checked:active::before {
+.Checkbox-Classic:checked:is(:active, .Control-Active)::before {
     background-image: url("@/Images/ClassicCheckbox-CheckedActive.png");
 }
 
@@ -49,7 +49,7 @@
     background-image: url("@/Images/PlatinumCheckbox.png");
 }
 
-.Checkbox-Platinum:active::before {
+.Checkbox-Platinum:is(:active, .Control-Active)::before {
     background-image: url("@/Images/PlatinumCheckbox-Active.png");
 }
 
@@ -57,7 +57,7 @@
     background-image: url("@/Images/PlatinumCheckbox-Checked.png");
 }
 
-.Checkbox-Platinum:checked:active::before {
+.Checkbox-Platinum:checked:is(:active, .Control-Active)::before {
     background-image: url("@/Images/PlatinumCheckbox-CheckedActive.png");
 }
 
@@ -73,7 +73,7 @@
     background-size: 18px 18px;
 }
 
-.Checkbox-Aqua:active::before {
+.Checkbox-Aqua:is(:active, .Control-Active)::before {
     background-image: url("@/Images/AquaCheckbox-Active.png");
 }
 
@@ -81,7 +81,7 @@
     background-image: url("@/Images/AquaCheckbox-Checked.png");
 }
 
-.Checkbox-Aqua:checked:active::before {
+.Checkbox-Aqua:checked:is(:active, .Control-Active)::before {
     background-image: url("@/Images/AquaCheckbox-CheckedActive.png");
 }
 
@@ -97,7 +97,7 @@
     background-image: url("@/Images/NeXTCheckbox.png");
 }
 
-.Checkbox-NeXT:active::before {
+.Checkbox-NeXT:is(:active, .Control-Active)::before {
     background-image: url("@/Images/NeXTCheckbox-Active.png");
 }
 
@@ -105,6 +105,35 @@
     background-image: url("@/Images/NeXTCheckbox-Checked.png");
 }
 
-.Checkbox-NeXT:checked:active::before {
+.Checkbox-NeXT:checked:is(:active, .Control-Active)::before {
     background-image: url("@/Images/NeXTCheckbox-CheckedActive.png");
+}
+
+.Checkbox-BeOS,
+.Checkbox-BeOS::before {
+    width: 15px;
+    height: 15px;
+}
+
+.Checkbox-BeOS {
+    /* Two extra pixels of margin to compensate for the lack of space for the
+    check sticking out of the box in the Platinum style. */
+    margin-right: 4px;
+}
+
+.Checkbox-BeOS::before {
+    background-size: 15px 15px;
+    background-image: url("@/Images/BeOSCheckbox.png");
+}
+
+.Checkbox-BeOS:is(:active, .Control-Active)::before {
+    background-image: url("@/Images/BeOSCheckbox-Active.png");
+}
+
+.Checkbox-BeOS:checked::before {
+    background-image: url("@/Images/BeOSCheckbox-Checked.png");
+}
+
+.Checkbox-BeOS:checked:is(:active, .Control-Active)::before {
+    background-image: url("@/Images/BeOSCheckbox-CheckedActive.png");
 }

@@ -145,3 +145,24 @@
 .Dialog-Normal-Button {
     font-weight: normal;
 }
+
+.Dialog.Dialog-BeOS {
+    border-image-source: url("@/Images/BeOSDialogFrame.png");
+    font-family: "Helvetica", "Arial", sans-serif;
+    color: #000;
+}
+
+.Dialog-Backdrop-BeOS {
+    /* BeOS leaves the parent window visible while an alert is open, but we
+    still dim things slightly to make it more visually distinct. */
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.Dialog-BeOS .Dialog-Description {
+    color: #444;
+}
+
+.Dialog-BeOS footer {
+    gap: 12px;
+    padding: 4px;
+}

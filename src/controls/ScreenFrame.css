@@ -134,8 +134,12 @@
     outline: solid 2px rgba(0, 0, 0, 0.4);
 }
 
-.ScreenFrame-Control.ScreenFrame-Bezel-Text:active {
-    color: color-mix(var(--screen-bezel-color-dark1), var(--screen-led-color));
+.ScreenFrame-Control.ScreenFrame-Bezel-Text:is(:active, .Control-Active) {
+    color: color-mix(
+        in srgb,
+        var(--screen-bezel-color-dark1),
+        var(--screen-led-color)
+    );
 }
 
 .ScreenFrame-Control-MenuContent {

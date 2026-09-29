@@ -378,14 +378,13 @@ const MacLibraryTable = memo(function ({
             wide,
         }: {selected?: boolean; narrow?: boolean; wide?: boolean} = {}
     ) => {
-        const content =
-            appearance === "Platinum" ? (
-                <BevelButton selected={selected} centered={false}>
-                    {label}
-                </BevelButton>
-            ) : (
-                label
-            );
+        const content = ["Platinum", "BeOS"].includes(appearance) ? (
+            <BevelButton selected={selected} centered={false}>
+                {label}
+            </BevelButton>
+        ) : (
+            label
+        );
         return (
             <th
                 className={classNames({

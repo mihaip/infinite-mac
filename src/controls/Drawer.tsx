@@ -27,11 +27,13 @@ export function DrawersContainer({children}: PropsWithChildren) {
 
 export function Drawer({
     title,
+    titleClassName,
     titleIconUrl,
     titleIconSmoothScale,
     contents,
 }: {
     title: string;
+    titleClassName?: string;
     titleIconUrl: string;
     titleIconSmoothScale?: boolean;
     contents: (collapse: () => void) => ReactNode;
@@ -59,6 +61,7 @@ export function Drawer({
             <div
                 className={classNames(
                     "Drawer-Title",
+                    titleClassName,
                     appearanceSystemFont(appearance)
                 )}
                 onClick={toggleExpanded}>

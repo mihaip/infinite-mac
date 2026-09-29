@@ -66,6 +66,7 @@ export function Dialog({
                         </Button>
                     )}
                     <Button
+                        // TODO: enable defaultButton once we make it actually respond to the Enter key
                         className={doneClassName}
                         disabled={!doneEnabled}
                         onClick={e => {

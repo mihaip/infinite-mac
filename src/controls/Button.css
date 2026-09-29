@@ -12,7 +12,7 @@
     white-space: nowrap;
 }
 
-.Button:active {
+.Button:is(:active, .Control-Active) {
     color: #fff;
 }
 
@@ -35,7 +35,7 @@
     line-height: 13px;
 }
 
-.Button.Button-Classic:active {
+.Button.Button-Classic:is(:active, .Control-Active) {
     border-image-source: url("@/Images/ClassicButton-Active.png");
 }
 
@@ -44,7 +44,7 @@
     line-height: 13px;
 }
 
-.Button.Button-Platinum:active {
+.Button.Button-Platinum:is(:active, .Control-Active) {
     border-image-source: url("@/Images/PlatinumButton-Active.png");
 }
 
@@ -64,7 +64,7 @@
     text-shadow: 0 2px 2px rgba(0, 0, 0, 0.5);
 }
 
-.Button.Button-Aqua:active {
+.Button.Button-Aqua:is(:active, .Control-Active) {
     border-image-source: url("@/Images/AquaButton-Active.png");
     color: #000;
 }
@@ -79,7 +79,41 @@
     border-image-source: url("@/Images/NeXTButton.png");
 }
 
-.Button.Button-NeXT:active {
+.Button.Button-NeXT:is(:active, .Control-Active) {
     color: #000;
     border-image-source: url("@/Images/NeXTButton-Active.png");
+}
+
+.Button.Button-BeOS {
+    border-image-source: url("@/Images/BeOSButton.png");
+    font-weight: normal;
+    line-height: 15px;
+    padding: 0 12px;
+    border-radius: 0;
+}
+
+.Button-BeOS.Button-Default {
+    /* The extra raised frame around the default action. */
+    outline: 1px solid #818181;
+    outline-offset: 3px;
+    box-shadow:
+        0 0 0 2px #d8d8d8,
+        1px 1px 0 3px #fff,
+        -1px -1px 0 3px #acacac;
+}
+
+.Button.Button-BeOS:is(:active, .Control-Active):not(:disabled) {
+    border-image-source: url("@/Images/BeOSButton-Active.png");
+    color: #fff;
+}
+
+.Button.Button-BeOS:focus-visible {
+    text-decoration: underline;
+    text-decoration-color: #0000dc;
+    /* For accuracy there should also be a second white line underneath, but we
+    don't want to have an extra span to achieve that. Just have the blue be
+    twice as tall, which is more noticeable anyway. */
+    text-decoration-thickness: 2px;
+    outline: 0;
+    border-radius: 0;
 }

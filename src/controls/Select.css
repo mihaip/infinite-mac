@@ -15,7 +15,7 @@
     -moz-appearance: none;
 }
 
-.Select:active {
+.Select:is(:active, .Control-Active) {
     color: #fff;
 }
 
@@ -39,7 +39,7 @@
     border-bottom-width: 2px;
 }
 
-.Select.Select-Classic:active {
+.Select.Select-Classic:is(:active, .Control-Active) {
     border-image-source: url("@/Images/ClassicSelect-Active.png");
 }
 
@@ -49,7 +49,7 @@
     border-bottom-width: 2px;
 }
 
-.Select.Select-Platinum:active {
+.Select.Select-Platinum:is(:active, .Control-Active) {
     border-image-source: url("@/Images/PlatinumSelect-Active.png");
 }
 
@@ -67,8 +67,9 @@
     font-size: 13px;
 }
 
-.Select.Select-Aqua:active {
+.Select.Select-Aqua:is(:active, .Control-Active) {
     border-image-source: url("@/Images/AquaSelect-Active.png");
+    color: #000;
 }
 
 .Select.Select-Aqua:focus-visible {
@@ -81,7 +82,24 @@
     border-image-source: url("@/Images/NeXTSelect.png");
 }
 
-.Select.Select-NeXT:active {
+.Select.Select-NeXT:is(:active, .Control-Active) {
     color: #000;
     border-image-source: url("@/Images/NeXTSelect-Active.png");
+}
+
+.Select.Select-BeOS {
+    border-image: url("@/Images/BeOSSelect.png") 2 15 3 4 fill / 2px 15px 3px
+        4px;
+    border-width: 2px 15px 3px 4px;
+}
+
+.Select.Select-BeOS:is(:active, .Control-Active) {
+    color: #fff;
+    border-image-source: url("@/Images/BeOSSelect-Active.png");
+}
+
+.Select.Select-BeOS:focus-visible {
+    outline: 1px solid #00f;
+    outline-offset: -1px;
+    border-radius: 0;
 }

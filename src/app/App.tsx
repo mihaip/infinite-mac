@@ -78,6 +78,13 @@ function AppImpl() {
                 />
             );
         }
+    } else if (iso().location.pathname === "/_controls") {
+        contents = (
+            <Suspense>
+                <ControlsPreview />
+            </Suspense>
+        );
+        footer = undefined;
     } else {
         contents = (
             <React.StrictMode>
@@ -109,6 +116,8 @@ function AppImpl() {
         </div>
     );
 }
+
+const ControlsPreview = React.lazy(() => import("@/app/ControlsPreview"));
 
 // Lazy load to avoid the bundle hit, but prefetch and replace with the
 // implementation so that we can use view transitions and not worry about

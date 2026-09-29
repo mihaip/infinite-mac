@@ -22,6 +22,7 @@ export type ScreenFrameProps = {
 } & React.HTMLAttributes<HTMLDivElement>;
 
 type ScreenControlDisplay = {
+    className?: string;
     label: string;
     title?: string;
     alwaysVisible?: boolean;
@@ -147,12 +148,13 @@ function ScreenFrameButtonControl({
     control: ScreenButtonControl;
     expandedControl?: ScreenMenuControl | null;
 }) {
-    const {label, title, handler, alwaysVisible, selected} = control;
+    const {label, title, handler, alwaysVisible, selected, className} = control;
     return (
         <button
             type="button"
             className={classNames(
                 "ScreenFrame-Control ScreenFrame-Bezel-Text",
+                className,
                 {"ScreenFrame-Control-Selected": selected}
             )}
             style={{
@@ -181,6 +183,7 @@ function ScreenFrameMenuControl({
         <ScreenFrameButtonControl
             control={{
                 label: control.label,
+                className: control.className,
                 handler: () => setExpandedControl(isSelected ? null : control),
                 selected: isSelected,
                 alwaysVisible: expandedControl !== null,

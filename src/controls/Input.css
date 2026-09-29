@@ -67,3 +67,23 @@
 .Input.Input-NeXT {
     border-image-source: url("@/Images/NeXTInput.png");
 }
+
+.Input.Input-BeOS {
+    border-image-source: url("@/Images/BeOSInput.png");
+}
+
+.Input.Input-BeOS:focus {
+    outline: 1px solid #00f;
+    outline-offset: -2px;
+    border-radius: 0;
+}
+
+.Input.Input-BeOS:invalid {
+    outline: 1px solid red;
+    outline-offset: -2px;
+    border-radius: 0;
+}
+
+.Input.Input-BeOS:disabled {
+    opacity: 0.5;
+}

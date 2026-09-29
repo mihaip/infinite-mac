@@ -69,12 +69,18 @@
     text-decoration: underline;
 }
 
-.Mac-Library-Table-Platinum th {
+.Mac-Library-Table-Platinum th,
+.Mac-Library-Table-BeOS th {
     padding: 0 !important;
 }
 
-.Mac-Library-Table-Platinum th .BevelButton {
+.Mac-Library-Table th .BevelButton {
+    display: block;
     width: 100%;
+}
+
+.Mac-Library-Table-BeOS tbody {
+    background: #fff;
 }
 
 .Mac-Library-Table-Platinum tbody tr {

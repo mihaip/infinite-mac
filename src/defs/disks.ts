@@ -2228,6 +2228,7 @@ const BEOS_R3: SystemDiskDef = {
     preferredMachine: POWER_MACINTOSH_7300,
     preferredRAMSize: "32M",
     generatedSpec: () => import("@/Data/BeOS R3 HD.dsk.json"),
+    appearance: "BeOS",
     hasDeviceImageHeader: true,
 };
 

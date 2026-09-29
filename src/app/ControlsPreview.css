@@ -1,0 +1,170 @@
+.ControlsPreview {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 24px;
+    color: #eee;
+}
+
+.ControlsPreview-Header {
+    margin-bottom: 32px;
+}
+
+.ControlsPreview-Header h1 {
+    margin: 0;
+}
+
+.ControlsPreview-Columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    align-items: flex-start;
+}
+
+.ControlsPreview-Columns > section {
+    box-sizing: border-box;
+    flex: 1 0 500px;
+    min-width: 0;
+}
+
+.ControlsPreview-Appearance {
+    min-width: 0;
+    scroll-margin-top: 16px;
+}
+
+.ControlsPreview-Appearance > h2 {
+    margin: 0 0 12px;
+}
+
+.ControlsPreview .ControlsPreview-Frame {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: none;
+    color: #000;
+}
+
+.ControlsPreview-Frame .Group {
+    min-width: 0;
+    margin: 16px 0;
+}
+
+.ControlsPreview-Row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 8px 0;
+}
+
+.ControlsPreview-Frame .ControlsPreview-Row label {
+    margin: 0;
+}
+
+.ControlsPreview-Fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+}
+
+.ControlsPreview-Fields > label {
+    flex: 1 1 180px;
+    min-width: 0;
+}
+
+.ControlsPreview-Fields label,
+.ControlsPreview-Frame .ControlsPreview-TextArea {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ControlsPreview-Fields .Input,
+.ControlsPreview-TextArea .Input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+}
+
+.ControlsPreview-Status {
+    margin-bottom: 0;
+}
+
+/* Contain each live drawer in its own sample instead of fixing it to the viewport. */
+.ControlsPreview-Drawer {
+    margin-top: 24px;
+}
+
+.ControlsPreview-Drawer .Drawers-Container {
+    position: static;
+    margin: 0;
+    justify-content: start;
+}
+
+.ControlsPreview-Drawer .Drawer {
+    width: 100%;
+    color: #000;
+}
+
+.ControlsPreview-Drawer .Drawer-Contents {
+    box-sizing: border-box;
+    width: 100%;
+    height: 220px;
+}
+
+.ControlsPreview-Drawer .Drawer-NeXT.Drawer-Expanded .Drawer-Title {
+    width: 100%;
+}
+
+.ControlsPreview-Drawer .Drawer-Header .Input {
+    min-width: 0;
+    flex: 1;
+}
+
+.ControlsPreview-Drawer .Drawer-List .ControlsPreview-Row {
+    margin: 12px;
+}
+
+.ControlsPreview-Screens {
+    margin-top: 48px;
+}
+
+.ControlsPreview-Screen {
+    padding: 0 16px 24px;
+}
+
+.ControlsPreview-Screen .ScreenFrame {
+    margin: 16px 0;
+}
+
+.ControlsPreview-ScreenContent {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    background: #fff;
+    color: #000;
+    font-size: 18px;
+}
+
+@media (max-width: 600px) {
+    .ControlsPreview {
+        padding: 16px;
+    }
+}
+
+.ControlsPreview-List thead {
+    position: static;
+}
+
+.ControlsPreview-List th {
+    padding: 0 !important;
+}
+
+.ControlsPreview-List th.wide {
+    width: 35%;
+}
+
+.ControlsPreview-List th .BevelButton {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

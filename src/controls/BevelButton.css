@@ -15,7 +15,7 @@
     text-align: center;
 }
 
-.BevelButton:active {
+.BevelButton:is(:active, .Control-Active) {
     color: #fff;
 }
 
@@ -28,7 +28,31 @@
     line-height: 13px;
 }
 
-.BevelButton-Platinum:active,
+.BevelButton-Platinum:is(:active, .Control-Active),
 .BevelButton-Platinum.BevelButton-Selected {
     border-image-source: url("@/Images/PlatinumBevelButton-Active.png");
+}
+
+.BevelButton-BeOS {
+    /* Tracker column headers have a thin raised edge, even while pressed. */
+    border-image: none;
+    border: 1px solid;
+    border-color: #818181 #818181 #818181 #fff;
+    border-radius: 0;
+    box-shadow:
+        inset 0 1px #fff,
+        inset -1px -1px #ababab;
+    padding: 1px 6px;
+    background: #e3e3e3;
+    font-family: "Helvetica", "Arial", sans-serif;
+    font-weight: normal;
+}
+
+.BevelButton-BeOS.BevelButton-Selected {
+    text-decoration: underline;
+}
+
+.BevelButton-BeOS:is(:active, .Control-Active) {
+    background: #3c3c3c;
+    color: #fff;
 }

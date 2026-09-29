@@ -17,3 +17,14 @@
 .Group legend {
     font-size: 13px;
 }
+
+.Group.Group-BeOS {
+    border-style: groove;
+    border-width: 2px;
+    border-color: #fff;
+}
+
+.Group-BeOS legend {
+    font-weight: bold;
+    padding: 0 4px;
+}
