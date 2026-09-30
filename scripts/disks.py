@@ -497,6 +497,8 @@ BEOS_DR82 = Disk(name="BeOS DR8.2 HD.dsk")
 
 BEOS_DR83 = Disk(name="BeOS DR8.3 HD.dsk")
 
+BEOS_PR1 = Disk(name="BeOS PR1 HD.dsk")
+
 BEOS_R3 = Disk(name="BeOS R3 HD.dsk")
 
 
@@ -578,5 +580,6 @@ ALL_DISKS = [
     # BeOS
     BEOS_DR82,
     BEOS_DR83,
+    BEOS_PR1,
     BEOS_R3,
 ]

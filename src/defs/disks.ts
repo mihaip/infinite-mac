@@ -2276,15 +2276,28 @@ const BEOS_DR8_3: SystemDiskDef = {
     hasDeviceImageHeader: true,
 };
 
-const BEOS_PR_1: PlaceholderDiskDef = {
+const BEOS_PR_1: SystemDiskDef = {
     family: "beos",
-    type: "placeholder",
     displayName: "BeOS Preview Release 1",
     description:
         "First general public release, with a new 64-bit journaling BFS file system, OpenGL and other graphics capabilities, and Tracker desktop, HFS access, Replicants object model, Unicode support, improved networking, and support for more PCI Macs and clones.",
     releaseDate: [1997, 7, 16],
+    prefetchChunks: [
+        0, 4, 8, 9, 10, 256, 512, 768, 769, 770, 812, 816, 821, 822, 823, 824,
+        827, 833, 834, 835, 837, 838, 1025, 1026, 1027, 1098, 1102, 1103, 1104,
+        1105, 1106, 1107, 1108, 1110, 1111, 1112, 1113, 1114, 1127, 1282, 1283,
+        1284, 1289, 1290, 1328, 1329, 1330, 1331, 1336, 1536, 1537, 1538, 1568,
+        1569, 1570, 1573, 1574, 1632, 1792, 1793, 1824, 3600, 3603, 3614, 3615,
+        3616, 3617, 3618, 3619, 3620, 3621, 3623, 3624, 3626, 3627, 3628, 3630,
+        3631, 3632, 3633, 3634, 3635, 3690, 3691, 3692, 3693, 3694, 3698, 3699,
+        3700, 3701, 3730, 3731, 3753, 3754, 3774, 3775, 3794, 3797, 3807, 3823,
+        3824, 3825,
+    ],
     preferredMachine: POWER_MACINTOSH_7300,
+    preferredRAMSize: "32M",
+    generatedSpec: () => import("@/Data/BeOS PR1 HD.dsk.json"),
     appearance: "BeOS",
+    hasDeviceImageHeader: true,
 };
 
 const BEOS_PR_2: PlaceholderDiskDef = {
