@@ -2218,11 +2218,90 @@ const AUX_3_1_1: PlaceholderDiskDef = {
     preferredMachine: MAC_IIcx_SNOW,
 };
 
+const BEOS_DR8_2: SystemDiskDef = {
+    family: "beos",
+    displayName: "BeOS DR8.2",
+    description:
+        "First developer release to support Power Macintosh machines. Expired on April 1, 1997 to licensing limitations of the font renderer.",
+    releaseDate: [1996, 12, 23],
+    customDate: new Date(1996, 11, 23), // Avoid 1997-04-01 time-bomb.
+    prefetchChunks: [
+        0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 14, 15, 18, 19, 24, 25, 29, 30,
+        33, 34, 35, 45, 47, 52, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
+        72, 73, 74, 75, 76, 77, 79, 80, 81, 82, 83, 84, 87, 91, 93, 95, 96, 97,
+        102, 185, 206, 258, 275, 294, 299, 305, 306, 308, 310, 311, 318, 320,
+        321, 322, 327, 331, 332, 338, 339, 346, 349, 350, 351, 352, 353, 366,
+        373, 375, 376, 377, 601, 603, 604, 614, 615, 616, 618, 3600, 3603, 3614,
+        3615, 3616, 3617, 3618, 3619, 3620, 3621, 3622, 3623, 3624, 3625, 3626,
+        3627, 3628, 3629, 3630, 3631, 3632, 3633, 3634, 3635, 3636, 3637, 3638,
+        3650, 3651, 3652, 3653, 3668, 3675, 3676, 3679, 3681, 3682, 3683, 3684,
+        3685, 3686, 3687, 3688, 3689, 3690, 3691, 3692, 3693, 3694, 3698, 3699,
+        3700, 3701, 3720, 3721, 3724, 3725, 3726, 3727, 3728, 3730, 3731, 3732,
+        3734, 3751, 3752, 3753, 3754, 3774, 3775, 3793, 3794, 3797, 3807, 3815,
+        3817, 3821, 3822,
+    ],
+    preferredMachine: POWER_MACINTOSH_7300,
+    preferredRAMSize: "32M",
+    generatedSpec: () => import("@/Data/BeOS DR8.2 HD.dsk.json"),
+    appearance: "BeOS",
+    hasDeviceImageHeader: true,
+};
+
+const BEOS_DR8_3: SystemDiskDef = {
+    family: "beos",
+    displayName: "BeOS DR8.3",
+    description:
+        "Power Macintosh-only update removing the DR8.2 expiration and adding multiprocessing, PPP, serial support, and a replacement font renderer.",
+    releaseDate: [1997, 3, 13],
+    prefetchChunks: [
+        0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19, 24, 25, 29,
+        30, 33, 34, 35, 45, 47, 52, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+        70, 71, 72, 73, 74, 75, 97, 98, 100, 101, 102, 104, 109, 110, 111, 113,
+        114, 118, 123, 272, 290, 293, 299, 300, 301, 302, 304, 311, 312, 315,
+        319, 325, 334, 335, 337, 338, 339, 342, 345, 346, 347, 348, 359, 360,
+        369, 370, 587, 591, 600, 601, 605, 607, 3600, 3603, 3614, 3615, 3616,
+        3617, 3618, 3619, 3620, 3621, 3622, 3623, 3624, 3625, 3626, 3627, 3628,
+        3629, 3630, 3631, 3632, 3633, 3634, 3635, 3636, 3637, 3638, 3650, 3651,
+        3652, 3653, 3668, 3675, 3676, 3679, 3681, 3682, 3683, 3684, 3685, 3686,
+        3687, 3688, 3689, 3690, 3691, 3692, 3693, 3694, 3698, 3699, 3700, 3701,
+        3720, 3721, 3724, 3725, 3726, 3727, 3728, 3730, 3731, 3732, 3734, 3751,
+        3752, 3753, 3754, 3774, 3775, 3793, 3794, 3797, 3807, 3815, 3817, 3821,
+        3822,
+    ],
+    preferredMachine: POWER_MACINTOSH_7300,
+    preferredRAMSize: "32M",
+    generatedSpec: () => import("@/Data/BeOS DR8.3 HD.dsk.json"),
+    appearance: "BeOS",
+    hasDeviceImageHeader: true,
+};
+
+const BEOS_PR_1: PlaceholderDiskDef = {
+    family: "beos",
+    type: "placeholder",
+    displayName: "BeOS Preview Release 1",
+    description:
+        "First general public release, with a new 64-bit journaling BFS file system, OpenGL and other graphics capabilities, and Tracker desktop, HFS access, Replicants object model, Unicode support, improved networking, and support for more PCI Macs and clones.",
+    releaseDate: [1997, 7, 16],
+    preferredMachine: POWER_MACINTOSH_7300,
+    appearance: "BeOS",
+};
+
+const BEOS_PR_2: PlaceholderDiskDef = {
+    family: "beos",
+    type: "placeholder",
+    displayName: "BeOS Preview Release 2",
+    description:
+        "Added HFS read/write support, fixed-frequency display support, compressed archive installation, editable saved queries, and live Tracker columns.",
+    releaseDate: [1997, 10, 20],
+    preferredMachine: POWER_MACINTOSH_7300,
+    appearance: "BeOS",
+};
+
 const BEOS_R3: SystemDiskDef = {
     family: "beos",
     displayName: "BeOS Release 3",
     description:
-        "Added support for the Intel architecture. Added “Open With”, scripting, and more find options to Tracker. Added the Translation Kit, slider and tab controls to Interface Kit. Added the DiskProbe and ShowImage apps, improved NetPositive, and offered focus-follows-mouse.",
+        "Added support for the Intel architecture. Tracker improvements, including “Open With”, scripting, and more find options. Added the Translation Kit, slider and tab controls to Interface Kit. Added DiskProbe and ShowImage, improved NetPositive and other apps.",
     releaseDate: [1998, 4, 6],
     prefetchChunks: [
         0, 4, 8, 9, 10, 11, 12, 13, 256, 512, 513, 514, 768, 769, 770, 771, 772,
@@ -2330,6 +2409,10 @@ export const ALL_DISKS = [
     AUX_3_1,
     AUX_3_1_1,
 
+    BEOS_DR8_2,
+    BEOS_DR8_3,
+    BEOS_PR_1,
+    BEOS_PR_2,
     BEOS_R3,
 ];
 
