@@ -23,6 +23,7 @@ import {
     POWER_MACINTOSH_G4_PEARPC,
     QUADRA_650,
     POWER_MACINTOSH_7300,
+    IMAC_G3,
 } from "@/defs/machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -1197,7 +1198,7 @@ const MAC_OS_X_10_2_8: SystemDiskDef = {
         7779, 7780, 8085, 8086, 8089, 8090, 8091, 8092, 8093, 8094, 8108, 8109,
         8740, 16383,
     ],
-    preferredMachine: POWER_MACINTOSH_G4_PEARPC,
+    preferredMachine: IMAC_G3,
     appearance: "Aqua",
     generatedSpec: () => import("@/Data/Mac OS X 10.2.8 HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
@@ -1332,7 +1333,7 @@ const MAC_OS_X_10_3_9: SystemDiskDef = {
         11385, 11386, 11387, 11388, 11389, 11455, 11714, 11715, 11725, 11731,
         11732, 11764, 1638,
     ],
-    preferredMachine: POWER_MACINTOSH_G4_PEARPC,
+    preferredMachine: IMAC_G3,
     appearance: "Aqua",
     generatedSpec: () => import("@/Data/Mac OS X 10.3.9 HD.dsk.json"),
     extraMachineFiles: dppcExtraMachineFiles,
