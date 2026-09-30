@@ -3,6 +3,7 @@ import {Dialog} from "@/controls/Dialog";
 import {Donate} from "@/app/Donate";
 import * as varz from "@/lib/varz";
 import {appearanceSystemFont} from "@/controls/Appearance";
+import {isBeOSLaunched} from "@/flags";
 
 export function About({onDone}: {onDone: () => void}) {
     const [donateVisible, setDonateVisible] = useState(false);
@@ -129,11 +130,27 @@ export function About({onDone}: {onDone: () => void}) {
                     .
                 </p>
 
-                <h3>Why is NeXTStep included?</h3>
-                <p>
-                    It's a contemporary of classic Mac OS and an ancestor of Mac
-                    OS X.
-                </p>
+                {isBeOSLaunched() ? (
+                    <>
+                        <h3>Why are BeOS and NeXTStep included?</h3>
+                        <p>
+                            They both have historical significance to the Mac.
+                            NeXTStep was a contemporary of classic Mac OS and an
+                            ancestor of Mac OS X. BeOS was created by former
+                            Apple engineers, ran on Macintosh hardware, and was
+                            a contender to being Apple's next-generation
+                            operating system.
+                        </p>
+                    </>
+                ) : (
+                    <>
+                        <h3>Why is NeXTStep included?</h3>
+                        <p>
+                            It's a contemporary of classic Mac OS and an
+                            ancestor of Mac OS X.
+                        </p>
+                    </>
+                )}
 
                 <h3 className="macosx-faq">Why is Mac OS X so slow?</h3>
                 <p>
@@ -148,7 +165,7 @@ export function About({onDone}: {onDone: () => void}) {
                     to get updates on any QEMU-related progress.
                 </p>
 
-                <h3>What about DOS or Windows? Apple II? ProDOS? BeOS?</h3>
+                <h3>What about DOS or Windows? Apple II? ProDOS?</h3>
 
                 <p>
                     The project is focused on classic Macintosh and adjacent
