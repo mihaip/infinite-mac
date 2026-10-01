@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useState} from "react";
+import React, {useCallback, useLayoutEffect, useState} from "react";
 import "@/controls/ScreenFrame.css";
 import AppleLogoColor from "@/Images/AppleLogoColor.svg?react";
 import AppleLogoGrey from "@/Images/AppleLogoGrey.svg?react";
@@ -27,6 +27,7 @@ type ScreenControlDisplay = {
     title?: string;
     alwaysVisible?: boolean;
     selected?: boolean;
+    red?: boolean;
 };
 
 type ScreenButtonControl = ScreenControlDisplay & {
@@ -39,6 +40,7 @@ type ScreenMenuControl = ScreenControlDisplay & {
     items: {
         label: string;
         title?: string;
+        red?: boolean;
         handler: () => void;
     }[];
 };
@@ -85,8 +87,22 @@ export function ScreenFrame(props: ScreenFrameProps) {
               ? AppleLogoGrey
               : AppleLogoColor;
 
-    const [expandedMenuControl, setExpandedMenuControl] =
-        useState<ScreenMenuControl | null>(null);
+    // Track the expanded control by label, so that we can re-find even if we don't
+    // have stable references across renders.
+    const [expandedMenuControlLabel, setExpandedMenuControlLabel] = useState<
+        string | null
+    >(null);
+    const expandedMenuControl =
+        controls.find(
+            (control): control is ScreenMenuControl =>
+                !!control.items && control.label === expandedMenuControlLabel
+        ) ?? null;
+    const setExpandedMenuControl = useCallback(
+        (control: ScreenMenuControl | null) => {
+            setExpandedMenuControlLabel(control ? control.label : null);
+        },
+        []
+    );
 
     return (
         <div
@@ -148,14 +164,18 @@ function ScreenFrameButtonControl({
     control: ScreenButtonControl;
     expandedControl?: ScreenMenuControl | null;
 }) {
-    const {label, title, handler, alwaysVisible, selected, className} = control;
+    const {label, title, handler, alwaysVisible, selected, red, className} =
+        control;
     return (
         <button
             type="button"
             className={classNames(
                 "ScreenFrame-Control ScreenFrame-Bezel-Text",
                 className,
-                {"ScreenFrame-Control-Selected": selected}
+                {
+                    "ScreenFrame-Control-Selected": selected,
+                    "ScreenFrame-Control-Red": red,
+                }
             )}
             style={{
                 visibility:
@@ -234,6 +254,7 @@ function ScreenFrameMenuContent({
                             title: item.title,
                             handler: item.handler,
                             alwaysVisible: true,
+                            red: item.red,
                         }}
                         key={item.label}
                     />

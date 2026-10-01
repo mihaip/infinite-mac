@@ -65,6 +65,7 @@ import {
     type ScreenSize,
 } from "@/defs/run-def";
 import {useHotkeys} from "@/lib/useHotkeys";
+import {useScreenRecording} from "@/lib/useScreenRecording";
 import {viewTransitionNameForDisk} from "@/lib/view-transitions";
 import {DrawersContainer} from "@/controls/Drawer";
 import {
@@ -184,6 +185,28 @@ export default function Mac({
         initialScreenSize;
     const [screenSize, setScreenSize] = useState(initialScreenSize);
     const {width: screenWidth, height: screenHeight} = screenSize;
+    const {
+        isRecording: isRecordingScreen,
+        toggleRecording: toggleScreenRecording,
+        handleFrame: handleScreenRecordingFrame,
+    } = useScreenRecording(
+        screenSize,
+        blob => {
+            const extension = blob.type.startsWith("video/mp4")
+                ? "mp4"
+                : "webm";
+            saveAs(
+                blob,
+                `infinite-mac-recording-${new Date().toISOString().replaceAll(":", "-")}.${extension}`
+            );
+            setEmulatorToastText("Screen recording downloaded.");
+            varz.increment("emulator_screen_recording:save");
+        },
+        error => {
+            console.error("Could not record screen", error);
+            setEmulatorToastText(`Could not record screen (${error})`);
+        }
+    );
 
     const hasSavedHD = includeSavedHD && canSaveDisks();
     const listenForControlMessages = Boolean(isEmbed);
@@ -396,6 +419,7 @@ export default function Mac({
                     setEmulatorFileLoadingProgress(progress);
                 },
                 emulatorDidDrawScreen(emulator, imageData) {
+                    handleScreenRecordingFrame(imageData);
                     if (screenUpdateMessages) {
                         const data = imageData.data;
                         // Make sure the alpha channel is fully opaque.
@@ -534,6 +558,7 @@ export default function Mac({
         supportsDownloadsFolder,
         handleMacLibraryRun,
         handleMacLibraryProgress,
+        handleScreenRecordingFrame,
         screenUpdateMessages,
         listenForControlMessages,
     ]);
@@ -639,6 +664,13 @@ export default function Mac({
                 modKey: true,
                 shiftKey: true,
                 handler: handleSaveScreenshotClick,
+            },
+            {
+                code: "Digit2",
+                modKey: true,
+                altKey: true,
+                shiftKey: true,
+                handler: toggleScreenRecording,
             },
         ],
         !settingsVisible && !emulatorErrorText
@@ -1006,8 +1038,14 @@ export default function Mac({
             },
             {
                 label: "Save Screenshot",
-                title: `${navigator.platform.startsWith("Mac") ? "⌘⇧2" : "Ctrl+Shift+2"}`,
+                title: `${navigator.platform.startsWith("Mac") ? "Command-Shift-2" : "Ctrl+Shift+2"}`,
                 handler: handleSaveScreenshotClick,
+            },
+            {
+                label: isRecordingScreen ? "Stop Recording" : "Record Screen",
+                red: isRecordingScreen,
+                title: `${navigator.platform.startsWith("Mac") ? "Command-Option-Shift-2" : "Ctrl+Alt+Shift+2"}`,
+                handler: toggleScreenRecording,
             },
         ],
     });
