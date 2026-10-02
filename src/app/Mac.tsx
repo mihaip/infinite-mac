@@ -31,6 +31,7 @@ import {Dialog} from "@/controls/Dialog";
 import {
     type EmulatorDiskDef,
     INFINITE_HD,
+    INFINITE_HD_BEOS,
     INFINITE_HD_NEXT,
     INFINITE_HD6,
     INFINITE_HDX,
@@ -271,6 +272,8 @@ export default function Mac({
                 infiniteHd = INFINITE_HD6;
             } else if (disks[0]?.family === "macosx") {
                 infiniteHd = INFINITE_HDX;
+            } else if (disks[0]?.family === "beos") {
+                infiniteHd = INFINITE_HD_BEOS;
             } else {
                 infiniteHd = INFINITE_HD;
             }

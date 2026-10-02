@@ -2534,6 +2534,11 @@ export const INFINITE_HD_NEXT: EmulatorDiskDef = {
     generatedSpec: () => import("@/Data/Infinite HD (NeXT).dsk.json"),
 };
 
+export const INFINITE_HD_BEOS: EmulatorDiskDef = {
+    prefetchChunks: [0, 1, 2],
+    generatedSpec: () => import("@/Data/Infinite HD (BeOS).dsk.json"),
+};
+
 export const SAVED_HD: EmulatorDiskDef = {
     prefetchChunks: [0],
     generatedSpec: () => import("@/Data/Saved HD.dsk.json"),

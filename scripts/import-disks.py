@@ -29,6 +29,7 @@ class InfiniteHD(enum.Enum):
     SYSTEM_6 = "Infinite HD6.dsk"
     MAC_OS_X = "Infinite HDX.dsk"
     NEXT = "Infinite HD (NeXT).dsk"
+    BEOS = "Infinite HD (BeOS).dsk"
 
 
 class ImageDef(typing.NamedTuple):
@@ -391,6 +392,11 @@ if __name__ == "__main__":
             images.append(
                 build_passthrough_image(
                     InfiniteHD.NEXT.value, dest_dir=temp_dir, compressed=True
+                )
+            )
+            images.append(
+                build_passthrough_image(
+                    InfiniteHD.BEOS.value, dest_dir=temp_dir, compressed=True
                 )
             )
         elif minimal_mode:
