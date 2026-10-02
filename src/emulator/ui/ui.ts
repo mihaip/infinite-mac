@@ -28,6 +28,7 @@ import Worker from "@/emulator/worker/worker?worker";
 import serviceWorkerPath from "@/emulator/emulator-service-worker?worker&url";
 import {
     type EmulatorAudio,
+    type EmulatorAudioCapture,
     FallbackEmulatorAudio,
     SharedMemoryEmulatorAudio,
 } from "@/emulator/ui/audio";
@@ -558,6 +559,10 @@ export class Emulator {
                 useMouseDeltas,
             });
         }
+    }
+
+    captureAudio(): EmulatorAudioCapture | undefined {
+        return this.#audio.capture();
     }
 
     stop() {

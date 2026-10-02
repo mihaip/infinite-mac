@@ -1,10 +1,17 @@
 import {useCallback, useEffect, useRef, useState} from "react";
+import {type EmulatorAudioCapture} from "@/emulator/ui/audio";
 
-export function useScreenRecording(
-    screenSize: {width: number; height: number},
-    onRecording: (blob: Blob) => void,
-    onError: (error: unknown) => void
-): {
+export function useScreenRecording({
+    screenSize,
+    onRecording,
+    onError,
+    captureAudio,
+}: {
+    screenSize: {width: number; height: number};
+    captureAudio: () => EmulatorAudioCapture | undefined;
+    onRecording: (blob: Blob) => void;
+    onError: (error: unknown) => void;
+}): {
     isRecording: boolean;
     handleFrame: (imageData: ImageData) => void;
     toggleRecording: () => void;
@@ -26,10 +33,11 @@ export function useScreenRecording(
     useEffect(() => {
         return () => {
             latestFrameRef.current = undefined;
-            const recorder = recordingRef.current?.recorder;
-            if (!recorder) {
+            const recording = recordingRef.current;
+            if (!recording) {
                 return;
             }
+            const {recorder, audioCapture} = recording;
             // Discard unfinished recordings when leaving the Mac, and don't
             // download or update React state after unmounting.
             recorder.ondataavailable = null;
@@ -39,6 +47,7 @@ export function useScreenRecording(
                 recorder.stop();
             }
             recorder.stream.getTracks().forEach(track => track.stop());
+            audioCapture?.stop();
             recordingRef.current = undefined;
         };
     }, []);
@@ -54,6 +63,7 @@ export function useScreenRecording(
             return;
         }
         let stream: MediaStream | undefined;
+        let audioCapture: EmulatorAudioCapture | undefined;
         try {
             // The capture canvas keeps its initial size for the entire video,
             // even when the emulator switches video modes. This lets us use
@@ -69,12 +79,6 @@ export function useScreenRecording(
                     "Screen recording is not supported by this browser"
                 );
             }
-            const mimeType = RECORDING_MIME_TYPES.find(type =>
-                MediaRecorder.isTypeSupported(type)
-            );
-            if (!mimeType) {
-                throw new Error("No supported screen recording format");
-            }
             const context = canvas.getContext("2d", {alpha: false});
             if (!context) {
                 throw new Error("Could not create recording canvas");
@@ -82,6 +86,21 @@ export function useScreenRecording(
             // Capture when the delegate supplies a frame, without imposing
             // a frame-rate cap or requiring explicit requestFrame calls.
             stream = canvas.captureStream();
+            // Capture audio only if it's ready now; the recorder's track set
+            // must stay unchanged once recording starts.
+            audioCapture = captureAudio();
+            for (const track of audioCapture?.stream.getAudioTracks() ?? []) {
+                stream.addTrack(track);
+            }
+            const mimeTypes = audioCapture
+                ? RECORDING_AUDIO_MIME_TYPES
+                : RECORDING_MIME_TYPES;
+            const mimeType = mimeTypes.find(type =>
+                MediaRecorder.isTypeSupported(type)
+            );
+            if (!mimeType) {
+                throw new Error("No supported screen recording format");
+            }
             const recorder = new MediaRecorder(stream, {mimeType});
             const chunks: Blob[] = [];
             let failed = false;
@@ -96,6 +115,7 @@ export function useScreenRecording(
             };
             recorder.onstop = () => {
                 recorder.stream.getTracks().forEach(track => track.stop());
+                audioCapture?.stop();
                 recordingRef.current = undefined;
                 setIsRecording(false);
                 if (failed) {
@@ -111,7 +131,7 @@ export function useScreenRecording(
                     })
                 );
             };
-            const recording = {recorder, context};
+            const recording = {recorder, context, audioCapture};
             // Capture the initial frame.
             if (latestFrameRef.current) {
                 drawRecordingFrame(recording, latestFrameRef.current);
@@ -124,6 +144,7 @@ export function useScreenRecording(
             setIsRecording(true);
         } catch (error) {
             stream?.getTracks().forEach(track => track.stop());
+            audioCapture?.stop();
             recordingRef.current = undefined;
             onError(error);
         }
@@ -141,9 +162,17 @@ const RECORDING_MIME_TYPES = [
     "video/webm",
 ];
 
+const RECORDING_AUDIO_MIME_TYPES = [
+    "video/mp4;codecs=avc1,mp4a.40.2",
+    "video/mp4",
+    "video/webm;codecs=vp8,opus",
+    "video/webm",
+];
+
 type Recording = {
     recorder: MediaRecorder;
     context: CanvasRenderingContext2D;
+    audioCapture?: EmulatorAudioCapture;
 };
 
 function drawRecordingFrame({context}: Recording, imageData: ImageData) {

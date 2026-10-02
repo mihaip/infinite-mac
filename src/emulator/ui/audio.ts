@@ -110,6 +110,25 @@ export abstract class EmulatorAudio {
         this.#input.handleInput({type: "audio-context-running"});
     }
 
+    capture(): EmulatorAudioCapture | undefined {
+        const context = this.#audioContext;
+        const playbackNode = this.emulatorPlaybackNode;
+        // Audio may still be initializing, including after a guest restart.
+        if (context?.state !== "running" || playbackNode?.context !== context) {
+            return;
+        }
+        const destination = context.createMediaStreamDestination();
+        playbackNode.connect(destination);
+        return {
+            stream: destination.stream,
+            stop: () => {
+                // Disconnect only the recording branch, preserving playback.
+                playbackNode.disconnect(destination);
+                destination.stream.getTracks().forEach(track => track.stop());
+            },
+        };
+    }
+
     stop() {
         this.#audioContext?.close();
         window.removeEventListener("pointerdown", this.#resumeOnGesture);
@@ -144,6 +163,11 @@ export abstract class EmulatorAudio {
     protected abstract resetAudioBuffer(): void;
     protected abstract currentAudioBufferByteLength(): number;
 }
+
+export type EmulatorAudioCapture = {
+    stream: MediaStream;
+    stop: () => void;
+};
 
 const AUDIO_BUFFER_SIZE = 2 * 22050; // 1 second of 16-bit mono audio at 22050 Hz
 

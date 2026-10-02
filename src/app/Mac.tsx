@@ -190,9 +190,10 @@ export default function Mac({
         isRecording: isRecordingScreen,
         toggleRecording: toggleScreenRecording,
         handleFrame: handleScreenRecordingFrame,
-    } = useScreenRecording(
+    } = useScreenRecording({
         screenSize,
-        blob => {
+        captureAudio: () => emulatorRef.current?.captureAudio(),
+        onRecording(blob) {
             const extension = blob.type.startsWith("video/mp4")
                 ? "mp4"
                 : "webm";
@@ -203,11 +204,11 @@ export default function Mac({
             setEmulatorToastText("Screen recording downloaded.");
             varz.increment("emulator_screen_recording:save");
         },
-        error => {
+        onError(error) {
             console.error("Could not record screen", error);
             setEmulatorToastText(`Could not record screen (${error})`);
-        }
-    );
+        },
+    });
 
     const hasSavedHD = includeSavedHD && canSaveDisks();
     const listenForControlMessages = Boolean(isEmbed);
