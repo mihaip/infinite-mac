@@ -50,10 +50,17 @@ export function useComputer(
     }, [displayWidth, displayHeight, scratchContext, scratchCanvas]);
 
     const handleAction = useCallback(
-        async (action: ComputerAction) => {
+        async (action: ComputerAction, signal?: AbortSignal) => {
+            signal?.throwIfAborted();
             if (!iframeRef.current) {
                 console.warn("No iframe reference available to handle action");
                 return;
+            }
+
+            const pressedKeys = new Set<string>();
+            const pressedButtons = new Set<ComputerMouseButton>();
+            async function pause(ms: number) {
+                await sleep(ms, signal);
             }
 
             function sendEvent(event: EmbedControlEvent) {
@@ -85,6 +92,7 @@ export function useComputer(
             }
 
             function sendMouseDown(button: ComputerMouseButton = "left") {
+                pressedButtons.add(button);
                 sendEvent({
                     type: "emulator_mouse_down",
                     button: toButtonNumber(button),
@@ -92,6 +100,7 @@ export function useComputer(
             }
 
             function sendMouseUp(button: ComputerMouseButton = "left") {
+                pressedButtons.delete(button);
                 sendEvent({
                     type: "emulator_mouse_up",
                     button: toButtonNumber(button),
@@ -101,128 +110,160 @@ export function useComputer(
                 button: ComputerMouseButton = "left"
             ) {
                 sendMouseDown(button);
-                await sleep(100); // Simulate a short delay for the click
+                await pause(100); // Simulate a short delay for the click
                 sendMouseUp(button);
             }
 
             function sendKeyDown(code: string) {
+                pressedKeys.add(code);
                 sendEvent({type: "emulator_key_down", code});
             }
             function sendKeyUp(code: string) {
+                pressedKeys.delete(code);
                 sendEvent({type: "emulator_key_up", code});
             }
             async function sendKeyPress(code: string) {
                 sendKeyDown(code);
-                await sleep(50); // Simulate a short delay for the key press
+                await pause(50); // Simulate a short delay for the key press
                 sendKeyUp(code);
             }
 
-            console.log("Handling action:", action);
-            switch (action.type) {
-                case "mouse_down":
-                    sendMouseDown(action.button);
-                    await sleep(100);
-                    break;
-                case "mouse_up":
-                    sendMouseUp(action.button);
-                    await sleep(100);
-                    break;
-                case "click":
-                    sendMouseMove(action.x, action.y);
-                    await sleep(100);
-                    await await sendMouseClick(action.button);
-                    break;
-                case "double_click":
-                    sendMouseMove(action.x, action.y);
-                    await sleep(100);
-                    await sendMouseClick();
-                    await sleep(100); // Simulate a short delay before the second click
-                    await sendMouseClick();
-                    break;
-                case "triple_click":
-                    sendMouseMove(action.x, action.y);
-                    await sleep(100);
-                    await sendMouseClick();
-                    await sleep(100); // Simulate a short delay before the second click
-                    await sendMouseClick();
-                    await sleep(100); // Simulate a short delay before the third click
-                    await sendMouseClick();
-                    break;
-                case "drag": {
-                    const path = Array.from(action.path);
-                    const start = path.shift();
-                    if (!start) {
-                        console.warn("Drag action has no start point");
-                        return;
+            const modifierCodes = (action.modifiers ?? [])
+                .map(key => KEYPRESS_MAP[key.toUpperCase()])
+                .filter(Boolean);
+            for (const code of modifierCodes) {
+                sendKeyDown(code);
+            }
+            try {
+                console.log("Handling action:", action);
+                switch (action.type) {
+                    case "mouse_down":
+                        sendMouseDown(action.button);
+                        await pause(100);
+                        break;
+                    case "mouse_up":
+                        sendMouseUp(action.button);
+                        await pause(100);
+                        break;
+                    case "click":
+                        if (action.x !== undefined && action.y !== undefined) {
+                            sendMouseMove(action.x, action.y);
+                        }
+                        await pause(100);
+                        await sendMouseClick(action.button);
+                        break;
+                    case "double_click":
+                        if (action.x !== undefined && action.y !== undefined) {
+                            sendMouseMove(action.x, action.y);
+                        }
+                        await pause(100);
+                        await sendMouseClick();
+                        await pause(100); // Simulate a short delay before the second click
+                        await sendMouseClick();
+                        break;
+                    case "triple_click":
+                        if (action.x !== undefined && action.y !== undefined) {
+                            sendMouseMove(action.x, action.y);
+                        }
+                        await pause(100);
+                        await sendMouseClick();
+                        await pause(100); // Simulate a short delay before the second click
+                        await sendMouseClick();
+                        await pause(100); // Simulate a short delay before the third click
+                        await sendMouseClick();
+                        break;
+                    case "drag": {
+                        const path = Array.from(action.path);
+                        const start = path.shift();
+                        if (!start) {
+                            console.warn("Drag action has no start point");
+                            return;
+                        }
+                        sendMouseMove(start.x, start.y);
+                        await pause(100);
+                        sendMouseDown();
+                        await pause(250);
+                        for (const point of path) {
+                            sendMouseMove(point.x, point.y);
+                            await pause(250); // Simulate a short delay between moves
+                        }
+                        sendMouseUp();
+                        break;
                     }
-                    sendMouseMove(start.x, start.y);
-                    await sleep(100);
-                    sendMouseDown();
-                    await sleep(250);
-                    for (const point of path) {
-                        sendMouseMove(point.x, point.y);
-                        await sleep(250); // Simulate a short delay between moves
-                    }
-                    sendMouseUp();
-                    break;
-                }
-                case "move":
-                    sendMouseMove(action.x, action.y);
-                    break;
-                case "scroll":
-                    if (action.scroll_x !== 0) {
-                        await sendKeyPress(
-                            action.scroll_x < 0 ? "ArrowLeft" : "ArrowRight"
-                        );
-                    }
-                    if (action.scroll_y !== 0) {
-                        await sendKeyPress(
-                            action.scroll_y < 0 ? "ArrowUp" : "ArrowDown"
-                        );
-                    }
-                    break;
-                case "type":
-                    for (const char of action.text) {
-                        if (char in SHIFT_MAP) {
-                            const code = SHIFT_MAP[char];
-                            sendKeyDown("ShiftLeft");
-                            await sendKeyPress(code);
-                            sendKeyUp("ShiftLeft");
-                        } else if (char in CHAR_MAP) {
-                            const code = CHAR_MAP[char];
-                            await sendKeyPress(code);
-                        } else {
-                            console.warn(
-                                "Unknown character:",
-                                char,
-                                char.charCodeAt(0)
+                    case "move":
+                        sendMouseMove(action.x, action.y);
+                        break;
+                    case "scroll":
+                        if (action.x !== undefined && action.y !== undefined) {
+                            sendMouseMove(action.x, action.y);
+                        }
+                        if (action.scroll_x !== 0) {
+                            await sendKeyPress(
+                                action.scroll_x < 0 ? "ArrowLeft" : "ArrowRight"
                             );
                         }
+                        if (action.scroll_y !== 0) {
+                            await sendKeyPress(
+                                action.scroll_y < 0 ? "ArrowUp" : "ArrowDown"
+                            );
+                        }
+                        break;
+                    case "type":
+                        for (const char of action.text) {
+                            if (char in SHIFT_MAP) {
+                                const code = SHIFT_MAP[char];
+                                sendKeyDown("ShiftLeft");
+                                await sendKeyPress(code);
+                                sendKeyUp("ShiftLeft");
+                            } else if (char in CHAR_MAP) {
+                                const code = CHAR_MAP[char];
+                                await sendKeyPress(code);
+                            } else {
+                                console.warn(
+                                    "Unknown character:",
+                                    char,
+                                    char.charCodeAt(0)
+                                );
+                            }
+                        }
+                        break;
+                    case "keypress": {
+                        const codes = action.keys
+                            .map(key => KEYPRESS_MAP[key.toUpperCase()])
+                            .filter(Boolean);
+                        for (let i = 0; i < (action.repeat ?? 1); i++) {
+                            for (const code of codes) {
+                                sendKeyDown(code);
+                                await pause(10);
+                            }
+                            await pause(action.durationMs ?? 100);
+                            for (const code of [...codes].reverse()) {
+                                sendKeyUp(code);
+                                await pause(10);
+                            }
+                        }
+                        break;
                     }
-                    break;
-                case "keypress": {
-                    const codes = action.keys
-                        .map(key =>
-                            key in KEYPRESS_MAP ? KEYPRESS_MAP[key] : null
-                        )
-                        .filter(key => key !== null);
-                    for (const code of codes) {
-                        sendKeyDown(code);
-                        await sleep(10);
-                    }
-                    await sleep(action.durationMs ?? 100); // Simulate a short delay for the key press
-                    for (const code of codes) {
-                        sendKeyUp(code);
-                        await sleep(10);
-                    }
-                    break;
-                }
 
-                case "screenshot":
-                    // No action needed, the screenshot is always sent
-                    break;
-                case "wait":
-                    await sleep(action.durationMs ?? 100);
+                    case "screenshot":
+                        // No action needed, the screenshot is always sent
+                        break;
+                    case "wait":
+                        await pause(action.durationMs ?? 100);
+                }
+            } finally {
+                // Stop can interrupt typing, a long wait, or a held key.
+                if (signal?.aborted) {
+                    for (const code of pressedKeys) {
+                        sendKeyUp(code);
+                    }
+                    for (const button of pressedButtons) {
+                        sendMouseUp(button);
+                    }
+                }
+                for (const code of [...modifierCodes].reverse()) {
+                    sendKeyUp(code);
+                }
             }
         },
         [iframeRef]
@@ -344,10 +385,54 @@ const CHAR_MAP: {[char: string]: string} = {
     "/": "Slash",
     "`": "Backquote",
     " ": "Space",
+    "\n": "Enter",
+    "\r": "Enter",
+    "\t": "Tab",
 };
 
 const KEYPRESS_MAP: {[key: string]: string} = {
     "CMD": "MetaLeft",
+    "COMMAND": "MetaLeft",
+    "META": "MetaLeft",
+    "SUPER": "MetaLeft",
+    "CONTROL": "ControlLeft",
+    "OPTION": "AltLeft",
+    "RETURN": "Enter",
+    "ENTER": "Enter",
+    "ESC": "Escape",
+    "ESCAPE": "Escape",
+    "TAB": "Tab",
+    "SPACE": "Space",
+    "BACKSPACE": "Backspace",
+    "DELETE": "Delete",
+    "UP": "ArrowUp",
+    "DOWN": "ArrowDown",
+    "LEFT": "ArrowLeft",
+    "RIGHT": "ArrowRight",
+    "ARROWUP": "ArrowUp",
+    "ARROWDOWN": "ArrowDown",
+    "ARROWLEFT": "ArrowLeft",
+    "ARROWRIGHT": "ArrowRight",
+    "HOME": "Home",
+    "END": "End",
+    "PAGEUP": "PageUp",
+    "PAGEDOWN": "PageDown",
+    "PAGE_UP": "PageUp",
+    "PAGE_DOWN": "PageDown",
+    "PRIOR": "PageUp",
+    "NEXT": "PageDown",
+    "F1": "F1",
+    "F2": "F2",
+    "F3": "F3",
+    "F4": "F4",
+    "F5": "F5",
+    "F6": "F6",
+    "F7": "F7",
+    "F8": "F8",
+    "F9": "F9",
+    "F10": "F10",
+    "F11": "F11",
+    "F12": "F12",
     "CTRL": "ControlLeft",
     "SHIFT": "ShiftLeft",
     "ALT": "AltLeft",

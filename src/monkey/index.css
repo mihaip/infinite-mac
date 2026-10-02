@@ -7,14 +7,22 @@ html {
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    background: #eee7d8;
 }
 
 body {
     margin: 0;
     height: 100vh;
     width: 100%;
+    background: #eee7d8;
+}
+
+#root {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.Monkey .ScreenFrame-Control-MenuContent {
+    /* The content assumes the main app dark background. We don't need it, just hide it. */
+    display: none;
 }

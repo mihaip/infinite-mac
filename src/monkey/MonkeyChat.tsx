@@ -297,14 +297,14 @@ function MonkeyChatMessage({message}: {message: Message}) {
                     action.button !== "left"
                         ? ` with ${action.button} button`
                         : "";
-                displayAction = `Click at (${action.x}, ${action.y})${buttonSuffix}`;
+                displayAction = `Click at ${action.x !== undefined && action.y !== undefined ? `(${action.x}, ${action.y})` : "current position"}${buttonSuffix}`;
                 break;
             }
             case "double_click":
-                displayAction = `Double click at (${action.x}, ${action.y})`;
+                displayAction = `Double click at ${action.x !== undefined && action.y !== undefined ? `(${action.x}, ${action.y})` : "current position"}`;
                 break;
             case "triple_click":
-                displayAction = `Triple click at (${action.x}, ${action.y})`;
+                displayAction = `Triple click at ${action.x !== undefined && action.y !== undefined ? `(${action.x}, ${action.y})` : "current position"}`;
                 break;
             case "mouse_down":
                 displayAction = `Mouse down`;
@@ -328,6 +328,9 @@ function MonkeyChatMessage({message}: {message: Message}) {
                 break;
             case "keypress":
                 displayAction = `Pressing keys ${action.keys.join("+")}`;
+                if (action.repeat && action.repeat > 1) {
+                    displayAction += ` ${action.repeat} times`;
+                }
                 if (action.durationMs) {
                     displayAction += ` for ${action.durationMs}ms`;
                 }
@@ -338,6 +341,9 @@ function MonkeyChatMessage({message}: {message: Message}) {
             case "screenshot":
                 displayAction = `Taking a screenshot`;
                 break;
+        }
+        if (action.modifiers?.length) {
+            displayAction += ` while holding ${action.modifiers.join("+")}`;
         }
         return (
             <div className="MonkeyChat-Action">

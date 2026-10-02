@@ -47,7 +47,6 @@ export function useChat(
     const [waitingForResponse, setWaitingForResponse] = useState(false);
     const stopMessageSend = useCallback(() => {
         conversationRef.current?.stop();
-        setCanSendMessage(true);
     }, []);
 
     const sendMessage = useCallback(
@@ -60,34 +59,36 @@ export function useChat(
 
             setCanSendMessage(false);
             addMessage({type: "user", content: message});
-            await conversation.sendMessage(message, {
-                setWaitingForResponse,
-                onError(error: unknown) {
-                    console.error("Error sending message:", error);
-                    addMessage({
-                        type: "error",
-                        content: String(error),
-                    });
-                    onError?.();
-                    setCanSendMessage(true);
-                },
-                onReasoning(reasoning) {
-                    addMessage({type: "reasoning", content: reasoning});
-                },
-                onAction(action) {
-                    addMessage({type: "action", action});
-                },
-                onAssistantMessage(message, isRefusal) {
-                    addMessage({
-                        type: "assistant",
-                        content: message,
-                        isRefusal,
-                    });
-                },
-                onLoopIteration,
-            });
-
-            setCanSendMessage(true);
+            try {
+                await conversation.sendMessage(message, {
+                    setWaitingForResponse,
+                    onError(error: unknown) {
+                        console.error("Error sending message:", error);
+                        addMessage({
+                            type: "error",
+                            content: String(error),
+                        });
+                        onError?.();
+                    },
+                    onReasoning(reasoning) {
+                        addMessage({type: "reasoning", content: reasoning});
+                    },
+                    onAction(action) {
+                        addMessage({type: "action", action});
+                    },
+                    onAssistantMessage(message, isRefusal) {
+                        addMessage({
+                            type: "assistant",
+                            content: message,
+                            isRefusal,
+                        });
+                    },
+                    onLoopIteration,
+                });
+            } finally {
+                setWaitingForResponse(false);
+                setCanSendMessage(true);
+            }
         },
         [
             provider,

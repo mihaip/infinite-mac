@@ -7,11 +7,13 @@ import {
 } from "@/monkey/Provider";
 import {sleep} from "@/monkey/util";
 
+const ANTHROPIC_MODEL = "claude-sonnet-5-5";
+
 export const ANTHROPIC_PROVIDER: Provider = {
     id: "anthropic",
     label: "Anthropic",
     titleLink: (
-        <a href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/computer-use-tool">
+        <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool">
             Anthropic Computer Use
         </a>
     ),
@@ -21,7 +23,7 @@ export const ANTHROPIC_PROVIDER: Provider = {
             <a href="https://console.anthropic.com/settings/keys">
                 Anthropic Console API keys page
             </a>
-            .
+            . The key must have access to <code>{ANTHROPIC_MODEL}</code>.
         </>
     ),
     createConversation(computer, apiKey) {
@@ -32,7 +34,7 @@ export const ANTHROPIC_PROVIDER: Provider = {
 export class AnthropicConversation implements Conversation {
     private api: Anthropic;
     private abortController = new AbortController();
-    private messages: Anthropic.Beta.Messages.BetaMessageParam[] = [];
+    private messages: Anthropic.MessageParam[] = [];
 
     constructor(
         private computer: Computer,
@@ -55,13 +57,14 @@ export class AnthropicConversation implements Conversation {
         } = callbacks;
         const {computer} = this;
 
-        const tools: Anthropic.Beta.Messages.BetaToolComputerUse20250124[] = [
+        const abortSignal = this.abortController.signal;
+        const tools: Anthropic.ComputerToolset20260801[] = [
             {
-                type: "computer_20250124",
-                name: "computer",
-                display_width_px: computer.displayWidth,
-                display_height_px: computer.displayHeight,
-                display_number: 1,
+                type: "computer_toolset_20260801",
+                configs: {
+                    zoom: {enabled: false},
+                    cursor_position: {enabled: false},
+                },
             },
         ];
 
@@ -71,24 +74,23 @@ export class AnthropicConversation implements Conversation {
         });
 
         while (true) {
-            let response: Anthropic.Beta.Messages.BetaMessage;
+            let response: Anthropic.Message;
             try {
                 setWaitingForResponse(true);
-                response = await this.api.beta.messages.create(
+                response = await this.api.messages.create(
                     {
-                        model: "claude-sonnet-4-20250514",
+                        model: ANTHROPIC_MODEL,
                         messages: this.messages,
                         max_tokens: 6400,
                         system: computer.instructions,
                         tools,
-                        betas: ["computer-use-2025-01-24"],
                         thinking: {
-                            type: "enabled",
-                            budget_tokens: 2014,
+                            type: "adaptive",
+                            display: "summarized",
                         },
                     },
                     {
-                        signal: this.abortController.signal,
+                        signal: abortSignal,
                     }
                 );
             } catch (error) {
@@ -98,97 +100,98 @@ export class AnthropicConversation implements Conversation {
                 setWaitingForResponse(false);
             }
 
-            let hasToolCalls = false;
-            const assistantContent: Anthropic.Beta.Messages.BetaMessageParam["content"] =
-                [];
-
+            // Preserve the entire assistant turn, including signed thinking
+            // and every tool call, before answering the batch in one user turn.
+            this.messages.push({role: "assistant", content: response.content});
+            const toolCalls: Anthropic.ToolUseBlock[] = [];
             for (const block of response.content) {
                 if (block.type === "thinking") {
-                    onReasoning(block.thinking);
-                    assistantContent.push(block);
+                    if (block.thinking) {
+                        onReasoning(block.thinking);
+                    }
                 } else if (block.type === "text") {
                     if (block.text.trim()) {
                         onAssistantMessage(block.text);
-                        assistantContent.push(block);
                     }
                 } else if (block.type === "tool_use") {
-                    hasToolCalls = true;
-                    assistantContent.push(block);
-
-                    if (block.name === "computer") {
-                        let action;
-                        try {
-                            action = convertAnthropicActionToComputerAction(
-                                block.input
-                            );
-                        } catch (error) {
-                            onError(error);
-                            return;
-                        }
-                        onAction(action);
-
-                        const abortSignal = this.abortController.signal;
-                        await computer.handleAction(action);
-                        await sleep(100);
-                        if (abortSignal.aborted) {
-                            return;
-                        }
-
-                        const newScreenContents =
-                            computer.currentScreenContents();
-                        if (!newScreenContents) {
-                            onError("No screen contents available, stopping.");
-                            return;
-                        }
-
-                        this.messages.push({
-                            role: "assistant",
-                            content: assistantContent,
-                        });
-
-                        this.messages.push({
-                            role: "user",
-                            content: [
-                                {
-                                    type: "tool_result",
-                                    tool_use_id: block.id,
-                                    content: [
-                                        {
-                                            type: "image",
-                                            source: {
-                                                type: "base64",
-                                                media_type: "image/png",
-                                                data: newScreenContents.split(
-                                                    ","
-                                                )[1],
-                                            },
-                                        },
-                                    ],
-                                },
-                            ],
-                        });
-
-                        onLoopIteration?.();
-                        break;
-                    } else {
-                        onError(
-                            new Error(`Unknown tool use type: ${block.name}`)
-                        );
-                    }
-                } else {
-                    onError(new Error(`Unknown block type: ${block.type}`));
-                    return;
+                    toolCalls.push(block);
                 }
             }
-
-            if (!hasToolCalls) {
-                if (assistantContent.length > 0) {
-                    this.messages.push({
-                        role: "assistant",
-                        content: assistantContent,
-                    });
-                }
+            if (!toolCalls.length) {
                 break;
+            }
+
+            const results: Anthropic.ToolResultBlockParam[] = [];
+            let failed = false;
+            for (const block of toolCalls) {
+                const result: Anthropic.ToolResultBlockParam = {
+                    type: "tool_result",
+                    tool_use_id: block.id,
+                    toolset_name: block.toolset_name,
+                    content: "OK",
+                };
+                results.push(result);
+                if (failed) {
+                    result.is_error = true;
+                    result.content =
+                        "Not executed: an earlier computer action in this turn failed.";
+                    continue;
+                }
+                try {
+                    if (abortSignal.aborted) {
+                        throw new Error("Stopped by user.");
+                    }
+                    if (block.toolset_name !== "computer") {
+                        throw new Error(
+                            `Unknown toolset: ${block.toolset_name}`
+                        );
+                    }
+                    const action = convertAnthropicActionToComputerAction(
+                        block.name,
+                        block.input
+                    );
+                    onAction(action);
+                    await computer.handleAction(action, abortSignal);
+                    await sleep(100);
+                    if (abortSignal.aborted) {
+                        throw new Error("Stopped by user.");
+                    }
+                    // Attach an observation to screenshots and the last action,
+                    // so a batch that omits screenshot still sees its result.
+                    if (
+                        block.name === "screenshot" ||
+                        block === toolCalls.at(-1)
+                    ) {
+                        const screenContents = computer.currentScreenContents();
+                        if (!screenContents) {
+                            throw new Error(
+                                "No screen contents available, stopping."
+                            );
+                        }
+                        result.content = [
+                            {
+                                type: "image",
+                                source: {
+                                    type: "base64",
+                                    media_type: "image/png",
+                                    data: screenContents.split(",")[1],
+                                },
+                            },
+                        ];
+                    }
+                } catch (error) {
+                    failed = true;
+                    result.is_error = true;
+                    result.content = String(error);
+                    onError(error);
+                }
+            }
+            // Even on Stop, answer every call so the next user message can
+            // continue this conversation without unmatched tool_use blocks.
+            this.messages.push({role: "user", content: results});
+            onLoopIteration?.();
+            if (abortSignal.aborted) {
+                return;
             }
         }
     }
@@ -199,16 +202,42 @@ export class AnthropicConversation implements Conversation {
     }
 }
 
-function convertAnthropicActionToComputerAction(input: any): ComputerAction {
-    switch (input.action) {
+function convertAnthropicActionToComputerAction(
+    name: string,
+    input: any
+): ComputerAction {
+    const action = convertAnthropicMemberToComputerAction(name, input);
+    if (
+        [
+            "left_click",
+            "right_click",
+            "middle_click",
+            "double_click",
+            "triple_click",
+            "left_click_drag",
+            "mouse_move",
+            "scroll",
+        ].includes(name) &&
+        input.text
+    ) {
+        action.modifiers = input.text.toUpperCase().split("+");
+    }
+    return action;
+}
+
+function convertAnthropicMemberToComputerAction(
+    name: string,
+    input: any
+): ComputerAction {
+    switch (name) {
         // Basic actions (all versions)
         case "screenshot":
             return {type: "screenshot"};
         case "left_click":
             return {
                 type: "click",
-                x: input.coordinate[0],
-                y: input.coordinate[1],
+                x: input.coordinate?.[0],
+                y: input.coordinate?.[1],
                 button: "left",
             };
         case "type":
@@ -220,6 +249,7 @@ function convertAnthropicActionToComputerAction(input: any): ComputerAction {
             return {
                 type: "keypress",
                 keys: input.text.toUpperCase().split("+"),
+                repeat: input.repeat,
             };
         case "mouse_move":
             return {
@@ -228,12 +258,12 @@ function convertAnthropicActionToComputerAction(input: any): ComputerAction {
                 y: input.coordinate[1],
             };
 
-        // Enhanced actions (computer_20250124)
+        // Additional mouse and keyboard actions
         case "scroll":
             return {
                 type: "scroll",
-                x: input.coordinate[0],
-                y: input.coordinate[1],
+                x: input.coordinate?.[0],
+                y: input.coordinate?.[1],
                 scroll_x:
                     input.scroll_direction === "left"
                         ? -(input.scroll_amount ?? 3)
@@ -261,28 +291,28 @@ function convertAnthropicActionToComputerAction(input: any): ComputerAction {
         case "right_click":
             return {
                 type: "click",
-                x: input.coordinate[0],
-                y: input.coordinate[1],
+                x: input.coordinate?.[0],
+                y: input.coordinate?.[1],
                 button: "right",
             };
         case "middle_click":
             return {
                 type: "click",
-                x: input.coordinate[0],
-                y: input.coordinate[1],
+                x: input.coordinate?.[0],
+                y: input.coordinate?.[1],
                 button: "wheel",
             };
         case "double_click":
             return {
                 type: "double_click",
-                x: input.coordinate[0],
-                y: input.coordinate[1],
+                x: input.coordinate?.[0],
+                y: input.coordinate?.[1],
             };
         case "triple_click":
             return {
                 type: "triple_click",
-                x: input.coordinate[0],
-                y: input.coordinate[1],
+                x: input.coordinate?.[0],
+                y: input.coordinate?.[1],
             };
         case "left_mouse_down":
             return {
@@ -304,6 +334,6 @@ function convertAnthropicActionToComputerAction(input: any): ComputerAction {
             return {type: "wait", durationMs: input.duration * 1000};
 
         default:
-            throw new Error(`Unknown action type: ${input.action}`);
+            throw new Error(`Unknown computer member: ${name}`);
     }
 }

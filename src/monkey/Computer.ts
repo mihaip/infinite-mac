@@ -1,8 +1,6 @@
-import {type ResponseComputerToolCall} from "openai/resources/responses/responses";
-
-export type ComputerAction =
-    // Mouse
-    | {
+export type ComputerAction = (
+    | // Mouse
+    {
           type: "mouse_down";
           button: ComputerMouseButton;
       }
@@ -13,18 +11,18 @@ export type ComputerAction =
     | {
           type: "click";
           button: ComputerMouseButton;
-          x: number;
-          y: number;
+          x?: number;
+          y?: number;
       }
     | {
           type: "double_click";
-          x: number;
-          y: number;
+          x?: number;
+          y?: number;
       }
     | {
           type: "triple_click";
-          x: number;
-          y: number;
+          x?: number;
+          y?: number;
       }
     | {
           type: "drag";
@@ -39,14 +37,15 @@ export type ComputerAction =
           type: "scroll";
           scroll_x: number;
           scroll_y: number;
-          x: number;
-          y: number;
+          x?: number;
+          y?: number;
       }
     // Keyboard
     | {
           type: "keypress";
           keys: string[];
           durationMs?: number;
+          repeat?: number;
       }
     | {
           type: "type";
@@ -59,7 +58,8 @@ export type ComputerAction =
     | {
           type: "wait";
           durationMs?: number;
-      };
+      }
+) & {modifiers?: string[]};
 
 export type ComputerMouseButton =
     | "left"
@@ -75,5 +75,8 @@ export type Computer = {
 
     // Returns the current screen contents as data: URL
     currentScreenContents: () => string | null;
-    handleAction: (action: ComputerAction) => Promise<void>;
+    handleAction: (
+        action: ComputerAction,
+        signal?: AbortSignal
+    ) => Promise<void>;
 };

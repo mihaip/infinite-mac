@@ -12,8 +12,9 @@ import {MonkeyChat} from "@/monkey/MonkeyChat";
 import classNames from "classnames";
 import {type Disk, DISKS} from "@/monkey/disks";
 import iconPath from "@/monkey/Images/Icon.png";
-import {type Provider, PROVIDERS} from "@/monkey/Provider";
+import {PROVIDERS} from "@/monkey/Provider";
 import {usePersistentState} from "@/lib/usePersistentState";
+import {type EmulatorSettings} from "@/emulator/ui/settings";
 
 export default function Monkey() {
     const [disk, setDisk] = useState<Disk>(DISKS[0]);
@@ -198,6 +199,10 @@ function Embed({
     if (screenScale !== 1) {
         embedUrl.searchParams.set("screen_scale", screenScale.toString());
     }
+    const settings: Partial<EmulatorSettings> = {
+        speed: -1, // All-out/uncapped for Snow, to speed things up
+    };
+    embedUrl.searchParams.set("settings", JSON.stringify(settings));
     return (
         <iframe
             allow="cross-origin-isolated"

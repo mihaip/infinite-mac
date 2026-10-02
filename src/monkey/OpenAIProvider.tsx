@@ -1,6 +1,6 @@
 import OpenAI, {APIUserAbortError} from "openai";
 import {type Tool} from "openai/resources/responses/responses";
-import {type Computer} from "@/monkey/Computer";
+import {type ComputerAction, type Computer} from "@/monkey/Computer";
 import {
     type ConversationCallbacks,
     type Conversation,
@@ -8,11 +8,13 @@ import {
 } from "@/monkey/Provider";
 import {sleep} from "@/monkey/util";
 
+const OPENAI_MODEL = "gpt-6.1-sol";
+
 export const OPENAI_PROVIDER: Provider = {
     id: "openai",
     label: "OpenAI",
     titleLink: (
-        <a href="https://platform.openai.com/docs/guides/tools-computer-use">
+        <a href="https://developers.openai.com/api/docs/guides/tools-computer-use">
             OpenAI Computer Use
         </a>
     ),
@@ -23,8 +25,8 @@ export const OPENAI_PROVIDER: Provider = {
                 OpenAI API keys settings page
             </a>
             . The key you provide must have access to the{" "}
-            <a href="https://platform.openai.com/docs/guides/tools-computer-use">
-                <code>computer-use-preview</code>
+            <a href="https://developers.openai.com/api/docs/guides/tools-computer-use">
+                <code>{OPENAI_MODEL}</code>
             </a>{" "}
             model.
         </>
@@ -37,7 +39,7 @@ export const OPENAI_PROVIDER: Provider = {
 export class OpenAIConversation implements Conversation {
     private api: OpenAI;
     private abortController = new AbortController();
-    private interruptedCallId?: string;
+    private interruptedCallIds: string[] = [];
     private previousResponseId?: string;
 
     constructor(
@@ -61,37 +63,27 @@ export class OpenAIConversation implements Conversation {
         } = callbacks;
         const {computer} = this;
         let screenContents = computer.currentScreenContents();
+        const abortSignal = this.abortController.signal;
 
-        const tools: Tool[] = [
-            {
-                type: "computer_use_preview",
-                display_width: computer.displayWidth,
-                display_height: computer.displayHeight,
-                environment: "mac",
-            },
-        ];
+        const tools: Tool[] = [{type: "computer"}];
 
         let response: OpenAI.Responses.Response;
         try {
             setWaitingForResponse(true);
             const input: OpenAI.Responses.ResponseInput = [];
-            if (
-                this.interruptedCallId &&
-                this.previousResponseId &&
-                screenContents
-            ) {
-                console.log("Adding output for interrupted call");
-                input.push({
-                    call_id: this.interruptedCallId,
-                    type: "computer_call_output",
-                    output: {
-                        type: "computer_screenshot",
-                        image_url: screenContents,
-                    },
-                    status: "completed",
-                });
+            if (this.interruptedCallIds.length && this.previousResponseId) {
+                if (!screenContents) {
+                    onError("No screen contents available, stopping.");
+                    return;
+                }
+                for (const callId of this.interruptedCallIds) {
+                    input.push({
+                        call_id: callId,
+                        type: "computer_call_output",
+                        output: computerScreenshot(screenContents),
+                    });
+                }
                 screenContents = null; // Don't send the screenshot again
-                this.interruptedCallId = undefined;
             }
             input.push({
                 role: "user",
@@ -100,11 +92,13 @@ export class OpenAIConversation implements Conversation {
                         type: "input_text",
                         text: message,
                     },
+                    // The computer tool only accepts input images on the
+                    // first turn. Later screenshots belong in call outputs.
                     ...(screenContents && !this.previousResponseId
                         ? [
                               {
                                   type: "input_image" as const,
-                                  detail: "high" as const,
+                                  detail: "original" as const,
                                   image_url: screenContents,
                               },
                           ]
@@ -114,19 +108,19 @@ export class OpenAIConversation implements Conversation {
 
             response = await this.api.responses.create(
                 {
-                    model: "computer-use-preview",
+                    model: OPENAI_MODEL,
                     instructions: computer.instructions,
                     previous_response_id: this.previousResponseId,
                     tools,
                     input,
                     reasoning: {
-                        summary: "concise",
+                        effort: "low",
+                        summary: "auto",
                     },
                     truncation: "auto",
-                    temperature: 0,
                 },
                 {
-                    signal: this.abortController.signal,
+                    signal: abortSignal,
                 }
             );
         } catch (error) {
@@ -135,6 +129,7 @@ export class OpenAIConversation implements Conversation {
         } finally {
             setWaitingForResponse(false);
         }
+        this.interruptedCallIds = [];
         console.log(
             "Initial response",
             JSON.stringify(response.output, null, 2)
@@ -178,53 +173,78 @@ export class OpenAIConversation implements Conversation {
                 break;
             }
 
-            // We expect at most one computer call per response.
-            const computerCall = computerCalls[0];
-            const {action, call_id: computerCallId} = computerCall;
-            onAction(action);
-
-            // Check if we were aborted while handling the action (save a
-            // reference to the signal since stop() resets it).
-            const abortSignal = this.abortController.signal;
-            await computer.handleAction(action);
-            await sleep(100);
-            if (abortSignal.aborted) {
-                break;
-            }
-
-            const screenContents = computer.currentScreenContents();
-            if (!screenContents) {
-                onError("No screen contents available, stopping.");
-                break;
+            // Keep all outstanding calls so Stop can resume with the current
+            // screen without replaying the rest of an interrupted batch.
+            this.interruptedCallIds = computerCalls.map(call => call.call_id);
+            const input: OpenAI.Responses.ResponseInput = [];
+            for (const computerCall of computerCalls) {
+                if (computerCall.pending_safety_checks?.length) {
+                    onError(
+                        "Computer use requires a safety check. Please reset the conversation and review the task."
+                    );
+                    return;
+                }
+                const actions =
+                    computerCall.actions ??
+                    (computerCall.action ? [computerCall.action] : []);
+                for (const action of actions) {
+                    if (abortSignal.aborted) {
+                        return;
+                    }
+                    const computerAction: ComputerAction = {
+                        ...action,
+                        modifiers:
+                            action.type !== "keypress" && "keys" in action
+                                ? (action.keys ?? undefined)
+                                : undefined,
+                    };
+                    onAction(computerAction);
+                    try {
+                        await computer.handleAction(
+                            computerAction,
+                            abortSignal
+                        );
+                    } catch (error) {
+                        onError(error);
+                        return;
+                    }
+                }
+                await sleep(100);
+                if (abortSignal.aborted) {
+                    return;
+                }
+                const screenContents = computer.currentScreenContents();
+                if (!screenContents) {
+                    onError("No screen contents available, stopping.");
+                    return;
+                }
+                input.push({
+                    call_id: computerCall.call_id,
+                    type: "computer_call_output",
+                    output: computerScreenshot(screenContents),
+                });
             }
 
             try {
                 setWaitingForResponse(true);
                 response = await this.api.responses.create(
                     {
-                        model: "computer-use-preview",
+                        model: OPENAI_MODEL,
                         previous_response_id: response.id,
                         tools,
-                        input: [
-                            {
-                                call_id: computerCallId,
-                                type: "computer_call_output",
-                                output: {
-                                    type: "computer_screenshot",
-                                    image_url: screenContents,
-                                },
-                            },
-                        ],
+                        input,
+                        instructions: computer.instructions,
                         reasoning: {
-                            summary: "concise",
+                            effort: "low",
+                            summary: "auto",
                         },
                         truncation: "auto",
-                        temperature: 0,
                     },
                     {
-                        signal: this.abortController.signal,
+                        signal: abortSignal,
                     }
                 );
+                this.interruptedCallIds = [];
                 console.log(
                     "Action response",
                     JSON.stringify(response.output, null, 2)
@@ -232,7 +252,6 @@ export class OpenAIConversation implements Conversation {
             } catch (error) {
                 if (error instanceof APIUserAbortError) {
                     console.log("Action response aborted:", error);
-                    this.interruptedCallId = computerCallId;
                     onError("Stopped by user.");
                 } else {
                     console.error("Error sending computer call output:", error);
@@ -250,4 +269,14 @@ export class OpenAIConversation implements Conversation {
         this.abortController.abort();
         this.abortController = new AbortController();
     }
+}
+
+// Keep original-resolution coordinates. The API accepts detail here, although
+// the SDK's screenshot-output interface does not yet declare it.
+function computerScreenshot(image_url: string) {
+    return {
+        type: "computer_screenshot" as const,
+        image_url,
+        detail: "original" as const,
+    };
 }
