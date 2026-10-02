@@ -501,6 +501,8 @@ BEOS_PR1 = Disk(name="BeOS PR1 HD.dsk")
 
 BEOS_R3 = Disk(name="BeOS R3 HD.dsk")
 
+BEOS_R4 = Disk(name="BeOS R4 HD.dsk")
+
 
 ALL_DISKS = [
     # Classic
@@ -582,4 +584,5 @@ ALL_DISKS = [
     BEOS_DR83,
     BEOS_PR1,
     BEOS_R3,
+    BEOS_R4,
 ]

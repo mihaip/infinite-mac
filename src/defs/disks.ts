@@ -2337,6 +2337,68 @@ const BEOS_R3: SystemDiskDef = {
     hasDeviceImageHeader: true,
 };
 
+const BEOS_R3_1: PlaceholderDiskDef = {
+    family: "beos",
+    type: "placeholder",
+    displayName: "BeOS Release 3.1",
+    description:
+        "Added support for the FAT file system, DHCP, additional drivers, and improved compatibility with recent Macintosh clones.",
+    releaseDate: [1998, 6, 16],
+    preferredMachine: POWER_MACINTOSH_7300,
+    appearance: "BeOS",
+};
+
+const BEOS_R3_2: PlaceholderDiskDef = {
+    family: "beos",
+    type: "placeholder",
+    displayName: "BeOS Release 3.2",
+    description: "Bug fixes and improved hardware compatibility.",
+    releaseDate: [1998, 7, 29],
+    preferredMachine: POWER_MACINTOSH_7300,
+    appearance: "BeOS",
+};
+
+const BEOS_R4: SystemDiskDef = {
+    family: "beos",
+    displayName: "BeOS Release 4",
+    description:
+        "Introduced the streaming Media Kit, Japanese input support, improved Tracker and networking, and revised driver interfaces.",
+    releaseDate: [1998, 11, 12],
+    prefetchChunks: [
+        0, 2, 3, 4, 5, 8, 9, 10, 11, 12, 256, 512, 513, 514, 544, 545, 546, 576,
+        768, 769, 770, 771, 772, 773, 774, 775, 800, 803, 804, 805, 806, 807,
+        809, 810, 811, 812, 813, 814, 815, 816, 817, 818, 819, 820, 821, 822,
+        823, 824, 825, 826, 827, 828, 829, 830, 831, 832, 833, 837, 838, 839,
+        840, 841, 842, 843, 844, 845, 846, 848, 849, 850, 851, 852, 854, 1024,
+        1025, 1026, 1027, 1028, 1029, 1030, 1031, 1032, 1033, 1034, 1035, 1036,
+        1037, 1038, 1039, 1040, 1041, 1042, 1056, 1061, 1064, 1065, 1066, 1069,
+        1070, 1071, 1073, 1074, 1080, 1088, 1100, 1103, 1105, 1106, 1107, 1108,
+        1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1117, 1118, 1119, 1120,
+        1121, 1122, 1123, 1124, 1134, 1139, 1172, 1173, 1174, 1175, 1176, 1177,
+        1178, 1179, 1180, 1181, 1182, 1183, 1186, 1187, 1188, 1189, 1190, 1193,
+        1194, 1195, 1280, 1281, 1282, 1283, 1284, 1285, 1286, 1287, 1288, 1289,
+        1290, 1291, 1292, 1293, 1294, 1295, 1296, 1297, 1298, 1299, 1300, 1301,
+        1302, 1303, 1304, 1305, 1306, 1307, 1308, 1309, 1310, 1311, 1312, 1316,
+        1322, 1323, 1324, 1325, 1326, 1327, 1328, 1329, 1330, 1331, 1332, 1344,
+        1360, 1361, 1362, 1363, 1364, 1365, 1366, 1367, 1375, 1376, 1377, 1378,
+        1484, 1494, 1495, 1506, 1518, 1531, 1532, 1533, 1534, 1535, 1536, 1537,
+        1538, 1539, 1540, 1541, 1542, 1543, 1544, 1545, 1546, 1547, 1548, 1549,
+        1550, 1551, 1552, 1553, 1554, 1555, 1580, 1587, 1588, 1589, 1590, 1591,
+        1728, 1792, 1793, 1794, 1795, 1796, 1797, 1798, 1799, 1800, 1801, 1802,
+        1856, 1888, 1910, 1911, 1912, 2048, 2049, 2050, 2051, 2052, 2053, 2054,
+        2055, 2056, 2057, 2058, 2304, 2305, 2306, 3600, 3603, 3614, 3615, 3616,
+        3617, 3618, 3619, 3620, 3621, 3623, 3624, 3626, 3627, 3628, 3630, 3631,
+        3632, 3633, 3634, 3635, 3690, 3691, 3692, 3693, 3694, 3698, 3699, 3700,
+        3701, 3730, 3731, 3753, 3754, 3774, 3775, 3794, 3797, 3807, 3822, 3823,
+        3824, 3825,
+    ],
+    preferredMachine: POWER_MACINTOSH_7300,
+    preferredRAMSize: "32M",
+    generatedSpec: () => import("@/Data/BeOS R4 HD.dsk.json"),
+    appearance: "BeOS",
+    hasDeviceImageHeader: true,
+};
+
 export const ALL_DISKS = [
     SYSTEM_1_0,
     SYSTEM_1_1,
@@ -2428,6 +2490,9 @@ export const ALL_DISKS = [
     BEOS_PR_1,
     BEOS_PR_2,
     BEOS_R3,
+    BEOS_R3_1,
+    BEOS_R3_2,
+    BEOS_R4,
 ];
 
 export const FLOPPY_DISKS = [
