@@ -1,4 +1,4 @@
-import React, {useCallback, useLayoutEffect, useState} from "react";
+import React, {useCallback, useState} from "react";
 import "@/controls/ScreenFrame.css";
 import AppleLogoColor from "@/Images/AppleLogoColor.svg?react";
 import AppleLogoGrey from "@/Images/AppleLogoGrey.svg?react";
@@ -221,16 +221,13 @@ function ScreenFrameMenuContent({
     bezelSize: ScreenFrameProps["bezelSize"];
     onClose: () => void;
 }) {
-    const [displayItems, setDisplayItems] = useState<
-        ScreenMenuControl["items"] | null
-    >(null);
+    const items = control?.items;
+    const [displayItems, setDisplayItems] = useState(items);
     // Keep showing the last selected menu items, so that we can still transition
     // away from them.
-    useLayoutEffect(() => {
-        if (control?.items) {
-            setDisplayItems(control.items);
-        }
-    }, [control?.items]);
+    if (items && items !== displayItems) {
+        setDisplayItems(items);
+    }
     return (
         <div className="ScreenFrame-Control-MenuContent">
             <div className="ScreenFrame-Control-MenuContent-Shadow" />
