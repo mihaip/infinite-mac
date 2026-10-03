@@ -32,7 +32,7 @@ async function renderSSRImpl(
     env: Env,
     url: URL
 ): Promise<Response | undefined> {
-    const templateHtml = await getTemplateHtml(env, request);
+    const templateHtml = await getTemplateHtml(env, url);
     const marker = '<div id="root"></div>';
     const parts = templateHtml.split(marker);
     if (parts.length !== 2) {
@@ -76,12 +76,14 @@ async function renderSSRImpl(
 }
 
 let cachedTemplateHtml: string | null = null;
-async function getTemplateHtml(env: Env, request: Request) {
+async function getTemplateHtml(env: Env, url: URL): Promise<string> {
     if (cachedTemplateHtml !== null) {
         return cachedTemplateHtml;
     }
-    const assetResponse = await env.ASSETS.fetch(request);
-    const templateHtml = await assetResponse.clone().text();
+    const assetResponse = await env.ASSETS.fetch(
+        new URL("/index.html", url.href)
+    );
+    const templateHtml = await assetResponse.text();
     // eslint-disable-next-line require-atomic-updates
     cachedTemplateHtml = templateHtml;
     return templateHtml;
