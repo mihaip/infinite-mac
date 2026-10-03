@@ -2,10 +2,14 @@ type VarData = {[key: string]: number};
 
 const VARZ_PREFIX = "varz:";
 
-export async function handleRequest(request: Request, namespace: KVNamespace) {
+export async function handleRequest(
+    request: Request,
+    namespace: KVNamespace,
+    analytics: AnalyticsEngineDataset
+) {
     if (request.method === "POST") {
         const body = await request.json();
-        await incrementVarz(namespace, body as VarData);
+        await incrementVarz(namespace, body as VarData, analytics);
         return new Response(null, {status: 204});
     }
     if (request.method !== "GET") {
@@ -57,7 +61,11 @@ export async function handleRequest(request: Request, namespace: KVNamespace) {
     });
 }
 
-async function incrementVarz(namespace: KVNamespace, changes: VarData) {
+async function incrementVarz(
+    namespace: KVNamespace,
+    changes: VarData,
+    analytics: AnalyticsEngineDataset
+) {
     for (const [name, delta] of Object.entries(changes)) {
         if (!delta) {
             continue;
@@ -70,6 +78,31 @@ async function incrementVarz(namespace: KVNamespace, changes: VarData) {
             value += delta;
         }
         await namespace.put(key, JSON.stringify(value));
+        try {
+            const encodedName = new TextEncoder().encode(name);
+            let index = name;
+            // Analytics Engine indexes are limited to 96 bytes. Preserve the
+            // full name in blob1, and hash oversized names for sampling.
+            if (encodedName.byteLength > 96) {
+                const hash = await crypto.subtle.digest("SHA-256", encodedName);
+                index = Array.from(new Uint8Array(hash), byte =>
+                    byte.toString(16).padStart(2, "0")
+                ).join("");
+            }
+            // Schema: blob1 = full counter name, blob2..20 = colon-separated
+            // key components, double1 = increment, index1 = sampling key for
+            // the counter. Keep blob1 for existing queries and any components
+            // beyond Analytics Engine's 20-blob limit. Queries should sum
+            // double1 * _sample_interval to account for sampling.
+            // writeDataPoint is synchronous; the runtime exports in the background.
+            analytics.writeDataPoint({
+                blobs: [name, ...name.split(":").slice(0, 19)],
+                doubles: [delta],
+                indexes: [index],
+            });
+        } catch (error) {
+            console.error("Error exporting varz counter:", name, error);
+        }
     }
 }
 
@@ -78,7 +111,8 @@ const ERRORZ_KEY = "errorz";
 
 export async function handleErrorzRequest(
     request: Request,
-    namespace: KVNamespace
+    namespace: KVNamespace,
+    analytics: AnalyticsEngineDataset
 ) {
     const errorz =
         (await namespace.get<ErrorzData>(ERRORZ_KEY, {
@@ -97,7 +131,7 @@ export async function handleErrorzRequest(
         }
         errorz[name] = messages;
         await namespace.put(ERRORZ_KEY, JSON.stringify(errorz));
-        await incrementVarz(namespace, {[name]: 1});
+        await incrementVarz(namespace, {[name]: 1}, analytics);
         return new Response(null, {status: 204});
     }
     if (request.method !== "GET") {

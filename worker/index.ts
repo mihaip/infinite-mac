@@ -11,6 +11,7 @@ export type Assets = {
 export type Env = {
     ETHERNET_ZONE: DurableObjectNamespace;
     VARZ: KVNamespace;
+    VARZ_ANALYTICS: AnalyticsEngineDataset;
     DISK_BUCKET: R2Bucket;
     ASSETS: Assets;
 };
@@ -35,10 +36,10 @@ async function handleRequest(
         return zone.fetch(zoneUrl.toString(), request);
     }
     if (path[0] === "varz") {
-        return varz.handleRequest(request, env.VARZ);
+        return varz.handleRequest(request, env.VARZ, env.VARZ_ANALYTICS);
     }
     if (path[0] === "errorz") {
-        return varz.handleErrorzRequest(request, env.VARZ);
+        return varz.handleErrorzRequest(request, env.VARZ, env.VARZ_ANALYTICS);
     }
     if (path[0] === "CD-ROM") {
         return cdrom.handleRequest(request, env.DISK_BUCKET);

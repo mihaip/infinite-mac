@@ -15,6 +15,12 @@
             "preview_id": "535cb0b90b1a44f1b284919f2751aedb",
         },
     ],
+    "analytics_engine_datasets": [
+        {
+            "binding": "VARZ_ANALYTICS",
+            "dataset": "varz_dev",
+        },
+    ],
     "migrations": [
         {
             "new_classes": ["EthernetZone"],
@@ -44,6 +50,12 @@
                 {
                     "binding": "VARZ",
                     "id": "1725dc172d284ec4bd41bf950d5df01c",
+                },
+            ],
+            "analytics_engine_datasets": [
+                {
+                    "binding": "VARZ_ANALYTICS",
+                    "dataset": "varz",
                 },
             ],
             "r2_buckets": [
