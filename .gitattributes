@@ -7,3 +7,8 @@ src/stuffit/generated/* linguist-generated
 # git config --local diff.hfs.command 'scripts/diff-disks.py --git'
 # git config --local diff.hfs.trustExitCode true
 *.dsk -text !filter !merge diff=hfs
+# One-time setup for each clone:
+# git config --local diff.pram.command 'scripts/dump-pram.py --git'
+# git config --local diff.pram.trustExitCode true
+*pram.bin -text !filter !merge diff=pram
+*nvram.bin -text !filter !merge diff=pram
