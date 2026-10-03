@@ -1,5 +1,3 @@
-import {BroadcastChannelEthernetProvider} from "@/net/BroadcastChannelEthernetProvider";
-import {CloudflareWorkerEthernetProvider} from "@/net/CloudflareWorkerEthernetProvider";
 import {fromDateString, toDateString} from "@/lib/dates";
 import {
     ALL_DISKS,
@@ -9,7 +7,6 @@ import {
     type DiskFile,
     type SystemDiskDef,
 } from "@/defs/disks";
-import {type EmulatorEthernetProvider} from "@/emulator/ui/ui";
 import {type EmulatorConfigFlags} from "@/emulator/common/common";
 import {emulatorHasOptionalBlueSCSI} from "@/emulator/common/emulators";
 import {
@@ -39,7 +36,7 @@ export type RunDef = {
     includeSavedHD: boolean;
     includeLibrary: boolean;
     libraryDownloadURLs: string[];
-    ethernetProvider?: EmulatorEthernetProvider;
+    ethernetProvider?: EthernetProviderDef;
     debugFallback?: boolean; // Force non-SharedArrayBuffer mode for debugging
     debugPaused?: boolean;
     flags: EmulatorConfigFlags;
@@ -55,6 +52,10 @@ export type ScreenSize =
     | "window"
     | "embed"
     | {width: number; height: number};
+
+export type EthernetProviderDef =
+    | {type: "cloudflare"; zoneName: string}
+    | {type: "broadcast-channel"};
 
 export function runDefSupportsBlueSCSI(runDef: RunDef): boolean {
     return (
@@ -163,6 +164,12 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     if (!machine) {
         return undefined;
     }
+    if (!yearDiskDef && pathname !== "/embed" && pathname !== "/run") {
+        console.warn(
+            "Run definition on an unexpected path; prefer /run",
+            url.href
+        );
+    }
     let ramSize: MachineDefRAMSize | undefined = undefined;
     const ramSizeParam = searchParams.get("ram") as MachineDefRAMSize | null;
     if (ramSizeParam && machine.ramSizes.includes(ramSizeParam)) {
@@ -228,14 +235,12 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         }
     }
 
-    let ethernetProvider;
+    let ethernetProvider: EthernetProviderDef | undefined;
     const appleTalkZoneName = searchParams.get("appleTalk");
     if (appleTalkZoneName) {
-        ethernetProvider = new CloudflareWorkerEthernetProvider(
-            appleTalkZoneName
-        );
+        ethernetProvider = {type: "cloudflare", zoneName: appleTalkZoneName};
     } else if (searchParams.get("broadcast_channel_ethernet") === "true") {
-        ethernetProvider = new BroadcastChannelEthernetProvider();
+        ethernetProvider = {type: "broadcast-channel"};
     }
 
     let customDate;
@@ -372,10 +377,13 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
     if (runDef.screenScale !== undefined) {
         url.searchParams.set("screen_scale", runDef.screenScale.toString());
     }
-    if (ethernetProvider instanceof CloudflareWorkerEthernetProvider) {
-        url.searchParams.set("appleTalk", ethernetProvider.zoneName());
-    } else if (ethernetProvider instanceof BroadcastChannelEthernetProvider) {
-        url.searchParams.set("broadcast_channel_ethernet", "true");
+    switch (ethernetProvider?.type) {
+        case "cloudflare":
+            url.searchParams.set("appleTalk", ethernetProvider.zoneName);
+            break;
+        case "broadcast-channel":
+            url.searchParams.set("broadcast_channel_ethernet", "true");
+            break;
     }
     if (runDef.flags.customDate) {
         url.searchParams.set("date", toDateString(runDef.flags.customDate));

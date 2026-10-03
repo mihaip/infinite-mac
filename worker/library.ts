@@ -114,6 +114,7 @@ async function handleProxy(url: URL) {
         },
     };
 
+    console.log("Proxying request to", srcUrl);
     try {
         return await fetch(srcUrl, requestInit as RequestInit);
     } catch (err) {

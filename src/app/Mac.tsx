@@ -81,6 +81,8 @@ import {
 import {MacEmulatorStats} from "@/app/MacEmulatorStats";
 import {MacEthernetStatus} from "@/app/MacEthernetStatus";
 import {saveAs} from "file-saver";
+import {CloudflareWorkerEthernetProvider} from "@/net/CloudflareWorkerEthernetProvider";
+import {BroadcastChannelEthernetProvider} from "@/net/BroadcastChannelEthernetProvider";
 
 export type MacProps = {
     runDef: RunDef;
@@ -107,7 +109,7 @@ export default function Mac({
         screenScale: screenScaleProp,
         screenUpdateMessages,
         isEmbed,
-        ethernetProvider,
+        ethernetProvider: ethernetProviderDef,
         debugFallback,
         debugPaused,
         flags,
@@ -298,6 +300,18 @@ export default function Mac({
         const sendEmbedNotification = (event: EmbedNotificationEvent) => {
             window.parent.postMessage(event, "*");
         };
+
+        let ethernetProvider: EmulatorEthernetProvider | undefined;
+        switch (ethernetProviderDef?.type) {
+            case "cloudflare":
+                ethernetProvider = new CloudflareWorkerEthernetProvider(
+                    ethernetProviderDef.zoneName
+                );
+                break;
+            case "broadcast-channel":
+                ethernetProvider = new BroadcastChannelEthernetProvider();
+                break;
+        }
 
         const emulator = new Emulator(
             {
@@ -536,6 +550,7 @@ export default function Mac({
             emulator.stop();
             emulatorRef.current = undefined;
             ethernetProvider?.close?.();
+            ethernetProviderRef.current = undefined;
             if (messageListener) {
                 window.removeEventListener("message", messageListener);
             }
@@ -548,7 +563,7 @@ export default function Mac({
         cdroms,
         machine,
         emulatorType,
-        ethernetProvider,
+        ethernetProviderDef,
         screenSizeProp,
         initialScreenWidth,
         initialScreenHeight,

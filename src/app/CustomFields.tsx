@@ -3,7 +3,6 @@ import classNames from "classnames";
 import {Fragment, useCallback, useEffect, useState} from "react";
 import {canSaveDisks} from "@/lib/canSaveDisks";
 import {systemCDROMEra, getSystemCDROMs} from "@/defs/cdroms";
-import {CloudflareWorkerEthernetProvider} from "@/net/CloudflareWorkerEthernetProvider";
 import {Button} from "@/controls/Button";
 import {Checkbox} from "@/controls/Checkbox";
 import {Input} from "@/controls/Input";
@@ -197,7 +196,7 @@ export function CustomFields({
         setRunDef(runDef => {
             const ethernetProvider =
                 appleTalkSupported && appleTalkEnabled && appleTalkZoneName
-                    ? new CloudflareWorkerEthernetProvider(appleTalkZoneName)
+                    ? {type: "cloudflare" as const, zoneName: appleTalkZoneName}
                     : undefined;
             return {
                 ...runDef,

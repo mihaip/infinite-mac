@@ -95,6 +95,11 @@ export class EthernetZone extends DurableObject {
                                     })
                                 );
                             } catch (err) {
+                                console.error(
+                                    "Error sending Ethernet WebSocket message:",
+                                    err,
+                                    {destination, macAddress: client.macAddress}
+                                );
                                 this.webSocketClose(
                                     clientWs,
                                     1011,
@@ -120,6 +125,12 @@ export class EthernetZone extends DurableObject {
     ) {
         this.#clients.delete(ws);
         ws.close(code, "Durable Object is closing WebSocket");
+    }
+
+    override async webSocketError(ws: WebSocket, error: unknown) {
+        console.error("Ethernet WebSocket error:", error, {
+            macAddress: this.#clients.get(ws)?.macAddress,
+        });
     }
 }
 

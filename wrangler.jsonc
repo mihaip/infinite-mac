@@ -5,6 +5,7 @@
     "main": "worker/index.ts",
     "name": "infinite-mac",
     "workers_dev": false,
+    "upload_source_maps": true,
     "cache": {
         "enabled": false,
     },
@@ -127,5 +128,8 @@
     "observability": {
         "enabled": true,
         "head_sampling_rate": 0.1,
+        "issues": {
+            "enabled": true,
+        },
     },
 }

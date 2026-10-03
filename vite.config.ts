@@ -17,11 +17,20 @@ const headers = {
 export default defineConfig(() => {
     return {
         environments: {
+            infinite_mac: {
+                build: {
+                    // Wrangler discovers prebuilt maps via sourceMappingURL.
+                    sourcemap: true,
+                },
+            },
             client: {
                 build: {
                     rolldownOptions: {
                         input: {
-                            main: path.resolve(import.meta.dirname, "index.html"),
+                            main: path.resolve(
+                                import.meta.dirname,
+                                "index.html"
+                            ),
                             monkey: path.resolve(
                                 import.meta.dirname,
                                 "monkey/index.html"

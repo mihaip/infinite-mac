@@ -3,13 +3,14 @@ import {renderToReadableStream} from "react-dom/server";
 import {type Env} from "./index";
 import {AsyncLocalStorage} from "node:async_hooks";
 import {type Iso, setIsoProvider} from "@/lib/iso";
+import {runDefFromUrl} from "@/defs/run-def";
 
 export function canRenderSSR(url: URL) {
     const {pathname, searchParams} = url;
     if (searchParams.get("ssr") === "0") {
         return false;
     }
-    if (pathname === "/") {
+    if (pathname === "/" && runDefFromUrl(url.href) === undefined) {
         return true;
     }
     // TODO: support rendering of run-def paths too.
@@ -35,7 +36,9 @@ async function renderSSRImpl(
     const marker = '<div id="root"></div>';
     const parts = templateHtml.split(marker);
     if (parts.length !== 2) {
-        console.warn("HTML template does not contain expected SSR marker");
+        console.error(
+            new Error("HTML template does not contain expected SSR marker")
+        );
         return undefined;
     }
 

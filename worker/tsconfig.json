@@ -2,7 +2,8 @@
     "compilerOptions": {
         "target": "ES2020",
         "module": "esnext",
-        "lib": ["ES2020"],
+        "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
+        "jsx": "react-jsx",
         "types": ["@cloudflare/workers-types/latest", "vite/client", "node"],
         "strict": true,
         "moduleResolution": "bundler",
@@ -15,5 +16,6 @@
         "paths": {
             "@/*": ["../src/*"]
         }
-    }
+    },
+    "include": ["**/*.ts", "../src/vite-env.d.ts"]
 }

@@ -112,11 +112,10 @@ async function handleGET(
         }
     }
 
-    console.warn("CD-ROM fetch failed", {
+    console.error("CD-ROM fetch failed:", chunkFetchError, {
         ...spec,
         chunkStart,
         chunkEnd,
-        chunkFetchError,
     });
     return errorResponse("CD-ROM fetch failed: " + chunkFetchError, 500);
 }
@@ -136,7 +135,16 @@ async function handlePUT(srcUrl: string, origin: string) {
     try {
         response = await fetchMetadata(srcUrl, origin);
     } catch (e) {
+        console.error("CD-ROM HEAD request failed:", e, {srcUrl});
         return errorResponse(`CD-ROM HEAD request failed: ${e}`);
+    }
+    if (response.status >= 500) {
+        console.error(
+            new Error(
+                `CD-ROM HEAD request failed: ${response.status} (${response.statusText})`
+            ),
+            {srcUrl}
+        );
     }
     // Prefer direct fetching even for allowlisted sites, so that hosts which
     // enable CORS no longer need our data proxy.

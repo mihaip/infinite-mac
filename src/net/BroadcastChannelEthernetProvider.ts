@@ -26,6 +26,10 @@ export class BroadcastChannelEthernetProvider
         this.#macAddress = macAddress;
     }
 
+    close(): void {
+        this.#broadcastChannel.close();
+    }
+
     send(destination: string, packet: Uint8Array): void {
         this.#broadcastChannel.postMessage({
             destination,
