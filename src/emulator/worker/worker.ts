@@ -866,15 +866,12 @@ async function startEmulator(config: EmulatorWorkerConfig) {
 
         printErr: console.warn.bind(console),
 
-        quit(status: number, toThrow?: Error) {
+        onExit(status: number) {
             console.log("Emulator quit with status", status);
             if (status === 0) {
                 moduleOverrides.workerApi?.exit();
             } else {
-                moduleOverrides.workerApi?.emulatorDidHaveError(
-                    status,
-                    toThrow
-                );
+                moduleOverrides.workerApi?.emulatorDidHaveError(status);
             }
         },
     };

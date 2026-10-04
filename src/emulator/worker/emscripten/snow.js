@@ -132,6 +132,8 @@ var /** not-@type {!BigInt64Array} */ HEAP64, /* BigUint64Array type is not corr
 
 var runtimeInitialized = false;
 
+var runtimeExited = false;
+
 function updateMemoryViews() {
   var b = wasmMemory.buffer;
   HEAP8 = new Int8Array(b);
@@ -172,6 +174,17 @@ function initRuntime() {
 }
 
 function preMain() {}
+
+function exitRuntime() {
+  // PThreads reuse the runtime from the main thread.
+  ___funcs_on_exit();
+  // Native atexit() functions
+  // Begin ATEXITS hooks
+  FS.quit();
+  TTY.shutdown();
+  // End ATEXITS hooks
+  runtimeExited = true;
+}
 
 function postRun() {
   // PThreads reuse the runtime from the main thread.
@@ -361,7 +374,7 @@ var onPreRuns = [];
 
 var addOnPreRun = cb => onPreRuns.push(cb);
 
-var noExitRuntime = true;
+var noExitRuntime = false;
 
 var PATH = {
   isAbs: path => path.charAt(0) === "/",
@@ -2461,6 +2474,7 @@ var FS = {
   quit() {
     FS.initialized = false;
     // force-flush all streams, so we get musl std streams printed out
+    _fflush(0);
     // close all of our streams
     for (var stream of FS.streams) {
       if (stream) {
@@ -3453,6 +3467,9 @@ var _proc_exit = code => {
 
 /** @param {boolean|number=} implicit */ var exitJS = (status, implicit) => {
   EXITSTATUS = status;
+  if (!keepRuntimeAlive()) {
+    exitRuntime();
+  }
   _proc_exit(status);
 };
 
@@ -3513,14 +3530,16 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 // Imports from the Wasm binary.
-var _main, _malloc, _realloc, ___trap, __emscripten_stack_alloc, memory, __indirect_function_table, __ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E, __ZN9snow_core3mac4scsi4disk1_6__CTOR17h61ea2843118648f3E, __ZN9snow_core3mac3adb5mouse1_6__CTOR17ha7338fba54f73e1cE, __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hf3d4d4ae8cd6574fE, __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h170699817b88cc1fE, wasmMemory;
+var _main, _malloc, _realloc, ___funcs_on_exit, _fflush, ___trap, __emscripten_stack_alloc, memory, __indirect_function_table, __ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E, __ZN9snow_core3mac4scsi4disk1_6__CTOR17h61ea2843118648f3E, __ZN9snow_core3mac3adb5mouse1_6__CTOR17ha7338fba54f73e1cE, __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hf3d4d4ae8cd6574fE, __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h170699817b88cc1fE, wasmMemory;
 
 function assignWasmExports(wasmExports) {
   _main = Module["_main"] = wasmExports["ca"];
   _malloc = wasmExports["ia"];
   _realloc = wasmExports["ja"];
-  ___trap = wasmExports["ka"];
-  __emscripten_stack_alloc = wasmExports["la"];
+  ___funcs_on_exit = wasmExports["ka"];
+  _fflush = wasmExports["la"];
+  ___trap = wasmExports["ma"];
+  __emscripten_stack_alloc = wasmExports["na"];
   memory = wasmMemory = wasmExports["aa"];
   __indirect_function_table = wasmExports["__indirect_function_table"];
   __ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E"] = wasmExports["da"].value;

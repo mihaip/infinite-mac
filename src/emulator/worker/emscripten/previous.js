@@ -134,6 +134,8 @@ var /** not-@type {!BigInt64Array} */ HEAP64, /* BigUint64Array type is not corr
 
 var runtimeInitialized = false;
 
+var runtimeExited = false;
+
 function updateMemoryViews() {
   var b = wasmMemory.buffer;
   HEAP8 = new Int8Array(b);
@@ -175,6 +177,17 @@ function initRuntime() {
 }
 
 function preMain() {}
+
+function exitRuntime() {
+  // PThreads reuse the runtime from the main thread.
+  ___funcs_on_exit();
+  // Native atexit() functions
+  // Begin ATEXITS hooks
+  FS.quit();
+  TTY.shutdown();
+  // End ATEXITS hooks
+  runtimeExited = true;
+}
 
 function postRun() {
   // PThreads reuse the runtime from the main thread.
@@ -354,7 +367,7 @@ var onPreRuns = [];
 
 var addOnPreRun = cb => onPreRuns.push(cb);
 
-var noExitRuntime = true;
+var noExitRuntime = false;
 
 var stackRestore = val => __emscripten_stack_restore(val);
 
@@ -2517,6 +2530,7 @@ var FS = {
   quit() {
     FS.initialized = false;
     // force-flush all streams, so we get musl std streams printed out
+    _fflush(0);
     // close all of our streams
     for (var stream of FS.streams) {
       if (stream) {
@@ -4465,12 +4479,18 @@ var _proc_exit = code => {
 
 /** @param {boolean|number=} implicit */ var exitJS = (status, implicit) => {
   EXITSTATUS = status;
+  if (!keepRuntimeAlive()) {
+    exitRuntime();
+  }
   _proc_exit(status);
 };
 
 var _exit = exitJS;
 
 var maybeExit = () => {
+  if (runtimeExited) {
+    return;
+  }
   if (!keepRuntimeAlive()) {
     try {
       _exit(EXITSTATUS);
@@ -4481,7 +4501,7 @@ var maybeExit = () => {
 };
 
 var callUserCallback = func => {
-  if (ABORT) {
+  if (runtimeExited || ABORT) {
     return;
   }
   try {
@@ -4947,9 +4967,21 @@ function getFullscreenElement() {
   return document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.msFullscreenElement;
 }
 
-/** @param {number=} timeout */ var safeSetTimeout = (func, timeout) => setTimeout(() => {
-  callUserCallback(func);
-}, timeout);
+var runtimeKeepalivePush = () => {
+  runtimeKeepaliveCounter += 1;
+};
+
+var runtimeKeepalivePop = () => {
+  runtimeKeepaliveCounter -= 1;
+};
+
+/** @param {number=} timeout */ var safeSetTimeout = (func, timeout) => {
+  runtimeKeepalivePush();
+  return setTimeout(() => {
+    runtimeKeepalivePop();
+    callUserCallback(func);
+  }, timeout);
+};
 
 var warnOnce = text => {
   warnOnce.shown ||= {};
@@ -5512,14 +5544,16 @@ function consumeDiskName() {
 }
 
 // Imports from the Wasm binary.
-var _malloc, _main, _ntohs, _htons, _htonl, __emscripten_timeout, _setThrew, __emscripten_stack_restore, __emscripten_stack_alloc, _emscripten_stack_get_current, memory, __indirect_function_table, wasmMemory, wasmTable;
+var _malloc, _main, _fflush, _ntohs, _htons, _htonl, ___funcs_on_exit, __emscripten_timeout, _setThrew, __emscripten_stack_restore, __emscripten_stack_alloc, _emscripten_stack_get_current, memory, __indirect_function_table, wasmMemory, wasmTable;
 
 function assignWasmExports(wasmExports) {
   _malloc = wasmExports["malloc"];
   _main = Module["_main"] = wasmExports["__main_argc_argv"];
+  _fflush = wasmExports["fflush"];
   _ntohs = wasmExports["ntohs"];
   _htons = wasmExports["htons"];
   _htonl = wasmExports["htonl"];
+  ___funcs_on_exit = wasmExports["__funcs_on_exit"];
   __emscripten_timeout = wasmExports["_emscripten_timeout"];
   _setThrew = wasmExports["setThrew"];
   __emscripten_stack_restore = wasmExports["_emscripten_stack_restore"];

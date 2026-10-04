@@ -47,7 +47,7 @@ declare module "ringbuf.js" {
 }
 
 interface EmscriptenModule {
-    quit: (status: number, toThrow?: Error) => void;
+    onExit: (status: number) => void;
     // We assume that Emscripten is cofigured with
     // `-s EXPORTED_RUNTIME_METHODS=FS`.
     FS: typeof FS;
