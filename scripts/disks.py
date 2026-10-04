@@ -493,16 +493,17 @@ AUX_31 = Disk(
     ],
 )
 
-BEOS_DR82 = Disk(name="BeOS DR8.2 HD.dsk")
+BEOS_DR82 = Disk(name="BeOS DR8.2 HD.dsk", compressed=True)
 
-BEOS_DR83 = Disk(name="BeOS DR8.3 HD.dsk")
+BEOS_DR83 = Disk(name="BeOS DR8.3 HD.dsk", compressed=True)
 
-BEOS_PR1 = Disk(name="BeOS PR1 HD.dsk")
+BEOS_PR1 = Disk(name="BeOS PR1 HD.dsk", compressed=True)
 
-BEOS_R3 = Disk(name="BeOS R3 HD.dsk")
+BEOS_R3 = Disk(name="BeOS R3 HD.dsk", compressed=True)
 
-BEOS_R4 = Disk(name="BeOS R4 HD.dsk")
+BEOS_R4 = Disk(name="BeOS R4 HD.dsk", compressed=True)
 
+BEOS_R45 = Disk(name="BeOS R4.5 HD.dsk", compressed=True)
 
 ALL_DISKS = [
     # Classic
@@ -585,4 +586,5 @@ ALL_DISKS = [
     BEOS_PR1,
     BEOS_R3,
     BEOS_R4,
+    BEOS_R45,
 ]
