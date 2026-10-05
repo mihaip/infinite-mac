@@ -52,6 +52,13 @@ export type EmbedNotificationEvent =
           type: "emulator_loaded";
       }
     | {
+          type: "emulator_exited";
+      }
+    | {
+          type: "emulator_error";
+          error: string;
+      }
+    | {
           type: "emulator_screen";
           data: Uint8ClampedArray;
           width: number;

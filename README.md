@@ -159,7 +159,7 @@ make -j8
 
 Once it has built, use `npm run import-emulator minivmac-<model>` from the host to update the files in `src/emulator`.
 
-### DingusPPC
+#### DingusPPC
 
 ```sh
 cd /dingusppc
@@ -171,7 +171,7 @@ make dingusppc -j8
 
 Once it has built, use `npm run import-emulator dingusppc` from the host to update the files in `src/emulator`.
 
-### Previous
+#### Previous
 
 ```sh
 cd /previous
@@ -183,7 +183,7 @@ make previous -j8
 
 Once it has built, use `npm run import-emulator previous` from the host to update the files in `src/emulator`.
 
-### PearPC
+#### PearPC
 
 ```sh
 cd /pearpc
@@ -193,7 +193,7 @@ make -j8
 
 Once it has built, use `npm run import-emulator pearpc` from the host to update the files in `src/emulator`.
 
-### Snow
+#### Snow
 
 ```sh
 cd /snow
@@ -201,3 +201,10 @@ cargo build -r -p snow_frontend_im --target wasm32-unknown-emscripten
 ```
 
 Once it has built, use `npm run import-emulator snow` from the host to update the files in `src/emulator`.
+
+### Internal test pages
+
+There are some internal pages available to make development easier:
+
+- `/_controls` ([dev](http://localhost:3127/_controls), [prod](https://infinitemac.org/_controls)): previewing of all the custom UI controls in all of the appearance types (Classic, Platinum, Aqua, etc.)
+- `/_emulators` ([dev](http://localhost:3127/_emulators), [prod](https://infinitemac.org/_emulators)) for an N-up view of multiple emulators, useful when making broad changes.

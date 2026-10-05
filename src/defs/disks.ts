@@ -103,7 +103,7 @@ export function isSystemDiskDef(
     return "displayName" in disk && !("type" in disk);
 }
 
-const SYSTEM_1_0: SystemDiskDef = {
+export const SYSTEM_1_0: SystemDiskDef = {
     displayName: "System 1.0",
     description: "Initial system software release, shipped with the Mac 128K.",
     releaseDate: [1984, 1, 24],
@@ -116,7 +116,7 @@ const SYSTEM_1_0: SystemDiskDef = {
     isFloppy: true,
 };
 
-const SYSTEM_1_0_ORIGINAL: SystemDiskDef = {
+export const SYSTEM_1_0_ORIGINAL: SystemDiskDef = {
     displayName: "System 1.0 (System Disk)",
     description: "Initial system software release, shipped with the Mac 128K.",
     releaseDate: [1984, 1, 24],
@@ -128,7 +128,7 @@ const SYSTEM_1_0_ORIGINAL: SystemDiskDef = {
     isFloppy: true,
 };
 
-const SYSTEM_1_1: SystemDiskDef = {
+export const SYSTEM_1_1: SystemDiskDef = {
     displayName: "System 1.1",
     description:
         "Maintenance release that improved disk copying speeds and added the “Set Startup” command and the Finder about box.",
@@ -141,7 +141,7 @@ const SYSTEM_1_1: SystemDiskDef = {
     isFloppy: true,
 };
 
-const SYSTEM_2_0: SystemDiskDef = {
+export const SYSTEM_2_0: SystemDiskDef = {
     displayName: "System 2.0",
     description:
         "Introduced the ”New Folder” and ”Shut Down” commands, the MiniFinder, and the Choose Printer DA. Also added icons to list view and the Command-Shift-3 screenshot FKEY.",
@@ -155,7 +155,7 @@ const SYSTEM_2_0: SystemDiskDef = {
     isFloppy: true,
 };
 
-const SYSTEM_2_1: SystemDiskDef = {
+export const SYSTEM_2_1: SystemDiskDef = {
     displayName: "System 2.1",
     description:
         "Added support for the Hard Disk 20 drive and the HFS file system.",
@@ -171,7 +171,7 @@ const SYSTEM_2_1: SystemDiskDef = {
     isFloppy: true,
 };
 
-const SYSTEM_3_0: SystemDiskDef = {
+export const SYSTEM_3_0: SystemDiskDef = {
     displayName: "System 3.0",
     description:
         "Added more complete support for HFS, a RAM disk cache, zoom boxes for windows and a redesigned control panel. Introduced with the Mac Plus.",
@@ -193,7 +193,7 @@ const SYSTEM_3_1: PlaceholderDiskDef = {
     preferredMachine: MAC_PLUS_SNOW,
 };
 
-const SYSTEM_3_2: SystemDiskDef = {
+export const SYSTEM_3_2: SystemDiskDef = {
     displayName: "System 3.2",
     description:
         "Includes redesigned Calculator and Chooser desktop accessories.",
@@ -205,7 +205,7 @@ const SYSTEM_3_2: SystemDiskDef = {
     isFloppy: true,
 };
 
-const SYSTEM_3_3: SystemDiskDef = {
+export const SYSTEM_3_3: SystemDiskDef = {
     displayName: "System 3.3",
     description:
         "Enhanced AppleShare file serving support. The Trash can icon now bulges when it's not empty.",
@@ -217,7 +217,7 @@ const SYSTEM_3_3: SystemDiskDef = {
     isFloppy: true,
 };
 
-const SYSTEM_4_0: SystemDiskDef = {
+export const SYSTEM_4_0: SystemDiskDef = {
     displayName: "System 4.0",
     description:
         "Added the Find File desktop accessory and the Restart command. Features a redesigned control panel. Released with the Mac SE.",
@@ -228,7 +228,7 @@ const SYSTEM_4_0: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 4.0.dsk.json"),
 };
 
-const SYSTEM_4_1: SystemDiskDef = {
+export const SYSTEM_4_1: SystemDiskDef = {
     displayName: "System 4.1",
     description:
         "Added Easy Access accessibility features. Improved compatibility with larger hard drives. Released with the Mac II.",
@@ -239,7 +239,7 @@ const SYSTEM_4_1: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 4.1.dsk.json"),
 };
 
-const SYSTEM_5_0: SystemDiskDef = {
+export const SYSTEM_5_0: SystemDiskDef = {
     displayName: "System 5.0",
     description:
         "Introduced the MultiFinder, revised the Finder about box, and improved printing support.",
@@ -251,7 +251,7 @@ const SYSTEM_5_0: SystemDiskDef = {
     notable: true,
 };
 
-const SYSTEM_5_1: SystemDiskDef = {
+export const SYSTEM_5_1: SystemDiskDef = {
     displayName: "System 5.1",
     description: "Updated the LaserWriter Driver and Apple HD SC Setup.",
     releaseDate: [1987, 12, 1],
@@ -261,7 +261,7 @@ const SYSTEM_5_1: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 5.1 HD.dsk.json"),
 };
 
-const SYSTEM_6_0: SystemDiskDef = {
+export const SYSTEM_6_0: SystemDiskDef = {
     displayName: "System 6.0",
     description: "Added MacroMaker, Map and CloseView utilities.",
     releaseDate: [1988, 4, 30],
@@ -280,7 +280,7 @@ const SYSTEM_6_0_1: PlaceholderDiskDef = {
     preferredMachine: MAC_SE_SNOW,
 };
 
-const SYSTEM_6_0_2: SystemDiskDef = {
+export const SYSTEM_6_0_2: SystemDiskDef = {
     displayName: "System 6.0.2",
     description: "Updated LaserWriter and other printing-related utilites.",
     releaseDate: [1988, 9, 19],
@@ -290,7 +290,7 @@ const SYSTEM_6_0_2: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 6.0.2 HD.dsk.json"),
 };
 
-const SYSTEM_6_0_3: SystemDiskDef = {
+export const SYSTEM_6_0_3: SystemDiskDef = {
     displayName: "System 6.0.3",
     description: "Added support for the Mac IIcx and SE/30.",
     releaseDate: [1989, 3, 7],
@@ -300,7 +300,7 @@ const SYSTEM_6_0_3: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 6.0.3 HD.dsk.json"),
 };
 
-const SYSTEM_6_0_4: SystemDiskDef = {
+export const SYSTEM_6_0_4: SystemDiskDef = {
     displayName: "System 6.0.4",
     description:
         "Added support for the Mac IIci and Portable. Improved the installer. Holding down the option key when double-clicking in the Finder closes the parent window.",
@@ -311,7 +311,7 @@ const SYSTEM_6_0_4: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 6.0.4 HD.dsk.json"),
 };
 
-const SYSTEM_6_0_5: SystemDiskDef = {
+export const SYSTEM_6_0_5: SystemDiskDef = {
     displayName: "System 6.0.5",
     description:
         "Bundled 32-bit QuickDraw (previously a separate package). Added support for the Mac IIfx.",
@@ -331,7 +331,7 @@ const SYSTEM_6_0_6: PlaceholderDiskDef = {
     preferredMachine: MAC_SE30_SNOW,
 };
 
-const SYSTEM_6_0_7: SystemDiskDef = {
+export const SYSTEM_6_0_7: SystemDiskDef = {
     displayName: "System 6.0.7",
     description:
         "First release to ship on 1440K disks. Added support for the Classic, LC and IIsi.",
@@ -342,7 +342,7 @@ const SYSTEM_6_0_7: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 6.0.7 HD.dsk.json"),
 };
 
-const SYSTEM_6_0_8: SystemDiskDef = {
+export const SYSTEM_6_0_8: SystemDiskDef = {
     displayName: "System 6.0.8",
     description:
         "Final release of System 6, updated printing software to match the printing software of System 7.",
@@ -353,7 +353,7 @@ const SYSTEM_6_0_8: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 6.0.8 HD.dsk.json"),
 };
 
-const SYSTEM_7_0: SystemDiskDef = {
+export const SYSTEM_7_0: SystemDiskDef = {
     displayName: "System 7.0",
     description:
         "Fully 32-bit clean, the MultiFinder is now mandatory, reorganized the System Folder into subfolders, made the Apple menu customizable, revamped the window appearance, and much more.",
@@ -368,7 +368,7 @@ const SYSTEM_7_0: SystemDiskDef = {
     notable: true,
 };
 
-const SYSTEM_7_0_1: SystemDiskDef = {
+export const SYSTEM_7_0_1: SystemDiskDef = {
     displayName: "System 7.0.1",
     description:
         "Added the Caps Lock extension, added support for initial set of PowerBooks and Quadras.",
@@ -382,7 +382,7 @@ const SYSTEM_7_0_1: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 7.0.1 HD.dsk.json"),
 };
 
-const SYSTEM_7_1: SystemDiskDef = {
+export const SYSTEM_7_1: SystemDiskDef = {
     displayName: "System 7.1",
     description:
         "Added the Fonts folder, introduced system enablers to support new Mac models and improved internationalization support.",
@@ -397,7 +397,7 @@ const SYSTEM_7_1: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 7.1 HD.dsk.json"),
 };
 
-const SYSTEM_7_1_1: SystemDiskDef = {
+export const SYSTEM_7_1_1: SystemDiskDef = {
     displayName: "System 7.1.1",
     displaySubtitle: "Pro",
     description: "Bundled PowerTalk and AppleScript.",
@@ -412,7 +412,7 @@ const SYSTEM_7_1_1: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 7.1.1 HD.dsk.json"),
 };
 
-const SYSTEM_7_1_2: SystemDiskDef = {
+export const SYSTEM_7_1_2: SystemDiskDef = {
     displayName: "System 7.1.2",
     description:
         "Initial system software for the first Power Macintosh computers.",
@@ -423,7 +423,7 @@ const SYSTEM_7_1_2: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 7.1.2 HD.dsk.json"),
 };
 
-const SYSTEM_7_1_2_DISK_TOOLS: SystemDiskDef = {
+export const SYSTEM_7_1_2_DISK_TOOLS: SystemDiskDef = {
     displayName: "System 7.1.2 Disk Tools",
     description:
         "Disk Tools startup disk from the floppy disk version of System 7.1.2.",
@@ -435,7 +435,7 @@ const SYSTEM_7_1_2_DISK_TOOLS: SystemDiskDef = {
     isFloppy: true,
 };
 
-const SYSTEM_7_5: SystemDiskDef = {
+export const SYSTEM_7_5: SystemDiskDef = {
     displayName: "System 7.5",
     description:
         "Featured a new startup screen, drag-and-drop support and the Launcher. Included a hierarchical Apple menu, Extensions Manager, menu bar clock, Find File, Stickies, WindowShade, all based on licensed third-party utilities.",
@@ -452,7 +452,7 @@ const SYSTEM_7_5: SystemDiskDef = {
     notable: true,
 };
 
-const SYSTEM_7_5_DISK_TOOLS: SystemDiskDef = {
+export const SYSTEM_7_5_DISK_TOOLS: SystemDiskDef = {
     displayName: "System 7.5 Disk Tools",
     description:
         "Disk Tools startup disk from the floppy disk version of System 7.5.",
@@ -464,7 +464,7 @@ const SYSTEM_7_5_DISK_TOOLS: SystemDiskDef = {
     isFloppy: true,
 };
 
-const SYSTEM_7_5_1: SystemDiskDef = {
+export const SYSTEM_7_5_1: SystemDiskDef = {
     displayName: "System 7.5.1",
     description:
         "Bug fixes and small tweaks. Startup screen now now features the Mac OS logo.",
@@ -481,7 +481,7 @@ const SYSTEM_7_5_1: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 7.5.1 HD.dsk.json"),
 };
 
-const SYSTEM_7_5_2: SystemDiskDef = {
+export const SYSTEM_7_5_2: SystemDiskDef = {
     displayName: "System 7.5.2",
     description:
         "Introduced the Open Transport networking stack. Added support for PCI-based Power Macs.",
@@ -498,7 +498,7 @@ const SYSTEM_7_5_2: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 7.5.2 HD.dsk.json"),
 };
 
-const SYSTEM_7_5_3: SystemDiskDef = {
+export const SYSTEM_7_5_3: SystemDiskDef = {
     displayName: "System 7.5.3",
     description:
         "Brought Open Transport and other improvements released with the PCI Power Mac-only 7.5.2 release to a broader set of Macs.",
@@ -517,7 +517,7 @@ const SYSTEM_7_5_3: SystemDiskDef = {
     notable: true,
 };
 
-const SYSTEM_7_5_3_PPC: SystemDiskDef = {
+export const SYSTEM_7_5_3_PPC: SystemDiskDef = {
     displayName: "System 7.5.3",
     displaySubtitle: "PowerPC",
     description:
@@ -538,7 +538,7 @@ const SYSTEM_7_5_3_PPC: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 7.5.3 (PPC) HD.dsk.json"),
 };
 
-const KANJITALK_7_5_3: SystemDiskDef = {
+export const KANJITALK_7_5_3: SystemDiskDef = {
     displayName: "KanjiTalk 7.5.3",
     description: "Japanese edition of System 7.5.3.",
     releaseDate: [1996, 3, 11],
@@ -566,7 +566,7 @@ const SYSTEM_7_5_4: PlaceholderDiskDef = {
     preferredMachine: QUADRA_650,
 };
 
-const SYSTEM_7_5_5: SystemDiskDef = {
+export const SYSTEM_7_5_5: SystemDiskDef = {
     displayName: "System 7.5.5",
     description: "Improved memory system performance and reliability.",
     releaseDate: [1996, 9, 18],
@@ -584,7 +584,7 @@ const SYSTEM_7_5_5: SystemDiskDef = {
     generatedSpec: () => import("@/Data/System 7.5.5 HD.dsk.json"),
 };
 
-const MAC_OS_7_6: SystemDiskDef = {
+export const MAC_OS_7_6: SystemDiskDef = {
     displayName: "Mac OS 7.6",
     description:
         "First to be officially called “Mac OS”. Improved performance and reliability. Featured a revamped Extensions Manager and speech support.",
@@ -605,7 +605,7 @@ const MAC_OS_7_6: SystemDiskDef = {
     notable: true,
 };
 
-const MAC_OS_7_6_1: SystemDiskDef = {
+export const MAC_OS_7_6_1: SystemDiskDef = {
     displayName: "Mac OS 7.6.1",
     description:
         "Improved performance and reliability: nearly all type 11 errors and many type 12 errors are now removed. Added support for recent hardware releases.",
@@ -627,7 +627,7 @@ const MAC_OS_7_6_1: SystemDiskDef = {
     notable: false,
 };
 
-const MAC_OS_8_0: SystemDiskDef = {
+export const MAC_OS_8_0: SystemDiskDef = {
     displayName: "Mac OS 8.0",
     description:
         "Introduced the Platinum appearance, multi-threaded Finder, context menus, popup windows, and other features.",
@@ -650,7 +650,7 @@ const MAC_OS_8_0: SystemDiskDef = {
     notable: true,
 };
 
-const MAC_OS_8_1: SystemDiskDef = {
+export const MAC_OS_8_1: SystemDiskDef = {
     displayName: "Mac OS 8.1",
     description: "Added support for the HFS+ file system.",
     releaseDate: [1998, 1, 19],
@@ -671,7 +671,7 @@ const MAC_OS_8_1: SystemDiskDef = {
     notable: true,
 };
 
-const MAC_OS_8_1_DISK_TOOLS_68K: SystemDiskDef = {
+export const MAC_OS_8_1_DISK_TOOLS_68K: SystemDiskDef = {
     displayName: "Mac OS 8.1 Disk Tools (68K)",
     description:
         "Disk Tools startup disk from the floppy disk version of Mac OS 8.1.",
@@ -682,7 +682,7 @@ const MAC_OS_8_1_DISK_TOOLS_68K: SystemDiskDef = {
     isFloppy: true,
 };
 
-const MAC_OS_8_1_DISK_TOOLS_PPC: SystemDiskDef = {
+export const MAC_OS_8_1_DISK_TOOLS_PPC: SystemDiskDef = {
     displayName: "Mac OS 8.1 Disk Tools (PPC)",
     description:
         "Disk Tools startup disk from the floppy disk version of Mac OS 8.1.",
@@ -693,7 +693,7 @@ const MAC_OS_8_1_DISK_TOOLS_PPC: SystemDiskDef = {
     isFloppy: true,
 };
 
-const MAC_OS_8_5: SystemDiskDef = {
+export const MAC_OS_8_5: SystemDiskDef = {
     displayName: "Mac OS 8.5",
     description:
         "Introduced Sherlock, 32-bit icons in the Finder, font smoothing, a new help system and the application palette.",
@@ -723,7 +723,7 @@ const MAC_OS_8_5: SystemDiskDef = {
     notable: true,
 };
 
-const MAC_OS_8_6: SystemDiskDef = {
+export const MAC_OS_8_6: SystemDiskDef = {
     displayName: "Mac OS 8.6",
     description:
         "Added a revised nanokernel for improved multi-processing and multi-threading.",
@@ -751,7 +751,7 @@ const MAC_OS_8_6: SystemDiskDef = {
     generatedSpec: () => import("@/Data/Mac OS 8.6 HD.dsk.json"),
 };
 
-const MAC_OS_9_0: SystemDiskDef = {
+export const MAC_OS_9_0: SystemDiskDef = {
     displayName: "Mac OS 9.0",
     description:
         "Introduced the Keychain, multiple user support, iTools integration, Sherlock internet channels and online software updates.",
@@ -807,7 +807,7 @@ const MAC_OS_9_0_3: PlaceholderDiskDef = {
     preferredMachine: POWER_MACINTOSH_G3_BW,
 };
 
-const MAC_OS_9_0_4: SystemDiskDef = {
+export const MAC_OS_9_0_4: SystemDiskDef = {
     displayName: "Mac OS 9.0.4",
     description:
         "Bug fixes, final release supported by the SheepShaver emulator.",
@@ -837,7 +837,7 @@ const MAC_OS_9_0_4: SystemDiskDef = {
     generatedSpec: () => import("@/Data/Mac OS 9.0.4 HD.dsk.json"),
 };
 
-const MAC_OS_9_1: SystemDiskDef = {
+export const MAC_OS_9_1: SystemDiskDef = {
     displayName: "Mac OS 9.1",
     description:
         "Integrated Disc Burning within Finder and added a “Window” menu. First version supported under “Classic” on Mac OS X.",
@@ -887,7 +887,7 @@ const MAC_OS_9_2_1: PlaceholderDiskDef = {
     preferredMachine: POWER_MACINTOSH_G3_BEIGE,
 };
 
-const MAC_OS_9_2_2: SystemDiskDef = {
+export const MAC_OS_9_2_2: SystemDiskDef = {
     displayName: "Mac OS 9.2.2",
     description:
         "Final Mac OS 9 release. Bug fixes for the Classic environment under Mac OS X.",
@@ -946,7 +946,7 @@ const dppcExtraMachineFiles = new Map([
     ],
 ]);
 
-const MAC_OS_X_10_0_PUBLIC_BETA: SystemDiskDef = {
+export const MAC_OS_X_10_0_PUBLIC_BETA: SystemDiskDef = {
     family: "macosx",
     displayName: "Mac OS X 10.0",
     displaySubtitle: "Public Beta",
@@ -1006,7 +1006,7 @@ const MAC_OS_X_10_0_PUBLIC_BETA: SystemDiskDef = {
     hasDeviceImageHeader: true,
 };
 
-const MAC_OS_X_10_0_4: SystemDiskDef = {
+export const MAC_OS_X_10_0_4: SystemDiskDef = {
     family: "macosx",
     displayName: "Mac OS X 10.0",
     description:
@@ -1045,7 +1045,7 @@ const MAC_OS_X_10_0_4: SystemDiskDef = {
     hasDeviceImageHeader: true,
 };
 
-const MAC_OS_X_10_1_5: SystemDiskDef = {
+export const MAC_OS_X_10_1_5: SystemDiskDef = {
     family: "macosx",
     displayName: "Mac OS X 10.1",
     description:
@@ -1123,7 +1123,7 @@ const MAC_OS_X_10_1_5: SystemDiskDef = {
     hasDeviceImageHeader: true,
 };
 
-const MAC_OS_X_10_2_8: SystemDiskDef = {
+export const MAC_OS_X_10_2_8: SystemDiskDef = {
     family: "macosx",
     displayName: "Mac OS X 10.2",
     displaySubtitle: "Jaguar",
@@ -1207,7 +1207,7 @@ const MAC_OS_X_10_2_8: SystemDiskDef = {
     hasDeviceImageHeader: true,
 };
 
-const MAC_OS_X_10_3_9: SystemDiskDef = {
+export const MAC_OS_X_10_3_9: SystemDiskDef = {
     family: "macosx",
     displayName: "Mac OS X 10.3",
     displaySubtitle: "Panther",
@@ -1341,7 +1341,7 @@ const MAC_OS_X_10_3_9: SystemDiskDef = {
     hasDeviceImageHeader: true,
 };
 
-const MAC_OS_X_10_4_11: SystemDiskDef = {
+export const MAC_OS_X_10_4_11: SystemDiskDef = {
     family: "macosx",
     displayName: "Mac OS X 10.4",
     displaySubtitle: "Tiger",
@@ -1488,7 +1488,7 @@ const MAC_OS_X_10_4_11: SystemDiskDef = {
     hasDeviceImageHeader: true,
 };
 
-const NEXTSTEP_0_8: SystemDiskDef = {
+export const NEXTSTEP_0_8: SystemDiskDef = {
     family: "next",
     displayName: "NeXTStep 0.8",
     description:
@@ -1518,7 +1518,7 @@ const NEXTSTEP_0_8: SystemDiskDef = {
     notable: true,
 };
 
-const NEXTSTEP_0_9: SystemDiskDef = {
+export const NEXTSTEP_0_9: SystemDiskDef = {
     family: "next",
     displayName: "NeXTStep 0.9",
     description:
@@ -1548,7 +1548,7 @@ const NEXTSTEP_0_9: SystemDiskDef = {
     generatedSpec: () => import("@/Data/NeXTStep 0.9 HD.dsk.json"),
 };
 
-const NEXTSTEP_1_0: SystemDiskDef = {
+export const NEXTSTEP_1_0: SystemDiskDef = {
     family: "next",
     displayName: "NeXTStep 1.0",
     description:
@@ -1578,7 +1578,7 @@ const NEXTSTEP_1_0: SystemDiskDef = {
     notable: true,
 };
 
-const NEXTSTEP_1_0a: SystemDiskDef = {
+export const NEXTSTEP_1_0a: SystemDiskDef = {
     family: "next",
     displayName: "NeXTStep 1.0a",
     description: "Bugfix release.",
@@ -1605,7 +1605,7 @@ const NEXTSTEP_1_0a: SystemDiskDef = {
     generatedSpec: () => import("@/Data/NeXTStep 1.0a HD.dsk.json"),
 };
 
-const NEXTSTEP_2_0: SystemDiskDef = {
+export const NEXTSTEP_2_0: SystemDiskDef = {
     family: "next",
     displayName: "NeXTStep 2.0",
     description:
@@ -1633,7 +1633,7 @@ const NEXTSTEP_2_0: SystemDiskDef = {
     notable: true,
 };
 
-const NEXTSTEP_2_1: SystemDiskDef = {
+export const NEXTSTEP_2_1: SystemDiskDef = {
     family: "next",
     displayName: "NeXTStep 2.1",
     description:
@@ -1663,7 +1663,7 @@ const NEXTSTEP_2_1: SystemDiskDef = {
     generatedSpec: () => import("@/Data/NeXTStep 2.1 HD.dsk.json"),
 };
 
-const NEXTSTEP_2_2: SystemDiskDef = {
+export const NEXTSTEP_2_2: SystemDiskDef = {
     family: "next",
     displayName: "NeXTStep 2.2",
     description: "Added support for the NeXTstation Turbo.",
@@ -1692,7 +1692,7 @@ const NEXTSTEP_2_2: SystemDiskDef = {
     generatedSpec: () => import("@/Data/NeXTStep 2.2 HD.dsk.json"),
 };
 
-const NEXTSTEP_3_0: SystemDiskDef = {
+export const NEXTSTEP_3_0: SystemDiskDef = {
     family: "next",
     displayName: "NeXTStep 3.0",
     description:
@@ -1732,7 +1732,7 @@ const NEXTSTEP_3_0: SystemDiskDef = {
     notable: true,
 };
 
-const NEXTSTEP_3_1: SystemDiskDef = {
+export const NEXTSTEP_3_1: SystemDiskDef = {
     family: "next",
     displayName: "NeXTSTEP 3.1",
     description:
@@ -1770,7 +1770,7 @@ const NEXTSTEP_3_1: SystemDiskDef = {
     generatedSpec: () => import("@/Data/NeXTSTEP 3.1 HD.dsk.json"),
 };
 
-const NEXTSTEP_3_2: SystemDiskDef = {
+export const NEXTSTEP_3_2: SystemDiskDef = {
     family: "next",
     displayName: "NeXTSTEP 3.2",
     description:
@@ -1808,7 +1808,7 @@ const NEXTSTEP_3_2: SystemDiskDef = {
     generatedSpec: () => import("@/Data/NeXTSTEP 3.2 HD.dsk.json"),
 };
 
-const NEXTSTEP_3_3: SystemDiskDef = {
+export const NEXTSTEP_3_3: SystemDiskDef = {
     family: "next",
     displayName: "NeXTSTEP 3.3",
     description:
@@ -1847,7 +1847,7 @@ const NEXTSTEP_3_3: SystemDiskDef = {
     generatedSpec: () => import("@/Data/NeXTSTEP 3.3 HD.dsk.json"),
 };
 
-const NEXTSTEP_4_0: SystemDiskDef = {
+export const NEXTSTEP_4_0: SystemDiskDef = {
     family: "next",
     displayName: "NeXTSTEP 4.0 PR1",
     description:
@@ -1884,7 +1884,7 @@ const NEXTSTEP_4_0: SystemDiskDef = {
     notable: true,
 };
 
-const OPENSTEP_4_0: SystemDiskDef = {
+export const OPENSTEP_4_0: SystemDiskDef = {
     family: "next",
     displayName: "OPENSTEP 4.0",
     description:
@@ -1947,7 +1947,7 @@ const OPENSTEP_4_1: PlaceholderDiskDef = {
     appearance: "NeXT",
 };
 
-const OPENSTEP_4_2: SystemDiskDef = {
+export const OPENSTEP_4_2: SystemDiskDef = {
     family: "next",
     displayName: "OPENSTEP 4.2",
     description: "Final OPENSTEP release, primarily with bug fixes.",
@@ -2021,7 +2021,7 @@ const AUX_1_0_1: PlaceholderDiskDef = {
     preferredMachine: MAC_II_FDHD_SNOW,
 };
 
-const AUX_1_1: SystemDiskDef = {
+export const AUX_1_1: SystemDiskDef = {
     family: "aux",
     displayName: "A/UX 1.1",
     description:
@@ -2049,7 +2049,7 @@ const AUX_1_1_1: PlaceholderDiskDef = {
     preferredMachine: MAC_II_FDHD_SNOW,
 };
 
-const AUX_2_0: SystemDiskDef = {
+export const AUX_2_0: SystemDiskDef = {
     family: "aux",
     displayName: "A/UX 2.0",
     description:
@@ -2084,7 +2084,7 @@ const AUX_2_0_1: PlaceholderDiskDef = {
     preferredMachine: MAC_IIcx_SNOW,
 };
 
-const AUX_3_0: SystemDiskDef = {
+export const AUX_3_0: SystemDiskDef = {
     family: "aux",
     displayName: "A/UX 3.0",
     description:
@@ -2118,7 +2118,7 @@ const AUX_3_0: SystemDiskDef = {
     notable: true,
 };
 
-const AUX_3_0_1: SystemDiskDef = {
+export const AUX_3_0_1: SystemDiskDef = {
     family: "aux",
     displayName: "A/UX 3.0.1",
     description:
@@ -2161,7 +2161,7 @@ const AUX_3_0_2: PlaceholderDiskDef = {
     preferredMachine: MAC_IIcx_SNOW,
 };
 
-const AUX_3_1: SystemDiskDef = {
+export const AUX_3_1: SystemDiskDef = {
     family: "aux",
     displayName: "A/UX 3.1",
     description:
@@ -2219,7 +2219,7 @@ const AUX_3_1_1: PlaceholderDiskDef = {
     preferredMachine: MAC_IIcx_SNOW,
 };
 
-const BEOS_DR8_2: SystemDiskDef = {
+export const BEOS_DR8_2: SystemDiskDef = {
     family: "beos",
     displayName: "BeOS DR8.2",
     description:
@@ -2248,7 +2248,7 @@ const BEOS_DR8_2: SystemDiskDef = {
     hasDeviceImageHeader: true,
 };
 
-const BEOS_DR8_3: SystemDiskDef = {
+export const BEOS_DR8_3: SystemDiskDef = {
     family: "beos",
     displayName: "BeOS DR8.3",
     description:
@@ -2276,7 +2276,7 @@ const BEOS_DR8_3: SystemDiskDef = {
     hasDeviceImageHeader: true,
 };
 
-const BEOS_PR_1: SystemDiskDef = {
+export const BEOS_PR_1: SystemDiskDef = {
     family: "beos",
     displayName: "BeOS Preview Release 1",
     description:
@@ -2311,7 +2311,7 @@ const BEOS_PR_2: PlaceholderDiskDef = {
     appearance: "BeOS",
 };
 
-const BEOS_R3: SystemDiskDef = {
+export const BEOS_R3: SystemDiskDef = {
     family: "beos",
     displayName: "BeOS Release 3",
     description:
@@ -2358,7 +2358,7 @@ const BEOS_R3_2: PlaceholderDiskDef = {
     appearance: "BeOS",
 };
 
-const BEOS_R4: SystemDiskDef = {
+export const BEOS_R4: SystemDiskDef = {
     family: "beos",
     displayName: "BeOS Release 4",
     description:
@@ -2399,7 +2399,7 @@ const BEOS_R4: SystemDiskDef = {
     hasDeviceImageHeader: true,
 };
 
-const BEOS_R4_5: SystemDiskDef = {
+export const BEOS_R4_5: SystemDiskDef = {
     family: "beos",
     displayName: "BeOS Release 4.5",
     description:

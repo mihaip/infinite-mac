@@ -206,6 +206,17 @@ export function EmbedDocs({
                         has begun running the emulated machine.
                     </li>
                     <li>
+                        {message({type: "emulator_exited"})}: Sent when the
+                        emulator exits, for example when the guest operating
+                        system shuts down.
+                    </li>
+                    <li>
+                        {message({type: "emulator_error", error: "..."})}: Sent
+                        when the emulator reports an error, including running
+                        out of memory. The <code>error</code> property contains
+                        a human-readable error message.
+                    </li>
+                    <li>
                         {message({
                             type: "emulator_screen",
                             data: Uint8Array,

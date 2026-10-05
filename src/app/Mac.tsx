@@ -337,6 +337,9 @@ export default function Mac({
             },
             {
                 emulatorDidExit(emulator: Emulator) {
+                    if (listenForControlMessages) {
+                        sendEmbedNotification({type: "emulator_exited"});
+                    }
                     onDoneRef.current();
                 },
                 emulatorDidChangeScreenSize(width, height) {
@@ -393,6 +396,12 @@ export default function Mac({
                     setEmulatorStats(current => ({...current, ...stats}));
                 },
                 emulatorDidRunOutOfMemory(emulator: Emulator) {
+                    if (listenForControlMessages) {
+                        sendEmbedNotification({
+                            type: "emulator_error",
+                            error: "The emulator ran out of memory.",
+                        });
+                    }
                     varz.increment("emulator_error:out_of_memory");
                     setEmulatorErrorText(
                         "The emulator ran out of memory.\n\nIf you are running it in a mobile app's in-app browser, try switching to the native browser (Safari or Chrome) on your device."
@@ -403,6 +412,9 @@ export default function Mac({
                     error: string,
                     errorRaw: string
                 ) {
+                    if (listenForControlMessages) {
+                        sendEmbedNotification({type: "emulator_error", error});
+                    }
                     if (error.includes("load") && error.includes("/CD-ROM")) {
                         varz.incrementError(
                             "emulator_error:cdrom_chunk_load",
