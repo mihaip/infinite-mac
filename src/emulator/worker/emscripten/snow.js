@@ -1,11 +1,10 @@
 // This code implements the `-sMODULARIZE` settings by taking the generated
 // JS program code (INNER_JS_CODE) and wrapping it in a factory function.
 
-// When targetting node and ES6 we use `await import ..` in the generated code
+// When targeting node and ES6 we use `await import ..` in the generated code
 // so the outer function needs to be marked as async.
 async function emulator(moduleArg = {}) {
-  var moduleRtn;
-
+  var Module = moduleArg;
 // include: shell.js
 // include: minimum_runtime_check.js
 // end include: minimum_runtime_check.js
@@ -22,8 +21,6 @@ async function emulator(moduleArg = {}) {
 // after the generated code, you will need to define   var Module = {};
 // before the code. Then that object will be used in the code, and you
 // can continue to use Module afterwards as well.
-var Module = moduleArg;
-
 // Determine the runtime environment we are in. You can customize this by
 // setting the ENVIRONMENT setting at compile time (see settings.js).
 var ENVIRONMENT_IS_WEB = false;
@@ -32,7 +29,7 @@ var ENVIRONMENT_IS_WORKER = true;
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-var arguments_ = [];
+var programArgs = [];
 
 var thisProgram = "./this.program";
 
@@ -110,26 +107,16 @@ var wasmBinary;
 var ABORT = false;
 
 // set by exit() and abort().  Passed to 'onExit' handler.
-// NOTE: This is also used as the process return code code in shell environments
+// NOTE: This is also used as the process return code in shell environments
 // but only when noExitRuntime is false.
 var EXITSTATUS;
 
 // include: runtime_common.js
-// include: runtime_stack_check.js
-// end include: runtime_stack_check.js
 // include: runtime_exceptions.js
 // end include: runtime_exceptions.js
 // include: runtime_debug.js
 // end include: runtime_debug.js
-var readyPromiseResolve, readyPromiseReject;
-
 // Memory management
-var /** @type {!Int8Array} */ HEAP8, /** @type {!Uint8Array} */ HEAPU8, /** @type {!Int16Array} */ HEAP16, /** @type {!Uint16Array} */ HEAPU16, /** @type {!Int32Array} */ HEAP32, /** @type {!Uint32Array} */ HEAPU32, /** @type {!Float32Array} */ HEAPF32, /** @type {!Float64Array} */ HEAPF64;
-
-// BigInt64Array type is not correctly defined in closure
-var /** not-@type {!BigInt64Array} */ HEAP64, /* BigUint64Array type is not correctly defined in closure
-/** not-@type {!BigUint64Array} */ HEAPU64;
-
 var runtimeInitialized = false;
 
 var runtimeExited = false;
@@ -152,11 +139,10 @@ function updateMemoryViews() {
 // end include: memoryprofiler.js
 // end include: runtime_common.js
 function preRun() {
-  if (Module["preRun"]) {
-    if (typeof Module["preRun"] == "function") Module["preRun"] = [ Module["preRun"] ];
-    while (Module["preRun"].length) {
-      addOnPreRun(Module["preRun"].shift());
-    }
+  var preRun = Module["preRun"];
+  if (preRun) {
+    if (typeof preRun == "function") preRun = [ preRun ];
+    onPreRuns.push(...preRun);
   }
   // Begin ATPRERUNS hooks
   callRuntimeCallbacks(onPreRuns);
@@ -173,10 +159,7 @@ function initRuntime() {
   FS.ignorePermissions = false;
 }
 
-function preMain() {}
-
 function exitRuntime() {
-  // PThreads reuse the runtime from the main thread.
   ___funcs_on_exit();
   // Native atexit() functions
   // Begin ATEXITS hooks
@@ -187,20 +170,20 @@ function exitRuntime() {
 }
 
 function postRun() {
-  // PThreads reuse the runtime from the main thread.
-  if (Module["postRun"]) {
-    if (typeof Module["postRun"] == "function") Module["postRun"] = [ Module["postRun"] ];
-    while (Module["postRun"].length) {
-      addOnPostRun(Module["postRun"].shift());
-    }
+  var postRun = Module["postRun"];
+  if (postRun) {
+    if (typeof postRun == "function") postRun = [ postRun ];
+    onPostRuns.push(...postRun);
   }
   // Begin ATPOSTRUNS hooks
   callRuntimeCallbacks(onPostRuns);
 }
 
-/** @param {string|number=} what */ function abort(what) {
+/**
+ * @param {string|number=} what
+ */ function abort(what) {
   Module["onAbort"]?.(what);
-  what = "Aborted(" + what + ")";
+  what = `Aborted(${what})`;
   // TODO(sbc): Should we remove printing and leave it up to whoever
   // catches the exception?
   err(what);
@@ -230,7 +213,6 @@ function postRun() {
     ___trap();
   }
   /** @suppress {checkTypes} */ var e = new WebAssembly.RuntimeError(what);
-  readyPromiseReject?.(e);
   // Throw the error whether or not MODULARIZE is set because abort is used
   // in code paths apart from instantiation where an exception is expected
   // to be thrown when abort is called.
@@ -248,13 +230,10 @@ function findWasmBinary() {
 }
 
 function getBinarySync(file) {
-  if (file == wasmBinaryFile && wasmBinary) {
-    return new Uint8Array(wasmBinary);
-  }
   if (readBinary) {
     return readBinary(file);
   }
-  // Throwing a plain string here, even though it not normally adviables since
+  // Throwing a plain string here, even though it not normally advisable since
   // this gets turning into an `abort` in instantiateArrayBuffer.
   throw "both async and sync fetching of the wasm failed";
 }
@@ -315,7 +294,7 @@ async function createWasm() {
   // Load the wasm module and create an instance of using native support in the JS engine.
   // handle a generated wasm instance, receiving its exports and
   // performing other necessary setup
-  /** @param {WebAssembly.Module=} module*/ function receiveInstance(instance, module) {
+  function receiveInstance(instance) {
     wasmExports = instance.exports;
     assignWasmExports(wasmExports);
     updateMemoryViews();
@@ -336,11 +315,10 @@ async function createWasm() {
   // performing.
   // Also pthreads and wasm workers initialize the wasm instance through this
   // path.
-  if (Module["instantiateWasm"]) {
-    return new Promise((resolve, reject) => {
-      Module["instantiateWasm"](info, (inst, mod) => {
-        resolve(receiveInstance(inst, mod));
-      });
+  var instantiateWasm = Module["instantiateWasm"];
+  if (instantiateWasm) {
+    return new Promise(resolve => {
+      instantiateWasm(info, inst => resolve(receiveInstance(inst)));
     });
   }
   wasmBinaryFile ??= findWasmBinary();
@@ -368,11 +346,7 @@ var callRuntimeCallbacks = callbacks => {
 
 var onPostRuns = [];
 
-var addOnPostRun = cb => onPostRuns.push(cb);
-
 var onPreRuns = [];
-
-var addOnPreRun = cb => onPreRuns.push(cb);
 
 var noExitRuntime = false;
 
@@ -434,12 +408,9 @@ var PATH = {
   join2: (l, r) => PATH.normalize(l + "/" + r)
 };
 
-var initRandomFill = () => view => crypto.getRandomValues(view);
+var initRandomFill = () => view => (crypto.getRandomValues(view), 0);
 
-var randomFill = view => {
-  // Lazily init on the first invocation.
-  (randomFill = initRandomFill())(view);
-};
+var randomFill = view => (randomFill = initRandomFill())(view);
 
 var PATH_FS = {
   resolve: (...args) => {
@@ -496,7 +467,13 @@ var PATH_FS = {
 
 var UTF8Decoder = globalThis.TextDecoder && new TextDecoder;
 
-var findStringEnd = (heapOrArray, idx, maxBytesToRead, ignoreNul) => {
+/**
+   * heapOrArray is either a regular array, or a JavaScript typed array view.
+   * @param {number} idx
+   * @param {number=} maxBytesToRead
+   * @param {boolean=} ignoreNul
+   * @return {number}
+   */ var findStringEnd = (heapOrArray, idx, maxBytesToRead, ignoreNul) => {
   var maxIdx = idx + maxBytesToRead;
   if (ignoreNul) return maxIdx;
   // TextDecoder needs to know the byte length in advance, it doesn't stop on
@@ -508,15 +485,15 @@ var findStringEnd = (heapOrArray, idx, maxBytesToRead, ignoreNul) => {
 };
 
 /**
-     * Given a pointer 'idx' to a null-terminated UTF8-encoded string in the given
-     * array that contains uint8 values, returns a copy of that string as a
-     * Javascript String object.
-     * heapOrArray is either a regular array, or a JavaScript typed array view.
-     * @param {number=} idx
-     * @param {number=} maxBytesToRead
-     * @param {boolean=} ignoreNul - If true, the function will not stop on a NUL character.
-     * @return {string}
-     */ var UTF8ArrayToString = (heapOrArray, idx = 0, maxBytesToRead, ignoreNul) => {
+   * Given a pointer 'idx' to a null-terminated UTF8-encoded string in the given
+   * array that contains uint8 values, returns a copy of that string as a
+   * Javascript String object.
+   * heapOrArray is either a regular array, or a JavaScript typed array view.
+   * @param {number=} idx
+   * @param {number=} maxBytesToRead
+   * @param {boolean=} ignoreNul - If true, the function will not stop on a NUL character.
+   * @return {string}
+   */ var UTF8ArrayToString = (heapOrArray, idx = 0, maxBytesToRead, ignoreNul) => {
   var endPtr = findStringEnd(heapOrArray, idx, maxBytesToRead, ignoreNul);
   // When using conditional TextDecoder, skip it for short strings as the overhead of the native call is not worth it.
   if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
@@ -679,12 +656,15 @@ var TTY = {
         } catch (e) {
           throw new FS.ErrnoError(29);
         }
-        if (result === undefined && bytesRead === 0) {
+        if (result === undefined && !bytesRead) {
           throw new FS.ErrnoError(6);
         }
         if (result === null || result === undefined) break;
         bytesRead++;
         buffer[offset + i] = result;
+        // We currently only support canonical mode (ICANON), where
+        // read(2) returns as soon as a line delimiter is read.
+        if (result === 10) break;
       }
       if (bytesRead) {
         stream.node.atime = Date.now();
@@ -766,6 +746,8 @@ var mmapAlloc = size => {
   abort();
 };
 
+/** @type {!Int8Array} */ var HEAP8;
+
 var MEMFS = {
   ops_table: null,
   mount(mount) {
@@ -773,7 +755,7 @@ var MEMFS = {
   },
   createNode(parent, name, mode, dev) {
     if (FS.isBlkdev(mode) || FS.isFIFO(mode)) {
-      // no supported
+      // not supported
       throw new FS.ErrnoError(63);
     }
     MEMFS.ops_table ||= {
@@ -830,12 +812,14 @@ var MEMFS = {
     } else if (FS.isFile(node.mode)) {
       node.node_ops = MEMFS.ops_table.file.node;
       node.stream_ops = MEMFS.ops_table.file.stream;
+      // The actual number of bytes used in the typed array, as opposed to
+      // contents.length which gives the whole capacity.
       node.usedBytes = 0;
-      // The actual number of bytes used in the typed array, as opposed to contents.length which gives the whole capacity.
-      // When the byte data of the file is populated, this will point to either a typed array, or a normal JS array. Typed arrays are preferred
-      // for performance, and used by default. However, typed arrays are not resizable like normal JS arrays are, so there is a small disk size
-      // penalty involved for appending file writes that continuously grow a file similar to std::vector capacity vs used -scheme.
-      node.contents = null;
+      // The byte data of the file is stored in a typed array.
+      // Note: typed arrays are not resizable like normal JS arrays are, so
+      // there is a small penalty involved for appending file writes that
+      // continuously grow a file similar to std::vector capacity vs used.
+      node.contents = MEMFS.emptyFileContents ??= new Uint8Array(0);
     } else if (FS.isLink(node.mode)) {
       node.node_ops = MEMFS.ops_table.link.node;
       node.stream_ops = MEMFS.ops_table.link.stream;
@@ -852,42 +836,34 @@ var MEMFS = {
     return node;
   },
   getFileDataAsTypedArray(node) {
-    if (!node.contents) return new Uint8Array(0);
-    if (node.contents.subarray) return node.contents.subarray(0, node.usedBytes);
-    // Make sure to not return excess unused bytes.
-    return new Uint8Array(node.contents);
+    return node.contents.subarray(0, node.usedBytes);
   },
   expandFileStorage(node, newCapacity) {
-    var prevCapacity = node.contents ? node.contents.length : 0;
+    var prevCapacity = node.contents.length;
     if (prevCapacity >= newCapacity) return;
     // No need to expand, the storage was already large enough.
-    // Don't expand strictly to the given requested limit if it's only a very small increase, but instead geometrically grow capacity.
-    // For small filesizes (<1MB), perform size*2 geometric increase, but for large sizes, do a much more conservative size*1.125 increase to
-    // avoid overshooting the allocation cap by a very large margin.
+    // Don't expand strictly to the given requested limit if it's only a very
+    // small increase, but instead geometrically grow capacity.
+    // For small filesizes (<1MB), perform size*2 geometric increase, but for
+    // large sizes, do a much more conservative size*1.125 increase to avoid
+    // overshooting the allocation cap by a very large margin.
     var CAPACITY_DOUBLING_MAX = 1024 * 1024;
     newCapacity = Math.max(newCapacity, (prevCapacity * (prevCapacity < CAPACITY_DOUBLING_MAX ? 2 : 1.125)) >>> 0);
-    if (prevCapacity != 0) newCapacity = Math.max(newCapacity, 256);
+    if (prevCapacity) newCapacity = Math.max(newCapacity, 256);
     // At minimum allocate 256b for each file when expanding.
-    var oldContents = node.contents;
+    var oldContents = MEMFS.getFileDataAsTypedArray(node);
     node.contents = new Uint8Array(newCapacity);
     // Allocate new storage.
-    if (node.usedBytes > 0) node.contents.set(oldContents.subarray(0, node.usedBytes), 0);
+    node.contents.set(oldContents);
   },
   resizeFileStorage(node, newSize) {
     if (node.usedBytes == newSize) return;
-    if (newSize == 0) {
-      node.contents = null;
-      // Fully decommit when requesting a resize to zero.
-      node.usedBytes = 0;
-    } else {
-      var oldContents = node.contents;
-      node.contents = new Uint8Array(newSize);
-      // Allocate new storage.
-      if (oldContents) {
-        node.contents.set(oldContents.subarray(0, Math.min(newSize, node.usedBytes)));
-      }
-      node.usedBytes = newSize;
-    }
+    var oldContents = node.contents;
+    node.contents = new Uint8Array(newSize);
+    // Allocate new storage.
+    node.contents.set(oldContents.subarray(0, Math.min(newSize, node.usedBytes)));
+    // Copy old data over to the new storage.
+    node.usedBytes = newSize;
   },
   node_ops: {
     getattr(node) {
@@ -992,46 +968,26 @@ var MEMFS = {
       var contents = stream.node.contents;
       if (position >= stream.node.usedBytes) return 0;
       var size = Math.min(stream.node.usedBytes - position, length);
-      if (size > 8 && contents.subarray) {
-        // non-trivial, and typed array
-        buffer.set(contents.subarray(position, position + size), offset);
-      } else {
-        for (var i = 0; i < size; i++) buffer[offset + i] = contents[position + i];
-      }
+      buffer.set(contents.subarray(position, position + size), offset);
       return size;
     },
     write(stream, buffer, offset, length, position, canOwn) {
       if (!length) return 0;
       var node = stream.node;
       node.mtime = node.ctime = Date.now();
-      if (buffer.subarray && (!node.contents || node.contents.subarray)) {
-        // This write is from a typed array to a typed array?
-        if (canOwn) {
-          node.contents = buffer.subarray(offset, offset + length);
-          node.usedBytes = length;
-          return length;
-        } else if (node.usedBytes === 0 && position === 0) {
-          // If this is a simple first write to an empty file, do a fast set since we don't need to care about old data.
-          node.contents = buffer.slice(offset, offset + length);
-          node.usedBytes = length;
-          return length;
-        } else if (position + length <= node.usedBytes) {
-          // Writing to an already allocated and used subrange of the file?
-          node.contents.set(buffer.subarray(offset, offset + length), position);
-          return length;
-        }
-      }
-      // Appending to an existing file and we need to reallocate, or source data did not come as a typed array.
-      MEMFS.expandFileStorage(node, position + length);
-      if (node.contents.subarray && buffer.subarray) {
+      if (canOwn) {
+        node.contents = buffer.subarray(offset, offset + length);
+        node.usedBytes = length;
+      } else if (!node.usedBytes && !position) {
+        // If this is a simple first write to an empty file, do a fast set since we don't need to care about old data.
+        node.contents = buffer.slice(offset, offset + length);
+        node.usedBytes = length;
+      } else {
+        MEMFS.expandFileStorage(node, position + length);
         // Use typed array write which is available.
         node.contents.set(buffer.subarray(offset, offset + length), position);
-      } else {
-        for (var i = 0; i < length; i++) {
-          node.contents[position + i] = buffer[offset + i];
-        }
+        node.usedBytes = Math.max(node.usedBytes, position + length);
       }
-      node.usedBytes = Math.max(node.usedBytes, position + length);
       return length;
     },
     llseek(stream, offset, whence) {
@@ -1056,7 +1012,7 @@ var MEMFS = {
       var allocated;
       var contents = stream.node.contents;
       // Only make a new copy when MAP_PRIVATE is specified.
-      if (!(flags & 2) && contents && contents.buffer === HEAP8.buffer) {
+      if (!(flags & 2) && contents.buffer === HEAP8.buffer) {
         // We can't emulate MAP_SHARED when the file is not backed by the
         // buffer we're mapping to (e.g. the HEAP buffer).
         allocated = false;
@@ -1093,6 +1049,7 @@ var MEMFS = {
 };
 
 var FS_modeStringToFlags = str => {
+  if (typeof str != "string") return str;
   var flagModes = {
     "r": 0,
     "r+": 2,
@@ -1106,6 +1063,16 @@ var FS_modeStringToFlags = str => {
     throw new Error(`Unknown file open mode: ${str}`);
   }
   return flags;
+};
+
+var FS_fileDataToTypedArray = data => {
+  if (typeof data == "string") {
+    data = intArrayFromString(data, true);
+  }
+  if (!data.subarray) {
+    data = new Uint8Array(data);
+  }
+  return data;
 };
 
 var FS_getMode = (canRead, canWrite) => {
@@ -1124,23 +1091,26 @@ var FS_createDataFile = (...args) => FS.createDataFile(...args);
 
 var getUniqueRunDependency = id => id;
 
+var dependenciesPromise = null;
+
+var resolveRunDependencies = async () => dependenciesPromise;
+
 var runDependencies = 0;
 
-var dependenciesFulfilled = null;
+var dependenciesPromiseResolve = null;
 
 var removeRunDependency = id => {
   runDependencies--;
   Module["monitorRunDependencies"]?.(runDependencies);
-  if (runDependencies == 0) {
-    if (dependenciesFulfilled) {
-      var callback = dependenciesFulfilled;
-      dependenciesFulfilled = null;
-      callback();
-    }
+  if (!runDependencies) {
+    dependenciesPromiseResolve();
   }
 };
 
 var addRunDependency = id => {
+  if (!runDependencies) {
+    dependenciesPromise = new Promise(resolve => dependenciesPromiseResolve = resolve);
+  }
   runDependencies++;
   Module["monitorRunDependencies"]?.(runDependencies);
 };
@@ -1155,7 +1125,7 @@ var FS_handledByPreloadPlugin = async (byteArray, fullname) => {
       return plugin["handle"](byteArray, fullname);
     }
   }
-  // In no plugin handled this file then return the original/unmodified
+  // If no plugin handled this file then return the original/unmodified
   // byteArray.
   return byteArray;
 };
@@ -1198,7 +1168,6 @@ var FS = {
   ignorePermissions: true,
   filesystems: null,
   syncFSRequests: 0,
-  readFiles: {},
   ErrnoError: class {
     name="ErrnoError";
     // We set the `name` property to be able to identify `FS.ErrnoError`
@@ -1277,6 +1246,53 @@ var FS = {
     get isDevice() {
       return FS.isChrdev(this.mode);
     }
+    // The per-inode readiness wait-queue. The node carries a Set of listener
+    // entries {cb}; producers (SOCKFS, PIPEFS) call notifyListeners on a
+    // readiness transition, and poll()/epoll consume it. It lives on the node
+    // (not the fd) so dup'd fds share one queue. Only nodes that derive real
+    // readiness (sockets, pipes, and an epoll's own node) ever use this -
+    // always-ready types (regular files, ttys) never register or notify.
+    addListener(cb, exclusive = false) {
+      var entry = {
+        cb,
+        exclusive
+      };
+      var listeners = (this.listeners ??= new Set);
+      listeners.add(entry);
+      return {
+        listeners,
+        entry
+      };
+    }
+    notifyListeners(flags) {
+      // Iterates the set without copying, which is safe ONLY under a
+      // load-bearing contract that every internal listener must honour:
+      //   1. A listener must not run user code synchronously (a poll waiter only
+      //      resolves a Promise; an epoll registration only re-lists +
+      //      re-notifies; the epoll callback only schedules a tick). User code
+      //      runs on a later tick, never inside this loop.
+      //   2. A listener may delete entries only from ITS OWN waiter, never from
+      //      a sibling node's set that may be mid-iteration. (Deleting an entry
+      //      of the set being iterated here is fine - a Set tolerates removal of
+      //      a not-yet-visited entry mid-iteration; mutating a *different* node's
+      //      set is fine because that set is not being iterated.)
+      // Violating either gives silently skipped wakeups that are near-impossible
+      // to reproduce. Any new producer/listener must preserve it.
+      if (!this.listeners) return;
+      // Fire every non-exclusive listener. Among EPOLLEXCLUSIVE registrations
+      // (one fd watched by several epolls) wake only one, rotating round-robin
+      // per node, to avoid a thundering herd. (Only epoll registrations are ever
+      // exclusive; poll waiters and a node's own consumers are not.)
+      var excl;
+      for (var entry of this.listeners) {
+        if (entry.exclusive) (excl ||= []).push(entry); else entry.cb(flags);
+      }
+      if (excl) {
+        var i = (this.exclTurn || 0) % excl.length;
+        this.exclTurn = i + 1;
+        excl[i].cb(flags);
+      }
+    }
   },
   lookupPath(path, opts = {}) {
     if (!path) {
@@ -1286,7 +1302,7 @@ var FS = {
     if (!PATH.isAbs(path)) {
       path = FS.cwd() + "/" + path;
     }
-    // limit max consecutive symlinks to 40 (SYMLOOP_MAX).
+    // limit max consecutive symlinks to SYMLOOP_MAX.
     linkloop: for (var nlinks = 0; nlinks < 40; nlinks++) {
       // split the absolute path
       var parts = path.split("/").filter(p => !!p);
@@ -1457,9 +1473,11 @@ var FS = {
     // return 0 if any user, group or owner bits are set.
     if (perms.includes("r") && !(node.mode & 292)) {
       return 2;
-    } else if (perms.includes("w") && !(node.mode & 146)) {
+    }
+    if (perms.includes("w") && !(node.mode & 146)) {
       return 2;
-    } else if (perms.includes("x") && !(node.mode & 73)) {
+    }
+    if (perms.includes("x") && !(node.mode & 73)) {
       return 2;
     }
     return 0;
@@ -1499,10 +1517,8 @@ var FS = {
       if (FS.isRoot(node) || FS.getPath(node) === FS.cwd()) {
         return 10;
       }
-    } else {
-      if (FS.isDir(node.mode)) {
-        return 31;
-      }
+    } else if (FS.isDir(node.mode)) {
+      return 31;
     }
     return 0;
   },
@@ -1512,13 +1528,16 @@ var FS = {
     }
     if (FS.isLink(node.mode)) {
       return 32;
-    } else if (FS.isDir(node.mode)) {
-      if (FS.flagsToPermissionString(flags) !== "r" || (flags & (512 | 64))) {
-        // TODO: check for O_SEARCH? (== search for dir only)
+    }
+    var mode = FS.flagsToPermissionString(flags);
+    if (FS.isDir(node.mode)) {
+      // opening for write
+      // TODO: check for O_SEARCH? (== search for dir only)
+      if (mode !== "r" || (flags & (512 | 64))) {
         return 31;
       }
     }
-    return FS.nodePermissions(node, FS.flagsToPermissionString(flags));
+    return FS.nodePermissions(node, mode);
   },
   checkOpExists(op, err) {
     if (!op) {
@@ -1566,7 +1585,14 @@ var FS = {
     var arg = setattr ? stream : node;
     setattr ??= node.node_ops.setattr;
     FS.checkOpExists(setattr, 63);
-    setattr(arg, attr);
+    try {
+      setattr(arg, attr);
+    } catch (e) {
+      if (e instanceof RangeError) {
+        throw new FS.ErrnoError(22);
+      }
+      throw e;
+    }
   },
   chrdev_stream_ops: {
     open(stream) {
@@ -1811,6 +1837,27 @@ var FS = {
       throw new FS.ErrnoError(63);
     }
     return parent.node_ops.symlink(parent, newname, oldpath);
+  },
+  link(oldpath, newpath, flags) {
+    var lookup = FS.lookupPath(newpath, {
+      parent: true
+    });
+    var parent = lookup.node;
+    if (!parent) {
+      throw new FS.ErrnoError(44);
+    }
+    var newname = PATH.basename(newpath);
+    var errCode = FS.mayCreate(parent, newname);
+    if (errCode) {
+      throw new FS.ErrnoError(errCode);
+    }
+    // Hardlinks are only supported by filesystem backends that provide a
+    // `link` node op (e.g. NODERAWFS backed by the host). NODEFS omits it:
+    // a host hardlink cannot be confined to the mount root.
+    if (!parent.node_ops.link) {
+      throw new FS.ErrnoError(34);
+    }
+    return parent.node_ops.link(parent, newname, oldpath, flags);
   },
   rename(old_path, new_path) {
     var old_dirname = PATH.dirname(old_path);
@@ -2069,22 +2116,21 @@ var FS = {
     }
     FS.doTruncate(stream, stream.node, len);
   },
-  utime(path, atime, mtime) {
+  utime(path, atime, mtime, dontFollow) {
     var lookup = FS.lookupPath(path, {
-      follow: true
+      follow: !dontFollow
     });
-    var node = lookup.node;
-    var setattr = FS.checkOpExists(node.node_ops.setattr, 63);
-    setattr(node, {
+    FS.doSetAttr(null, lookup.node, {
       atime,
-      mtime
+      mtime,
+      dontFollow
     });
   },
   open(path, flags, mode = 438) {
     if (path === "") {
       throw new FS.ErrnoError(44);
     }
-    flags = typeof flags == "string" ? FS_modeStringToFlags(flags) : flags;
+    flags = FS_modeStringToFlags(flags);
     if ((flags & 64)) {
       mode = (mode & 4095) | 32768;
     } else {
@@ -2119,7 +2165,7 @@ var FS = {
       } else {
         // node doesn't exist, try to create it
         // Ignore the permission bits here to ensure we can `open` this new
-        // file below. We use chmod below the apply the permissions once the
+        // file below. We use chmod below to apply the permissions once the
         // file is open.
         node = FS.mknod(path, mode | 511, 0);
         created = true;
@@ -2171,11 +2217,6 @@ var FS = {
     if (created) {
       FS.chmod(node, mode & 511);
     }
-    if (Module["logReadFiles"] && !(flags & 1)) {
-      if (!(path in FS.readFiles)) {
-        FS.readFiles[path] = 1;
-      }
-    }
     return stream;
   },
   close(stream) {
@@ -2184,6 +2225,11 @@ var FS = {
     }
     if (stream.getdents) stream.getdents = null;
     // free readdir state
+    // The fd is going away: wake anything waiting on it (poll/epoll) with
+    // POLLNVAL so a blocking wait unblocks and an epoll registration is evicted
+    // on its next derive. Only sockets/pipes/epoll ever carry a wait-queue, so
+    // for every other stream (incl. nodeless noderawfs stdio) this is a no-op.
+    stream.node?.notifyListeners(32);
     try {
       if (stream.stream_ops.close) {
         stream.stream_ops.close(stream);
@@ -2275,7 +2321,7 @@ var FS = {
     // to write to file opened in read-only mode with MAP_PRIVATE flag,
     // as all modifications will be visible only in the memory of
     // the current process.
-    if ((prot & 2) !== 0 && (flags & 2) === 0 && (stream.flags & 2097155) !== 2) {
+    if ((prot & 2) && !(flags & 2) && (stream.flags & 2097155) !== 2) {
       throw new FS.ErrnoError(2);
     }
     if ((stream.flags & 2097155) === 1) {
@@ -2302,8 +2348,8 @@ var FS = {
     return stream.stream_ops.ioctl(stream, cmd, arg);
   },
   readFile(path, opts = {}) {
-    opts.flags = opts.flags || 0;
-    opts.encoding = opts.encoding || "binary";
+    opts.flags ??= 0;
+    opts.encoding ??= "binary";
     if (opts.encoding !== "utf8" && opts.encoding !== "binary") {
       abort(`Invalid encoding type "${opts.encoding}"`);
     }
@@ -2319,16 +2365,10 @@ var FS = {
     return buf;
   },
   writeFile(path, data, opts = {}) {
-    opts.flags = opts.flags || 577;
+    opts.flags ??= 577;
     var stream = FS.open(path, opts.flags, opts.mode);
-    if (typeof data == "string") {
-      data = new Uint8Array(intArrayFromString(data, true));
-    }
-    if (ArrayBuffer.isView(data)) {
-      FS.write(stream, data, 0, data.byteLength, undefined, opts.canOwn);
-    } else {
-      abort("Unsupported data type");
-    }
+    data = FS_fileDataToTypedArray(data);
+    FS.write(stream, data, 0, data.byteLength, undefined, opts.canOwn);
     FS.close(stream);
   },
   cwd: () => FS.currentPath,
@@ -2374,7 +2414,7 @@ var FS = {
     // use a buffer to avoid overhead of individual crypto calls per byte
     var randomBuffer = new Uint8Array(1024), randomLeft = 0;
     var randomByte = () => {
-      if (randomLeft === 0) {
+      if (!randomLeft) {
         randomFill(randomBuffer);
         randomLeft = randomBuffer.byteLength;
       }
@@ -2482,13 +2522,6 @@ var FS = {
       }
     }
   },
-  findObject(path, dontResolveLastLink) {
-    var ret = FS.analyzePath(path, dontResolveLastLink);
-    if (!ret.exists) {
-      return null;
-    }
-    return ret.object;
-  },
   analyzePath(path, dontResolveLastLink) {
     // operate from within the context of the symlink's target
     try {
@@ -2559,11 +2592,7 @@ var FS = {
     var mode = FS_getMode(canRead, canWrite);
     var node = FS.create(path, mode);
     if (data) {
-      if (typeof data == "string") {
-        var arr = new Array(data.length);
-        for (var i = 0, len = data.length; i < len; ++i) arr[i] = data.charCodeAt(i);
-        data = arr;
-      }
+      data = FS_fileDataToTypedArray(data);
       // make sure we can write to the file
       FS.chmod(node, mode | 146);
       var stream = FS.open(node, 577);
@@ -2598,7 +2627,7 @@ var FS = {
           } catch (e) {
             throw new FS.ErrnoError(29);
           }
-          if (result === undefined && bytesRead === 0) {
+          if (result === undefined && !bytesRead) {
             throw new FS.ErrnoError(6);
           }
           if (result === null || result === undefined) break;
@@ -2662,7 +2691,7 @@ var FS = {
         var xhr = new XMLHttpRequest;
         xhr.open("HEAD", url, false);
         xhr.send(null);
-        if (!(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304)) abort("Couldn't load " + url + ". Status: " + xhr.status);
+        if (!(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304)) abort(`Couldn't load ${url}. Status: ${xhr.status}`);
         var datalength = Number(xhr.getResponseHeader("Content-length"));
         var header;
         var hasByteServing = (header = xhr.getResponseHeader("Accept-Ranges")) && header === "bytes";
@@ -2672,23 +2701,23 @@ var FS = {
         if (!hasByteServing) chunkSize = datalength;
         // Function to get a range from the remote URL.
         var doXHR = (from, to) => {
-          if (from > to) abort("invalid range (" + from + ", " + to + ") or no bytes requested!");
-          if (to > datalength - 1) abort("only " + datalength + " bytes available! programmer error!");
+          if (from > to) abort(`invalid range (${from}, ${to}) or no bytes requested!`);
+          if (to > datalength - 1) abort(`only ${datalength} bytes available! programmer error!`);
           // TODO: Use mozResponseArrayBuffer, responseStream, etc. if available.
           var xhr = new XMLHttpRequest;
           xhr.open("GET", url, false);
-          if (datalength !== chunkSize) xhr.setRequestHeader("Range", "bytes=" + from + "-" + to);
+          if (datalength !== chunkSize) xhr.setRequestHeader("Range", `bytes=${from}-${to}`);
           // Some hints to the browser that we want binary data.
           xhr.responseType = "arraybuffer";
           if (xhr.overrideMimeType) {
             xhr.overrideMimeType("text/plain; charset=x-user-defined");
           }
           xhr.send(null);
-          if (!(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304)) abort("Couldn't load " + url + ". Status: " + xhr.status);
+          if (!(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304)) abort(`Couldn't load ${url}. Status: ${xhr.status}`);
           if (xhr.response !== undefined) {
             return new Uint8Array(/** @type{Array<number>} */ (xhr.response || []));
           }
-          return intArrayFromString(xhr.responseText || "", true);
+          return intArrayFromString(xhr.responseText ?? "", true);
         };
         var lazyArray = this;
         lazyArray.setDataGetter(chunkNum => {
@@ -2807,22 +2836,30 @@ var FS = {
   }
 };
 
+/** @type {!Uint8Array} */ var HEAPU8;
+
 /**
-     * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
-     * emscripten HEAP, returns a copy of that string as a Javascript String object.
-     *
-     * @param {number} ptr
-     * @param {number=} maxBytesToRead - An optional length that specifies the
-     *   maximum number of bytes to read. You can omit this parameter to scan the
-     *   string until the first 0 byte. If maxBytesToRead is passed, and the string
-     *   at [ptr, ptr+maxBytesToReadr[ contains a null byte in the middle, then the
-     *   string will cut short at that byte index.
-     * @param {boolean=} ignoreNul - If true, the function will not stop on a NUL character.
-     * @return {string}
-     */ var UTF8ToString = (ptr, maxBytesToRead, ignoreNul) => ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead, ignoreNul) : "";
+   * Given a pointer 'ptr' to a null-terminated UTF8-encoded string in the
+   * emscripten HEAP, returns a copy of that string as a Javascript String object.
+   *
+   * @param {number} ptr
+   * @param {number=} maxBytesToRead - An optional length that specifies the
+   *   maximum number of bytes to read. You can omit this parameter to scan the
+   *   string until the first 0 byte. If maxBytesToRead is passed, and the string
+   *   at [ptr, ptr+maxBytesToReadr[ contains a null byte in the middle, then the
+   *   string will cut short at that byte index.
+   * @param {boolean=} ignoreNul - If true, the function will not stop on a NUL character.
+   * @return {string}
+   */ var UTF8ToString = (ptr, maxBytesToRead, ignoreNul) => ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead, ignoreNul) : "";
+
+/** @type {!Int32Array} */ var HEAP32;
+
+/** @type {!Uint32Array} */ var HEAPU32;
+
+/** not-@type {!BigInt64Array} */ var HEAP64;
 
 var SYSCALLS = {
-  DEFAULT_POLLMASK: 5,
+  currentUmask: 18,
   calculateAt(dirfd, path, allowEmpty) {
     if (PATH.isAbs(path)) {
       return path;
@@ -2857,11 +2894,11 @@ var SYSCALLS = {
     var mtime = stat.mtime.getTime();
     var ctime = stat.ctime.getTime();
     HEAP64[(((buf) + (40)) >> 3)] = BigInt(Math.floor(atime / 1e3));
-    HEAPU32[(((buf) + (48)) >> 2)] = (atime % 1e3) * 1e3 * 1e3;
+    HEAPU32[(((buf) + (48)) >> 2)] = Math.floor((atime % 1e3) * 1e6);
     HEAP64[(((buf) + (56)) >> 3)] = BigInt(Math.floor(mtime / 1e3));
-    HEAPU32[(((buf) + (64)) >> 2)] = (mtime % 1e3) * 1e3 * 1e3;
+    HEAPU32[(((buf) + (64)) >> 2)] = Math.floor((mtime % 1e3) * 1e6);
     HEAP64[(((buf) + (72)) >> 3)] = BigInt(Math.floor(ctime / 1e3));
-    HEAPU32[(((buf) + (80)) >> 2)] = (ctime % 1e3) * 1e3 * 1e3;
+    HEAPU32[(((buf) + (80)) >> 2)] = Math.floor((ctime % 1e3) * 1e6);
     HEAP64[(((buf) + (88)) >> 3)] = BigInt(stat.ino);
     return 0;
   },
@@ -2886,7 +2923,7 @@ var SYSCALLS = {
       // MAP_PRIVATE calls need not to be synced back to underlying fs
       return 0;
     }
-    var buffer = HEAPU8.slice(addr, addr + len);
+    var buffer = HEAPU8.subarray(addr, addr + len);
     FS.msync(stream, buffer, offset, len, flags);
   },
   getStreamFromFD(fd) {
@@ -2913,7 +2950,7 @@ var stringToUTF8 = (str, outPtr, maxBytesToWrite) => stringToUTF8Array(str, HEAP
 
 function ___syscall_getcwd(buf, size) {
   try {
-    if (size === 0) return -28;
+    if (!size) return -28;
     var cwd = FS.cwd();
     var cwdLengthInBytes = lengthBytesUTF8(cwd) + 1;
     if (size < cwdLengthInBytes) return -68;
@@ -2924,6 +2961,8 @@ function ___syscall_getcwd(buf, size) {
     return -e.errno;
   }
 }
+
+/** @type {!Int16Array} */ var HEAP16;
 
 function ___syscall_getdents64(fd, dirp, count) {
   try {
@@ -2960,9 +2999,9 @@ function ___syscall_getdents64(fd, dirp, count) {
           throw e;
         }
         id = child.id;
-        type = FS.isChrdev(child.mode) ? 2 : // DT_CHR, character device.
-        FS.isDir(child.mode) ? 4 : // DT_DIR, directory.
-        FS.isLink(child.mode) ? 10 : // DT_LNK, symbolic link.
+        type = FS.isChrdev(child.mode) ? 2 : // character device.
+        FS.isDir(child.mode) ? 4 : // directory
+        FS.isLink(child.mode) ? 10 : // symbolic link.
         8;
       }
       HEAP64[((dirp + pos) >> 3)] = BigInt(id);
@@ -3017,6 +3056,9 @@ function ___syscall_openat(dirfd, path, flags, varargs) {
     path = SYSCALLS.getStr(path);
     path = SYSCALLS.calculateAt(dirfd, path);
     var mode = varargs ? syscallGetVarargI() : 0;
+    if (flags & 64) {
+      mode &= ~SYSCALLS.currentUmask;
+    }
     return FS.open(path, flags, mode).fd;
   } catch (e) {
     if (typeof FS == "undefined" || !(e.name === "ErrnoError")) throw e;
@@ -3097,7 +3139,7 @@ function _clock_time_get(clk_id, ignored_precision, ptime) {
     return 52;
   }
   // "now" is in ms, and wasi times are in ns.
-  var nsec = Math.round(now * 1e3 * 1e3);
+  var nsec = Math.round(now * 1e6);
   HEAP64[((ptime) >> 3)] = BigInt(nsec);
   return 0;
 }
@@ -3108,6 +3150,14 @@ var _emscripten_resize_heap = requestedSize => {
   requestedSize >>>= 0;
   return false;
 };
+
+/** @type {!Uint16Array} */ var HEAPU16;
+
+/** @type {!Float32Array} */ var HEAPF32;
+
+/** @type {!Float64Array} */ var HEAPF64;
+
+/** not-@type {!BigUint64Array} */ var HEAPU64;
 
 var _emscripten_run_script_string = ptr => {
   var s = eval(UTF8ToString(ptr));
@@ -3124,12 +3174,11 @@ var _emscripten_run_script_string = ptr => {
 
 var ENV = {};
 
-var getExecutableName = () => thisProgram || "./this.program";
+var getExecutableName = () => thisProgram;
 
 var getEnvStrings = () => {
   if (!getEnvStrings.strings) {
     // Default values.
-    // Browser language detection #8751
     var lang = (globalThis.navigator?.language ?? "C").replace("-", "_") + ".UTF-8";
     var env = {
       "USER": "web_user",
@@ -3218,7 +3267,17 @@ function _fd_fdstat_get(fd, pbuf) {
     var ptr = HEAPU32[((iov) >> 2)];
     var len = HEAPU32[(((iov) + (4)) >> 2)];
     iov += 8;
-    var curr = FS.read(stream, HEAP8, ptr, len, offset);
+    try {
+      var curr = FS.read(stream, HEAP8, ptr, len, offset);
+    } catch (e) {
+      // On a non-blocking stream a subsequent read may would-block after we
+      // already gathered data. POSIX readv is a single gather-read: return
+      // what we have rather than failing the whole call.
+      if (ret > 0 && e instanceof FS.ErrnoError && (e.errno == 6 || e.errno == 6)) {
+        break;
+      }
+      throw e;
+    }
     if (curr < 0) return -1;
     ret += curr;
     if (curr < len) break;
@@ -3245,11 +3304,11 @@ function _fd_read(fd, iov, iovcnt, pnum) {
 function _fd_seek(fd, offset, whence, newOffset) {
   offset = bigintToI53Checked(offset);
   try {
-    if (isNaN(offset)) return 61;
+    if (isNaN(offset)) return 22;
     var stream = SYSCALLS.getStreamFromFD(fd);
     FS.llseek(stream, offset, whence);
     HEAP64[((newOffset) >> 3)] = BigInt(stream.position);
-    if (stream.getdents && offset === 0 && whence === 0) stream.getdents = null;
+    if (stream.getdents && !offset && whence === 0) stream.getdents = null;
     // reset readdir state
     return 0;
   } catch (e) {
@@ -3261,10 +3320,8 @@ function _fd_seek(fd, offset, whence, newOffset) {
 function _fd_sync(fd) {
   try {
     var stream = SYSCALLS.getStreamFromFD(fd);
-    if (stream.stream_ops?.fsync) {
-      return stream.stream_ops.fsync(stream);
-    }
-    return 0;
+    var rtn = stream.stream_ops?.fsync?.(stream);
+    return rtn;
   } catch (e) {
     if (typeof FS == "undefined" || !(e.name === "ErrnoError")) throw e;
     return e.errno;
@@ -3272,23 +3329,27 @@ function _fd_sync(fd) {
 }
 
 /** @param {number=} offset */ var doWritev = (stream, iov, iovcnt, offset) => {
-  var ret = 0;
-  for (var i = 0; i < iovcnt; i++) {
+  // Gather all iovecs into one contiguous buffer and issue a single
+  // FS.write, matching POSIX writev's single gather-write semantics (as
+  // __syscall_sendmsg already does). Per-iovec writes fragment a stream
+  // socket send into multiple segments, breaking stream byte semantics.
+  if (iovcnt == 1) {
+    // Single iovec: write directly from HEAP8, no gather buffer needed.
+    return FS.write(stream, HEAP8, HEAPU32[((iov) >> 2)], HEAPU32[(((iov) + (4)) >> 2)], offset);
+  }
+  var total = 0;
+  for (var i = 0, p = iov; i < iovcnt; i++, p += 8) {
+    total += HEAPU32[(((p) + (4)) >> 2)];
+  }
+  var view = new Uint8Array(total);
+  var voff = 0;
+  for (var i = 0; i < iovcnt; i++, iov += 8) {
     var ptr = HEAPU32[((iov) >> 2)];
     var len = HEAPU32[(((iov) + (4)) >> 2)];
-    iov += 8;
-    var curr = FS.write(stream, HEAP8, ptr, len, offset);
-    if (curr < 0) return -1;
-    ret += curr;
-    if (curr < len) {
-      // No more space to write.
-      break;
-    }
-    if (typeof offset != "undefined") {
-      offset += curr;
-    }
+    view.set(HEAPU8.subarray(ptr, ptr + len), voff);
+    voff += len;
   }
-  return ret;
+  return FS.write(stream, view, 0, total, offset);
 };
 
 function _fd_write(fd, iov, iovcnt, pnum) {
@@ -3442,15 +3503,7 @@ function _js_update_emulator_stats_json(statsJsonPtr) {
   }
 }
 
-function _random_get(buffer, size) {
-  try {
-    randomFill(HEAPU8.subarray(buffer, buffer + size));
-    return 0;
-  } catch (e) {
-    if (typeof FS == "undefined" || !(e.name === "ErrnoError")) throw e;
-    return e.errno;
-  }
-}
+var _random_get = (buffer, size) => randomFill(HEAPU8.subarray(buffer, buffer + size));
 
 var runtimeKeepaliveCounter = 0;
 
@@ -3507,17 +3560,18 @@ FS.staticInit();
 {
   // Begin ATMODULES hooks
   if (Module["noExitRuntime"]) noExitRuntime = Module["noExitRuntime"];
-  if (Module["preloadPlugins"]) preloadPlugins = Module["preloadPlugins"];
   if (Module["print"]) out = Module["print"];
   if (Module["printErr"]) err = Module["printErr"];
-  if (Module["wasmBinary"]) wasmBinary = Module["wasmBinary"];
   // End ATMODULES hooks
-  if (Module["arguments"]) arguments_ = Module["arguments"];
+  if (Module["arguments"]) programArgs = Module["arguments"];
   if (Module["thisProgram"]) thisProgram = Module["thisProgram"];
-  if (Module["preInit"]) {
-    if (typeof Module["preInit"] == "function") Module["preInit"] = [ Module["preInit"] ];
-    while (Module["preInit"].length > 0) {
-      Module["preInit"].shift()();
+  var preInit = Module["preInit"];
+  if (preInit) {
+    if (typeof preInit == "function") Module["preInit"] = preInit = [ preInit ];
+    // Written as a loop so that preInit functions that themselves add more
+    // preInit functions.  Is this actually needed?
+    while (preInit.length > 0) {
+      preInit.shift()();
     }
   }
 }
@@ -3629,67 +3683,38 @@ function callMain(args = []) {
   }
 }
 
-function run(args = arguments_) {
-  if (runDependencies > 0) {
-    dependenciesFulfilled = run;
-    return;
-  }
+async function run(args = programArgs) {
   preRun();
-  // a preRun added a dependency, run will be called later
-  if (runDependencies > 0) {
-    dependenciesFulfilled = run;
-    return;
+  if (runDependencies) {
+    await resolveRunDependencies();
   }
-  function doRun() {
-    // run may have just been called through dependencies being fulfilled just in this very frame,
-    // or while the async setStatus time below was happening
-    Module["calledRun"] = true;
-    if (ABORT) return;
-    initRuntime();
-    preMain();
-    readyPromiseResolve?.(Module);
-    Module["onRuntimeInitialized"]?.();
-    var noInitialRun = Module["noInitialRun"] || false;
-    if (!noInitialRun) callMain(args);
-    postRun();
+  var setStatus = Module["setStatus"];
+  if (setStatus) {
+    setStatus("Running...");
+    // Yield to the event loop to allow the browser to paint "Running..."
+    await new Promise(resolve => setTimeout(resolve, 1));
+    // Then we want to clear the status text, but only after the rest of this function runs.
+    setTimeout(setStatus, 1, "");
   }
-  if (Module["setStatus"]) {
-    Module["setStatus"]("Running...");
-    setTimeout(() => {
-      setTimeout(() => Module["setStatus"](""), 1);
-      doRun();
-    }, 1);
-  } else {
-    doRun();
-  }
+  if (ABORT) return;
+  initRuntime();
+  // No ATMAINS hooks
+  Module["onRuntimeInitialized"]?.();
+  var noInitialRun = Module["noInitialRun"] || false;
+  if (!noInitialRun) callMain(args);
+  postRun();
 }
 
 var wasmExports;
 
 // In modularize mode the generated code is within a factory function so we
 // can use await here (since it's not top-level-await).
-wasmExports = await (createWasm());
+wasmExports = await createWasm();
 
-run();
-
-// end include: postamble.js
-// include: postamble_modularize.js
-// In MODULARIZE mode we wrap the generated code in a factory function
-// and return either the Module itself, or a promise of the module.
-// We assign to the `moduleRtn` global here and configure closure to see
-// this as and extern so it won't get minified.
-if (runtimeInitialized) {
-  moduleRtn = Module;
-} else {
-  // Set up the promise that indicates the Module is initialized
-  moduleRtn = new Promise((resolve, reject) => {
-    readyPromiseResolve = resolve;
-    readyPromiseReject = reject;
-  });
-}
+await run();
 
 
-  return moduleRtn;
+  return Module;
 }
 
 // Export using a UMD style export, or ES6 exports if selected

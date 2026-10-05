@@ -2,6 +2,7 @@ import {
     type EmulatorWorkerDirectorExtraction,
     type EmulatorWorkerDirectorExtractionEntry,
 } from "@/emulator/common/common";
+import {fsPathExists} from "@/emulator/worker/fs";
 
 export function initializeExtractor() {
     FS.mkdir(EXTRACTOR_DIRECTORY);
@@ -29,7 +30,7 @@ export function handleExtractionRequests() {
             continue;
         }
 
-        const {object: fsObject} = FS.analyzePath(childPath);
+        const fsObject = FS.stat(childPath);
         if (FS.isDir(fsObject.mode)) {
             extractedPaths.add(childPath);
             extractDirectory(childPath);
@@ -48,7 +49,9 @@ const extractedPaths = new Set<string>();
 export function prepareDirectoryExtraction(
     dirPath: string
 ): [EmulatorWorkerDirectorExtraction, ArrayBufferLike[]] {
-    const {name: dirName, parentPath: dirParentPath} = FS.analyzePath(dirPath);
+    const {node} = FS.lookupPath(dirPath, {follow: true});
+    const dirName = node.name;
+    const dirParentPath = FS.getPath(node.parent);
     const arrayBuffers: ArrayBufferLike[] = [];
     const extraction: EmulatorWorkerDirectorExtraction = {
         name: dirName,
@@ -64,7 +67,7 @@ export function prepareDirectoryExtraction(
                 continue;
             }
             const childPath = dirPath + "/" + childName;
-            const {object: fsObject} = FS.analyzePath(childPath);
+            const fsObject = FS.stat(childPath);
             if (FS.isDir(fsObject.mode)) {
                 const dirEntry: EmulatorWorkerDirectorExtractionEntry = {
                     name: childName,
@@ -91,8 +94,7 @@ export function prepareDirectoryExtraction(
     // and custom icon bit). The Finder stores this in a DInfo struct, but
     // Basilisk puts it the finf directory.
     const dInfoPath = `${dirParentPath}/.finf/${dirName}`;
-    const {exists: dInfoExists} = FS.analyzePath(dInfoPath);
-    if (dInfoExists) {
+    if (fsPathExists(dInfoPath)) {
         extraction.contents.push({
             name: "DInfo",
             contents: FS.readFile(dInfoPath, {
@@ -114,8 +116,9 @@ function extractDirectory(dirPath: string) {
 }
 
 function extractFile(filePath: string) {
-    const {name: fileName, parentPath: fileParentPath} =
-        FS.analyzePath(filePath);
+    const {node} = FS.lookupPath(filePath, {follow: true});
+    const fileName = node.name;
+    const fileParentPath = FS.getPath(node.parent);
     const arrayBuffers: ArrayBufferLike[] = [];
     const extraction: EmulatorWorkerDirectorExtraction = {
         name: fileName,
@@ -139,7 +142,7 @@ function extractFile(filePath: string) {
     extract(filePath, extraction.contents);
     function extractParentDir(dirName: string) {
         const dirPath = `${fileParentPath}/${dirName}/${fileName}`;
-        if (FS.analyzePath(dirPath).exists) {
+        if (fsPathExists(dirPath)) {
             const dirEntry: EmulatorWorkerDirectorExtractionEntry = {
                 name: dirName,
                 contents: [],

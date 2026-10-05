@@ -47,6 +47,7 @@ import {
     initializeExtractor,
 } from "@/emulator/worker/extractor";
 import {EmulatorWorkerChunkedDisk} from "@/emulator/worker/chunked-disk";
+import {fsPathExists} from "@/emulator/worker/fs";
 import {
     type EmulatorWorkerEthernet,
     FallbackEmulatorWorkerEthernet,
@@ -91,13 +92,17 @@ addEventListener("message", async event => {
 });
 
 addEventListener("unhandledrejection", (event: PromiseRejectionEvent) => {
-    const reasonString = event.reason.toString();
+    reportEmulatorError(event.reason);
+});
+
+function reportEmulatorError(reason: unknown) {
+    const reasonString = String(reason);
     if (reasonString.toLowerCase().includes("out of memory")) {
         postMessage({type: "emulator_did_run_out_memory"});
     } else {
         postMessage({type: "emulator_did_have_error", error: reasonString});
     }
-});
+}
 
 class EmulatorWorkerApi {
     InputBufferAddresses = InputBufferAddresses;
@@ -493,7 +498,7 @@ class EmulatorWorkerApi {
         if (pathPieces.length > 1) {
             for (let i = 0; i < pathPieces.length - 1; i++) {
                 const dir = parent + pathPieces.slice(0, i + 1).join("/");
-                if (!FS.analyzePath(dir).exists) {
+                if (!fsPathExists(dir)) {
                     FS.mkdir(dir);
                 }
             }
@@ -826,7 +831,7 @@ async function startEmulator(config: EmulatorWorkerConfig) {
                     for (const dir of path.slice(0, path.length - 1)) {
                         parentPath.push(dir);
                         parent = "/" + parentPath.join("/");
-                        if (!FS.analyzePath(parent).exists) {
+                        if (!fsPathExists(parent)) {
                             FS.mkdir(parent);
                         }
                     }
@@ -877,7 +882,7 @@ async function startEmulator(config: EmulatorWorkerConfig) {
     };
 
     async function runEmulatorModule(emulatorModule: {
-        default: (module: EmscriptenModule) => void;
+        default: (module: EmscriptenModule) => Promise<EmscriptenModule>;
     }) {
         // The module overrides get populated with the complete Emscripten
         // module API once it is loaded.
@@ -891,12 +896,12 @@ async function startEmulator(config: EmulatorWorkerConfig) {
         const globalScope = globalThis as any;
         globalScope.workerApi = workerApi;
 
-        emulatorModule.default(emscriptenModule);
+        await emulatorModule.default(emscriptenModule);
     }
 
     try {
-        runEmulatorModule(await importEmulator(config));
+        await runEmulatorModule(await importEmulator(config));
     } catch (error) {
-        postMessage({type: "emulator_did_have_error", error});
+        reportEmulatorError(error);
     }
 }
