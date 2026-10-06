@@ -2223,7 +2223,7 @@ export const BEOS_DR8_2: SystemDiskDef = {
     family: "beos",
     displayName: "BeOS DR8.2",
     description:
-        "First developer release to support Power Macintosh machines. Expired on April 1, 1997 to licensing limitations of the font renderer.",
+        "First developer release for the Power Macintosh. Brought a multi-tasking, multi-threading, object-oriented operating system focused on multimedia applications to Apple's hardware.",
     releaseDate: [1996, 12, 23],
     customDate: new Date(1996, 11, 23), // Avoid 1997-04-01 time-bomb.
     prefetchChunks: [
