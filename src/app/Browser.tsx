@@ -117,12 +117,12 @@ function Description({
         <div className="Description">
             <p>
                 Infinite Mac is a collection of classic Macintosh and NeXT
-                system releases and software, all easily accessible from the
+                operating systems and software, all easily accessible from the
                 comfort of a web browser.
             </p>
             <p>
-                Pick any version of System Software, Mac OS, A/UX Mac OS X,{" "}
-                {beosLaunched && " BeOS,"} or NeXTStep from the 1980s, 1990s or
+                Pick any version of System Software, A/UX, NeXTStep, Mac OS
+                {beosLaunched && ", BeOS"} or Mac OS X from the 1980s, 1990s or
                 early 2000s and run it within a virtual machine. An “Infinite
                 HD” disk with representative software from that era is also
                 available. You can also{" "}
