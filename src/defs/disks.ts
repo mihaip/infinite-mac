@@ -2246,6 +2246,7 @@ export const BEOS_DR8_2: SystemDiskDef = {
     generatedSpec: () => import("@/Data/BeOS DR8.2 HD.dsk.json"),
     appearance: "BeOS",
     hasDeviceImageHeader: true,
+    notable: true,
 };
 
 export const BEOS_DR8_3: SystemDiskDef = {
@@ -2298,6 +2299,7 @@ export const BEOS_PR_1: SystemDiskDef = {
     generatedSpec: () => import("@/Data/BeOS PR1 HD.dsk.json"),
     appearance: "BeOS",
     hasDeviceImageHeader: true,
+    notable: true,
 };
 
 const BEOS_PR_2: PlaceholderDiskDef = {
@@ -2335,6 +2337,7 @@ export const BEOS_R3: SystemDiskDef = {
     generatedSpec: () => import("@/Data/BeOS R3 HD.dsk.json"),
     appearance: "BeOS",
     hasDeviceImageHeader: true,
+    notable: true,
 };
 
 const BEOS_R3_1: PlaceholderDiskDef = {
@@ -2397,6 +2400,7 @@ export const BEOS_R4: SystemDiskDef = {
     generatedSpec: () => import("@/Data/BeOS R4 HD.dsk.json"),
     appearance: "BeOS",
     hasDeviceImageHeader: true,
+    notable: true,
 };
 
 export const BEOS_R4_5: SystemDiskDef = {
@@ -2431,6 +2435,132 @@ export const BEOS_R4_5: SystemDiskDef = {
     preferredRAMSize: "64M",
     generatedSpec: () => import("@/Data/BeOS R4.5 HD.dsk.json"),
     appearance: "BeOS",
+    hasDeviceImageHeader: true,
+    notable: true,
+};
+
+const BEOS_R4_5_1: PlaceholderDiskDef = {
+    family: "beos",
+    type: "placeholder",
+    displayName: "BeOS Release 4.5.1",
+    description:
+        "Maintenance update fixing networking, media encoding, printing, PPP, and application failures, including the PowerPC MS-ADPCM encoder.",
+    releaseDate: [1999, 7, 30],
+    preferredMachine: POWER_MACINTOSH_7300,
+    appearance: "BeOS",
+};
+
+const BEOS_R4_5_2: PlaceholderDiskDef = {
+    family: "beos",
+    type: "placeholder",
+    displayName: "BeOS Release 4.5.2",
+    description:
+        "Further maintenance update, including BFS fixes for concurrent I/O and large queries, plus media and application corrections.",
+    releaseDate: [1999, 8, 31],
+    preferredMachine: POWER_MACINTOSH_7300,
+    appearance: "BeOS",
+};
+
+export const BEOS_R5: SystemDiskDef = {
+    family: "beos",
+    displayName: "BeOS 5",
+    displaySubtitle: "Pro Edition",
+    description:
+        "Spring-loaded folders, query templates, recent item menus, and other Tracker improvements. Improved Media Player app and Media Kit, and a new Midi Kit. Final major PowerPC release.",
+    releaseDate: [2000, 3, 28],
+    prefetchChunks: [
+        0, 3, 4, 8, 9, 13, 256, 512, 513, 514, 576, 768, 769, 770, 771, 778,
+        779, 819, 820, 821, 824, 825, 826, 834, 835, 836, 837, 838, 839, 842,
+        853, 854, 855, 856, 857, 862, 863, 864, 865, 866, 871, 884, 978, 1024,
+        1025, 1029, 1030, 1031, 1032, 1033, 1034, 1035, 1036, 1056, 1073, 1074,
+        1129, 1133, 1134, 1138, 1139, 1140, 1141, 1142, 1143, 1144, 1146, 1147,
+        1148, 1149, 1150, 1152, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1161,
+        1162, 1163, 1164, 1165, 1166, 1167, 1168, 1169, 1170, 1171, 1172, 1173,
+        1176, 1184, 1271, 1272, 1283, 1284, 1285, 1293, 1294, 1295, 1296, 1297,
+        1298, 1299, 1300, 1301, 1302, 1326, 1327, 1344, 1376, 1400, 1401, 1402,
+        1403, 1404, 1405, 1508, 1509, 1536, 1546, 1547, 1548, 1549, 1550, 1551,
+        1552, 1553, 1554, 1555, 1556, 1604, 1605, 1606, 1607, 1608, 1609, 1610,
+        1611, 1612, 1613, 1614, 1615, 1616, 1685, 1792, 1793, 1794, 1795, 1796,
+        1799, 1800, 1824, 1825, 1826, 1827, 1855, 1856, 1984, 2048, 2049, 2050,
+        2051, 2052, 2053, 2054, 2176, 2304, 2305, 2306, 2307, 3600, 3603, 3614,
+        3615, 3616, 3617, 3618, 3619, 3620, 3621, 3623, 3624, 3626, 3627, 3628,
+        3630, 3631, 3632, 3633, 3634, 3635, 3690, 3691, 3692, 3693, 3694, 3698,
+        3699, 3700, 3701, 3730, 3731, 3753, 3754, 3774, 3775, 3794, 3797, 3807,
+        3822, 3823, 3824, 3825, 3826,
+    ],
+    preferredMachine: POWER_MACINTOSH_7300,
+    appearance: "BeOS",
+    preferredRAMSize: "64M",
+    generatedSpec: () => import("@/Data/BeOS R5 HD.dsk.json"),
+    hasDeviceImageHeader: true,
+    notable: true,
+};
+
+export const BEOS_R5_0_1: SystemDiskDef = {
+    family: "beos",
+    displayName: "BeOS 5.0.1",
+    displaySubtitle: "Pro Edition",
+    description:
+        "Minimze all, navigable queries, and other Tracker improvements (from the OpenTracker open source project). Also includes updated drivers and printing, media, and Interface Kit bug fixes.",
+    releaseDate: [2000, 6, 15],
+    prefetchChunks: [
+        0, 3, 4, 8, 9, 12, 13, 256, 512, 513, 514, 576, 768, 769, 770, 771, 778,
+        779, 819, 820, 824, 826, 833, 834, 835, 836, 837, 838, 841, 853, 854,
+        855, 856, 857, 862, 863, 864, 865, 866, 879, 880, 1006, 1024, 1025,
+        1029, 1030, 1031, 1032, 1033, 1034, 1035, 1056, 1073, 1074, 1088, 1110,
+        1114, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1127, 1128, 1129, 1130,
+        1131, 1133, 1134, 1135, 1136, 1137, 1138, 1139, 1140, 1142, 1143, 1144,
+        1145, 1146, 1147, 1148, 1149, 1150, 1151, 1152, 1153, 1154, 1155, 1252,
+        1274, 1282, 1283, 1284, 1285, 1293, 1294, 1295, 1296, 1297, 1298, 1299,
+        1300, 1301, 1326, 1327, 1344, 1375, 1376, 1400, 1401, 1402, 1403, 1404,
+        1405, 1536, 1546, 1547, 1548, 1549, 1550, 1551, 1552, 1553, 1554, 1555,
+        1556, 1603, 1604, 1605, 1606, 1607, 1608, 1609, 1610, 1611, 1612, 1613,
+        1614, 1615, 1691, 1692, 1696, 1712, 1714, 1792, 1793, 1794, 1795, 1796,
+        1799, 1800, 1824, 1825, 1826, 1827, 1855, 1856, 2048, 2049, 2050, 2051,
+        2052, 2053, 2054, 2208, 2304, 2305, 2306, 2307, 3600, 3603, 3614, 3615,
+        3616, 3617, 3618, 3619, 3620, 3621, 3623, 3624, 3626, 3627, 3628, 3630,
+        3631, 3632, 3633, 3634, 3635, 3690, 3691, 3692, 3693, 3694, 3698, 3699,
+        3700, 3701, 3730, 3731, 3753, 3754, 3774, 3775, 3794, 3797, 3807, 3822,
+        3823, 3824, 3825, 3826,
+    ],
+    preferredMachine: POWER_MACINTOSH_7300,
+    appearance: "BeOS",
+    preferredRAMSize: "64M",
+    generatedSpec: () => import("@/Data/BeOS R5.0.1 HD.dsk.json"),
+    hasDeviceImageHeader: true,
+};
+
+export const BEOS_R5_0_3: SystemDiskDef = {
+    family: "beos",
+    displayName: "BeOS 5.0.3",
+    displaySubtitle: "Pro Edition",
+    description:
+        "Final PowerPC maintenance release, addresses a security issue with the built-in FTP server.",
+    releaseDate: [2000, 8, 8],
+    prefetchChunks: [
+        0, 5, 6, 8, 9, 13, 256, 512, 513, 514, 576, 768, 769, 770, 771, 772,
+        778, 779, 819, 820, 824, 826, 833, 834, 835, 836, 837, 838, 841, 842,
+        853, 854, 855, 856, 857, 862, 863, 864, 865, 1024, 1025, 1026, 1030,
+        1031, 1032, 1033, 1034, 1035, 1036, 1037, 1038, 1074, 1075, 1130, 1134,
+        1139, 1140, 1141, 1142, 1143, 1144, 1145, 1147, 1148, 1149, 1150, 1151,
+        1152, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1160, 1162, 1163, 1164,
+        1165, 1166, 1167, 1168, 1169, 1170, 1171, 1172, 1173, 1174, 1175, 1184,
+        1274, 1275, 1283, 1284, 1285, 1293, 1294, 1295, 1296, 1297, 1298, 1299,
+        1300, 1301, 1302, 1327, 1344, 1375, 1376, 1401, 1402, 1403, 1404, 1405,
+        1406, 1512, 1513, 1536, 1546, 1547, 1548, 1549, 1550, 1551, 1552, 1553,
+        1554, 1555, 1556, 1603, 1604, 1605, 1606, 1607, 1608, 1609, 1610, 1611,
+        1612, 1613, 1614, 1683, 1792, 1793, 1794, 1795, 1796, 1800, 1801, 1824,
+        1825, 1826, 1827, 1856, 1984, 2048, 2049, 2050, 2051, 2052, 2053, 2054,
+        2176, 2304, 2305, 2306, 2307, 3600, 3603, 3614, 3615, 3616, 3617, 3618,
+        3619, 3620, 3621, 3623, 3624, 3626, 3627, 3628, 3630, 3621, 3632, 3633,
+        3634, 3635, 3690, 3691, 3692, 3693, 3694, 3698, 3699, 3700, 3701, 3730,
+        3731, 3753, 3754, 3774, 3775, 3794, 3797, 3807, 3822, 3823, 3824, 3825,
+        3826,
+    ],
+    preferredMachine: POWER_MACINTOSH_7300,
+    appearance: "BeOS",
+    preferredRAMSize: "64M",
+    generatedSpec: () => import("@/Data/BeOS R5.0.3 HD.dsk.json"),
     hasDeviceImageHeader: true,
 };
 
@@ -2529,6 +2659,11 @@ export const ALL_DISKS = [
     BEOS_R3_2,
     BEOS_R4,
     BEOS_R4_5,
+    BEOS_R4_5_1,
+    BEOS_R4_5_2,
+    BEOS_R5,
+    BEOS_R5_0_1,
+    BEOS_R5_0_3,
 ];
 
 export const FLOPPY_DISKS = [

@@ -497,27 +497,84 @@ AUX_31 = Disk(
 )
 
 BEOS_DR82 = Disk(
-    name="BeOS DR8.2 HD.dsk", compressed=True, beos_screen_settings_format="legacy"
+    name="BeOS DR8.2 HD.dsk",
+    compressed=True,
+    beos_screen_settings_format="legacy",
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.DR8.2.HD.dsk.zip"
+    ],
 )
 
 BEOS_DR83 = Disk(
-    name="BeOS DR8.3 HD.dsk", compressed=True, beos_screen_settings_format="legacy"
+    name="BeOS DR8.3 HD.dsk",
+    compressed=True,
+    beos_screen_settings_format="legacy",
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.DR8.3.HD.dsk.zip"
+    ],
 )
 
 BEOS_PR1 = Disk(
-    name="BeOS PR1 HD.dsk", compressed=True, beos_screen_settings_format="legacy"
+    name="BeOS PR1 HD.dsk",
+    compressed=True,
+    beos_screen_settings_format="legacy",
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.PR1.HD.dsk.zip"
+    ],
 )
 
 BEOS_R3 = Disk(
-    name="BeOS R3 HD.dsk", compressed=True, beos_screen_settings_format="legacy"
+    name="BeOS R3 HD.dsk",
+    compressed=True,
+    beos_screen_settings_format="legacy",
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R3.HD.dsk.zip"
+    ],
 )
 
 BEOS_R4 = Disk(
-    name="BeOS R4 HD.dsk", compressed=True, beos_screen_settings_format="workspace"
+    name="BeOS R4 HD.dsk",
+    compressed=True,
+    beos_screen_settings_format="workspace",
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R4.HD.dsk.zip"
+    ],
 )
 
 BEOS_R45 = Disk(
-    name="BeOS R4.5 HD.dsk", compressed=True, beos_screen_settings_format="workspace"
+    name="BeOS R4.5 HD.dsk",
+    compressed=True,
+    beos_screen_settings_format="workspace",
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R4.5.HD.dsk.zip"
+    ],
+)
+
+BEOS_R5 = Disk(
+    name="BeOS R5 HD.dsk",
+    compressed=True,
+    beos_screen_settings_format="workspace",
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R5.HD.dsk.zip"
+    ],
+)
+
+BEOS_R501 = Disk(
+    name="BeOS R5.0.1 HD.dsk",
+    compressed=True,
+    beos_screen_settings_format="workspace",
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R5.0.1.HD.dsk.zip"
+    ],
+)
+
+BEOS_R503 = Disk(
+    name="BeOS R5.0.3 HD.dsk",
+    compressed=True,
+    beos_screen_settings_format="workspace",
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R5.0.3.HD.dsk.zip"
+    ],
 )
 
 ALL_DISKS = [
@@ -602,4 +659,7 @@ ALL_DISKS = [
     BEOS_R3,
     BEOS_R4,
     BEOS_R45,
+    BEOS_R5,
+    BEOS_R501,
+    BEOS_R503,
 ]
