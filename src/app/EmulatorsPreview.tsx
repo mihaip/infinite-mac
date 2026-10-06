@@ -242,7 +242,7 @@ function EmulatorPanel({
             }),
         [runDef]
     );
-    const title = `${machine.name} · ${disks[0]?.displayName}${label ? ` · ${label}` : ""}`;
+    const title = `${disks[0]?.displayName}${disks[0]?.displaySubtitle ? ` (${disks[0]?.displaySubtitle})` : ""}${label ? ` · ${label}` : ""}`;
 
     const start = () => {
         setGeneration(current => current + 1);
@@ -277,8 +277,7 @@ function EmulatorPanel({
                             target="_blank"
                             rel="noreferrer"
                             title="Open separately">
-                            {disks[0]?.displayName}
-                            {label && ` · ${label}`}
+                            {title}
                         </a>
                     </h2>
                     <p>
@@ -293,7 +292,6 @@ function EmulatorPanel({
                     </span>
                     <Select
                         value=""
-                        aria-label={`Commands for ${title}`}
                         style={{width: 20}}
                         onChange={event => {
                             switch (event.target.value) {
@@ -337,7 +335,6 @@ function EmulatorPanel({
                     <iframe
                         key={generation}
                         ref={iframeRef}
-                        title={title}
                         src={embedUrl}
                         width={screenSize.width}
                         height={screenSize.height}
@@ -488,6 +485,36 @@ const EMULATOR_PREVIEW_PRESETS = [
             preview(NEXT_STATION, NEXTSTEP_3_3), // NeXTSTEP
             preview(POWER_MACINTOSH_G4_PEARPC, MAC_OS_X_10_2_8), // Mac OS X
         ],
+    },
+    {
+        id: "all-snow",
+        label: "All Snow disks",
+        cases: Object.values(SYSTEM_DISKS_BY_NAME)
+            .filter(disk => disk.preferredMachine.emulatorType === "Snow")
+            .map(disk => preview(disk.preferredMachine, disk)),
+    },
+    {
+        id: "all-basiliskii",
+        label: "All Basilisk II disks",
+        cases: Object.values(SYSTEM_DISKS_BY_NAME)
+            .filter(disk => disk.preferredMachine.emulatorType === "BasiliskII")
+            .map(disk => preview(disk.preferredMachine, disk)),
+    },
+    {
+        id: "all-sheepshaver",
+        label: "All SheepShaver disks",
+        cases: Object.values(SYSTEM_DISKS_BY_NAME)
+            .filter(
+                disk => disk.preferredMachine.emulatorType === "SheepShaver"
+            )
+            .map(disk => preview(disk.preferredMachine, disk)),
+    },
+    {
+        id: "all-dingusppc",
+        label: "All DingusPPC disks",
+        cases: Object.values(SYSTEM_DISKS_BY_NAME)
+            .filter(disk => disk.preferredMachine.emulatorType === "DingusPPC")
+            .map(disk => preview(disk.preferredMachine, disk)),
     },
     {
         id: "all",
