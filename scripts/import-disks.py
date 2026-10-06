@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import basilisk
+import beos
 import copy
 import disks
 import enum
@@ -36,13 +37,25 @@ class ImageDef(typing.NamedTuple):
     name: str
     path: str
     scrn_resource_offsets: typing.List[int] = None
+    beos_screen_settings: typing.Optional[beos.ScreenSettings] = None
 
 
-def write_image_def(image: bytes, name: str, dest_dir: str, scrn_resource_offsets: typing.List[int] = None) -> ImageDef:
+def write_image_def(
+    image: bytes,
+    name: str,
+    dest_dir: str,
+    scrn_resource_offsets: typing.List[int] = None,
+    beos_screen_settings: typing.Optional[beos.ScreenSettings] = None,
+) -> ImageDef:
     image_path = os.path.join(dest_dir, name)
     with open(image_path, "wb") as image_file:
         image_file.write(image)
-    return ImageDef(name, image_path, scrn_resource_offsets=scrn_resource_offsets)
+    return ImageDef(
+        name,
+        image_path,
+        scrn_resource_offsets=scrn_resource_offsets,
+        beos_screen_settings=beos_screen_settings,
+    )
 
 
 ZERO_CHUNK = b"\0" * CHUNK_SIZE
@@ -103,6 +116,8 @@ def write_chunked_image(image: ImageDef) -> None:
     }
     if image.scrn_resource_offsets is not None and len(image.scrn_resource_offsets) > 0:
         manifest["scrnResourceOffsets"] = image.scrn_resource_offsets
+    if image.beos_screen_settings:
+        manifest["beosScreenSettings"] = image.beos_screen_settings
     with open(manifest_path, "w+") as manifest_file:
         json.dump(manifest, manifest_file, indent=4)
 
@@ -178,11 +193,25 @@ def build_system_image(
     for match in re.finditer(re.escape(placeholders.SCRN_RESOURCE), image_data):
         scrn_resource_offsets.append(match.start())
 
+    # We do the same for BeOS, finding the saved screen settings in the image
+    # data so they can be replaced at runtime.
+    beos_screen_settings: typing.Optional[beos.ScreenSettings] = None
+    if disk.beos_screen_settings_format is not None:
+        beos_screen_settings = beos.find_screen_settings(
+            image_data, disk.beos_screen_settings_format
+        )
+        if not beos_screen_settings:
+            logging.warning(
+                "No saved BeOS screen settings found in %s; save a mode in "
+                "the Screen preferences before importing for boot resolution control",
+                disk.name,
+            )
     return write_image_def(
         image_data,
         disk.name,
         dest_dir,
         scrn_resource_offsets=scrn_resource_offsets,
+        beos_screen_settings=beos_screen_settings,
     )
 
 def build_library_images(dest_dir: str) -> typing.Tuple[ImageDef, ImageDef, ImageDef]:

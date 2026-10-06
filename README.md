@@ -46,11 +46,11 @@ Common development tasks, all done via `npm run`:
     - `previous`: Previous from https://github.com/mihaip/previous
     - `pearpc`: PearPC from https://github.com/mihaip/pearpc
     - `snow`: Snow from https://github.com/mihaip/snow
-- `import-disks`: Build disk images for serving. Copies base OS images for the above emulators, and imports other software (found in `Library/`) into an "Infinite HD" disk image. Chunks disk images and generates a manifest for serving.
+- `import-disks`: Build disk images for serving. There are two types of disk images: OS images (which get some lightweight customization with dynamic content) and "Infinite HD" images (which contain third-party software from `Library/`). To prepare them for serving both types get get chunked and a JSON manifest with metadata is generated and placed in `src/Data`.
     - `placeholder` may be passed in as an argument to only build System 1 through 7.5.5, to skip populating the "Infinite HD" disk image.
     - This will invoke the native macOS versions of Mini vMac and Basilisk II as a final step, to ensure that the generated disk has a valid desktop database. If they are not installed, a warning will be logged and the generated disk may take longer to mount.
     - To speed up the Mini vMac building step, you can change its speed: press Control-S to bring up the speed menu, and then the A to choose "All Out"
-    - Note that both Mini vMac and Basilisk II will be launched as part of this process. Once they seem done and you can see Infinite HD, use the "Shut Down" command to cleanly turn off the emulated machine and then quit the respective emulator so that the task can continue.
+    - Both emulators need to be manually and cleanly shut down and quit once they have successfully mounted Infinite HD.
 - `import-cd-roms`: Build CD-ROM and floppy libraries (most CD-ROMs are hosted on other sites, while floppies and local media are self-hosted)
     - `placeholder` may be passed in as an argument to make an empty CD-ROM library
     - `--sync-media` may be passed in to sync self-hosted media files to the Cloudflare R2 bucket (this is separate from the disk image sync process done by `sync-disks.sh`)

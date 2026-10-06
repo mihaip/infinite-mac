@@ -62,6 +62,7 @@ import {
     runDefSupportsDownloadsFolder,
     runDefSupportsFloppies,
     runDefSupportsInfiniteHD,
+    runDefSupportedScreenSizes,
     type RunDef,
     type ScreenSize,
 } from "@/defs/run-def";
@@ -179,11 +180,7 @@ export default function Mac({
     const emulatorSettingsRef = useRef(emulatorSettings);
     emulatorSettingsRef.current = emulatorSettings;
 
-    const initialScreenSize = useInitialScreenSize(
-        machine,
-        screenSizeProp,
-        screenScaleProp
-    );
+    const initialScreenSize = useInitialScreenSize(runDef);
     const {width: initialScreenWidth, height: initialScreenHeight} =
         initialScreenSize;
     const [screenSize, setScreenSize] = useState(initialScreenSize);
@@ -1440,11 +1437,14 @@ function useInitialScreenScale(
     }, [machine, screenSizeProp, screenScaleProp]);
 }
 
-function useInitialScreenSize(
-    machine: MachineDef,
-    screenSizeProp?: ScreenSize,
-    screenScaleProp?: number
-): {width: number; height: number} {
+function useInitialScreenSize(runDef: RunDef): {width: number; height: number} {
+    const {
+        machine,
+        screenSize: screenSizeProp,
+        screenScale: screenScaleProp,
+    } = runDef;
+    const supportedScreenSizes =
+        runDefSupportedScreenSizes(runDef) ?? DEFAULT_SUPPORTED_SCREEN_SIZES;
     return useMemo(() => {
         if (machine.fixedScreenSize) {
             return machine.fixedScreenSize;
@@ -1467,8 +1467,6 @@ function useInitialScreenSize(
                     windowWidth - MEDIUM_BEZEL_WIDTH_THRESHOLD;
                 const availableHeight =
                     windowHeight - MEDIUM_BEZEL_HEIGHT_THRESHOLD;
-                const {supportedScreenSizes = DEFAULT_SUPPORTED_SCREEN_SIZES} =
-                    machine;
                 for (const {width, height} of supportedScreenSizes) {
                     if (width <= availableWidth && height <= availableHeight) {
                         return {width, height};
@@ -1482,7 +1480,7 @@ function useInitialScreenSize(
             case "fullscreen":
                 return {width: screenWidth, height: screenHeight};
         }
-    }, [machine, screenSizeProp, screenScaleProp]);
+    }, [machine, screenSizeProp, screenScaleProp, supportedScreenSizes]);
 }
 
 // Assume that mobile devices that can't do hover events also need an explicit

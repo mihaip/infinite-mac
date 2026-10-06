@@ -35,6 +35,7 @@ import macIIDisplayCardRomPath from "@/Data/mac-ii-display-card.rom";
 import macIIDisplayCard824RomPath from "@/Data/mac-ii-display-card-8-24.rom";
 import se30VideoRomPath from "@/Data/se30-video.rom";
 import {type EmulatorDef, type EmulatorCpu} from "@/emulator/common/emulators";
+import {type SystemFamily} from "@/defs/disks";
 
 export type MachineDef = EmulatorDef & {
     name: string;
@@ -44,12 +45,11 @@ export type MachineDef = EmulatorDef & {
     gestaltID: number;
     modifier?: "FDHD";
     prefsPath: string;
-    fixedScreenSize?: {width: number; height: number};
-    supportedScreenSizes?: {
-        width: number;
-        height: number;
-        monitorId?: string; // Mostly for DingusPPC
-    }[];
+    fixedScreenSize?: MachineScreenSize;
+    // Family-specific sizes override the default list.
+    supportedScreenSizes?: {default: MachineScreenSize[]} & Partial<
+        Record<SystemFamily, MachineScreenSize[]>
+    >;
     mfsOnly?: boolean;
     bezelStyle: "Beige" | "Platinum" | "Pinstripes" | "NeXT";
     ramSizes: MachineDefRAMSize[]; // First value is the default
@@ -68,17 +68,25 @@ export type MachineDef = EmulatorDef & {
     isHidden?: boolean;
 };
 
+export type MachineScreenSize = {
+    width: number;
+    height: number;
+    monitorId?: string; // Generatea a sense code for DingusPPC and Snow
+};
+
 export type MachineDefRAMSize = `${number}M` | `${number}K`;
 
 export type MachinePlatform = "Macintosh" | "NeXT";
 
-const snowSupportedScreenSizes = [
-    {width: 1152, height: 870, monitorId: "RGB21"},
-    {width: 832, height: 624, monitorId: "RGB16"},
-    {width: 640, height: 870, monitorId: "PortraitBW"},
-    {width: 640, height: 480, monitorId: "HiRes14"},
-    {width: 512, height: 384, monitorId: "RGB12"},
-];
+const snowSupportedScreenSizes = {
+    default: [
+        {width: 1152, height: 870, monitorId: "RGB21"},
+        {width: 832, height: 624, monitorId: "RGB16"},
+        {width: 640, height: 870, monitorId: "PortraitBW"},
+        {width: 640, height: 480, monitorId: "HiRes14"},
+        {width: 512, height: 384, monitorId: "RGB12"},
+    ],
+};
 
 export const MAC_128K: MachineDef = {
     name: "Mac 128K",
@@ -372,11 +380,13 @@ export const POWER_MACINTOSH_6100: MachineDef = {
     gestaltID: 67,
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
-    supportedScreenSizes: [
-        {width: 832, height: 624, monitorId: "Multiscan17in"},
-        {width: 640, height: 870, monitorId: "MacRGB15in"},
-        {width: 640, height: 480, monitorId: "Multiscan15in"},
-    ],
+    supportedScreenSizes: {
+        default: [
+            {width: 832, height: 624, monitorId: "Multiscan17in"},
+            {width: 640, height: 870, monitorId: "MacRGB15in"},
+            {width: 640, height: 480, monitorId: "Multiscan15in"},
+        ],
+    },
     bezelStyle: "Platinum",
     // The 6100 has 8MB of RAM soldered to the motherboard, these are sizes with
     // with pairs of 64, 32, 16, 8, 4, and 2MB and 0MB SIMMs installed.
@@ -402,12 +412,15 @@ export const POWER_MACINTOSH_7200: MachineDef = {
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
     bezelStyle: "Platinum",
-    supportedScreenSizes: [
-        {width: 1152, height: 870, monitorId: "Multiscan20in"},
-        {width: 832, height: 624, monitorId: "Multiscan17in"},
-        {width: 640, height: 870, monitorId: "MacRGB15in"},
-        {width: 640, height: 480, monitorId: "Multiscan15in"},
-    ],
+    supportedScreenSizes: {
+        default: [
+            {width: 1152, height: 870, monitorId: "Multiscan20in"},
+            {width: 1024, height: 768, monitorId: "MacRGB19in"},
+            {width: 832, height: 624, monitorId: "Multiscan17in"},
+            {width: 640, height: 870, monitorId: "MacRGB15in"},
+            {width: 640, height: 480, monitorId: "Multiscan15in"},
+        ],
+    },
     ramSizes: ["16M", "32M", "64M", "128M", "256M"],
 };
 
@@ -419,12 +432,24 @@ export const POWER_MACINTOSH_7300: MachineDef = {
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
     bezelStyle: "Platinum",
-    supportedScreenSizes: [
-        {width: 1152, height: 870, monitorId: "Multiscan20in"},
-        {width: 832, height: 624, monitorId: "Multiscan17in"},
-        {width: 640, height: 870, monitorId: "MacRGB15in"},
-        {width: 640, height: 480, monitorId: "Multiscan15in"},
-    ],
+    supportedScreenSizes: {
+        default: [
+            {width: 1152, height: 870, monitorId: "Multiscan20in"},
+            {width: 1024, height: 768, monitorId: "MacRGB19in"},
+            {width: 832, height: 624, monitorId: "Multiscan17in"},
+            {width: 640, height: 870, monitorId: "MacRGB15in"},
+            {width: 640, height: 480, monitorId: "Multiscan15in"},
+        ],
+        beos: [
+            // Should match BEOS_SCREEN_MODES
+            // Choose monitor IDs with the closest Mac OS startup resolution.
+            {width: 1600, height: 1200, monitorId: "Multiscan20in"},
+            {width: 1280, height: 1024, monitorId: "Multiscan20in"},
+            {width: 1024, height: 768, monitorId: "MacRGB19in"},
+            {width: 800, height: 600, monitorId: "Multiscan17in"},
+            {width: 640, height: 480, monitorId: "HiRes12-14in"},
+        ],
+    },
     extraFiles: {
         "nvram.bin": powerMacintosh7300NvramPath,
         "pram.bin": powerMacintosh7300PramPath,
@@ -440,12 +465,15 @@ export const POWER_MACINTOSH_7500: MachineDef = {
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
     bezelStyle: "Platinum",
-    supportedScreenSizes: [
-        {width: 1152, height: 870, monitorId: "Multiscan20in"},
-        {width: 832, height: 624, monitorId: "Multiscan17in"},
-        {width: 640, height: 870, monitorId: "MacRGB15in"},
-        {width: 640, height: 480, monitorId: "Multiscan15in"},
-    ],
+    supportedScreenSizes: {
+        default: [
+            {width: 1152, height: 870, monitorId: "Multiscan20in"},
+            {width: 1024, height: 768, monitorId: "MacRGB19in"},
+            {width: 832, height: 624, monitorId: "Multiscan17in"},
+            {width: 640, height: 870, monitorId: "MacRGB15in"},
+            {width: 640, height: 480, monitorId: "Multiscan15in"},
+        ],
+    },
     ramSizes: ["16M", "32M", "64M", "128M", "256M"],
 };
 
@@ -457,12 +485,14 @@ export const POWER_MACINTOSH_G3_BEIGE: MachineDef = {
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
     bezelStyle: "Platinum",
-    supportedScreenSizes: [
-        {width: 1152, height: 870, monitorId: "MacColor21in"},
-        {width: 1024, height: 768, monitorId: "Multiscan17in"},
-        {width: 832, height: 624, monitorId: "Multiscan15in"},
-        {width: 640, height: 480, monitorId: "HiRes12-14in"},
-    ],
+    supportedScreenSizes: {
+        default: [
+            {width: 1152, height: 870, monitorId: "MacColor21in"},
+            {width: 1024, height: 768, monitorId: "Multiscan17in"},
+            {width: 832, height: 624, monitorId: "Multiscan15in"},
+            {width: 640, height: 480, monitorId: "HiRes12-14in"},
+        ],
+    },
     ramSizes: ["256M", "128M", "64M", "32M"],
     extraFiles: {
         "apm_all_drivers.bin": deviceImageHeaderPath,
@@ -480,12 +510,14 @@ export const POWER_MACINTOSH_G3_BW_DPPC: MachineDef = {
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
     bezelStyle: "Pinstripes",
-    supportedScreenSizes: [
-        {width: 1152, height: 870, monitorId: "MacColor21in"},
-        {width: 1024, height: 768, monitorId: "Multiscan17in"},
-        {width: 832, height: 624, monitorId: "Multiscan15in"},
-        {width: 640, height: 480, monitorId: "HiRes12-14in"},
-    ],
+    supportedScreenSizes: {
+        default: [
+            {width: 1152, height: 870, monitorId: "MacColor21in"},
+            {width: 1024, height: 768, monitorId: "Multiscan17in"},
+            {width: 832, height: 624, monitorId: "Multiscan15in"},
+            {width: 640, height: 480, monitorId: "HiRes12-14in"},
+        ],
+    },
     ramSizes: ["256M", "128M", "64M", "32M"],
     extraFiles: {
         "113-32900-004_Apple_MACH64.bin": atiMach64RomPath,
@@ -505,12 +537,14 @@ export const IMAC_G3: MachineDef = {
     emulatorType: "DingusPPC",
     prefsPath: emptyPrefsPath,
     bezelStyle: "Pinstripes",
-    supportedScreenSizes: [
-        {width: 1152, height: 870, monitorId: "MacColor21in"},
-        {width: 1024, height: 768, monitorId: "Multiscan17in"},
-        {width: 832, height: 624, monitorId: "Multiscan15in"},
-        {width: 640, height: 480, monitorId: "HiRes12-14in"},
-    ],
+    supportedScreenSizes: {
+        default: [
+            {width: 1152, height: 870, monitorId: "MacColor21in"},
+            {width: 1024, height: 768, monitorId: "Multiscan17in"},
+            {width: 832, height: 624, monitorId: "Multiscan15in"},
+            {width: 640, height: 480, monitorId: "HiRes12-14in"},
+        ],
+    },
     ramSizes: ["128M", "64M", "32M", "256M", "512M", "1024M"],
     extraFiles: {
         "113-32900-004_Apple_MACH64.bin": atiMach64RomPath,
@@ -654,6 +688,14 @@ export const DEFAULT_SUPPORTED_SCREEN_SIZES = [
     {width: 800, height: 600},
     {width: 640, height: 480},
 ];
+
+export function machineSupportedScreenSizes(
+    machine: MachineDef,
+    family?: SystemFamily
+): MachineScreenSize[] | undefined {
+    const sizes = machine.supportedScreenSizes;
+    return sizes?.[family ?? "default"] ?? sizes?.default;
+}
 
 export function machineSupportsInfiniteHD(machine: MachineDef): boolean {
     if (machine.emulatorType === "Snow") {

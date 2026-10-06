@@ -1,4 +1,4 @@
-import {type MachineDef} from "@/defs/machines";
+import {type MachineDef, machineSupportedScreenSizes} from "@/defs/machines";
 import {type EmulatorDiskOverlay} from "@/emulator/common/common";
 
 // Should match the value of the placeholder value from scripts/placeholders.py.
@@ -50,7 +50,7 @@ export function createScrnResourceOverlays(
         return undefined;
     }
     const videoCard = videoCardEntry[1];
-    const monitor = machine.supportedScreenSizes?.find(
+    const monitor = machineSupportedScreenSizes(machine)?.find(
         size => size.width === screenWidth && size.height === screenHeight
     );
     if (monitor?.monitorId && BLACK_AND_WHITE_MONITORS.has(monitor.monitorId)) {

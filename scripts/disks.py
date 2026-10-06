@@ -1,3 +1,4 @@
+import beos
 import dataclasses
 import hashlib
 import logging
@@ -22,6 +23,8 @@ class Disk:
     sticky_placeholder_overwrite_byte: bytes = b"\x00"
     compressed: bool = False
     urls: typing.List[str] = dataclasses.field(default_factory=list)
+    # BeOS display-settings format to scan when importing this image.
+    beos_screen_settings_format: typing.Optional[beos.ScreenSettingsFormat] = None
 
     def path(self) -> str:
         if self.urls:
@@ -493,17 +496,29 @@ AUX_31 = Disk(
     ],
 )
 
-BEOS_DR82 = Disk(name="BeOS DR8.2 HD.dsk", compressed=True)
+BEOS_DR82 = Disk(
+    name="BeOS DR8.2 HD.dsk", compressed=True, beos_screen_settings_format="legacy"
+)
 
-BEOS_DR83 = Disk(name="BeOS DR8.3 HD.dsk", compressed=True)
+BEOS_DR83 = Disk(
+    name="BeOS DR8.3 HD.dsk", compressed=True, beos_screen_settings_format="legacy"
+)
 
-BEOS_PR1 = Disk(name="BeOS PR1 HD.dsk", compressed=True)
+BEOS_PR1 = Disk(
+    name="BeOS PR1 HD.dsk", compressed=True, beos_screen_settings_format="legacy"
+)
 
-BEOS_R3 = Disk(name="BeOS R3 HD.dsk", compressed=True)
+BEOS_R3 = Disk(
+    name="BeOS R3 HD.dsk", compressed=True, beos_screen_settings_format="legacy"
+)
 
-BEOS_R4 = Disk(name="BeOS R4 HD.dsk", compressed=True)
+BEOS_R4 = Disk(
+    name="BeOS R4 HD.dsk", compressed=True, beos_screen_settings_format="workspace"
+)
 
-BEOS_R45 = Disk(name="BeOS R4.5 HD.dsk", compressed=True)
+BEOS_R45 = Disk(
+    name="BeOS R4.5 HD.dsk", compressed=True, beos_screen_settings_format="workspace"
+)
 
 ALL_DISKS = [
     # Classic

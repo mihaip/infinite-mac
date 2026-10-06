@@ -36,6 +36,7 @@ import {
     type RunDef,
     type ScreenSize,
     runDefSupportsInfiniteHD,
+    runDefSupportedScreenSizes,
 } from "@/defs/run-def";
 import allowedCDROMDomains from "@/defs/cdrom-sites.json";
 
@@ -71,6 +72,7 @@ export function CustomFields({
             : machine.name;
     }, []);
     const {flags} = runDef;
+    const supportedScreenSizes = runDefSupportedScreenSizes(runDef);
     const setFlags = useCallback(
         (updater: (flags: EmulatorConfigFlags) => EmulatorConfigFlags) => {
             setRunDef(runDef => ({
@@ -286,11 +288,9 @@ export function CustomFields({
                         {runDef.machine.fixedScreenSize.width} x{" "}
                         {runDef.machine.fixedScreenSize.height}
                     </>
-                ) : runDef.machine.supportedScreenSizes ? (
+                ) : supportedScreenSizes ? (
                     <ScreenSizePickerConstrained
-                        supportedScreenSizes={
-                            runDef.machine.supportedScreenSizes
-                        }
+                        supportedScreenSizes={supportedScreenSizes}
                         value={runDef.screenSize}
                         onChange={screenSize =>
                             setRunDef({...runDef, screenSize})

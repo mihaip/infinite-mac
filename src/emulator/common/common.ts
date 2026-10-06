@@ -117,6 +117,11 @@ export type EmulatorChunkedFileSpec = {
     // Raw byte offset of the System file's scrn resource(s), for disks that
     // have that placeholder value.
     scrnResourceOffsets?: number[];
+    // Equivalent of the above for BeOS (Screen_settings/app_server_settings).
+    beosScreenSettings?: {
+        legacyOffsets: number[];
+        timingRegions: {offset: number; length: number}[];
+    };
     overlays?: EmulatorDiskOverlay[];
 };
 

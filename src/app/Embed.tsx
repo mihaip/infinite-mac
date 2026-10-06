@@ -2,7 +2,11 @@ import "@/app/Embed.css";
 import {useCallback, useEffect, useState} from "react";
 import {Dialog} from "@/controls/Dialog";
 import * as varz from "@/lib/varz";
-import {runDefToUrl, type RunDef} from "@/defs/run-def";
+import {
+    runDefToUrl,
+    runDefSupportedScreenSizes,
+    type RunDef,
+} from "@/defs/run-def";
 import {SYSTEM_DISKS_BY_NAME, type SystemDiskDef} from "@/defs/disks";
 import {AppearanceProvider} from "@/controls/Appearance";
 import {CustomFields} from "@/app/CustomFields";
@@ -70,8 +74,9 @@ export function Embed({
     } else if (typeof runDef.screenSize === "object") {
         screenSize = runDef.screenSize;
     } else if (runDef.screenSize === "auto") {
-        if (runDef.machine.supportedScreenSizes) {
-            screenSize = runDef.machine.supportedScreenSizes[0];
+        const supportedScreenSizes = runDefSupportedScreenSizes(runDef);
+        if (supportedScreenSizes) {
+            screenSize = supportedScreenSizes[0];
         } else {
             screenSize = DEFAULT_SCREEN_SIZES[0];
         }

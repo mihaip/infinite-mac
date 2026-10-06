@@ -85,6 +85,7 @@ import {
 import {stringToArrayBuffer} from "@/lib/strings";
 import {type EmulatorSettings} from "@/emulator/ui/settings";
 import {createScrnResourceOverlays} from "@/emulator/ui/scrn-resource-overlay";
+import {createBeOSScreenSettingsOverlays} from "@/emulator/ui/beos-screen-settings-overlay";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -1203,6 +1204,16 @@ async function loadDisks(
                 config.screenHeight,
                 spec.scrnResourceOffsets
             );
+        }
+        if (spec.beosScreenSettings !== undefined) {
+            overlays = [
+                ...(overlays ?? []),
+                ...createBeOSScreenSettingsOverlays(
+                    config.screenWidth,
+                    config.screenHeight,
+                    spec.beosScreenSettings
+                ),
+            ];
         }
 
         return {

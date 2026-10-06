@@ -16,8 +16,10 @@ import {
 import {
     MACHINES_BY_NAME,
     machineSupportsInfiniteHD,
+    machineSupportedScreenSizes,
     type MachineDefRAMSize,
     type MachineDef,
+    type MachineScreenSize,
 } from "@/defs/machines";
 
 export type RunDef = {
@@ -109,6 +111,12 @@ export function runDefSupportsFloppies(runDef: RunDef): boolean {
     return ["Snow", "Mini vMac", "BasiliskII", "SheepShaver"].includes(
         runDef.machine.emulatorType
     );
+}
+
+export function runDefSupportedScreenSizes(
+    runDef: RunDef
+): MachineScreenSize[] | undefined {
+    return machineSupportedScreenSizes(runDef.machine, runDef.disks[0]?.family);
 }
 
 export function runDefFromUrl(urlString: string): RunDef | undefined {

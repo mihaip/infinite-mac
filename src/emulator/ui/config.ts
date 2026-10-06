@@ -6,7 +6,9 @@ import {
     POWER_MACINTOSH_7500,
     type MachineDefRAMSize,
     IMAC_G3,
+    machineSupportedScreenSizes,
 } from "@/defs/machines";
+import {isSystemDiskDef} from "@/defs/disks";
 import {arrayBufferToString, replacePlaceholders} from "@/lib/strings";
 import {getDeviceImageHFSPartitionNumber} from "@/defs/device-image";
 import {DeviceImageType} from "@/emulator/common/device-image";
@@ -224,18 +226,9 @@ export function configToDingusPPCArgs(
         }
     }
 
-    // Map screen sizes to the a monitor ID
-    if (config.machine.supportedScreenSizes) {
-        for (const size of config.machine.supportedScreenSizes) {
-            if (
-                size.width === config.screenWidth &&
-                size.height === config.screenHeight &&
-                size.monitorId
-            ) {
-                args.push("--mon_id", size.monitorId);
-                break;
-            }
-        }
+    const monitorId = configMonitorId(config);
+    if (monitorId) {
+        args.push("--mon_id", monitorId);
     }
 
     return args;
@@ -451,17 +444,9 @@ export function configToSnowArgs(
     if (config.machine.modifier) {
         args.push("--mac-model-modifier", config.machine.modifier);
     }
-    if (config.machine.supportedScreenSizes) {
-        for (const size of config.machine.supportedScreenSizes) {
-            if (
-                size.width === config.screenWidth &&
-                size.height === config.screenHeight &&
-                size.monitorId
-            ) {
-                args.push("--monitor", size.monitorId);
-                break;
-            }
-        }
+    const monitorId = configMonitorId(config);
+    if (monitorId) {
+        args.push("--monitor", monitorId);
     }
     for (const romName of Object.keys(config.machine.extraFiles ?? {})) {
         args.push("--extra-rom", romName);
@@ -507,4 +492,24 @@ function ramSizeToByteCount(ramSize: MachineDefRAMSize): number {
         byteCount *= 1024;
     }
     return byteCount;
+}
+
+function configMonitorId(config: EmulatorConfig): string | undefined {
+    const bootDisk = config.disks[0];
+    const supportedScreenSizes =
+        machineSupportedScreenSizes(
+            config.machine,
+            bootDisk && isSystemDiskDef(bootDisk) ? bootDisk.family : undefined
+        ) ?? [];
+
+    for (const size of supportedScreenSizes) {
+        if (
+            size.width === config.screenWidth &&
+            size.height === config.screenHeight &&
+            size.monitorId
+        ) {
+            return size.monitorId;
+        }
+    }
+    return undefined;
 }
