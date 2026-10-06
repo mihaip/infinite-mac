@@ -3,11 +3,19 @@ import {
     ALL_DISKS,
     DISKS_BY_YEAR,
     FLOPPY_DISKS,
+    INFINITE_HD,
+    INFINITE_HD6,
+    INFINITE_HD_BEOS,
+    INFINITE_HD_NEXT,
+    INFINITE_HDX,
     isPlaceholderDiskDef,
     isSystemDiskDef,
+    SAVED_HD,
     SYSTEM_DISKS_BY_NAME,
     systemDiskName,
+    THE_OUTSIDE_WORLD,
     type DiskFile,
+    type EmulatorDiskDef,
     type SystemDiskDef,
 } from "@/defs/disks";
 import {type EmulatorConfigFlags} from "@/emulator/common/common";
@@ -23,6 +31,7 @@ import {
     type MachineDefRAMSize,
     type MachineDef,
     type MachineScreenSize,
+    machineSupportsSavedHD,
 } from "@/defs/machines";
 
 export type RunDef = {
@@ -116,10 +125,57 @@ export function runDefSupportsFloppies(runDef: RunDef): boolean {
     );
 }
 
+export function runDefSupportsSavedHD(
+    runDef: RunDef,
+    canSaveDisks: boolean
+): boolean {
+    return (
+        runDef.includeSavedHD &&
+        machineSupportsSavedHD(runDef.machine) &&
+        canSaveDisks
+    );
+}
+
 export function runDefSupportedScreenSizes(
     runDef: RunDef
 ): MachineScreenSize[] | undefined {
     return machineSupportedScreenSizes(runDef.machine, runDef.disks[0]?.family);
+}
+
+export function runDefDisks(
+    runDef: RunDef,
+    canSaveDisks: boolean = true
+): EmulatorDiskDef[] {
+    const {disks, machine, bootFromROM} = runDef;
+    const emulatorDisks: EmulatorDiskDef[] = [...disks];
+    if (runDef.includeInfiniteHD && runDefSupportsInfiniteHD(runDef)) {
+        let infiniteHd;
+        if (machine.platform === "NeXT") {
+            infiniteHd = INFINITE_HD_NEXT;
+        } else if (
+            disks[0]?.infiniteHdVariant === "system6" ||
+            (disks.length === 0 && machine.emulatorType === "Mini vMac") ||
+            bootFromROM === true // The Classic boot ROM includes System 6.0.3
+        ) {
+            infiniteHd = INFINITE_HD6;
+        } else if (disks[0]?.family === "macosx") {
+            infiniteHd = INFINITE_HDX;
+        } else if (disks[0]?.family === "beos") {
+            infiniteHd = INFINITE_HD_BEOS;
+        } else {
+            infiniteHd = INFINITE_HD;
+        }
+        if (infiniteHd) {
+            emulatorDisks.push(infiniteHd);
+        }
+    }
+    if (runDefSupportsSavedHD(runDef, canSaveDisks)) {
+        emulatorDisks.push(SAVED_HD);
+    }
+    if (runDefNeedsTheOutsideWorldDisk(runDef)) {
+        emulatorDisks.push(THE_OUTSIDE_WORLD);
+    }
+    return emulatorDisks;
 }
 
 export function runDefFromUrl(urlString: string): RunDef | undefined {

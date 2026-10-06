@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState} from "react";
 import {type EmulatorCDROM} from "@/emulator/common/common";
-import {type RunDef} from "@/defs/run-def";
+import {runDefDisks, type RunDef} from "@/defs/run-def";
 import Mac from "@/app/Mac";
 import {getCDROMInfo} from "@/defs/cdroms";
 
@@ -10,6 +10,12 @@ export type MacLoaderProps = {
 };
 
 export default function MacLoader({runDef, onDone}: MacLoaderProps) {
+    // Prefetch the disk definitions
+    useEffect(() => {
+        runDefDisks(runDef).forEach(disk => disk.generatedSpec?.());
+    }, [runDef]);
+
+    // Load CD-ROMs
     const [cdroms, setCDROMs] = useState<EmulatorCDROM[] | undefined>(
         runDef.cdromURLs.length || runDef.diskURLs?.length ? undefined : []
     );
@@ -48,9 +54,7 @@ export default function MacLoader({runDef, onDone}: MacLoaderProps) {
         runDef.diskPrefetchChunks,
     ]);
     const disks = useMemo(() => {
-        const uniqueDisks = Array.from(new Set(runDef.disks));
-        uniqueDisks.forEach(disk => disk.generatedSpec()); // Prefetch the disk definition
-        return uniqueDisks;
+        return Array.from(new Set(runDef.disks));
     }, [runDef.disks]);
     const dedupedRunDef = useMemo(() => ({...runDef, disks}), [runDef, disks]);
     return cdroms ? (

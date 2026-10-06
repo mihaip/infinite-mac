@@ -28,21 +28,8 @@ import {
 } from "@/controls/ScreenFrame";
 import {MacKeyboard, useMacKeyboard} from "@/app/MacKeyboard";
 import {Dialog} from "@/controls/Dialog";
-import {
-    type EmulatorDiskDef,
-    INFINITE_HD,
-    INFINITE_HD_BEOS,
-    INFINITE_HD_NEXT,
-    INFINITE_HD6,
-    INFINITE_HDX,
-    SAVED_HD,
-    THE_OUTSIDE_WORLD,
-} from "@/defs/disks";
-import {
-    type MachineDef,
-    DEFAULT_SUPPORTED_SCREEN_SIZES,
-    machineSupportsSavedHD,
-} from "@/defs/machines";
+import {SAVED_HD} from "@/defs/disks";
+import {type MachineDef, DEFAULT_SUPPORTED_SCREEN_SIZES} from "@/defs/machines";
 import classNames from "classnames";
 import {MacCDROMs} from "@/app/MacCDROMs";
 import {getCDROMInfo} from "@/defs/cdroms";
@@ -56,15 +43,15 @@ import {
 } from "@/emulator/ui/disk-saver";
 import {emulatorNeedsMouseDeltas} from "@/emulator/common/emulators";
 import {
-    runDefNeedsTheOutsideWorldDisk,
     runDefSupportsBlueSCSI,
     runDefSupportsCDROMs,
     runDefSupportsDownloadsFolder,
     runDefSupportsFloppies,
-    runDefSupportsInfiniteHD,
     runDefSupportedScreenSizes,
     type RunDef,
     type ScreenSize,
+    runDefDisks,
+    runDefSupportsSavedHD,
 } from "@/defs/run-def";
 import {useHotkeys} from "@/lib/useHotkeys";
 import {useScreenRecording} from "@/lib/useScreenRecording";
@@ -116,11 +103,12 @@ export default function Mac({
         flags,
         settings: fixedEmulatorSettings,
     } = runDef;
-    const includeInfiniteHD =
-        runDef.includeInfiniteHD && runDefSupportsInfiniteHD(runDef);
-    const includeSavedHD =
-        runDef.includeSavedHD && machineSupportsSavedHD(runDef.machine);
-    const needsTheOutsideWorldDisk = runDefNeedsTheOutsideWorldDisk(runDef);
+    const canSaveDisksValue = canSaveDisks();
+    const emulatorDisks = useMemo(
+        () => runDefDisks(runDef, canSaveDisksValue),
+        [runDef, canSaveDisksValue]
+    );
+    const hasSavedHD = runDefSupportsSavedHD(runDef, canSaveDisksValue);
     const supportsDownloadsFolder = runDefSupportsDownloadsFolder(runDef);
     const screenRef = useRef<HTMLCanvasElement>(null);
     const [emulatorLoaded, setEmulatorLoaded] = useState(false);
@@ -209,7 +197,6 @@ export default function Mac({
         },
     });
 
-    const hasSavedHD = includeSavedHD && canSaveDisks();
     const listenForControlMessages = Boolean(isEmbed);
 
     const handleMacLibraryProgress = useCallback(
@@ -259,34 +246,6 @@ export default function Mac({
 
     useEffect(() => {
         setEmulatorStats({});
-        const emulatorDisks: EmulatorDiskDef[] = [...disks];
-        if (includeInfiniteHD) {
-            let infiniteHd;
-            if (machine.platform === "NeXT") {
-                infiniteHd = INFINITE_HD_NEXT;
-            } else if (
-                disks[0]?.infiniteHdVariant === "system6" ||
-                (disks.length === 0 && emulatorType === "Mini vMac") ||
-                bootFromROM === true // The Classic boot ROM includes System 6.0.3
-            ) {
-                infiniteHd = INFINITE_HD6;
-            } else if (disks[0]?.family === "macosx") {
-                infiniteHd = INFINITE_HDX;
-            } else if (disks[0]?.family === "beos") {
-                infiniteHd = INFINITE_HD_BEOS;
-            } else {
-                infiniteHd = INFINITE_HD;
-            }
-            if (infiniteHd) {
-                emulatorDisks.push(infiniteHd);
-            }
-        }
-        if (hasSavedHD) {
-            emulatorDisks.push(SAVED_HD);
-        }
-        if (needsTheOutsideWorldDisk) {
-            emulatorDisks.push(THE_OUTSIDE_WORLD);
-        }
         const hasSharedArrayBuffer = typeof SharedArrayBuffer !== "undefined";
         if (!hasSharedArrayBuffer) {
             console.warn(
@@ -566,9 +525,9 @@ export default function Mac({
         };
     }, [
         bootFromROM,
+        emulatorDisks,
         disks,
         diskFiles,
-        includeInfiniteHD,
         cdroms,
         machine,
         emulatorType,
@@ -579,10 +538,8 @@ export default function Mac({
         debugFallback,
         debugPaused,
         flags,
-        hasSavedHD,
         ramSize,
         libraryDownloadURLs,
-        needsTheOutsideWorldDisk,
         supportsDownloadsFolder,
         handleMacLibraryRun,
         handleMacLibraryProgress,
