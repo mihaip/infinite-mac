@@ -523,6 +523,15 @@ BEOS_PR1 = Disk(
     ],
 )
 
+BEOS_PR2 = Disk(
+    name="BeOS PR2 HD.dsk",
+    compressed=True,
+    beos_screen_settings_format="legacy",
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.PR2.HD.dsk.zip"
+    ],
+)
+
 BEOS_R3 = Disk(
     name="BeOS R3 HD.dsk",
     compressed=True,
@@ -656,6 +665,7 @@ ALL_DISKS = [
     BEOS_DR82,
     BEOS_DR83,
     BEOS_PR1,
+    BEOS_PR2,
     BEOS_R3,
     BEOS_R4,
     BEOS_R45,

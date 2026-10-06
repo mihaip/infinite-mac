@@ -2302,15 +2302,18 @@ export const BEOS_PR_1: SystemDiskDef = {
     notable: true,
 };
 
-const BEOS_PR_2: PlaceholderDiskDef = {
+const BEOS_PR_2: SystemDiskDef = {
     family: "beos",
-    type: "placeholder",
     displayName: "BeOS Preview Release 2",
     description:
         "Added HFS read/write support, fixed-frequency display support, compressed archive installation, editable saved queries, and live Tracker columns.",
     releaseDate: [1997, 10, 20],
     preferredMachine: POWER_MACINTOSH_7300,
+    prefetchChunks: [0],
+    preferredRAMSize: "32M",
+    generatedSpec: () => import("@/Data/BeOS PR2 HD.dsk.json"),
     appearance: "BeOS",
+    hasDeviceImageHeader: true,
 };
 
 export const BEOS_R3: SystemDiskDef = {
