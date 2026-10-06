@@ -810,7 +810,7 @@ const MAC_OS_9_0_3: PlaceholderDiskDef = {
 export const MAC_OS_9_0_4: SystemDiskDef = {
     displayName: "Mac OS 9.0.4",
     description:
-        "Bug fixes, final release supported by the SheepShaver emulator.",
+        "Bug fixes for FireWire drivers, Open Transport, and other system components.",
     releaseDate: [2000, 4, 4],
     prefetchChunks: [
         0, 4, 5, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
