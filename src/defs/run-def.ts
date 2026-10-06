@@ -4,6 +4,9 @@ import {
     DISKS_BY_YEAR,
     FLOPPY_DISKS,
     isPlaceholderDiskDef,
+    isSystemDiskDef,
+    SYSTEM_DISKS_BY_NAME,
+    systemDiskName,
     type DiskFile,
     type SystemDiskDef,
 } from "@/defs/disks";
@@ -153,6 +156,9 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
 
     for (const diskName of searchParams.getAll("disk")) {
         const disk =
+            Object.values(SYSTEM_DISKS_BY_NAME).find(
+                disk => systemDiskName(disk) === diskName
+            ) ??
             ALL_DISKS.find(disk => disk.displayName === diskName) ??
             FLOPPY_DISKS.find(disk => disk.displayName === diskName);
         if (disk && !isPlaceholderDiskDef(disk)) {
@@ -329,7 +335,7 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
     } else {
         url = new URL(toEmbed ? "/embed" : "/run", location.href);
         for (const disk of disks) {
-            url.searchParams.append("disk", disk.displayName);
+            url.searchParams.append("disk", systemDiskName(disk));
         }
         if (runDef.includeInfiniteHD) {
             url.searchParams.set("infinite_hd", "true");
@@ -434,10 +440,18 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
 }
 
 function diskToYearPath(disk: SystemDiskDef): string {
-    const year = Object.entries(DISKS_BY_YEAR).find(([year, disks]) =>
-        disks.includes(disk)
-    )?.[0];
-    return `/${year}/${encodeURIComponent(disk.displayName)}`;
+    for (const [year, disks] of Object.entries(DISKS_BY_YEAR)) {
+        if (!disks.includes(disk)) {
+            continue;
+        }
+        // Disambiguate variants of the same disk, but otherwise keep URLs short.
+        const diskTitle =
+            disks.filter(d => d.displayName === disk.displayName).length > 1
+                ? systemDiskName(disk)
+                : disk.displayName;
+        return `/${year}/${encodeURIComponent(diskTitle)}`;
+    }
+    throw new Error(`Disk not found in any year: ${disk.displayName}`);
 }
 
 function diskFromYearPath(pathname: string): SystemDiskDef | undefined {
@@ -454,7 +468,11 @@ function diskFromYearPath(pathname: string): SystemDiskDef | undefined {
         return undefined;
     }
     const diskName = decodeURIComponent(pieces[2]);
-    const disk = disks.find(disk => disk.displayName === diskName);
+    const disk = disks.find(
+        disk =>
+            disk.displayName === diskName ||
+            (isSystemDiskDef(disk) && systemDiskName(disk) === diskName)
+    );
     if (!disk || isPlaceholderDiskDef(disk)) {
         return undefined;
     }
