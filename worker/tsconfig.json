@@ -2,8 +2,7 @@
     "compilerOptions": {
         "target": "ES2020",
         "module": "esnext",
-        "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
-        "jsx": "react-jsx",
+        "lib": ["ES2020"],
         "types": ["@cloudflare/workers-types/latest", "vite/client", "node"],
         "strict": true,
         "moduleResolution": "bundler",
@@ -14,6 +13,8 @@
         "skipLibCheck": true,
         "baseUrl": ".",
         "paths": {
+            "@/defs/run-def": ["./client-imports.d.ts"],
+            "@/app/App": ["./client-imports.d.ts"],
             "@/*": ["../src/*"]
         }
     },

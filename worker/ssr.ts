@@ -5,7 +5,7 @@ import {AsyncLocalStorage} from "node:async_hooks";
 import {type Iso, setIsoProvider} from "@/lib/iso";
 import {runDefFromUrl} from "@/defs/run-def";
 
-export function canRenderSSR(url: URL) {
+export function canRenderSSR(url: URL): boolean {
     const {pathname, searchParams} = url;
     if (searchParams.get("ssr") === "0") {
         return false;
@@ -92,15 +92,14 @@ async function getTemplateHtml(env: Env, url: URL): Promise<string> {
 async function renderAppStream() {
     try {
         // Dynamically import to avoid failing worker startup if SSR breaks.
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: allow importing client entry into worker SSR shim.
-        const {default: App} = (await import("@/app/App")) as {default: any};
+        const {default: App} = await import("@/app/App");
         const vnode = createElement(App, {});
         return await renderToReadableStream(vnode);
     } catch (err) {
         return renderErrorStream(err);
     }
 }
+
 function renderErrorStream(err: unknown) {
     console.error("Error during SSR render:", err);
     const encoder = new TextEncoder();
