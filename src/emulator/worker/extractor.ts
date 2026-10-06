@@ -55,6 +55,7 @@ export function prepareDirectoryExtraction(
     const arrayBuffers: ArrayBufferLike[] = [];
     const extraction: EmulatorWorkerDirectorExtraction = {
         name: dirName,
+        isDirectory: true,
         contents: [],
     };
 
@@ -122,6 +123,7 @@ function extractFile(filePath: string) {
     const arrayBuffers: ArrayBufferLike[] = [];
     const extraction: EmulatorWorkerDirectorExtraction = {
         name: fileName,
+        isDirectory: false,
         contents: [],
     };
 

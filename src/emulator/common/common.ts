@@ -485,7 +485,9 @@ export type EmulatorWorkerDirectorExtractionDirectoryEntry = {
 };
 
 export type EmulatorWorkerDirectorExtraction =
-    EmulatorWorkerDirectorExtractionDirectoryEntry;
+    EmulatorWorkerDirectorExtractionDirectoryEntry & {
+        isDirectory: boolean;
+    };
 
 export const floppyDiskImageExtensions = [
     ".a2r",

@@ -302,41 +302,48 @@ export async function handleDirectoryExtraction(
                     addToZip(
                         depth + 1,
                         zip.folder(entry.name)!,
-                        macosxRoot.folder(entry.name)!,
+                        macosxZip.folder(entry.name)!,
                         entry.contents
                     );
                 }
-
-                for (const name of new Set([
-                    ...rsrcByName.keys(),
-                    ...finfByName.keys(),
-                ])) {
-                    const content = buildAppleDouble(
-                        finfByName.get(name),
-                        rsrcByName.get(name)
-                    )!;
-                    macosxZip.file("._" + name, content);
-                }
-            } else if (entry.name === "DInfo") {
-                if (depth === 0) {
-                    const content = buildAppleDouble(
-                        entry.contents,
-                        undefined
-                    )!;
-                    macosxZip.file("._" + extraction.name, content);
-                } else {
-                    console.warn(
-                        "Ignoring unexpected DInfo outside root",
-                        entry
-                    );
+            } else if (
+                entry.name === "DInfo" &&
+                depth === 0 &&
+                extraction.isDirectory
+            ) {
+                const content = buildAppleDouble(entry.contents, undefined);
+                if (content) {
+                    macosxRoot.file("._" + extraction.name, content);
                 }
             } else {
                 zip.file(entry.name, entry.contents);
             }
         }
+
+        for (const name of new Set([
+            ...rsrcByName.keys(),
+            ...finfByName.keys(),
+        ])) {
+            const content = buildAppleDouble(
+                finfByName.get(name),
+                rsrcByName.get(name)
+            );
+            if (content) {
+                macosxZip.file("._" + name, content);
+            }
+        }
     }
 
-    addToZip(0, zip, macosxRoot, extraction.contents);
+    // Keep the folder in the archive so its Finder info lives alongside the
+    // folder, rather than colliding with a same-named file inside it.
+    addToZip(
+        0,
+        extraction.isDirectory ? zip.folder(extraction.name)! : zip,
+        extraction.isDirectory
+            ? macosxRoot.folder(extraction.name)!
+            : macosxRoot,
+        extraction.contents
+    );
 
     const zipBlob = await zip.generateAsync({
         compression: "DEFLATE",
