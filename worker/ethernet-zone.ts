@@ -100,12 +100,13 @@ export class EthernetZone extends DurableObject {
                                     err,
                                     {destination, macAddress: client.macAddress}
                                 );
-                                this.webSocketClose(
-                                    clientWs,
-                                    1011,
-                                    "Error sending message",
-                                    false
-                                );
+                                this.#clients.delete(clientWs);
+                                if (clientWs.readyState !== WebSocket.CLOSED) {
+                                    clientWs.close(
+                                        1011, // Internal error
+                                        "Error sending message"
+                                    );
+                                }
                             }
                         }
                     }
@@ -124,13 +125,27 @@ export class EthernetZone extends DurableObject {
         wasClean: boolean
     ) {
         this.#clients.delete(ws);
-        ws.close(code, "Durable Object is closing WebSocket");
+        // 1006 means the peer disconnected without a Close frame, so there is
+        // no handshake to complete. Already closed sockets need no reply either.
+        if (code === 1006 || ws.readyState === WebSocket.CLOSED) {
+            return;
+        }
+        // Our compatibility date requires manually acknowledging peer closes.
+        // 1005 means an empty Close frame; close() echoes it without sending the
+        // reserved status code (or a reason, which requires a status code).
+        if (code === 1005) {
+            ws.close();
+        } else {
+            ws.close(code, reason);
+        }
     }
 
     override async webSocketError(ws: WebSocket, error: unknown) {
         console.error("Ethernet WebSocket error:", error, {
             macAddress: this.#clients.get(ws)?.macAddress,
         });
+        // Error events can arrive without a close callback.
+        this.#clients.delete(ws);
     }
 }
 
