@@ -221,6 +221,11 @@ async function fetchMetadata(
         if (!isHTTPSUrl(srcUrl)) {
             throw new Error("Unexpected CD-ROM redirect URL");
         }
+        console.log({
+            feature: "cd-rom",
+            type: "fetchMetadata",
+            srcUrl,
+        });
         const response = await fetch(srcUrl, {
             method: "HEAD",
             headers: {
@@ -261,6 +266,13 @@ async function fetchChunk(
                       cacheTtl: 30 * 24 * 60 * 60,
                   },
               };
+    console.log({
+        feature: "cd-rom",
+        type: "fetchChunk",
+        srcUrl: spec.srcUrl,
+        chunkStart,
+        chunkEnd,
+    });
     const srcRes = await fetch(spec.srcUrl, {
         headers: {
             "User-Agent": "Infinite Mac (+https://infinitemac.org)",
@@ -333,6 +345,13 @@ async function fetchLocalMediaChunk(
     // Locally we don't have a R2 bucket configured, serve files directly
     // from the build directory (where import-cd-roms.py puts them).
     const mediaUrl = new URL(`/CD-ROMs/build/${r2MediaKey(spec)}`, requestUrl);
+    console.log({
+        feature: "cd-rom",
+        type: "fetchLocalMediaChunk",
+        srcUrl: spec.srcUrl,
+        chunkStart,
+        chunkEnd,
+    });
     const response = await fetch(mediaUrl, {
         headers: {Range: `bytes=${chunkStart}-${chunkEnd - 1}`},
     });
