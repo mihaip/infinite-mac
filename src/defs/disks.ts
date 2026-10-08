@@ -789,6 +789,7 @@ const MAC_OS_9_0_1: PlaceholderDiskDef = {
     description: "Under development but never released.",
     releaseDate: [2000, 1, 1], // Planned release date unknown
     preferredMachine: POWER_MACINTOSH_G3_BW,
+    appearance: "Platinum",
 };
 
 const MAC_OS_9_0_2: PlaceholderDiskDef = {
@@ -797,6 +798,7 @@ const MAC_OS_9_0_2: PlaceholderDiskDef = {
     description: "Released with the PowerBook G3 (FireWire) only.",
     releaseDate: [2000, 2, 16],
     preferredMachine: POWER_MACINTOSH_G3_BW,
+    appearance: "Platinum",
 };
 
 const MAC_OS_9_0_3: PlaceholderDiskDef = {
@@ -805,6 +807,7 @@ const MAC_OS_9_0_3: PlaceholderDiskDef = {
     description: "Released with iMacs only.",
     releaseDate: [2000, 3, 1], // Exact date unknown
     preferredMachine: POWER_MACINTOSH_G3_BW,
+    appearance: "Platinum",
 };
 
 export const MAC_OS_9_0_4: SystemDiskDef = {
@@ -877,6 +880,7 @@ const MAC_OS_9_2: PlaceholderDiskDef = {
         "Improved performance. Only distributed with mid-2001 G4 (QuickSilver) Power Macs.",
     releaseDate: [2001, 7, 18],
     preferredMachine: POWER_MACINTOSH_G3_BEIGE,
+    appearance: "Platinum",
 };
 
 const MAC_OS_9_2_1: PlaceholderDiskDef = {
@@ -885,6 +889,7 @@ const MAC_OS_9_2_1: PlaceholderDiskDef = {
     description: "Improved Classic application compatibility under Mac OS X.",
     releaseDate: [2001, 8, 21],
     preferredMachine: POWER_MACINTOSH_G3_BEIGE,
+    appearance: "Platinum",
 };
 
 export const MAC_OS_9_2_2: SystemDiskDef = {
@@ -2695,28 +2700,7 @@ export function systemDiskName(disk: SystemDiskDef) {
     );
 }
 
-export const NOTABLE_DISKS: SystemDiskDef[] = [];
-export const NEXT_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
-export const MAC_OS_X_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
-export const AUX_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
-export const BEOS_DISKS: (SystemDiskDef | PlaceholderDiskDef)[] = [];
-
 export const DISKS_BY_YEAR: {
-    [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
-} = {};
-export const NOTABLE_DISKS_BY_YEAR: {
-    [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
-} = {};
-export const NEXT_DISKS_BY_YEAR: {
-    [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
-} = {};
-export const MAC_OS_X_DISKS_BY_YEAR: {
-    [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
-} = {};
-export const AUX_DISKS_BY_YEAR: {
-    [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
-} = {};
-export const BEOS_DISKS_BY_YEAR: {
     [year: number]: (SystemDiskDef | PlaceholderDiskDef)[];
 } = {};
 
@@ -2726,31 +2710,6 @@ ALL_DISKS.forEach(disk => {
         DISKS_BY_YEAR[year] = [];
     }
     DISKS_BY_YEAR[year].push(disk);
-    const addDisk = (
-        allDisks: typeof ALL_DISKS,
-        disksByYear: typeof DISKS_BY_YEAR
-    ) => {
-        allDisks.push(disk);
-        if (!disksByYear[year]) {
-            disksByYear[year] = [];
-        }
-        disksByYear[year].push(disk);
-    };
-    if ("notable" in disk && disk.notable) {
-        addDisk(NOTABLE_DISKS, NOTABLE_DISKS_BY_YEAR);
-    }
-    if (disk.family === "next") {
-        addDisk(NEXT_DISKS, NEXT_DISKS_BY_YEAR);
-    }
-    if (disk.family === "macosx") {
-        addDisk(MAC_OS_X_DISKS, MAC_OS_X_DISKS_BY_YEAR);
-    }
-    if (disk.family === "aux") {
-        addDisk(AUX_DISKS, AUX_DISKS_BY_YEAR);
-    }
-    if (disk.family === "beos") {
-        addDisk(BEOS_DISKS, BEOS_DISKS_BY_YEAR);
-    }
 });
 
 export const INFINITE_HD: EmulatorDiskDef = {

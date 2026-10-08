@@ -1,23 +1,11 @@
 import {
     type SystemDiskDef,
     type PlaceholderDiskDef,
-    DISKS_BY_YEAR,
-    NOTABLE_DISKS_BY_YEAR,
     isPlaceholderDiskDef,
-    NOTABLE_DISKS,
-    ALL_DISKS,
-    NEXT_DISKS,
-    NEXT_DISKS_BY_YEAR,
-    MAC_OS_X_DISKS,
-    MAC_OS_X_DISKS_BY_YEAR,
-    AUX_DISKS,
-    AUX_DISKS_BY_YEAR,
-    BEOS_DISKS,
-    BEOS_DISKS_BY_YEAR,
 } from "@/defs/disks";
 import {type MachineDef} from "@/defs/machines";
 import {ScreenFrame} from "@/controls/ScreenFrame";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {Button} from "@/controls/Button";
 import {About} from "@/app/About";
 import {Donate} from "@/app/Donate";
@@ -27,9 +15,13 @@ import {type RunDef} from "@/defs/run-def";
 import {Custom} from "@/app/Custom";
 import classNames from "classnames";
 import {canSaveDisks} from "@/lib/canSaveDisks";
-import {useIsoPersistentState} from "@/lib/useIsoPersistentState";
 import {viewTransitionNameForDisk} from "@/lib/view-transitions";
-import {AppearanceProvider} from "@/controls/Appearance";
+import {type Appearance, AppearanceProvider} from "@/controls/Appearance";
+import {
+    BrowserDiskFilter,
+    browserDisks,
+    useBrowserDiskFilter,
+} from "@/app/BrowserDiskFilter";
 import {Embed} from "@/app/Embed";
 import {EmbedDocs} from "@/app/EmbedDocs";
 import {iso} from "@/lib/iso";
@@ -44,11 +36,12 @@ export function Browser({
     onRun: BrowserRunFn;
     initialCustomRunDef?: RunDef;
 }) {
-    const [diskFilter, setDiskFilter] = useDiskFilter();
-    const {byYear: disksByYear} = disks()[diskFilter];
+    const [diskFilter, setDiskFilter] = useBrowserDiskFilter();
+    const {byYear: disksByYear} = browserDisks()[diskFilter];
+    const browserRef = useRef<HTMLDivElement>(null);
 
     return (
-        <div className="Browser">
+        <div className="Browser" ref={browserRef}>
             <header>
                 <div className="Logo">
                     <h1>Infinite Mac</h1>
@@ -59,7 +52,11 @@ export function Browser({
                 />
             </header>
             <div className="Disks-Container">
-                <DiskFilters value={diskFilter} onChange={setDiskFilter} />
+                <BrowserDiskFilter
+                    value={diskFilter}
+                    onChange={setDiskFilter}
+                    browserRef={browserRef}
+                />
                 {Array.from(Object.entries(disksByYear), ([year, disks]) => (
                     <div className="Year" key={year}>
                         <h2>{year}</h2>
@@ -183,131 +180,6 @@ function Description({
     );
 }
 
-function disks() {
-    const beosLaunched = isBeOSLaunched();
-    return {
-        "all": {
-            label: "All",
-            all: beosLaunched
-                ? ALL_DISKS
-                : ALL_DISKS.filter(d => d.family !== "beos"),
-            byYear: beosLaunched
-                ? DISKS_BY_YEAR
-                : Object.fromEntries(
-                      Object.entries(DISKS_BY_YEAR).map(([year, disks]) => [
-                          year,
-                          disks.filter(d => d.family !== "beos"),
-                      ])
-                  ),
-        },
-        "notable": {
-            label: "Notable",
-            all: beosLaunched
-                ? NOTABLE_DISKS
-                : NOTABLE_DISKS.filter(d => d.family !== "beos"),
-            byYear: beosLaunched
-                ? NOTABLE_DISKS_BY_YEAR
-                : Object.fromEntries(
-                      Object.entries(NOTABLE_DISKS_BY_YEAR).map(
-                          ([year, disks]) => [
-                              year,
-                              disks.filter(d => d.family !== "beos"),
-                          ]
-                      )
-                  ),
-        },
-        "aux": {
-            label: "A/UX",
-            all: AUX_DISKS,
-            byYear: AUX_DISKS_BY_YEAR,
-        },
-        "next": {label: "NeXT", all: NEXT_DISKS, byYear: NEXT_DISKS_BY_YEAR},
-        "beos": {
-            label: "BeOS",
-            all: beosLaunched ? BEOS_DISKS : [],
-            byYear: beosLaunched ? BEOS_DISKS_BY_YEAR : {},
-        },
-        "macosx": {
-            label: "Mac OS X",
-            all: MAC_OS_X_DISKS,
-            byYear: MAC_OS_X_DISKS_BY_YEAR,
-        },
-    };
-}
-type DiskFilter = keyof ReturnType<typeof disks>;
-
-function useDiskFilter() {
-    const filterParam = iso().location.searchParams.get("filter");
-    let defaultValue: DiskFilter = "notable";
-    let useClientState = false;
-    // If using query params, we go into a temporary client state.
-    if (filterParam && filterParam.toLowerCase() in disks()) {
-        defaultValue = filterParam as DiskFilter;
-        useClientState = true;
-    }
-
-    const clientState = useState<DiskFilter>(defaultValue);
-    const persistentState = useIsoPersistentState<DiskFilter>(
-        defaultValue,
-        "diskFilter"
-    );
-    return useClientState ? clientState : persistentState;
-}
-
-function DiskFilters({
-    value,
-    onChange,
-}: {
-    value: DiskFilter;
-    onChange: (v: DiskFilter) => void;
-}) {
-    return (
-        <div className="Disk-Filters-Container">
-            <div className="Disk-Filters">
-                <span className="Disk-Filters-Label">Releases:</span>
-                {Object.entries(disks()).map(
-                    ([filter, {label, all}]) =>
-                        all.length > 0 && (
-                            <DiskFiltersButton
-                                key={filter}
-                                onClick={() => onChange(filter as DiskFilter)}
-                                selected={filter === value}
-                                label={label}
-                                count={all.length}
-                            />
-                        )
-                )}
-            </div>
-        </div>
-    );
-}
-
-function DiskFiltersButton({
-    onClick,
-    selected,
-    label,
-    count,
-}: {
-    onClick: () => void;
-    selected: boolean;
-    label: string;
-    count: number;
-}) {
-    return (
-        <button
-            onClick={onClick}
-            className={classNames("Disk-Filters-Button", {
-                "selected": selected,
-            })}>
-            <span className="name-container">
-                <span className="name">{label}</span>
-                <span className="name-sizer">{label}</span>
-            </span>{" "}
-            <span className="count">({count})</span>
-        </button>
-    );
-}
-
 type DiskProps = {
     disk: SystemDiskDef | PlaceholderDiskDef;
     onRun: BrowserRunFn;
@@ -328,6 +200,7 @@ function Disk({disk, onRun}: DiskProps) {
     return (
         <DiskFrame
             bezelStyle={bezelStyle}
+            appearance={disk.appearance ?? "Classic"}
             viewTransitionName={viewTransitionNameForDisk(disk)}
             screen={
                 isPlaceholderDiskDef(disk) ? (
@@ -342,10 +215,12 @@ function Disk({disk, onRun}: DiskProps) {
 
 function DiskFrame({
     bezelStyle,
+    appearance,
     screen,
     viewTransitionName,
 }: {
     bezelStyle: MachineDef["bezelStyle"];
+    appearance?: Appearance;
     screen: React.ReactElement;
     viewTransitionName?: string;
 }) {
@@ -360,6 +235,9 @@ function DiskFrame({
     return (
         <ScreenFrame
             className="Disk"
+            // Add appearance as data attribute so that useDiskFilterAppearance
+            // can find it.
+            data-appearance={appearance}
             bezelStyle={bezelStyle}
             width={screenWidth}
             height={screenHeight}
