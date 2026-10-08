@@ -44,6 +44,19 @@ if [ ! -f "${EMULATOR_DIR}/${EMULATOR}.wasm" ]; then
     exit
 fi
 
+# Check the linked JS for missing dependencies before importing any files.
+# Use stdin with a .js filename because some emulator outputs have no extension.
+# Allow host APIs and Emscripten's optional, typeof-guarded Browser/GL/SDL helpers.
+"${ROOT_DIR}/node_modules/.bin/eslint" \
+    --no-config-lookup --no-ignore \
+    --rule 'no-undef: error' \
+    --global workerApi,Browser,GL,SDL \
+    --global Audio,Blob,Element,Image,TextDecoder,TextEncoder,URL,WebAssembly,WebSocket,XMLHttpRequest \
+    --global console,crypto,document,fetch,navigator,performance,screen,window \
+    --global clearInterval,clearTimeout,setInterval,setTimeout,process \
+    --stdin --stdin-filename "${EMULATOR}.js" \
+    < "${EMULATOR_DIR}/${EMULATOR}${JS_EXTENSION}" || exit $?
+
 mkdir -p "${EMULATOR_DESTINATION_DIR}"
 # Build output
 cp "${EMULATOR_DIR}/${EMULATOR}${JS_EXTENSION}" "${EMULATOR_DESTINATION_DIR}/${EMULATOR}.js"
