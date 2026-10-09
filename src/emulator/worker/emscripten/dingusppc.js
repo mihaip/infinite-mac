@@ -4820,31 +4820,31 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 var ASM_CONSTS = {
-  200480: $0 => {
+  200608: $0 => {
     workerApi.setAbortError(UTF8ToString($0));
   },
-  200527: () => workerApi.acquireInputLock(),
-  200568: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
-  200657: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr),
-  200747: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
-  200837: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
-  200921: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
-  201005: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
-  201092: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
-  201179: () => {
+  200655: () => workerApi.acquireInputLock(),
+  200696: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
+  200785: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButton2StateAddr),
+  200875: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
+  200965: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
+  201049: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
+  201133: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
+  201220: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
+  201307: () => {
     workerApi.releaseInputLock();
   },
-  201213: () => {
+  201341: () => {
     workerApi.sleep(0);
   },
-  201237: () => workerApi.acquireInputLock(),
-  201278: () => {
+  201365: () => workerApi.acquireInputLock(),
+  201406: () => {
     workerApi.releaseInputLock();
   },
-  201312: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
-  201397: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
-  201477: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
-  201558: () => {
+  201440: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
+  201525: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
+  201605: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
+  201686: () => {
     const name = workerApi.disks.consumeCdromName();
     if (!name) {
       return 0;
@@ -4854,35 +4854,35 @@ var ASM_CONSTS = {
     stringToUTF8(name, name_cstr, name_length);
     return name_cstr;
   },
-  201785: $0 => {
+  201913: $0 => {
     workerApi.reportError(UTF8ToString($0));
   },
-  201830: ($0, $1, $2, $3) => {
+  201958: ($0, $1, $2, $3) => {
     workerApi.didOpenAudio($0, $1, $2, $3);
   },
-  201874: () => workerApi.audioBufferSize(),
-  201914: ($0, $1) => {
+  202002: () => workerApi.audioBufferSize(),
+  202042: ($0, $1) => {
     workerApi.enqueueAudio($0, $1);
   },
-  201950: ($0, $1) => {
+  202078: ($0, $1) => {
     workerApi.didOpenVideo($0, $1);
   },
-  201986: ($0, $1) => {
+  202114: ($0, $1) => {
     workerApi.blit($0, $1);
   },
-  202014: ($0, $1) => {
+  202142: ($0, $1) => {
     workerApi.blit($0, $1);
   },
-  202042: () => {
+  202170: () => {
     workerApi.blit(0, 0);
   },
-  202068: $0 => workerApi.disks.open(UTF8ToString($0)),
-  202119: $0 => {
+  202196: $0 => workerApi.disks.open(UTF8ToString($0)),
+  202247: $0 => {
     workerApi.disks.close($0);
   },
-  202150: $0 => workerApi.disks.size($0),
-  202187: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
-  202236: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3)
+  202278: $0 => workerApi.disks.size($0),
+  202315: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
+  202364: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3)
 };
 
 // Imports from the Wasm binary.
@@ -4935,6 +4935,7 @@ var wasmImports = {
   /** @export */ emscripten_asm_const_double: _emscripten_asm_const_double,
   /** @export */ emscripten_asm_const_int: _emscripten_asm_const_int,
   /** @export */ emscripten_asm_const_ptr: _emscripten_asm_const_ptr,
+  /** @export */ emscripten_get_now: _emscripten_get_now,
   /** @export */ emscripten_resize_heap: _emscripten_resize_heap,
   /** @export */ environ_get: _environ_get,
   /** @export */ environ_sizes_get: _environ_sizes_get,
