@@ -2,8 +2,6 @@
 
 Infinite Mac is a web-based multi-emulator platform for running classic Macintosh operating systems and software in a browser using WebAssembly. See README.md for more information about the project, including build and development instructions.
 
-## Working with specific emulator cores
+## Working with emulator cores
 
-### Snow
-
-When working with the Snow emulator (any file in the `snow/` directory), reference the snow/AGENTS.md file before doing anything else.
+When working with emulators that live in Git submodules (e.g. `macemu/` for Baslisk II and SheepShaver, `dingusppc/` for DingusPPC, `snow/` for Snow, etc.), reference the `AGENTS.md` file in the respective submodule before doing anything else.
