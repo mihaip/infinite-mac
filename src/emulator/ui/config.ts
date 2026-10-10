@@ -117,6 +117,10 @@ export function configToDingusPPCArgs(
     }
 ): string[] {
     const args = ["--bootrom", romFileName];
+    const bootDisk = config.disks[0];
+    if (bootDisk && isSystemDiskDef(bootDisk) && bootDisk.preferredRealtime) {
+        args.push("--realtime");
+    }
     if (config.flags.blueSCSI) {
         args.push("--bluescsi_dir", "/Shared/Downloads");
         args.push("--bluescsi_send_dir", "/Shared/Uploads");

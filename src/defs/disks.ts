@@ -61,6 +61,8 @@ export type SystemDiskDef = EmulatorDiskDef & {
     description: string;
     preferredMachine: MachineDef;
     preferredRAMSize?: MachineDefRAMSize;
+    // Use host time for DingusPPC timers to keep guest input timing reliable.
+    preferredRealtime?: boolean;
     appleTalkSupported?: boolean;
     infiniteHdVariant?: "none" | "system6";
     supportsCDROMs?: boolean;
@@ -2226,6 +2228,7 @@ const AUX_3_1_1: PlaceholderDiskDef = {
 
 export const BEOS_DR8_2: SystemDiskDef = {
     family: "beos",
+    preferredRealtime: true,
     displayName: "BeOS DR8.2",
     description:
         "First developer release for the Power Macintosh. Brought a multi-tasking, multi-threading, object-oriented operating system focused on multimedia applications to Apple's hardware.",
@@ -2256,6 +2259,7 @@ export const BEOS_DR8_2: SystemDiskDef = {
 
 export const BEOS_DR8_3: SystemDiskDef = {
     family: "beos",
+    preferredRealtime: true,
     displayName: "BeOS DR8.3",
     description:
         "Power Macintosh-only update removing the DR8.2 expiration and adding multiprocessing, PPP, serial support, and a replacement font renderer.",
@@ -2284,6 +2288,7 @@ export const BEOS_DR8_3: SystemDiskDef = {
 
 export const BEOS_PR_1: SystemDiskDef = {
     family: "beos",
+    preferredRealtime: true,
     displayName: "BeOS Preview Release 1",
     description:
         "First general public release, with a new 64-bit journaling BFS file system, OpenGL and other graphics capabilities, and Tracker desktop, HFS access, Replicants object model, Unicode support, improved networking, and support for more PCI Macs and clones.",
@@ -2309,6 +2314,7 @@ export const BEOS_PR_1: SystemDiskDef = {
 
 const BEOS_PR_2: SystemDiskDef = {
     family: "beos",
+    preferredRealtime: true,
     displayName: "BeOS Preview Release 2",
     description:
         "Added HFS read/write support, fixed-frequency display support, compressed archive installation, editable saved queries, and live Tracker columns.",
@@ -2323,6 +2329,7 @@ const BEOS_PR_2: SystemDiskDef = {
 
 export const BEOS_R3: SystemDiskDef = {
     family: "beos",
+    preferredRealtime: true,
     displayName: "BeOS Release 3",
     description:
         "Added support for the Intel architecture. Tracker improvements, including “Open With”, scripting, and more find options. Added the Translation Kit, slider and tab controls to Interface Kit. Added DiskProbe and ShowImage, improved NetPositive and other apps.",
@@ -2371,6 +2378,7 @@ const BEOS_R3_2: PlaceholderDiskDef = {
 
 export const BEOS_R4: SystemDiskDef = {
     family: "beos",
+    preferredRealtime: true,
     displayName: "BeOS Release 4",
     description:
         "Introduced the streaming Media Kit, Japanese input support, improved Tracker and networking, and revised driver interfaces.",
@@ -2413,6 +2421,7 @@ export const BEOS_R4: SystemDiskDef = {
 
 export const BEOS_R4_5: SystemDiskDef = {
     family: "beos",
+    preferredRealtime: true,
     displayName: "BeOS Release 4.5",
     description:
         "Media Kit-focused release, with support for new media formats and codecs, and new MediaPlayer, Camera, SoundRecorder and TV applications. Also added SSL and JavaScript support to NetPositive, improved Zip support in Tracker, and added a new printing system.",
@@ -2471,6 +2480,7 @@ const BEOS_R4_5_2: PlaceholderDiskDef = {
 
 export const BEOS_R5: SystemDiskDef = {
     family: "beos",
+    preferredRealtime: true,
     displayName: "BeOS 5",
     displaySubtitle: "Pro Edition",
     description:
@@ -2506,6 +2516,7 @@ export const BEOS_R5: SystemDiskDef = {
 
 export const BEOS_R5_0_1: SystemDiskDef = {
     family: "beos",
+    preferredRealtime: true,
     displayName: "BeOS 5.0.1",
     displaySubtitle: "Pro Edition",
     description:
@@ -2540,6 +2551,7 @@ export const BEOS_R5_0_1: SystemDiskDef = {
 
 export const BEOS_R5_0_3: SystemDiskDef = {
     family: "beos",
+    preferredRealtime: true,
     displayName: "BeOS 5.0.3",
     displaySubtitle: "Pro Edition",
     description:
