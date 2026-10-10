@@ -92,7 +92,7 @@ function isModifierKey(code: string): code is ModifierKey {
 
 type MacKeyboardKeyProps = {
     label: React.ReactNode;
-    onPointerDown: (e: React.PointerEvent) => void;
+    onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => void;
     active?: boolean;
     special?: boolean;
     modifier?: boolean;
@@ -360,27 +360,57 @@ export function MacKeyboard({
         new Set()
     );
     const [showNumbers, setShowNumbers] = useState(false);
-    const activeKeysRef = useRef<Set<string>>(new Set());
+    const activePointersRef = useRef(new Map<number, string>()); // Map from pointer ID to pressed key code
     const {setIsKeyboardVisible} = useMacKeyboard();
 
-    const handleKeyPress = useCallback(
-        (code: string) => {
-            // Prevent duplicate key events
-            if (activeKeysRef.current.has(code)) {
+    useEffect(() => {
+        const activePointers = activePointersRef.current;
+        const releasePointer = (e: PointerEvent) => {
+            const code = activePointers.get(e.pointerId);
+            if (!code) {
                 return;
             }
-            activeKeysRef.current.add(code);
-            onKeyDown(code);
+            activePointers.delete(e.pointerId);
+            if (!Array.from(activePointers.values()).includes(code)) {
+                onKeyUp(code);
+            }
+        };
+        const releaseAllKeys = () => {
+            const codes = new Set(activePointers.values());
+            activePointers.clear();
+            for (const code of codes) {
+                onKeyUp(code);
+            }
+        };
 
-            // Auto-release non-modifier keys after a short delay
-            setTimeout(() => {
-                if (activeKeysRef.current.has(code)) {
-                    activeKeysRef.current.delete(code);
-                    onKeyUp(code);
-                }
-            }, 100);
+        // Listen on the window so releases still work if a layout change
+        // removes the key that originally captured the pointer.
+        window.addEventListener("pointerup", releasePointer);
+        window.addEventListener("pointercancel", releasePointer);
+        window.addEventListener("lostpointercapture", releasePointer);
+        window.addEventListener("blur", releaseAllKeys);
+        return () => {
+            window.removeEventListener("pointerup", releasePointer);
+            window.removeEventListener("pointercancel", releasePointer);
+            window.removeEventListener("lostpointercapture", releasePointer);
+            window.removeEventListener("blur", releaseAllKeys);
+            releaseAllKeys();
+        };
+    }, [onKeyUp]);
+
+    const handleKeyPress = useCallback(
+        (code: string, e: React.PointerEvent<HTMLButtonElement>) => {
+            // Keep receiving pointer events even if the pointer leaves the key.
+            e.currentTarget.setPointerCapture(e.pointerId);
+            const alreadyPressed = Array.from(
+                activePointersRef.current.values()
+            ).includes(code);
+            activePointersRef.current.set(e.pointerId, code);
+            if (!alreadyPressed) {
+                onKeyDown(code);
+            }
         },
-        [onKeyDown, onKeyUp]
+        [onKeyDown]
     );
 
     const handleModifierToggle = useCallback(
@@ -425,7 +455,7 @@ export function MacKeyboard({
                   ? shiftLabel
                   : label;
 
-        let handler: () => void;
+        let handler: (e: React.PointerEvent<HTMLButtonElement>) => void;
         if (action === "toggle_numbers") {
             handler = () => setShowNumbers(prev => !prev);
         } else if (action === "hide_keyboard") {
@@ -447,7 +477,7 @@ export function MacKeyboard({
                 active={active}
                 onPointerDown={e => {
                     e.preventDefault();
-                    handler();
+                    handler(e);
                 }}
                 special={keyDef.special}
                 modifier={isModifierKey(code)}
