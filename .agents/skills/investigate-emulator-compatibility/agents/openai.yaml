@@ -1,0 +1,3 @@
+interface:
+  display_name: "Investigate Emulator Compatibility"
+  short_description: "Reproduce and trace Infinite Mac compatibility bugs"
