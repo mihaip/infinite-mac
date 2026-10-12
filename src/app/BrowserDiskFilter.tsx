@@ -55,16 +55,24 @@ export function useBrowserDiskFilter() {
     const filterParam = iso().location.searchParams.get("filter");
     let defaultValue: DiskFilter = "notable";
     let useClientState = false;
-    // If using query params, we go into a temporary client state.
+    // If using query params, we go into a temporary client state. Query params
+    // are are not case-sensitive, since they may be hand-entered.
     if (filterParam && filterParam.toLowerCase() in browserDisks()) {
-        defaultValue = filterParam as DiskFilter;
+        defaultValue = filterParam.toLowerCase() as DiskFilter;
         useClientState = true;
     }
 
     const clientState = useState<DiskFilter>(defaultValue);
     const persistentState = useIsoPersistentState<DiskFilter>(
         defaultValue,
-        "diskFilter"
+        "diskFilter",
+        {
+            validator(value) {
+                // Persisted state should have come from us, so use stricter
+                // validation.
+                return value in browserDisks();
+            },
+        }
     );
     return useClientState ? clientState : persistentState;
 }

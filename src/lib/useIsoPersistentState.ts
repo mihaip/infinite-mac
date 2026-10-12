@@ -9,7 +9,13 @@ import {iso} from "@/lib/iso";
 export function useIsoPersistentState<T>(
     defaultValue: T,
     key: string,
-    onValueChange?: () => void
+    {
+        onValueChange,
+        validator,
+    }: {
+        onValueChange?: () => void;
+        validator?: (value: T) => boolean;
+    } = {}
 ): [T, Dispatch<SetStateAction<T>>] {
     const [value, setValue] = useState(() => {
         try {
@@ -22,7 +28,11 @@ export function useIsoPersistentState<T>(
             if (cookieValue === undefined) {
                 return defaultValue;
             }
-            return JSON.parse(cookieValue) as T;
+            const parsedValue = JSON.parse(cookieValue) as T;
+            if (validator && !validator(parsedValue)) {
+                return defaultValue;
+            }
+            return parsedValue;
         } catch (err) {
             console.warn("Could not parse persistent state", err);
             return defaultValue;
