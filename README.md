@@ -53,6 +53,7 @@ Common development tasks, all done via `npm run`:
     - Both emulators need to be manually and cleanly shut down and quit once they have successfully mounted Infinite HD.
 - `import-cd-roms`: Build CD-ROM and floppy libraries (most CD-ROMs are hosted on other sites, while floppies and local media are self-hosted)
     - `placeholder` may be passed in as an argument to make an empty CD-ROM library
+    - CD-ROM manifests may opt into self-hosting with `"self_hosted": true`. This also allows post-processing to extract items from compressed disks (see the `src_member` manifest option).
     - `--sync-media` may be passed in to sync self-hosted media files to the Cloudflare R2 bucket (this is separate from the disk image sync process done by `sync-disks.sh`)
 - `import-library`: Build downloads library (actual downloads are hosted on macintoshgarden.org and other sites, the library contains metadata)
     - `placeholder` may be passed in as an argument to make the script generate a minimal library that does not depend on a Macintosh Garden data dump.

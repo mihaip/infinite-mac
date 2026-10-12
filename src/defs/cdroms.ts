@@ -61,7 +61,7 @@ export function systemCDROMCompare(a: EmulatorCDROM, b: EmulatorCDROM) {
 }
 export async function getCDROMInfo(url: string): Promise<EmulatorCDROM> {
     const libraryCDROM = Object.values(cdromLibrary).find(
-        cdrom => cdrom.srcUrl === url
+        cdrom => cdrom.srcUrl === url || cdrom.originalSrcUrl === url
     );
     if (libraryCDROM) {
         return libraryCDROM;

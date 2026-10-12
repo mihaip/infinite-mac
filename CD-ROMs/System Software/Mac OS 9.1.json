@@ -1,4 +1,5 @@
 {
+    "self_hosted": true,
     "src_url": "https://archive.org/download/mac-os-9.1/Mac%20OS%209.1.toast",
     "cover_image": "http://mattjfuller.com/wp-content/uploads/2020/05/DSC_0966.jpg",
     "cover_image_inset": [301, 332, 361, 339]

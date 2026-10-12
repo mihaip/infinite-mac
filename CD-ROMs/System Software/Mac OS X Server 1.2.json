@@ -1,4 +1,5 @@
 {
+    "self_hosted": true,
     "src_url": "https://archive.org/download/mac-os-x-server-1.2/Mac%20OS%20X%20Server%201.2.iso",
     "cover_image": "https://archive.org/download/mac-os-x-server-1.2/Mac%20OS%20X%20Server%201.2.jpg",
     "cover_image_inset": 44

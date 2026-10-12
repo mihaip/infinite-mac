@@ -569,6 +569,7 @@ export const ETHERNET_PONG_PACKET_LENGTH =
 export type EmulatorCDROM = {
     name: string;
     srcUrl: string;
+    originalSrcUrl?: string;
     srcExtension?: string;
     fileSize: number;
     coverImageHash?: string;

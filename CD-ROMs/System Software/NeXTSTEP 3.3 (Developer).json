@@ -1,4 +1,5 @@
 {
+    "self_hosted": true,
     "src_url": "https://archive.org/download/NeXTSTEP33CISC/NeXTSTEP_3.3_Developer.iso",
     "cover_image": "https://archive.org/download/NeXTSTEP33CISC/NeXTSTEP%20CD%20Folio.JPG",
     "cover_image_inset": 35,

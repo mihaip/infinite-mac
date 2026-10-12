@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import typing
+import urllib.parse
 import urls
 import zipfile
 
@@ -31,25 +32,30 @@ MEDIA_FILE_EXTENSIONS = (
     ".moof",
     ".toast",
 )
+MEDIA_ARCHIVE_EXTENSIONS = (".zip", ".sit", ".sitx", ".7z", ".rar", ".tar")
 
 
 class InputManifest(typing.TypedDict):
     name: str
     src_url: typing.NotRequired[str]
     src_file: typing.NotRequired[str]
+    src_member: typing.NotRequired[str]
     src_file_member: typing.NotRequired[str]
+    src_ext: typing.NotRequired[str]
     origin_url: typing.NotRequired[str]
     cover_image: typing.NotRequired[str]
     cover_image_type: typing.NotRequired[str]
     mode: typing.NotRequired[str]
     platform: typing.NotRequired[str]
     is_floppy: typing.NotRequired[bool]
+    self_hosted: typing.NotRequired[bool]
     _manifest_path: typing.NotRequired[str]
 
 
 class OutputManifest(typing.TypedDict):
     name: str
     srcUrl: str
+    originalSrcUrl: typing.NotRequired[str]
     srcExtension: str
     coverImageType: typing.NotRequired[str]
     coverImageSize: typing.NotRequired[typing.Tuple[int, int]]
@@ -110,6 +116,8 @@ def get_output_manifest(
         "srcExtension": src_extension.lower(),
         "fileSize": file_size,
     }
+    if "src_url" in input_manifest and src_url != input_manifest["src_url"]:
+        output_manifest["originalSrcUrl"] = input_manifest["src_url"]
     if "cover_image" in input_manifest:
         cover_image_hash, cover_image_size = load_cover_image(
             input_manifest["cover_image"],
@@ -142,19 +150,24 @@ def get_source_info(
         media, src_extension = load_media_file(input_manifest)
         hosted_url, file_size, = get_self_hosted_source_info(
             media, write_media, sync_media, media_rclone_remote)
-        return hosted_url, src_extension, file_size
+        return hosted_url, input_manifest.get("src_ext", src_extension), file_size
 
     src_url = input_manifest["src_url"]
-    _, src_extension = os.path.splitext(input_manifest["src_url"])
-    if input_manifest.get("is_floppy"):
-        media = urls.read_url(
+    src_name = urllib.parse.unquote(urllib.parse.urlsplit(src_url).path)
+    _, src_extension = os.path.splitext(src_name)
+    if input_manifest.get("is_floppy") or input_manifest.get("self_hosted"):
+        src_path = urls.read_url_to_path(
             src_url,
             on_cache_miss=lambda: sys.stderr.write(
                 "  Downloading media for self-hosting: %s\n" % src_url),
         )
+        media, src_extension = load_media_path(src_path, src_name, input_manifest)
         hosted_url, file_size = get_self_hosted_source_info(
             media, write_media, sync_media, media_rclone_remote)
-        return hosted_url, src_extension, file_size
+        return hosted_url, input_manifest.get("src_ext", src_extension), file_size
+
+    if input_manifest.get("src_member") or input_manifest.get("src_file_member"):
+        raise Exception("Remote archive members require self_hosted: true")
 
     headers = urls.read_url_headers(src_url)
     file_size = int(headers["Content-Length"])
@@ -200,36 +213,92 @@ def load_media_file(input_manifest: InputManifest) -> typing.Tuple[bytes, str]:
         os.path.join(os.path.dirname(manifest_path), src_file))
     if not os.path.isfile(src_path):
         raise Exception("src_file does not exist: %s" % src_file)
+    return load_media_path(src_path, src_file, input_manifest)
+
+
+def load_media_path(
+    src_path: str,
+    src_name: str,
+    input_manifest: InputManifest,
+) -> typing.Tuple[bytes, str]:
     if zipfile.is_zipfile(src_path):
-        return load_media_from_zip(src_path, input_manifest)
-    _, src_extension = os.path.splitext(src_path)
+        return load_media_from_zip(src_path, src_name, input_manifest)
+    _, src_extension = os.path.splitext(src_name)
+    if (src_extension.lower() in MEDIA_ARCHIVE_EXTENSIONS or
+            input_manifest.get("src_member") or
+            input_manifest.get("src_file_member")):
+        return load_media_from_archive(src_path, src_name, input_manifest)
     with open(src_path, "rb") as f:
         return f.read(), src_extension
 
 
-def load_media_from_zip(src_path: str, input_manifest: InputManifest) -> typing.Tuple[bytes, str]:
+def load_media_from_zip(
+    src_path: str,
+    src_name: str,
+    input_manifest: InputManifest,
+) -> typing.Tuple[bytes, str]:
     with zipfile.ZipFile(src_path, "r") as zip_file:
-        src_file_member = input_manifest.get("src_file_member")
-        if src_file_member:
-            try:
-                _, src_extension = os.path.splitext(src_file_member)
-                return zip_file.read(src_file_member), src_extension
-            except KeyError:
-                raise Exception(
-                    "src_file_member not found in %s: %s" %
-                    (input_manifest["src_file"], src_file_member))
-
-        candidates = [
+        filenames = [
             info.filename for info in zip_file.infolist()
-            if not info.is_dir() and is_media_file(info.filename) and
-                not info.filename.startswith("__MACOSX/")
+            if not info.is_dir()
         ]
-        if len(candidates) != 1:
-            raise Exception(
-                "%s has %d media candidates (%s), specify src_file_member" %
-                (input_manifest["src_file"], len(candidates), ", ".join(candidates)))
-        _, src_extension = os.path.splitext(candidates[0])
-        return zip_file.read(candidates[0]), src_extension
+        member = select_media_member(filenames, src_name, input_manifest)
+        _, src_extension = os.path.splitext(member)
+        return zip_file.read(member), src_extension
+
+
+def load_media_from_archive(
+    src_path: str,
+    src_name: str,
+    input_manifest: InputManifest,
+) -> typing.Tuple[bytes, str]:
+    if not os.path.isfile(paths.LSAR_PATH) or not os.path.isfile(paths.UNAR_PATH):
+        raise Exception("Archive extraction requires lsar and unar "
+                        "(build them with npm run build-tools)")
+    listing = json.loads(subprocess.check_output(
+        [paths.LSAR_PATH, "-json", src_path]))
+    files = [entry for entry in listing["lsarContents"]
+             if not entry.get("XADIsDirectory") and
+             not entry.get("XADIsResourceFork")]
+    member = select_media_member(
+        [entry["XADFileName"] for entry in files], src_name, input_manifest)
+    entry = next(entry for entry in files if entry["XADFileName"] == member)
+    # Extract only the data fork. Selecting by index avoids matching the
+    # resource fork with the same name, and stdout avoids filesystem metadata
+    # and sidecar files being mistaken for disk image bytes.
+    result = subprocess.run(
+        [paths.UNAR_PATH, "-quiet", "-no-directory", "-no-recursion",
+         "-output-directory", "-", "-indexes", src_path,
+         str(entry["XADIndex"])],
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        raise Exception("Could not extract %s from %s: %s" %
+                        (member, src_name, result.stderr.decode(errors="replace")))
+    if len(result.stdout) != entry["XADFileSize"]:
+        raise Exception("Extracted size mismatch for %s in %s" % (member, src_name))
+    _, src_extension = os.path.splitext(member)
+    return result.stdout, src_extension
+
+
+def select_media_member(
+    filenames: typing.List[str],
+    src_name: str,
+    input_manifest: InputManifest,
+) -> str:
+    member = input_manifest.get("src_member") or input_manifest.get("src_file_member")
+    if member:
+        if filenames.count(member) != 1:
+            raise Exception("Archive member must exist exactly once in %s: %s" %
+                            (src_name, member))
+        return member
+    candidates = [name for name in filenames
+                  if is_media_file(name) and not name.startswith("__MACOSX/") and
+                  not os.path.basename(name).startswith("._")]
+    if len(candidates) != 1:
+        raise Exception("%s has %d media candidates (%s), specify src_member" %
+                        (src_name, len(candidates), ", ".join(candidates)))
+    return candidates[0]
 
 
 def is_media_file(filename: str) -> bool:

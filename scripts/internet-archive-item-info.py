@@ -45,6 +45,7 @@ COVER_IMAGE_EXTENSIONS = {
     ".tif",
     ".tiff",
 }
+MEDIA_ARCHIVE_EXTENSIONS = {".zip", ".7z", ".sit", ".sitx", ".rar", ".tar"}
 
 
 def archive_file_to_output(
@@ -70,7 +71,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Fetch Internet Archive item metadata and list raw disk image "
-            "files and possible cover images."
+            "files, media archives, and possible cover images."
         )
     )
     parser.add_argument(
@@ -145,6 +146,7 @@ def main() -> int:
         )
         metadata = json.loads(urls.read_url(metadata_url))
         raw_image_files = []
+        archive_files = []
         cover_image_files = []
         for archive_file in metadata.get("files", []):
             filename = archive_file.get("name")
@@ -154,6 +156,8 @@ def main() -> int:
             _, extension = os.path.splitext(basename)
             if extension in RAW_IMAGE_EXTENSIONS:
                 raw_image_files.append(archive_file_to_output(identifier, archive_file))
+            if extension in MEDIA_ARCHIVE_EXTENSIONS:
+                archive_files.append(archive_file_to_output(identifier, archive_file))
             if (
                 extension in COVER_IMAGE_EXTENSIONS
                 and not basename.endswith("_thumb%s" % extension)
@@ -200,6 +204,7 @@ def main() -> int:
             % urllib.parse.quote(identifier, safe=""),
             "metadata_url": metadata_url,
             "raw_image_files": raw_image_files,
+            "archive_files": archive_files,
         }
         if cover_image_files:
             item_info["best_cover_image"] = cover_image_files[0]["src_url"]
