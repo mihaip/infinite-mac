@@ -52,6 +52,12 @@ export function systemCDROMCompare(a: EmulatorCDROM, b: EmulatorCDROM) {
     if (aEra !== bEra) {
         return aEra - bEra;
     }
+    // Developer previews lack version numbers, but precede the Public Beta.
+    const aIsDeveloperPreview = a.name.startsWith("Mac OS X Developer Preview");
+    const bIsDeveloperPreview = b.name.startsWith("Mac OS X Developer Preview");
+    if (aIsDeveloperPreview !== bIsDeveloperPreview) {
+        return aIsDeveloperPreview ? -1 : 1;
+    }
     const aVersion = /\d+\.\d+/.exec(a.name);
     const bVersion = /\d+\.\d+/.exec(b.name);
     if (!aVersion || !bVersion) {
