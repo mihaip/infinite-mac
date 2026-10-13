@@ -586,6 +586,14 @@ BEOS_R503 = Disk(
     ],
 )
 
+INFINITE_HD_BEOS = Disk(
+    name="Infinite HD (BeOS).dsk",
+    compressed=True,
+    urls=[
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/Infinite.HD.BeOS.dsk.zip"
+    ],
+)
+
 ALL_DISKS = [
     # Classic
     SYSTEM_10_ORIGINAL,
