@@ -101,12 +101,16 @@ async function handleRequest(
             response.headers.set("Content-Type", "multipart/mixed");
         }
 
-        // Static content uses a content hash in the URL, so it can be cached
-        // for a while (30 days).
-        if (isStaticAssetPath(pathname) && response.ok) {
+        // Static content, including CD-ROM covers, uses a content hash in the
+        // URL, so it can be cached for a while (30 days). Include 304 responses
+        // so previously cached assets also pick up this policy on revalidation.
+        if (
+            isStaticAssetPath(pathname) &&
+            (response.ok || response.status === 304)
+        ) {
             response.headers.set(
                 "Cache-Control",
-                `max-age=${60 * 60 * 24 * 30}`
+                `public, max-age=${60 * 60 * 24 * 30}`
             );
         }
 
@@ -142,7 +146,7 @@ function normalizeAssetResponse(response: Response, pathname: string) {
 }
 
 function isStaticAssetPath(pathname: string) {
-    return pathname.startsWith("/assets/");
+    return pathname.startsWith("/assets/") || pathname.startsWith("/Covers/");
 }
 
 function applyCommonHeaders(response: Response, pathname: string) {
