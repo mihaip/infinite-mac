@@ -197,6 +197,27 @@ def main() -> int:
                             if not member.get("XADIsDirectory")
                             and not member.get("XADIsResourceFork")
                         ]
+                    for member in media_archive["members"]:
+                        if not member["name"].lower().endswith(".cue"):
+                            continue
+                        try:
+                            if zipfile.is_zipfile(archive_path):
+                                with zipfile.ZipFile(archive_path) as archive:
+                                    cue = archive.read(member["name"])
+                            else:
+                                entry = next(
+                                    entry for entry in listing["lsarContents"]
+                                    if entry["XADFileName"] == member["name"]
+                                    and not entry.get("XADIsResourceFork"))
+                                cue = subprocess.check_output([
+                                    paths.UNAR_PATH, "-quiet", "-no-directory",
+                                    "-no-recursion", "-output-directory", "-",
+                                    "-indexes", archive_path, str(entry["XADIndex"])])
+                            member["cue_sheet"] = cue.decode(
+                                "utf-8-sig", errors="replace")
+                        except Exception as e:
+                            print("Could not read archived cue sheet %s: %s"
+                                  % (member["name"], e), file=sys.stderr)
                 archive_files.append(media_archive)
             if (
                 extension in COVER_IMAGE_EXTENSIONS

@@ -23,7 +23,7 @@ CD-ROM manifests:
 Optional fields seen in existing manifests:
 
 - `cover_image_type`: use only when clearly appropriate, such as known square box art.
-- `mode`: preserve or add only when there is evidence the selected CD image needs it, such as existing bin/raw images using `MODE1/2352`. The info helper includes `cue_sheet` text for available CUE files.
+- `mode`: preserve or add only when there is evidence the selected CD image needs it, such as existing bin/raw images using `MODE1/2352`. The info helper includes `cue_sheet` text for available CUE files, including archive members when using `--list-archive-members`.
 - `self_hosted`: opt into hosting media locally/R2 when requested. Archives are extracted during import; use `src_member` if they contain multiple media candidates.
 - `data_offset` and optional `data_size`: expose a filesystem within the decoded CD, in logical bytes after sector conversion. Establish the filesystem base and size from its partition map/volume geometry; the original hosted media stays intact.
 - `platform`: use `"BeOS"` for BeOS guest media or `"NeXT"` for NeXT media. The default is `"Macintosh"`; each guest drawer shows only entries matching its platform.
@@ -32,6 +32,8 @@ Optional fields seen in existing manifests:
 ## Image Selection
 
 - Prefer direct mountable images over archives. Common good extensions: `.moof`, `.dsk`, `.img`, `.iso`, `.toast`.
+- For System Software, prefer generic full installation CDs. Do not add machine-specific installation/restore CDs or update-only discs unless explicitly requested.
+- Bundled titles such as "Install Me First" can contain generic installers. Establish machine restrictions from credible documentation or requested inspection of the disc contents, rather than the title alone.
 - If the script misses a useful media extension, update `scripts/internet-archive-item-info.py`; do not work around it with one-off CLI arguments.
 - For floppy drawer entries, use `.moof` when available.
 - If an item has multiple floppy images, create one manifest per image and suffix display names with `(Disk 1)`, `(Disk 2)`, etc.
