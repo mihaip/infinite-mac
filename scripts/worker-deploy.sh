@@ -7,7 +7,6 @@ tsc --noEmit && \
     rclone \
         --config=scripts/rclone.conf \
         sync \
-        --dry-run \
         --progress \
         --fast-list \
         --s3-no-check-bucket \

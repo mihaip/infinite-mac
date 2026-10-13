@@ -1,0 +1,10 @@
+{
+    "src_url": "https://archive.org/download/beos-5-apacabar/BeOS5-Apacabar.zip",
+    "self_hosted": true,
+    "platform": "BeOS",
+    "data_offset": 395737088,
+    "data_size": 247463936,
+    "mode": "MODE1/2352",
+    "cover_image": "https://archive.org/download/beos-5-apacabar/BeOS-R5-Apacabar.jpg",
+    "cover_image_inset": [78, 35, 80, 32]
+}

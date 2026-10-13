@@ -23,8 +23,10 @@ CD-ROM manifests:
 Optional fields seen in existing manifests:
 
 - `cover_image_type`: use only when clearly appropriate, such as known square box art.
-- `mode`: preserve or add only when there is evidence the selected CD image needs it, such as existing bin/raw images using `MODE1/2352`.
-- `platform`: use for non-Macintosh platform drawers such as `NeXT`.
+- `mode`: preserve or add only when there is evidence the selected CD image needs it, such as existing bin/raw images using `MODE1/2352`. The info helper includes `cue_sheet` text for available CUE files.
+- `self_hosted`: opt into hosting media locally/R2 when requested. Archives are extracted during import; use `src_member` if they contain multiple media candidates.
+- `data_offset` and optional `data_size`: expose a filesystem within the decoded CD, in logical bytes after sector conversion. Establish the filesystem base and size from its partition map/volume geometry; the original hosted media stays intact.
+- `platform`: use `"BeOS"` for BeOS guest media or `"NeXT"` for NeXT media. The default is `"Macintosh"`; each guest drawer shows only entries matching its platform.
 - `is_floppy`: use only for floppy/diskette images.
 
 ## Image Selection
@@ -36,6 +38,8 @@ Optional fields seen in existing manifests:
 - For multi-disc optical sets, follow the existing convention and use `(Disc 1)`, `(Disc 2)`, etc.
 - Prefer `.iso` over bin/cue when both are available unless the bin/cue pair is known to preserve required audio/data layout.
 - If using a raw `.bin` CD image, check nearby existing manifests for whether `mode` is needed.
+- Do not assume that a CUE's initial `INDEX 01 00:02:00` means the BIN includes 150 leading sectors. Some dumps already start with data sector zero; establish the actual file layout before trimming any bytes.
+- BeOS PowerPC guests require the big-endian BFS volume on hybrid discs. An x86-only little-endian BFS volume does not mount in these guests; application architecture and filesystem compatibility are separate checks. ISO9660 and HFS discs can also contain BeOS software.
 
 ## Cover Images
 

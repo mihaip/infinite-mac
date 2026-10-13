@@ -1199,7 +1199,11 @@ export default function Mac({
                         />
                     )}
                     {canLoadCDROMs && (
-                        <MacCDROMs onRun={loadCDROM} machine={machine} />
+                        <MacCDROMs
+                            onRun={loadCDROM}
+                            machine={machine}
+                            family={disks[0]?.family}
+                        />
                     )}
                     {includeLibrary && canLoadFiles && (
                         <MacLibrary

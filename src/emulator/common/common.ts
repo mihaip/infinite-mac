@@ -576,7 +576,10 @@ export type EmulatorCDROM = {
     coverImageSize?: [width: number, height: number];
     coverImageType?: "square" | "round"; // Default is round
     mode?: "MODE1/2352"; // TODO: other modes
-    platform?: "Macintosh" | "NeXT";
+    // Select bytes from the decoded disk, retaining the complete source image.
+    dataOffset?: number;
+    dataSize?: number;
+    platform?: "Macintosh" | "NeXT" | "BeOS";
     isFloppy?: boolean;
     // Fetch directly from the source, probing for range support and falling
     // back to a full download. Unset: use the CD-ROM proxy.

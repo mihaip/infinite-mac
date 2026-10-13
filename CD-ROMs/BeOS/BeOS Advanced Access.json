@@ -1,0 +1,8 @@
+{
+    "src_url": "https://archive.org/download/be-os-advanced-access/BeOS_Advanced_Access.iso",
+    "self_hosted": true,
+    "platform": "BeOS",
+    "data_offset": 26157056,
+    "data_size": 519241728,
+    "cover_image": "https://archive.org/download/be-os-advanced-access/BeOS_Advanced_Access.jpeg"
+}

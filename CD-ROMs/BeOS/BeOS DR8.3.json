@@ -1,0 +1,9 @@
+{
+    "src_url": "https://archive.org/download/BeOS_DR83/BeOS%E2%84%A2%20DR-8.3%20for%20Power%20Macintosh%20Special%20Edition.bin",
+    "self_hosted": true,
+    "platform": "BeOS",
+    "data_offset": 41025536,
+    "mode": "MODE1/2352",
+    "cover_image": "https://archive.org/download/BeOS_DR83/cover.png",
+    "cover_image_type": "square"
+}

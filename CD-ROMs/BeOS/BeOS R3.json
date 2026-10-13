@@ -1,0 +1,9 @@
+{
+    "src_url": "https://archive.org/download/BeOSRelease3PowerPC/BeOS%20Release%203%20PowerPC.iso",
+    "self_hosted": true,
+    "platform": "BeOS",
+    "data_offset": 67289088,
+    "data_size": 478105600,
+    "cover_image": "https://archive.org/download/BeOSRelease3PowerPC/1.jpg",
+    "cover_image_inset": [24, 10, 16, 30]
+}

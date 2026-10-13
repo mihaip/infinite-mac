@@ -3,10 +3,13 @@
 import argparse
 import json
 import os.path
+import subprocess
 import sys
 import typing
 import urllib.parse
+import zipfile
 
+import paths
 import urls
 from PIL import Image
 
@@ -90,6 +93,11 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--list-archive-members",
+        action="store_true",
+        help="download media archives to the persistent cache and list their members",
+    )
+    parser.add_argument(
         "--compact",
         action="store_true",
         help="emit compact JSON instead of pretty-printed JSON",
@@ -155,17 +163,57 @@ def main() -> int:
             basename = os.path.basename(filename.lower())
             _, extension = os.path.splitext(basename)
             if extension in RAW_IMAGE_EXTENSIONS:
-                raw_image_files.append(archive_file_to_output(identifier, archive_file))
+                raw_image = archive_file_to_output(identifier, archive_file)
+                if extension == ".cue":
+                    try:
+                        raw_image["cue_sheet"] = urls.read_url(
+                            raw_image["src_url"]
+                        ).decode("utf-8-sig", errors="replace")
+                    except Exception as e:
+                        print(
+                            "Could not read cue sheet %s: %s"
+                            % (raw_image["src_url"], e),
+                            file=sys.stderr,
+                        )
+                raw_image_files.append(raw_image)
             if extension in MEDIA_ARCHIVE_EXTENSIONS:
-                archive_files.append(archive_file_to_output(identifier, archive_file))
+                media_archive = archive_file_to_output(identifier, archive_file)
+                if args.list_archive_members:
+                    archive_path = urls.read_url_to_path(media_archive["src_url"])
+                    if zipfile.is_zipfile(archive_path):
+                        with zipfile.ZipFile(archive_path) as archive:
+                            media_archive["members"] = [
+                                {"name": member.filename, "size": member.file_size}
+                                for member in archive.infolist()
+                                if not member.is_dir()
+                            ]
+                    else:
+                        listing = json.loads(subprocess.check_output(
+                            [paths.LSAR_PATH, "-json", archive_path]))
+                        media_archive["members"] = [
+                            {"name": member["XADFileName"],
+                             "size": member["XADFileSize"]}
+                            for member in listing["lsarContents"]
+                            if not member.get("XADIsDirectory")
+                            and not member.get("XADIsResourceFork")
+                        ]
+                archive_files.append(media_archive)
             if (
                 extension in COVER_IMAGE_EXTENSIONS
                 and not basename.endswith("_thumb%s" % extension)
             ):
                 cover_image = archive_file_to_output(identifier, archive_file)
-                cover_image_path = urls.read_url_to_path(cover_image["src_url"])
-                with Image.open(cover_image_path) as image:
-                    width, height = image.size
+                try:
+                    cover_image_path = urls.read_url_to_path(cover_image["src_url"])
+                    with Image.open(cover_image_path) as image:
+                        width, height = image.size
+                except Exception as e:
+                    print(
+                        "Skipping unavailable cover %s: %s"
+                        % (cover_image["src_url"], e),
+                        file=sys.stderr,
+                    )
+                    continue
                 cover_image["width"] = width
                 cover_image["height"] = height
                 cover_image["aspect_ratio"] = round(width / height, 4)
@@ -206,6 +254,9 @@ def main() -> int:
             "raw_image_files": raw_image_files,
             "archive_files": archive_files,
         }
+        for key in ["description", "date", "creator", "publisher", "subject"]:
+            if key in metadata.get("metadata", {}):
+                item_info[key] = metadata["metadata"][key]
         if cover_image_files:
             item_info["best_cover_image"] = cover_image_files[0]["src_url"]
             item_info["cover_image_files"] = cover_image_files

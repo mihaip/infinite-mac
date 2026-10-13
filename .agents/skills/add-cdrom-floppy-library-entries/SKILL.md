@@ -21,6 +21,9 @@ scripts/internet-archive-item-info.py https://archive.org/details/example_item
 scripts/internet-archive-item-info.py --input-file archive-urls.txt
 ```
 
+For archive-only media, add `--list-archive-members` to download the archives to
+the persistent cache and identify the exact `src_member` to extract.
+
 Validate a batch of created manifests:
 
 ```bash

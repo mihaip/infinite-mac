@@ -12,6 +12,7 @@ import defaultFloppyDDImage from "@/Images/DefaultFloppyDD.png";
 import defaultFloppyHDImage from "@/Images/DefaultFloppyHD.png";
 import defaultCDROMImage from "@/Images/DefaultCDROM.png";
 import defaultCDROMNeXTImage from "@/Images/DefaultCDROM-NeXT.png";
+import defaultCDROMBeOSImage from "@/Images/DefaultCDROM-BeOS.png";
 import cdromsIcon from "@/Images/CD-ROM.png";
 import floppiessIcon from "@/Images/Floppy.png";
 import {
@@ -23,14 +24,17 @@ import {
 } from "@/controls/Drawer";
 import allowedCDROMDomains from "@/defs/cdrom-sites.json";
 import {emulatorSupportsCDROMExtension} from "@/emulator/common/emulators";
+import {type SystemFamily} from "@/defs/disks";
 
 export function MacCDROMs({
     onRun,
     machine,
+    family,
     floppies,
 }: {
     onRun: (cdrom: EmulatorCDROM) => void;
     machine: MachineDef;
+    family?: SystemFamily;
     floppies?: boolean;
 }) {
     const [search, setSearch] = useState("");
@@ -47,6 +51,7 @@ export function MacCDROMs({
                         onRun(cdrom);
                     }}
                     machine={machine}
+                    family={family}
                     floppies={floppies}
                 />
             )}
@@ -59,15 +64,21 @@ function MacCDROMsContents({
     setSearch,
     onRun,
     machine,
+    family,
     floppies,
 }: {
     search: string;
     setSearch: (search: string) => void;
     onRun: (cdrom: EmulatorCDROM) => void;
     machine: MachineDef;
+    family?: SystemFamily;
     floppies?: boolean;
 }) {
-    const {platform = "Macintosh", emulatorType} = machine;
+    const {platform: machinePlatform = "Macintosh", emulatorType} = machine;
+    const platform =
+        machinePlatform === "Macintosh" && family === "beos"
+            ? "BeOS"
+            : machinePlatform;
     const cdroms = cdromLibrary;
     const folderPaths = Array.from(Object.keys(cdroms)).sort();
     const cdromsByCategory: {[category: string]: EmulatorCDROM[]} = {};
@@ -307,6 +318,8 @@ function MacCDROM({cdrom, onRun}: {cdrom: EmulatorCDROM; onRun: () => void}) {
         } else if (cdrom.platform === "NeXT") {
             coverImageUrl = defaultCDROMNeXTImage;
             coverImageWidth = coverImageHeight = 48;
+        } else if (cdrom.platform === "BeOS") {
+            coverImageUrl = defaultCDROMBeOSImage;
         } else {
             coverImageUrl = defaultCDROMImage;
         }

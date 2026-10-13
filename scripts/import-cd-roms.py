@@ -46,7 +46,9 @@ class InputManifest(typing.TypedDict):
     cover_image: typing.NotRequired[str]
     cover_image_type: typing.NotRequired[str]
     mode: typing.NotRequired[str]
-    platform: typing.NotRequired[str]
+    data_offset: typing.NotRequired[int]
+    data_size: typing.NotRequired[int]
+    platform: typing.NotRequired[typing.Literal["Macintosh", "NeXT", "BeOS"]]
     is_floppy: typing.NotRequired[bool]
     self_hosted: typing.NotRequired[bool]
     _manifest_path: typing.NotRequired[str]
@@ -62,7 +64,9 @@ class OutputManifest(typing.TypedDict):
     coverImageHash: typing.NotRequired[str]
     fileSize: int
     mode: typing.NotRequired[str]
-    platform: typing.NotRequired[str]
+    dataOffset: typing.NotRequired[int]
+    dataSize: typing.NotRequired[int]
+    platform: typing.NotRequired[typing.Literal["Macintosh", "NeXT", "BeOS"]]
     isFloppy: typing.NotRequired[bool]
 
 
@@ -129,7 +133,22 @@ def get_output_manifest(
         output_manifest["coverImageType"] = input_manifest["cover_image_type"]
     if "mode" in input_manifest:
         output_manifest["mode"] = input_manifest["mode"]
+    decoded_size = (file_size // 2352 * 2048
+                    if input_manifest.get("mode") == "MODE1/2352" else file_size)
+    data_offset = input_manifest.get("data_offset", 0)
+    if type(data_offset) is not int or not 0 <= data_offset < decoded_size:
+        raise Exception("data_offset must be a byte offset within the decoded CD image")
+    data_size = input_manifest.get("data_size", decoded_size - data_offset)
+    if (type(data_size) is not int or data_size <= 0 or
+            data_offset + data_size > decoded_size):
+        raise Exception("data_size must select bytes within the decoded CD image")
+    if "data_offset" in input_manifest:
+        output_manifest["dataOffset"] = data_offset
+    if "data_size" in input_manifest:
+        output_manifest["dataSize"] = data_size
     if "platform" in input_manifest:
+        if input_manifest["platform"] not in {"Macintosh", "NeXT", "BeOS"}:
+            raise Exception("Unsupported CD-ROM platform: %s" % input_manifest["platform"])
         output_manifest["platform"] = input_manifest["platform"]
     if "is_floppy" in input_manifest:
         output_manifest["isFloppy"] = input_manifest["is_floppy"]

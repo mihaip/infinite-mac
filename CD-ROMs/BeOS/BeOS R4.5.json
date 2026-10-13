@@ -1,0 +1,10 @@
+{
+    "src_url": "https://archive.org/download/be-os-be-operating-system-4.5/BeOS%20Be%20Operating%20System%204.5.bin",
+    "self_hosted": true,
+    "platform": "BeOS",
+    "data_offset": 358264832,
+    "data_size": 314994688,
+    "mode": "MODE1/2352",
+    "cover_image": "https://archive.org/download/be-os-be-operating-system-4.5/BeOS%20Be%20Operating%20System%204.5.jpeg",
+    "cover_image_inset": [0, 4, 0, 0]
+}

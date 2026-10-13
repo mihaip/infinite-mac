@@ -1,0 +1,10 @@
+{
+    "src_url": "https://archive.org/download/beos-4.0/beos-4.0.bin",
+    "self_hosted": true,
+    "platform": "BeOS",
+    "data_offset": 328060928,
+    "data_size": 315621376,
+    "mode": "MODE1/2352",
+    "cover_image": "https://archive.org/download/beos-4.0/beos-4.0.png",
+    "cover_image_inset": [16, 14, 16, 15]
+}

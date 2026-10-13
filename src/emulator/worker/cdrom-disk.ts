@@ -36,12 +36,50 @@ export function createEmulatorWorkerCDROMDisk(
     if (cdrom.mode === "MODE1/2352") {
         disk = new EmulatorWorkerMode1SectorDisk(disk);
     }
+    if (cdrom.dataOffset !== undefined || cdrom.dataSize !== undefined) {
+        disk = new EmulatorWorkerCDROMDataDisk(
+            disk,
+            cdrom.dataOffset ?? 0,
+            cdrom.dataSize
+        );
+    }
     if (cdrom.isFloppy) {
         disk.isFloppy = true;
     } else {
         disk.isCdrom = true;
     }
     return disk;
+}
+
+/** Presents a filesystem within a decoded CD image as the entire disk. */
+export class EmulatorWorkerCDROMDataDisk implements EmulatorWorkerDisk {
+    #disk: EmulatorWorkerDisk;
+    #offset: number;
+    #size: number;
+
+    constructor(disk: EmulatorWorkerDisk, offset: number, size?: number) {
+        this.#disk = disk;
+        this.#offset = offset;
+        this.#size = size ?? disk.size - offset;
+    }
+
+    get name(): string {
+        return this.#disk.name;
+    }
+
+    get size(): number {
+        return this.#size;
+    }
+
+    read(buffer: Uint8Array, offset: number, length: number): number {
+        const size = Math.max(0, Math.min(length, this.#size - offset));
+        return size ? this.#disk.read(buffer, this.#offset + offset, size) : 0;
+    }
+
+    write(buffer: Uint8Array, offset: number, length: number): number {
+        const size = Math.max(0, Math.min(length, this.#size - offset));
+        return size ? this.#disk.write(buffer, this.#offset + offset, size) : 0;
+    }
 }
 
 /** Reads remote image ranges directly, without the CD-ROM proxy. */

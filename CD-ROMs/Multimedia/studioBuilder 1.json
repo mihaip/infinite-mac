@@ -1,0 +1,9 @@
+{
+    "src_url": "https://archive.org/download/01-studio-builder-1/studioBuilder1.7z",
+    "src_member": "studioBuilder1.iso",
+    "self_hosted": true,
+    "data_offset": 19968,
+    "data_size": 151016960,
+    "cover_image": "https://archive.org/download/01-studio-builder-1/CD.jpg",
+    "platform": "BeOS"
+}

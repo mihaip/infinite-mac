@@ -1,0 +1,7 @@
+{
+    "src_url": "https://archive.org/download/egbridge-v9-beos/EGBRIDGE-v9-BeOS.zip",
+    "src_member": "EGBRIDGE-v9-BeOS.ISO",
+    "self_hosted": true,
+    "cover_image": "https://archive.org/download/egbridge-v9-beos/CD.jpg",
+    "platform": "BeOS"
+}

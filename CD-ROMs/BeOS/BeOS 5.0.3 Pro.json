@@ -1,0 +1,10 @@
+{
+    "src_url": "https://archive.org/download/BeosVersion5.0.3IntelAndPpc/BeOS_Tools.bin",
+    "self_hosted": true,
+    "platform": "BeOS",
+    "data_offset": 425017344,
+    "data_size": 247463936,
+    "mode": "MODE1/2352",
+    "cover_image": "https://archive.org/download/BeosVersion5.0.3IntelAndPpc/BeosVersion5.0.3IntelAndPpcdisc.jpg",
+    "cover_image_inset": [145, 120, 120, 92]
+}

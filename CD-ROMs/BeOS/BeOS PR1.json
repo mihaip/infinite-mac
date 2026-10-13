@@ -1,0 +1,8 @@
+{
+    "src_url": "https://archive.org/download/be-os-preview-release/BeOS_Preview_Release.iso",
+    "self_hosted": true,
+    "platform": "BeOS",
+    "data_offset": 22141440,
+    "data_size": 523257856,
+    "cover_image": "https://archive.org/download/be-os-preview-release/BeOS_Preview_Release.jpeg"
+}
