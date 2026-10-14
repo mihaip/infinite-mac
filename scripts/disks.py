@@ -537,7 +537,7 @@ BEOS_R3 = Disk(
     compressed=True,
     beos_screen_settings_format="legacy",
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R3.HD.dsk.zip"
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R3.HD.dsk.zip?v=2"
     ],
 )
 
@@ -546,7 +546,7 @@ BEOS_R4 = Disk(
     compressed=True,
     beos_screen_settings_format="workspace",
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R4.HD.dsk.zip"
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R4.HD.dsk.zip?v=3"
     ],
 )
 
@@ -555,7 +555,7 @@ BEOS_R45 = Disk(
     compressed=True,
     beos_screen_settings_format="workspace",
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R4.5.HD.dsk.zip"
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R4.5.HD.dsk.zip?v=3"
     ],
 )
 
@@ -564,7 +564,7 @@ BEOS_R5 = Disk(
     compressed=True,
     beos_screen_settings_format="workspace",
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R5.HD.dsk.zip"
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R5.HD.dsk.zip?v=3"
     ],
 )
 
@@ -573,7 +573,7 @@ BEOS_R501 = Disk(
     compressed=True,
     beos_screen_settings_format="workspace",
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R5.0.1.HD.dsk.zip"
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R5.0.1.HD.dsk.zip?v=3"
     ],
 )
 
@@ -582,7 +582,7 @@ BEOS_R503 = Disk(
     compressed=True,
     beos_screen_settings_format="workspace",
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R5.0.3.HD.dsk.zip"
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/BeOS.R5.0.3.HD.dsk.zip?v=3"
     ],
 )
 
@@ -590,7 +590,7 @@ INFINITE_HD_BEOS = Disk(
     name="Infinite HD (BeOS).dsk",
     compressed=True,
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/Infinite.HD.BeOS.dsk.zip"
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/Infinite.HD.BeOS.dsk.zip?v=2"
     ],
 )
 
