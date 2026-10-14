@@ -6,7 +6,9 @@
  * API, and keep these types independent of client source imports.
  */
 
+import {type ComponentType} from "react";
+
 export declare function runDefFromUrl(url: string): object | undefined;
 
-declare const App: import("react").ComponentType;
+declare const App: ComponentType;
 export default App;

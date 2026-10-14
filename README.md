@@ -61,7 +61,7 @@ Common development tasks, all done via `npm run`:
 - `import-library`: Build downloads library (actual downloads are hosted on macintoshgarden.org and other sites, the library contains metadata)
     - `placeholder` may be passed in as an argument to make the script generate a minimal library that does not depend on a Macintosh Garden data dump.
 
-Common deployment tasks (also done via `npm run`)
+Common deployment tasks (also done via `npm run`):
 
 - `build`: Rebuild for either local use (in the `build/` directory) or for Cloudflare Worker use
 - `preview`: Serve built assets locally using Vite's server (will be running at https://localhost:4127)
@@ -70,6 +70,18 @@ Common deployment tasks (also done via `npm run`)
 - `sync-disks`: Sync disk images to a Cloudflare R2 bucket.
     - Requires that [rclone](https://rclone.org/) installed, it can be obtained via `sudo -v ; curl https://rclone.org/install.sh | sudo bash`
     - Should be done after disks are rebuilt with `import-disks` (and before `worker-deploy`).
+
+Common checker and style tasks (also done via `npm run`):
+
+- `check`: Check TypeScript types
+- `lint`: Check ESLint rules (has a `lint:fix` counterpart)
+- `prettier`: Check formatting (has a `prettier:fix` counterpart)
+
+`scripts/pre-commit.sh` runs all three, you can add it as a pre-commit hook:
+
+```sh
+ln -s ../../scripts/pre-commit.sh .git/hooks/pre-commit
+```
 
 ### Directory Structure
 
