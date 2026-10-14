@@ -1,0 +1,4 @@
+interface:
+  display_name: "Update Disk Images"
+  short_description: "Publish updated disk assets and refresh cache versions"
+  default_prompt: "Use $update-disk-images to publish the modified Infinite Mac disk images and update their cache versions in scripts/disks.py."
