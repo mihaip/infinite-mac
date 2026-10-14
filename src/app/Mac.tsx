@@ -103,6 +103,7 @@ export default function Mac({
         flags,
         settings: fixedEmulatorSettings,
     } = runDef;
+    const bootDiskFamily = disks[0]?.family;
     const canSaveDisksValue = canSaveDisks();
     const emulatorDisks = useMemo(
         () => runDefDisks(runDef, canSaveDisksValue),
@@ -158,7 +159,7 @@ export default function Mac({
         onEmulatorSettingsChange
     );
     // A/UX does not read from Toolbox globals, so it does not support absolute coordinates.
-    const bootDiskNeedsMouseDeltas = runDef.disks[0]?.family === "aux";
+    const bootDiskNeedsMouseDeltas = bootDiskFamily === "aux";
     const emulatorSettings: EmulatorSettings = useMemo(() => {
         if (bootDiskNeedsMouseDeltas) {
             return {...rawEmulatorSettings, useMouseDeltas: true};
@@ -727,7 +728,7 @@ export default function Mac({
 
     const [showMacOSXSlowNotification, clearMacOSXSlowNotification] =
         useOnboardingNotification(
-            !progress && emulatorLoaded && disks[0]?.family === "macosx",
+            !progress && emulatorLoaded && bootDiskFamily === "macosx",
             "mac-os-x-slow-notification-count"
         );
     if (showMacOSXSlowNotification) {
@@ -1070,6 +1071,13 @@ export default function Mac({
             <ScreenFrame
                 className="Mac"
                 bezelStyle={machine.bezelStyle}
+                logoOverride={
+                    bootDiskFamily === "aux"
+                        ? "A/UX"
+                        : bootDiskFamily === "beos"
+                          ? "Be"
+                          : undefined
+                }
                 viewTransitionName={
                     disks.length
                         ? viewTransitionNameForDisk(disks[0])
@@ -1202,7 +1210,7 @@ export default function Mac({
                         <MacCDROMs
                             onRun={loadCDROM}
                             machine={machine}
-                            family={disks[0]?.family}
+                            family={bootDiskFamily}
                         />
                     )}
                     {includeLibrary && canLoadFiles && (

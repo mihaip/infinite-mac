@@ -2,6 +2,7 @@ import {
     type SystemDiskDef,
     type PlaceholderDiskDef,
     isPlaceholderDiskDef,
+    type SystemFamily,
 } from "@/defs/disks";
 import {type MachineDef} from "@/defs/machines";
 import {ScreenFrame} from "@/controls/ScreenFrame";
@@ -201,6 +202,7 @@ function Disk({disk, onRun}: DiskProps) {
         <DiskFrame
             bezelStyle={bezelStyle}
             appearance={disk.appearance ?? "Classic"}
+            family={disk.family}
             viewTransitionName={viewTransitionNameForDisk(disk)}
             screen={
                 isPlaceholderDiskDef(disk) ? (
@@ -216,11 +218,13 @@ function Disk({disk, onRun}: DiskProps) {
 function DiskFrame({
     bezelStyle,
     appearance,
+    family,
     screen,
     viewTransitionName,
 }: {
     bezelStyle: MachineDef["bezelStyle"];
     appearance?: Appearance;
+    family?: SystemFamily;
     screen: React.ReactElement;
     viewTransitionName?: string;
 }) {
@@ -239,6 +243,9 @@ function DiskFrame({
             // can find it.
             data-appearance={appearance}
             bezelStyle={bezelStyle}
+            logoOverride={
+                family === "aux" ? "A/UX" : family === "beos" ? "Be" : undefined
+            }
             width={screenWidth}
             height={screenHeight}
             bezelSize={bezelSize}

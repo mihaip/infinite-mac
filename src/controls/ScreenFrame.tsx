@@ -2,6 +2,8 @@ import React, {useCallback, useState} from "react";
 import "@/controls/ScreenFrame.css";
 import AppleLogoColor from "@/Images/AppleLogoColor.svg?react";
 import AppleLogoGrey from "@/Images/AppleLogoGrey.svg?react";
+import AUXLogo from "@/Images/AUXLogo.svg?react";
+import BeLogo from "@/Images/BeLogo.svg?react";
 import NeXTLogo from "@/Images/NeXTLogo.svg?react";
 import classNames from "classnames";
 
@@ -13,6 +15,7 @@ export type ScreenFrameProps = {
     height: number;
     scale?: number;
     fullscreen?: boolean;
+    logoOverride?: "Be" | "A/UX";
     led?: "None" | "On" | "Loading";
     onLedClick?: () => void;
     controls?: ScreenControl[];
@@ -56,6 +59,7 @@ export function ScreenFrame(props: ScreenFrameProps) {
         height,
         scale,
         fullscreen,
+        logoOverride,
         led = "None",
         onLedClick,
         controls = [],
@@ -81,11 +85,15 @@ export function ScreenFrame(props: ScreenFrameProps) {
         "ScreenFrame-Led-Clickable": onLedClick,
     });
     const Logo =
-        bezelStyle === "NeXT"
-            ? NeXTLogo
-            : bezelStyle === "Pinstripes"
-              ? AppleLogoGrey
-              : AppleLogoColor;
+        logoOverride === "Be"
+            ? BeLogo
+            : logoOverride === "A/UX"
+              ? AUXLogo
+              : bezelStyle === "NeXT"
+                ? NeXTLogo
+                : bezelStyle === "Pinstripes"
+                  ? AppleLogoGrey
+                  : AppleLogoColor;
 
     // Track the expanded control by label, so that we can re-find even if we don't
     // have stable references across renders.
