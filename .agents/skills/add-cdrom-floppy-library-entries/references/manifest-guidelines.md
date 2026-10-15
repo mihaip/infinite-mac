@@ -26,7 +26,7 @@ Optional fields seen in existing manifests:
 - `mode`: preserve or add only when there is evidence the selected CD image needs it, such as existing bin/raw images using `MODE1/2352`. The info helper includes `cue_sheet` text for available CUE files, including archive members when using `--list-archive-members`.
 - `self_hosted`: opt into hosting media locally/R2 when requested. Archives are extracted during import; use `src_member` if they contain multiple media candidates.
 - `data_offset` and optional `data_size`: expose a filesystem within the decoded CD, in logical bytes after sector conversion. Establish the filesystem base and size from its partition map/volume geometry; the original hosted media stays intact.
-- `platform`: use `"BeOS"` for BeOS guest media or `"NeXT"` for NeXT media. The default is `"Macintosh"`; each guest drawer shows only entries matching its platform.
+- `platform`: use `"BeOS"` for BeOS guest media, `"NeXT"` for NeXT media, or `"Lisa"` for Lisa media. The default is `"Macintosh"`; each guest drawer shows only entries matching its platform.
 - `is_floppy`: use only for floppy/diskette images.
 
 ## Image Selection
@@ -36,6 +36,7 @@ Optional fields seen in existing manifests:
 - Bundled titles such as "Install Me First" can contain generic installers. Establish machine restrictions from credible documentation or requested inspection of the disc contents, rather than the title alone.
 - If the script misses a useful media extension, update `scripts/internet-archive-item-info.py`; do not work around it with one-off CLI arguments.
 - For floppy drawer entries, use `.moof` when available.
+- For Lisa floppies, use tagged Disk Copy 4.2 images (`.dc42`, `.image`, `.img`, or `.dsk`). The importer validates 400K/800K geometry and data/tag checksums. FileWare/Twiggy images and raw data without sector tags are not supported by the current Lisa 2 frontend.
 - If an item has multiple floppy images, create one manifest per image and suffix display names with `(Disk 1)`, `(Disk 2)`, etc.
 - For multi-disc optical sets, follow the existing convention and use `(Disc 1)`, `(Disc 2)`, etc.
 - Prefer `.iso` over bin/cue when both are available unless the bin/cue pair is known to preserve required audio/data layout.

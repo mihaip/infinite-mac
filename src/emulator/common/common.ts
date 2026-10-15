@@ -579,7 +579,7 @@ export type EmulatorCDROM = {
     // Select bytes from the decoded disk, retaining the complete source image.
     dataOffset?: number;
     dataSize?: number;
-    platform?: "Macintosh" | "NeXT" | "BeOS";
+    platform?: "Macintosh" | "NeXT" | "BeOS" | "Lisa";
     isFloppy?: boolean;
     // Fetch directly from the source, probing for range support and falling
     // back to a full download. Unset: use the CD-ROM proxy.

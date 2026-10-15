@@ -8,6 +8,7 @@ import json
 import os
 import paths
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -24,6 +25,7 @@ DEFAULT_MEDIA_RCLONE_REMOTE = "cf:infinite-mac-disk"
 RCLONE_CONFIG = "scripts/rclone.conf"
 MEDIA_FILE_EXTENSIONS = (
     ".bin",
+    ".dc42",
     ".cdr",
     ".dsk",
     ".image",
@@ -48,7 +50,7 @@ class InputManifest(typing.TypedDict):
     mode: typing.NotRequired[str]
     data_offset: typing.NotRequired[int]
     data_size: typing.NotRequired[int]
-    platform: typing.NotRequired[typing.Literal["Macintosh", "NeXT", "BeOS"]]
+    platform: typing.NotRequired[typing.Literal["Macintosh", "NeXT", "BeOS", "Lisa"]]
     is_floppy: typing.NotRequired[bool]
     self_hosted: typing.NotRequired[bool]
     _manifest_path: typing.NotRequired[str]
@@ -66,7 +68,7 @@ class OutputManifest(typing.TypedDict):
     mode: typing.NotRequired[str]
     dataOffset: typing.NotRequired[int]
     dataSize: typing.NotRequired[int]
-    platform: typing.NotRequired[typing.Literal["Macintosh", "NeXT", "BeOS"]]
+    platform: typing.NotRequired[typing.Literal["Macintosh", "NeXT", "BeOS", "Lisa"]]
     isFloppy: typing.NotRequired[bool]
 
 
@@ -147,7 +149,7 @@ def get_output_manifest(
     if "data_size" in input_manifest:
         output_manifest["dataSize"] = data_size
     if "platform" in input_manifest:
-        if input_manifest["platform"] not in {"Macintosh", "NeXT", "BeOS"}:
+        if input_manifest["platform"] not in {"Macintosh", "NeXT", "BeOS", "Lisa"}:
             raise Exception("Unsupported CD-ROM platform: %s" % input_manifest["platform"])
         output_manifest["platform"] = input_manifest["platform"]
     if "is_floppy" in input_manifest:
@@ -167,6 +169,8 @@ def get_source_info(
         raise Exception("Manifest must have exactly one of src_url or src_file")
     if has_src_file:
         media, src_extension = load_media_file(input_manifest)
+        if input_manifest.get("platform") == "Lisa":
+            validate_lisa_floppy(media)
         hosted_url, file_size, = get_self_hosted_source_info(
             media, write_media, sync_media, media_rclone_remote)
         return hosted_url, input_manifest.get("src_ext", src_extension), file_size
@@ -181,6 +185,8 @@ def get_source_info(
                 "  Downloading media for self-hosting: %s\n" % src_url),
         )
         media, src_extension = load_media_path(src_path, src_name, input_manifest)
+        if input_manifest.get("platform") == "Lisa":
+            validate_lisa_floppy(media)
         hosted_url, file_size = get_self_hosted_source_info(
             media, write_media, sync_media, media_rclone_remote)
         return hosted_url, input_manifest.get("src_ext", src_extension), file_size
@@ -195,6 +201,28 @@ def get_source_info(
         sys.stderr.write("  WARNING: %s does not support range requests\n" %
                          src_url)
     return src_url, src_extension, file_size
+
+
+def validate_lisa_floppy(media: bytes) -> None:
+    # Lisa needs the sector tags; a raw Macintosh-style data image is not enough.
+    if len(media) < 84 or media[0] > 63 or media[82:84] != b"\x01\x00":
+        raise ValueError("Lisa floppies must be tagged Disk Copy 4.2 images")
+    data_size, tag_size, data_sum, tag_sum = struct.unpack(">IIII", media[64:80])
+    if (data_size not in {400 * 1024, 800 * 1024} or
+            tag_size != data_size // 512 * 12 or
+            len(media) != 84 + data_size + tag_size):
+        raise ValueError("Lisa floppies require 400K/800K data and 12-byte sector tags")
+
+    def checksum(data):
+        value = 0
+        for (word,) in struct.iter_unpack(">H", data):
+            value = (value + word) & 0xFFFFFFFF
+            value = (value >> 1) | ((value & 1) << 31)
+        return value
+
+    if (checksum(media[84:84 + data_size]) != data_sum or
+            checksum(media[84 + data_size + 12:]) != tag_sum):
+        raise ValueError("Lisa floppy has invalid DC42 data/tag checksums")
 
 
 def get_self_hosted_source_info(
