@@ -2,6 +2,7 @@
     "compilerOptions": {
         "target": "es2015",
         "lib": ["dom", "dom.iterable", "esnext", "webworker"],
+        "types": ["audioworklet"],
         "allowJs": true,
         "skipLibCheck": true,
         "esModuleInterop": true,
@@ -10,15 +11,14 @@
         "forceConsistentCasingInFileNames": true,
         "noFallthroughCasesInSwitch": true,
         "module": "esnext",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
         "jsx": "react-jsx",
         "incremental": true,
-        "baseUrl": ".",
         "paths": {
-            "@/*": ["src/*"]
+            "@/*": ["./src/*"]
         }
     },
     "include": ["src"]

@@ -1,5 +1,5 @@
 import {DurableObject} from "cloudflare:workers";
-import {type Env} from "index";
+import {type Env} from "./index";
 
 export class EthernetZone extends DurableObject {
     #clients = new Map<WebSocket, EthernetZoneClient>();
