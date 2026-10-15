@@ -175,6 +175,8 @@ export default function Mac({
         initialScreenSize;
     const [screenSize, setScreenSize] = useState(initialScreenSize);
     const {width: screenWidth, height: screenHeight} = screenSize;
+    const pixelAspectRatio = machine.pixelAspectRatio ?? 1;
+    const displayScreenHeight = screenHeight / pixelAspectRatio;
     const {
         isRecording: isRecordingScreen,
         toggleRecording: toggleScreenRecording,
@@ -583,15 +585,14 @@ export default function Mac({
 
         document.body.classList.toggle("fullscreen", isFullScreen);
         if (isFullScreen && screenSizeProp !== "fullscreen") {
-            const heightScale =
-                window.screen.availHeight / screenRef.current!.height;
+            const heightScale = window.screen.availHeight / displayScreenHeight;
             const widthScale =
                 window.screen.availWidth / screenRef.current!.width;
             setScale(Math.min(heightScale, widthScale));
         } else {
             setScale(initialScale);
         }
-    }, [screenSizeProp, initialScale]);
+    }, [screenSizeProp, initialScale, displayScreenHeight]);
     useEffect(() => {
         document.addEventListener("fullscreenchange", handleFullScreenChange);
         document.addEventListener(
@@ -1109,7 +1110,7 @@ export default function Mac({
                 }
                 bezelSize={bezelSize}
                 width={screenWidth}
-                height={screenHeight}
+                height={displayScreenHeight}
                 scale={scale}
                 fullscreen={
                     fullscreen ||
@@ -1141,6 +1142,14 @@ export default function Mac({
                         ref={screenRef}
                         width={screenWidth}
                         height={screenHeight}
+                        style={
+                            pixelAspectRatio === 1
+                                ? undefined
+                                : {
+                                      transform: `scaleY(${1 / pixelAspectRatio})`,
+                                      transformOrigin: "top left",
+                                  }
+                        }
                         onContextMenu={e => e.preventDefault()}
                         onPointerMove={handlePointerMove}
                         onPointerDown={handlePointerDown}
@@ -1425,13 +1434,14 @@ function useInitialScreenScale(
             return undefined;
         }
         const {width, height} = machine.fixedScreenSize;
+        const displayHeight = height / (machine.pixelAspectRatio ?? 1);
         for (const scale of [2, 1.5]) {
             // Scaling transforms the whole frame, including the bezel. Reserve
             // the same space as automatic screen sizing, scaled along with it.
             if (
                 (width + MEDIUM_BEZEL_WIDTH_THRESHOLD) * scale <=
                     window.innerWidth &&
-                (height + MEDIUM_BEZEL_HEIGHT_THRESHOLD) * scale <=
+                (displayHeight + MEDIUM_BEZEL_HEIGHT_THRESHOLD) * scale <=
                     window.innerHeight
             ) {
                 return scale;
@@ -1458,6 +1468,7 @@ function useInitialScreenSize(runDef: RunDef): {width: number; height: number} {
         }
         let {innerWidth: windowWidth, innerHeight: windowHeight} = window;
         let {width: screenWidth, height: screenHeight} = window.screen;
+        const pixelAspectRatio = machine.pixelAspectRatio ?? 1;
         if (screenScaleProp) {
             windowWidth = Math.floor(windowWidth / screenScaleProp);
             windowHeight = Math.floor(windowHeight / screenScaleProp);
@@ -1470,7 +1481,8 @@ function useInitialScreenSize(runDef: RunDef): {width: number; height: number} {
                 const availableWidth =
                     windowWidth - MEDIUM_BEZEL_WIDTH_THRESHOLD;
                 const availableHeight =
-                    windowHeight - MEDIUM_BEZEL_HEIGHT_THRESHOLD;
+                    (windowHeight - MEDIUM_BEZEL_HEIGHT_THRESHOLD) *
+                    pixelAspectRatio;
                 for (const {width, height} of supportedScreenSizes) {
                     if (width <= availableWidth && height <= availableHeight) {
                         return {width, height};
@@ -1480,9 +1492,15 @@ function useInitialScreenSize(runDef: RunDef): {width: number; height: number} {
             }
             case "window":
             case "embed":
-                return {width: windowWidth, height: windowHeight};
+                return {
+                    width: windowWidth,
+                    height: Math.floor(windowHeight * pixelAspectRatio),
+                };
             case "fullscreen":
-                return {width: screenWidth, height: screenHeight};
+                return {
+                    width: screenWidth,
+                    height: Math.floor(screenHeight * pixelAspectRatio),
+                };
         }
     }, [machine, screenSizeProp, screenScaleProp, supportedScreenSizes]);
 }

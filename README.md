@@ -293,8 +293,9 @@ master floppy, create and save a rectangle document, power off, and reopen it
 after a cold boot. The resulting `boot-screen.pgm` should show that rectangle.
 
 The initial browser frontend targets a Lisa 2/5 configuration: H boot ROM, A8 I/O
-ROM, 1536 KB RAM, one ProFile, and a 720×364 framebuffer. It loads tagged DC42
-images into RAM, writes changed sectors through `workerApi.disks`, and refreshes
+ROM, 1536 KB RAM, one ProFile, and a 720×364 framebuffer displayed at 720×500
+using the machine's pixel aspect ratio. It loads tagged DC42 images into RAM,
+writes changed sectors through `workerApi.disks`, and refreshes
 DC42 checksums before worker periodic tasks. Guest beeps use signed 8-bit mono
 PCM at 44.1 kHz. Mouse input uses pointer lock and relative COPS motion packets,
 bypassing LisaEm's absolute-position seeking and anti-jitter damping; click the
@@ -302,9 +303,8 @@ screen to capture the pointer and press Escape to release it. The native harness
 retains absolute input for replay. Run its COPS input tests with
 `ctest --test-dir lisaem/build-im-native --output-on-failure`.
 The native harness can capture audio by setting
-`LISAEM_AUDIO_DUMP` to a raw `.s8` filename. Printers, serial/network
-devices, alternate machine configurations, and display aspect correction remain
-outside this initial bringup.
+`LISAEM_AUDIO_DUMP` to a raw `.s8` filename. Printers, serial/network devices,
+and alternate machine configurations remain outside this initial bringup.
 Browser PRAM persistence is also deferred; guest restarts currently close the run
 cleanly, and a new run performs a cold boot. Native replay accepts an optional
 input file (`select-disk.txt` and `install-los.txt` in the frontend directory are

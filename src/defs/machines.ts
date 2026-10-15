@@ -47,6 +47,9 @@ export type MachineDef = EmulatorDef & {
     modifier?: "FDHD";
     prefsPath: string;
     fixedScreenSize?: MachineScreenSize;
+    // Pixel width / height, defaulting to square pixels. Presentation keeps
+    // the framebuffer width and scales its height by the inverse ratio.
+    pixelAspectRatio?: number;
     // Family-specific sizes override the default list.
     supportedScreenSizes?: {default: MachineScreenSize[]} & Partial<
         Record<SystemFamily, MachineScreenSize[]>
@@ -648,6 +651,8 @@ export const LISA_2: MachineDef = {
     emulatorType: "LisaEm",
     prefsPath: emptyPrefsPath,
     fixedScreenSize: {width: 720, height: 364},
+    // Match LisaEm's corrected 720×500 presentation.
+    pixelAspectRatio: 364 / 500,
     bezelStyle: "Beige",
     ramSizes: ["1536K"],
     platform: "Lisa",
