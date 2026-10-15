@@ -128,7 +128,7 @@ class EmulatorWorkerCORSCDROMDisk extends EmulatorWorkerChunkedDisk {
             }
             return {chunk};
         } catch (e) {
-            return {error: `Error: ${e}`, chunkUrl};
+            return {error: `Error: ${String(e)}`, chunkUrl};
         }
     }
 }

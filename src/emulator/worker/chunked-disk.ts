@@ -146,7 +146,7 @@ export class EmulatorWorkerChunkedDisk implements EmulatorWorkerDisk {
         try {
             xhr.send();
         } catch (e) {
-            return {error: `Error: ${e}`, chunkUrl};
+            return {error: `Error: ${String(e)}`, chunkUrl};
         }
         if (xhr.status !== 200) {
             return {

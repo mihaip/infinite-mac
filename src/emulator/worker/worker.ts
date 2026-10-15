@@ -1,7 +1,6 @@
 import {
     type EmulatorFallbackSetClipboardDataCommand,
     type EmulatorCDROM,
-    type EmulatorChunkedFileSpec,
     type EmulatorClipboardData,
     type EmulatorFallbackCommand,
     type EmulatorFallbackEthernetReceiveCommand,
@@ -707,7 +706,7 @@ export class EmulatorFallbackEndpoint {
         }
     }
 
-    #fetchSync(url: string): any | undefined {
+    #fetchSync(url: string): any {
         // Don't keep trying to fetch if it's failing. That likely means that
         // the service worker was not registered or activated, and these
         // requests are hitting the server directly, which we don't want.

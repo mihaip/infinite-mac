@@ -13,12 +13,10 @@ const headers = {
 export default defineConfig(() => {
     return {
         lint: {
-            plugins: ["typescript", "react", "import"],
-            // Preserve the previous rule set instead of enabling Oxlint defaults.
-            // TODO: Evaluate adopting Oxlint defaults and keeping only project-specific
-            // overrides, reviewing any added or removed checks before switching.
+            plugins: ["typescript", "unicorn", "oxc", "react", "import"],
+            // Use Oxlint correctness checks plus the project rules below.
             categories: {
-                correctness: "off",
+                correctness: "error",
             },
             options: {
                 typeAware: true,
@@ -31,158 +29,25 @@ export default defineConfig(() => {
                 "src/stuffit/generated/**",
             ],
             rules: {
-                "for-direction": "error",
-                "no-async-promise-executor": "error",
                 "no-case-declarations": "error",
-                "no-compare-neg-zero": "error",
-                "no-cond-assign": ["error", "except-parens"],
-                "no-constant-binary-expression": "error",
-                "no-constant-condition": [
-                    "error",
-                    {
-                        checkLoops: "allExceptWhileTrue",
-                    },
-                ],
-                "no-control-regex": "error",
-                "no-debugger": "error",
-                "no-delete-var": "error",
-                "no-dupe-else-if": "error",
-                "no-duplicate-case": "error",
-                "no-empty": [
-                    "error",
-                    {
-                        allowEmptyCatch: false,
-                    },
-                ],
-                "no-empty-character-class": "error",
-                "no-empty-pattern": [
-                    "error",
-                    {
-                        allowObjectPatternsAsParameters: false,
-                    },
-                ],
-                "no-empty-static-block": "error",
-                "no-ex-assign": "error",
-                "no-extra-boolean-cast": ["error", {}],
-                "no-fallthrough": [
-                    "error",
-                    {
-                        allowEmptyCase: false,
-                        reportUnusedFallthroughComment: false,
-                    },
-                ],
-                "no-global-assign": [
-                    "error",
-                    {
-                        exceptions: [],
-                    },
-                ],
-                "no-invalid-regexp": ["error", {}],
-                "no-irregular-whitespace": [
-                    "error",
-                    {
-                        skipComments: false,
-                        skipJSXText: false,
-                        skipRegExps: false,
-                        skipStrings: true,
-                        skipTemplates: false,
-                    },
-                ],
-                "no-loss-of-precision": "error",
-                "no-misleading-character-class": [
-                    "error",
-                    {
-                        allowEscape: false,
-                    },
-                ],
-                "no-nonoctal-decimal-escape": "error",
+                "no-empty": "error",
+                "no-fallthrough": "error",
                 "no-prototype-builtins": "error",
                 "no-regex-spaces": "error",
-                "no-self-assign": [
-                    "error",
-                    {
-                        props: true,
-                    },
-                ],
-                "no-shadow-restricted-names": [
-                    "error",
-                    {
-                        reportGlobalThis: false,
-                    },
-                ],
-                "no-sparse-arrays": "error",
                 "no-unexpected-multiline": "error",
-                "no-unsafe-finally": "error",
-                "no-unsafe-optional-chaining": [
-                    "error",
-                    {
-                        disallowArithmeticOperators: false,
-                    },
-                ],
-                "no-unused-labels": "error",
-                "no-unused-private-class-members": "error",
-                "no-useless-backreference": "error",
-                "no-useless-catch": "error",
-                "no-useless-escape": [
-                    "error",
-                    {
-                        allowRegexCharacters: [],
-                    },
-                ],
-                "require-yield": "error",
-                "use-isnan": [
-                    "error",
-                    {
-                        enforceForIndexOf: false,
-                        enforceForSwitchCase: true,
-                    },
-                ],
-                "valid-typeof": [
-                    "error",
-                    {
-                        requireStringLiterals: false,
-                    },
-                ],
                 "no-var": "error",
-                "prefer-const": [
-                    "error",
-                    {
-                        destructuring: "any",
-                        ignoreReadBeforeAssign: false,
-                    },
-                ],
+                "prefer-const": "error",
                 "prefer-rest-params": "error",
                 "prefer-spread": "error",
                 "typescript/ban-ts-comment": "error",
                 "no-array-constructor": "error",
-                "typescript/no-duplicate-enum-values": "error",
                 "typescript/no-empty-object-type": "error",
-                "typescript/no-extra-non-null-assertion": "error",
-                "typescript/no-misused-new": "error",
                 "typescript/no-namespace": "error",
-                "typescript/no-non-null-asserted-optional-chain": "error",
                 "typescript/no-require-imports": "error",
-                "typescript/no-this-alias": "error",
                 "typescript/no-unnecessary-type-constraint": "error",
-                "typescript/no-unsafe-declaration-merging": "error",
                 "typescript/no-unsafe-function-type": "error",
-                "no-unused-expressions": [
-                    "error",
-                    {
-                        allowShortCircuit: false,
-                        allowTaggedTemplates: false,
-                        allowTernary: false,
-                    },
-                ],
-                "typescript/no-wrapper-object-types": "error",
-                "typescript/prefer-as-const": "error",
-                "typescript/prefer-namespace-keyword": "error",
-                "typescript/triple-slash-reference": "error",
                 "react/rules-of-hooks": "error",
-                "react/exhaustive-deps": "warn",
                 "import/named": "error",
-                "import/namespace": "error",
-                "import/default": "error",
                 "import/export": "error",
                 "import/no-named-as-default": "warn",
                 "import/no-named-as-default-member": "warn",
@@ -192,49 +57,18 @@ export default defineConfig(() => {
                         preferInline: true,
                     },
                 ],
-                "array-callback-return": [
-                    "error",
-                    {
-                        allowImplicit: false,
-                        checkForEach: false,
-                        allowVoid: false,
-                    },
-                ],
+                "array-callback-return": "error",
                 "no-constructor-return": "error",
-                "no-promise-executor-return": [
-                    "error",
-                    {
-                        allowVoid: false,
-                    },
-                ],
+                "no-promise-executor-return": "error",
                 "no-self-compare": "error",
                 "no-template-curly-in-string": "error",
                 "no-unmodified-loop-condition": "error",
-                "no-unreachable-loop": [
-                    "error",
-                    {
-                        ignore: [],
-                    },
-                ],
-                "no-eval": [
-                    "error",
-                    {
-                        allowIndirect: false,
-                    },
-                ],
+                "no-unreachable-loop": "error",
                 "no-implied-eval": "error",
                 "no-object-constructor": "error",
                 "no-new-wrappers": "error",
                 "no-script-url": "error",
                 "no-useless-constructor": "error",
-                "no-useless-rename": [
-                    "error",
-                    {
-                        ignoreDestructuring: false,
-                        ignoreImport: false,
-                        ignoreExport: false,
-                    },
-                ],
                 eqeqeq: "error",
                 "object-shorthand": [
                     "error",
@@ -268,12 +102,31 @@ export default defineConfig(() => {
                 "typescript/prefer-includes": "error",
                 "typescript/prefer-return-this-type": "error",
                 "typescript/prefer-string-starts-ends-with": "error",
-                "typescript/require-array-sort-compare": [
+                "react/exhaustive-deps": "warn",
+                "no-irregular-whitespace": [
                     "error",
                     {
-                        ignoreStringArrays: true,
+                        skipJSXText: false,
+                        skipRegExps: false,
+                        skipTemplates: false,
                     },
                 ],
+                // Keep callback signatures and intentional property omissions.
+                "no-unused-vars": [
+                    "error",
+                    {
+                        args: "none",
+                        caughtErrors: "none",
+                        ignoreRestSiblings: true,
+                    },
+                ],
+                // Review fire-and-forget calls separately before enforcing this.
+                "typescript/no-floating-promises": "off",
+                // These React Compiler checks need a separate migration.
+                "react/preserve-manual-memoization": "off",
+                "react/purity": "off",
+                "react/refs": "off",
+                "react/set-state-in-effect": "off",
             },
             // Vite synthesizes default exports for these ?worker imports.
             overrides: [

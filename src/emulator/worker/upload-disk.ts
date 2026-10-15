@@ -29,7 +29,7 @@ export class EmulatorWorkerUploadDisk extends EmulatorWorkerChunkedDisk {
             return {chunk};
         } catch (e) {
             return {
-                error: `Error: ${e}`,
+                error: `Error: ${String(e)}`,
                 chunkUrl: `upload-${spec.name}-chunk-${range.join("-")}`,
             };
         }

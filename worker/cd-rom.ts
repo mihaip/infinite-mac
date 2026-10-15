@@ -136,7 +136,7 @@ async function handlePUT(srcUrl: string, origin: string) {
         response = await fetchMetadata(srcUrl, origin);
     } catch (e) {
         console.error("CD-ROM HEAD request failed:", e, {srcUrl});
-        return errorResponse(`CD-ROM HEAD request failed: ${e}`);
+        return errorResponse(`CD-ROM HEAD request failed: ${String(e)}`);
     }
     if (response.status >= 500) {
         console.error(

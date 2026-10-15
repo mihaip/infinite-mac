@@ -126,7 +126,10 @@ async function handleProxy(url: URL) {
             const hint =
                 'If this is local development, run "npm run generate-local-ca-bundle" and restart "npm run start".';
             console.error(hint);
-            return errorResponse(`Error fetching URL: ${err}\n${hint}`, 502);
+            return errorResponse(
+                `Error fetching URL: ${String(err)}\n${hint}`,
+                502
+            );
         }
         return errorResponse("Error fetching URL: " + err, 502);
     }

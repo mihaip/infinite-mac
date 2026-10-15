@@ -194,7 +194,7 @@ export default function Mac({
         },
         onError(error) {
             console.error("Could not record screen", error);
-            setEmulatorToastText(`Could not record screen (${error})`);
+            setEmulatorToastText(`Could not record screen (${String(error)})`);
         },
     });
 

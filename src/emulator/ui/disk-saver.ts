@@ -38,8 +38,8 @@ export async function exportDiskSaver(disk: EmulatorDiskDef) {
     const dataHandle = await opfsRoot.getFileHandle(dataName, {create: true});
 
     const zip = new JSZip();
-    await zip.file(dirtyChunksName, dirtyChunksHandle.getFile());
-    await zip.file(dataName, dataHandle.getFile());
+    zip.file(dirtyChunksName, dirtyChunksHandle.getFile());
+    zip.file(dataName, dataHandle.getFile());
 
     const zipBlob = await zip.generateAsync({
         compression: "DEFLATE",

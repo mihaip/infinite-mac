@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Dialog} from "@/controls/Dialog";
 import {Donate} from "@/app/Donate";
 import * as varz from "@/lib/varz";

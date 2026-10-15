@@ -230,7 +230,7 @@ const COMMAND_LABEL = (
 const FULL_SIZE_KEYS: KeyDef[][] = [
     [
         {code: "Escape", label: "esc", special: true},
-        ...new Array(12).fill(0).map((_, i) => ({
+        ...Array.from({length: 12}, (_, i) => ({
             code: `F${i + 1}`,
             label: `F${i + 1}`,
             special: true,

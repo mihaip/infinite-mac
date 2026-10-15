@@ -138,10 +138,7 @@ export type BasiliskIIEmulatorSpeed = MinivMacEmulatorSpeed;
 // Keep values in sync with Snow speed handling in snow/frontend_im/src/input.rs.
 export type SnowEmulatorSpeed = -2 | 7 | -1 | 9;
 
-export type EmulatorSpeed =
-    | MinivMacEmulatorSpeed
-    | BasiliskIIEmulatorSpeed
-    | SnowEmulatorSpeed;
+export type EmulatorSpeed = MinivMacEmulatorSpeed | SnowEmulatorSpeed;
 
 export type EmulatorSpeedConfig = {
     defaultSpeed: EmulatorSpeed;
