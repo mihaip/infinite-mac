@@ -4,7 +4,7 @@ RUN apt update && apt install -y \
     python3 cmake git build-essential \
     autoconf libsdl1.2-dev libsdl2-dev wget lzip curl yacc
 
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_26.x | bash - && \
     apt-get install -y nodejs
 
 # Emscripten has separate arm64 vs. x86-64 Docker images, so to simplify things
