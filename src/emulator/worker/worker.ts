@@ -592,6 +592,13 @@ class EmulatorWorkerApi {
         postMessage({type: "emulator_stats", stats});
     }
 
+    didEjectFloppy(name: string, data: number, size: number) {
+        const contents = this.#emscriptenModule.HEAPU8.slice(data, data + size);
+        postMessage({type: "emulator_floppy_ejected", name, contents}, [
+            contents.buffer,
+        ]);
+    }
+
     getClipboardText(): string | undefined {
         return this.#clipboard.clipboardText();
     }

@@ -153,7 +153,17 @@ function MacCDROMsContents({
             )}
             <DrawerHeader>
                 <div className="Mac-CDROMs-Instructions">
-                    {floppies ? (
+                    {floppies && platform === "Lisa" ? (
+                        <>
+                            Load Lisa floppy images into the drive. Use
+                            Housekeeping → Eject Micro Diskette in the Lisa
+                            desktop to eject a disk; the next selected floppy
+                            will then be inserted. Custom images must be in Disk
+                            Copy 4.2 format with sector tags. After ejection,
+                            use More → Save Ejected Floppy to download your
+                            modified disk.
+                        </>
+                    ) : floppies ? (
                         <>
                             Load floppy images into the emulated Mac to access
                             additional software. Only one additional floppy may
@@ -219,20 +229,20 @@ function MacCustomCDROM({
             if (floppies) {
                 cdrom.isFloppy = true;
             }
-            history.replaceState(
-                {},
-                "",
-                location.pathname + "?cdrom_url=" + encodeURIComponent(url)
-            );
+            const runURL = new URL(location.href);
+            runURL.searchParams.set("cdrom_url", url);
+            history.replaceState({}, "", runURL);
             onRun(cdrom);
             onDone();
         } catch (err) {
-            alert("Could not load CD-ROM: " + (err as Error).message);
+            alert(`Could not load ${noun}: ` + (err as Error).message);
         }
     };
     const noun = floppies ? "floppy" : "CD-ROM";
     const extensions = floppies
-        ? [".img", ".moof"]
+        ? machine.emulatorType === "LisaEm"
+            ? [".dc42", ".image", ".img", ".dsk"]
+            : [".img", ".moof"]
         : [".iso", ".img", ".toast", ".bin"];
     const displayExtensions = extensions
         .filter(ext =>

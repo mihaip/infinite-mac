@@ -127,6 +127,11 @@ export type EmulatorFileLoadingProgress = {
 };
 
 export interface EmulatorDelegate {
+    emulatorDidEjectFloppy?(
+        emulator: Emulator,
+        name: string,
+        contents: Uint8Array<ArrayBuffer>
+    ): void;
     emulatorDidExit?(emulator: Emulator): void;
     emulatorDidChangeScreenSize?(width: number, height: number): void;
     emulatorDidMakeLoadingProgress?(
@@ -427,15 +432,23 @@ export class Emulator {
 
         switch (emulatorType) {
             case "LisaEm": {
-                const disk =
-                    disks[0] ??
-                    this.#config.diskFiles[0] ??
-                    this.#config.cdroms[0];
+                const media = [
+                    ...disks,
+                    ...this.#config.diskFiles,
+                    ...this.#config.cdroms,
+                ];
+                const disk = media.find(disk => !disk.isFloppy);
                 if (!disk)
                     throw new Error(
                         "LisaEm requires a tagged DC42 hard disk image."
                     );
-                args = [romFileName, disk.name];
+                args = [
+                    romFileName,
+                    disk.name,
+                    ...media
+                        .filter(disk => disk.isFloppy)
+                        .map(disk => disk.name),
+                ];
                 configDebugStr = args.join(" ");
                 break;
             }
@@ -993,6 +1006,12 @@ export class Emulator {
             if (this.#audio instanceof FallbackEmulatorAudio) {
                 this.#audio.handleData(e.data.data);
             }
+        } else if (e.data.type === "emulator_floppy_ejected") {
+            this.#delegate?.emulatorDidEjectFloppy?.(
+                this,
+                e.data.name,
+                e.data.contents
+            );
         } else if (e.data.type === "emulator_extract_directory") {
             // Raw extraction is for internal use only (for adding to the
             // library), so hide it behind a modifier.

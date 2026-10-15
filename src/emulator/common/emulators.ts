@@ -94,6 +94,9 @@ export function emulatorSupportsCDROMExtension(
     type: EmulatorType,
     srcExtension: string
 ): boolean {
+    if (type === "LisaEm") {
+        return [".dc42", ".image", ".img", ".dsk"].includes(srcExtension);
+    }
     if (srcExtension === ".moof") {
         return type === "Snow";
     }

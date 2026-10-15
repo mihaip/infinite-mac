@@ -19,6 +19,7 @@ export class EmulatorWorkerDisksApi {
     #pendingDiskNames: string[] = [];
     #lastDiskWriteTime = 0;
     #diskIdCounter = 0;
+    #diskNameCounter = 0;
 
     #removableDisks: EmulatorRemovableDisk[] = [];
     #removableFloppyDisks: EmulatorRemovableDisk[] = [];
@@ -96,6 +97,26 @@ export class EmulatorWorkerDisksApi {
             }
             return;
         }
+        // Hot-inserted images can share a filename (or library title). Give
+        // each insertion its own identity, including when both are queued.
+        if (this.#disks.some(existing => existing.name === disk.name)) {
+            const source = disk;
+            let name: string;
+            do {
+                name = `/inserted/${this.#diskNameCounter++}/${source.name}`;
+            } while (this.#disks.some(existing => existing.name === name));
+            disk = {
+                name,
+                size: source.size,
+                isFloppy: source.isFloppy,
+                isCdrom: source.isCdrom,
+                read: (buffer, offset, length) =>
+                    source.read(buffer, offset, length),
+                write: (buffer, offset, length) =>
+                    source.write(buffer, offset, length),
+                validate: () => source.validate?.(),
+            };
+        }
         this.#disks.push(disk);
         this.#pendingDiskNames.push(disk.name);
     }
@@ -124,7 +145,7 @@ export class EmulatorWorkerDisksApi {
         return diskId;
     }
 
-    close(diskId: DiskId) {
+    close(diskId: DiskId, discard = false) {
         const disk = this.#openedDisks.get(diskId);
         if (!disk) {
             throw new Error(`Disk not found: ${diskId}`);
@@ -132,6 +153,9 @@ export class EmulatorWorkerDisksApi {
         this.#openedDisks.delete(diskId);
         if (disk instanceof EmulatorRemovableDisk) {
             disk.eject();
+        }
+        if (discard && !Array.from(this.#openedDisks.values()).includes(disk)) {
+            this.#disks = this.#disks.filter(existing => existing !== disk);
         }
     }
 

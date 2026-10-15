@@ -129,6 +129,7 @@ export default function Mac({
             fraction: 1.0,
         });
     const [emulatorToastText, setEmulatorToastText] = useToastNotification();
+    const [ejectedFloppy, setEjectedFloppy] = useState<File>();
     const [emulatorLoadingDiskChunk, setEmulatorLoadingDiskChunk] =
         useState(false);
     const [emulatorErrorText, setEmulatorErrorText] =
@@ -325,6 +326,16 @@ export default function Mac({
                     left: number
                 ) {
                     setEmulatorLoadingProgress([total, left]);
+                },
+                emulatorDidEjectFloppy(emulator, name, contents) {
+                    const basename = name.split("/").pop() ?? "Lisa Floppy";
+                    const filename =
+                        basename.replace(/\.(dc42|image|img|dsk)$/i, "") +
+                        ".dc42";
+                    setEjectedFloppy(new File([contents], filename));
+                    setEmulatorToastText(
+                        "Floppy ejected. Save a copy from More → Save Ejected Floppy."
+                    );
                 },
                 emulatorDidStartToLoadDiskChunk(emulator: Emulator) {
                     setEmulatorLoadingDiskChunk(true);
@@ -545,6 +556,7 @@ export default function Mac({
         handleMacLibraryRun,
         handleMacLibraryProgress,
         handleScreenRecordingFrame,
+        setEmulatorToastText,
         screenUpdateMessages,
         listenForControlMessages,
     ]);
@@ -922,9 +934,12 @@ export default function Mac({
         if (canLoadFiles) {
             input.multiple = true;
         } else {
-            input.accept = canLoadCDROMs
-                ? diskImageExtensions.join(",")
-                : floppyDiskImageExtensions.join(",");
+            input.accept =
+                emulatorType === "LisaEm"
+                    ? ".dc42,.image,.img,.dsk"
+                    : canLoadCDROMs
+                      ? diskImageExtensions.join(",")
+                      : floppyDiskImageExtensions.join(",");
         }
 
         input.onchange = () => {
@@ -1015,6 +1030,15 @@ export default function Mac({
                       {
                           label: canLoadFiles ? "Load File…" : "Load Disk…",
                           handler: handleLoadFileClick,
+                      },
+                  ]
+                : []),
+            ...(ejectedFloppy
+                ? [
+                      {
+                          label: "Save Ejected Floppy…",
+                          handler: () =>
+                              saveAs(ejectedFloppy, ejectedFloppy.name),
                       },
                   ]
                 : []),

@@ -3652,30 +3652,36 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 var ASM_CONSTS = {
-  181979: () => {
+  182001: () => {
     workerApi.didOpenVideo(720, 364);
   },
-  182017: () => {
+  182039: () => {
     workerApi.didOpenAudio(44100, 8, 1);
   },
-  182058: $0 => {
+  182080: $0 => {
     workerApi.blit($0, 720 * 364 * 4);
   },
-  182097: () => {
+  182119: () => {
     workerApi.checkForPeriodicTasks();
   },
-  182136: $0 => {
+  182158: () => {
+    workerApi.reportError("Could not insert Lisa floppy. Use a 400K or 800K Disk Copy 4.2 image with sector tags.");
+  },
+  182275: $0 => {
     workerApi.sleep($0);
   },
-  182161: () => {
+  182300: () => {
     workerApi.exit();
   },
-  182183: () => workerApi.acquireInputLock(),
-  182224: () => {
+  182322: () => workerApi.acquireInputLock(),
+  182363: () => {
     workerApi.releaseInputLock();
   },
-  182258: ($0, $1) => {
+  182397: ($0, $1) => {
     workerApi.enqueueAudio($0, $1);
+  },
+  182433: ($0, $1, $2) => {
+    workerApi.didEjectFloppy(UTF8ToString($0), $1, $2);
   }
 };
 
@@ -3709,7 +3715,7 @@ function disk_write(id, buf, offset, size) {
 }
 
 function disk_close(id) {
-  workerApi.disks.close(id);
+  workerApi.disks.close(id, true);
 }
 
 // Imports from the Wasm binary.

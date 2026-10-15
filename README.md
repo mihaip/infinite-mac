@@ -305,6 +305,33 @@ cleanly, and a new run performs a cold boot. Native replay accepts an optional
 input file (`select-disk.txt` and `install-los.txt` in the frontend directory are
 examples), and `LISAEM_BOOT_FLOPPY` selects a floppy boot.
 
+The Lisa Floppies drawer contains 14 tagged DC42 images from the Internet
+Archive's [Apple Lisa collection](https://archive.org/details/apple-lisa_202111)
+and [LOS 3.1 installer set](https://archive.org/details/los-3.1-en). They use the
+normal `CD-ROMs/*.json` import and self-hosted media pipeline with `platform:
+"Lisa"`; the importer checks geometry and both DC42 checksums. Rebuild the
+catalog with `npm run import-cd-roms`. The collection includes the seven office
+applications (LisaWrite occupies two disks), LisaGuide, and five installer
+disks. Container validation is not a claim that every application or installer
+has been exercised in the guest.
+
+Select a disk in the drawer, load a tagged `.dc42`/`.image` file, or use Load
+from URL. A floppy specified in the run URL is also inserted at startup while
+the ProFile remains the boot disk. Further selections queue until the drive is
+empty. In the Lisa desktop, use **Housekeeping → Eject Micro Diskette** (Apple-E).
+The frontend waits for the eject interrupt to clear and allows a one-second
+guest disk-change interval before inserting the next image.
+
+After ejection, **More → Save Ejected Floppy…** downloads the most recently
+ejected disk, including guest writes, tags, and refreshed checksums. Save it
+before ejecting another disk or closing the run. This is a session download;
+the drawer's source images remain pristine. A browser-exported LisaDraw disk
+has been checked for valid data/tag checksums and reopened in the native
+frontend, showing its application, stationery, and examples. Browser checks
+also cover an initial floppy supplied through the run URL, queued LisaDraw →
+LisaCalc swaps, and reimporting the exported LisaDraw disk. Saved HD and browser
+PRAM work remain deferred.
+
 ### Internal test pages
 
 There are some internal pages available to make development easier:
