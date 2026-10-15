@@ -56,6 +56,7 @@ import {
     JS_CODE_TO_ADB_KEYCODE,
     JS_CODE_TO_MINI_VMAC_KEYCODE,
     JS_CODE_TO_NEXT_KEYCODE,
+    JS_CODE_TO_LISA_KEYCODE,
 } from "@/emulator/common/key-codes";
 import {
     type EmulatorEthernet,
@@ -425,6 +426,19 @@ export class Emulator {
         let configDebugStr;
 
         switch (emulatorType) {
+            case "LisaEm": {
+                const disk =
+                    disks[0] ??
+                    this.#config.diskFiles[0] ??
+                    this.#config.cdroms[0];
+                if (!disk)
+                    throw new Error(
+                        "LisaEm requires a tagged DC42 hard disk image."
+                    );
+                args = [romFileName, disk.name];
+                configDebugStr = args.join(" ");
+                break;
+            }
             case "DingusPPC":
                 args = configToDingusPPCArgs(this.#config, {
                     disks,
@@ -883,6 +897,9 @@ export class Emulator {
         }
         if (this.#config.machine.emulatorType === "Previous") {
             return JS_CODE_TO_NEXT_KEYCODE[code];
+        }
+        if (this.#config.machine.emulatorType === "LisaEm") {
+            return JS_CODE_TO_LISA_KEYCODE[code];
         }
         if (this.#config.machine.emulatorType === "Mini vMac") {
             const keyCode = JS_CODE_TO_MINI_VMAC_KEYCODE[code];

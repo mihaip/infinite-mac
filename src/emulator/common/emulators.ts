@@ -5,6 +5,7 @@ export type EmulatorType =
     | "DingusPPC"
     | "Previous"
     | "PearPC"
+    | "LisaEm"
     | "Snow";
 
 export type EmulatorMinivMacSubtypes =
@@ -82,7 +83,7 @@ export function emulatorSupportsDebugLog(type: EmulatorType): boolean {
 }
 
 export function emulatorSupportsDiskCopy42Disks(type: EmulatorType): boolean {
-    return type === "Mini vMac" || type === "Snow";
+    return type === "Mini vMac" || type === "Snow" || type === "LisaEm";
 }
 
 export function emulatorHasOptionalBlueSCSI(type: EmulatorType): boolean {

@@ -26,5 +26,7 @@ export function importEmulator(def: EmulatorDef): Promise<{default: any}> {
             return import("@/emulator/worker/emscripten/previous");
         case "Snow":
             return import("@/emulator/worker/emscripten/snow");
+        case "LisaEm":
+            return import("@/emulator/worker/emscripten/lisaem");
     }
 }

@@ -24,6 +24,7 @@ import {
     QUADRA_650,
     POWER_MACINTOSH_7300,
     IMAC_G3,
+    LISA_2,
 } from "@/defs/machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -2701,6 +2702,19 @@ export const SYSTEM_DISKS_BY_NAME: {[name: string]: SystemDiskDef} =
             disk,
         ])
     );
+
+// Available by explicit /run URL during bringup; not on the public timeline.
+// scripts/lisa.py prepare-web creates the local chunks from pinned source media.
+SYSTEM_DISKS_BY_NAME["Lisa Office System 3.1"] = {
+    displayName: "Lisa Office System 3.1",
+    releaseDate: [1984, 4, 1], // Month-level date; day is a placeholder during bringup.
+    description: "Lisa Office System with the Lisa 7/7 applications.",
+    preferredMachine: LISA_2,
+    generatedSpec: () => import("@/Data/Lisa Office System 3.1.dc42.json"),
+    prefetchChunks: Array.from({length: 40}, (_, i) => i),
+    infiniteHdVariant: "none",
+    supportsCDROMs: false,
+};
 
 export const FLOPPY_DISKS_BY_NAME: {[name: string]: SystemDiskDef} =
     Object.fromEntries(FLOPPY_DISKS.map(disk => [systemDiskName(disk), disk]));

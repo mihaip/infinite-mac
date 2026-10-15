@@ -107,7 +107,7 @@ export function runDefSupportsInfiniteHD(runDef: RunDef): boolean {
 
 export function runDefSupportsCDROMs(runDef: RunDef): boolean {
     const type = runDef.machine.emulatorType;
-    if (type === "PearPC") {
+    if (type === "PearPC" || type === "LisaEm") {
         return false;
     }
     if (type === "Snow" && !runDef.machine.hasSCSI) {
@@ -120,9 +120,13 @@ export function runDefSupportsCDROMs(runDef: RunDef): boolean {
 }
 
 export function runDefSupportsFloppies(runDef: RunDef): boolean {
-    return ["Snow", "Mini vMac", "BasiliskII", "SheepShaver"].includes(
-        runDef.machine.emulatorType
-    );
+    return [
+        "Snow",
+        "Mini vMac",
+        "BasiliskII",
+        "SheepShaver",
+        "LisaEm",
+    ].includes(runDef.machine.emulatorType);
 }
 
 export function runDefSupportsSavedHD(

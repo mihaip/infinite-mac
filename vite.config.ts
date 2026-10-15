@@ -216,6 +216,9 @@ export default defineConfig(() => {
             port: 3127,
             headers,
             host: "0.0.0.0",
+            // Native LisaEm resources include recursive compatibility symlinks.
+            // The web frontend consumes only the imported JS/Wasm artifacts.
+            watch: {ignored: ["**/lisaem/**"]},
         },
         preview: {
             port: 4127,

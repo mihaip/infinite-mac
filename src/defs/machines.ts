@@ -30,6 +30,7 @@ import emptyPrefsPath from "@/Data/EmptyPrefs.txt";
 import pearPCConfigPath from "@/Data/PearPCConfig.txt";
 import pearpcVideoXPath from "@/Data/PearPC-video-x.rom";
 import previousConfigPath from "@/Data/PreviousConfig.txt";
+import lisaRomPath from "@/Data/Lisa-H.rom";
 import deviceImageHeaderPath from "@/Data/Device Image Header (All Drivers).hda";
 import macIIDisplayCardRomPath from "@/Data/mac-ii-display-card.rom";
 import macIIDisplayCard824RomPath from "@/Data/mac-ii-display-card-8-24.rom";
@@ -76,7 +77,7 @@ export type MachineScreenSize = {
 
 export type MachineDefRAMSize = `${number}M` | `${number}K`;
 
-export type MachinePlatform = "Macintosh" | "NeXT";
+export type MachinePlatform = "Macintosh" | "NeXT" | "Lisa";
 
 const snowSupportedScreenSizes = {
     default: [
@@ -639,7 +640,22 @@ export const NEXT_STATION_TURBO_COLOR: MachineDef = {
     platform: "NeXT",
 };
 
+export const LISA_2: MachineDef = {
+    name: "Lisa 2",
+    cpu: "68000",
+    romPath: lisaRomPath,
+    gestaltID: 0,
+    emulatorType: "LisaEm",
+    prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 720, height: 364},
+    bezelStyle: "Beige",
+    ramSizes: ["1536K"],
+    platform: "Lisa",
+    isHidden: true,
+};
+
 export const ALL_MACHINES = [
+    LISA_2,
     MAC_128K,
     MAC_128K_SNOW,
     MAC_512K_SNOW,
@@ -698,6 +714,7 @@ export function machineSupportedScreenSizes(
 }
 
 export function machineSupportsInfiniteHD(machine: MachineDef): boolean {
+    if (machine.emulatorType === "LisaEm") return false;
     if (machine.emulatorType === "Snow") {
         return machine.hasSCSI === true;
     }
@@ -708,6 +725,7 @@ export function machineSupportsInfiniteHD(machine: MachineDef): boolean {
 }
 
 export function machineSupportsSavedHD(machine: MachineDef): boolean {
+    if (machine.emulatorType === "LisaEm") return false;
     if (machine.emulatorType === "Snow") {
         return machine.hasSCSI === true;
     }

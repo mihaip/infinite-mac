@@ -46,6 +46,7 @@ Common development tasks, all done via `npm run`:
     - `previous`: Previous from https://github.com/mihaip/previous
     - `pearpc`: PearPC from https://github.com/mihaip/pearpc
     - `snow`: Snow from https://github.com/mihaip/snow
+    - `lisaem`: LisaEm from https://github.com/mihaip/lisaem
 - `import-disks`: Build disk images for serving. There are two types of disk images: OS images (which get some lightweight customization with dynamic content) and "Infinite HD" images (which contain third-party software from `Library/`). To prepare them for serving both types get get chunked and a JSON manifest with metadata is generated and placed in `src/Data`.
     - `placeholder` may be passed in as an argument to only build System 1 through 7.5.5, to skip populating the "Infinite HD" disk image.
     - This will invoke the native macOS versions of Mini vMac and Basilisk II as a final step, to ensure that the generated disk has a valid desktop database. If they are not installed, a warning will be logged and the generated disk may take longer to mount.
@@ -221,6 +222,69 @@ cargo build -r -p snow_frontend_im --target wasm32-unknown-emscripten
 ```
 
 Once it has built, use `npm run import-emulator snow` from the host to update the files in `src/emulator`.
+
+#### LisaEm
+
+The Infinite Mac frontend builds the portable core without wxWidgets, host
+serial devices, or threads. Inside the Docker shell:
+
+```sh
+emcmake cmake -S /lisaem/src/host/im -B /lisaem/build-im-wasm -DCMAKE_BUILD_TYPE=Release
+cmake --build /lisaem/build-im-wasm -j8
+```
+
+Run `npm run import-emulator lisaem` on the host. For the local LOS 3.1 disk:
+
+```sh
+python3 scripts/lisa.py fetch
+python3 scripts/lisa.py prepare-web
+```
+
+With the development server running, open
+[the Lisa bringup](http://localhost:3127/run?machine=Lisa+2&disk=Lisa+Office+System+3.1).
+The machine and disk are available by explicit URL, outside the public timeline.
+The disk uses the existing browser persistence layer. Its DC42 header and 20-byte
+sector tags are preserved; do not treat it as a raw Macintosh/HFS image.
+
+For a native macOS reference, build the maintained wx frontend and prepare a
+private writable copy:
+
+```sh
+lisaem/scripts/build-native-macos.sh clean build
+python3 scripts/lisa.py prepare-native baseline
+python3 scripts/lisa.py run-native baseline
+```
+
+wxWidgets 3.2.11 is downloaded and built outside the checkout; override its
+location with `LISAEM_NATIVE_DEPS`. Media, run configurations, logs, screenshots,
+and input files live in `~/Developer/Retro/Lisa` (`LISA_WORK_DIR` overrides this).
+The helper pins source URLs and SHA-256 hashes. `prepare-native NAME --blank`
+creates a private blank ProFile, and `run-native NAME --floppy PATH` boots a
+private installer copy. `prepare-floppies --rle` converts the alternate Lisa 7/7
+installer archive with libdc42 while preserving its tags. The first archive's
+LZH-converted boot disk currently fails with error 10726; valid container
+checksums alone do not establish bootability.
+Use `insert-native NAME PATH` to queue a private copy of the next floppy;
+insertion waits until the guest ejects the previous disk. This avoids a native
+file picker during multi-disk installation tests.
+
+For frontend comparisons without wxWidgets:
+
+```sh
+cmake -S lisaem/src/host/im -B lisaem/build-im-native -DCMAKE_BUILD_TYPE=Release
+cmake --build lisaem/build-im-native -j8
+# Run in a private run directory; this writes the disk and pram.bin.
+/path/to/lisaem/build-im-native/lisaem-im boot.ROM disk.dc42 120 screen.pgm
+```
+
+The initial browser frontend targets a Lisa 2/5 configuration: H boot ROM, A8 I/O
+ROM, 1536 KB RAM, one ProFile, and a 720×364 framebuffer. It loads tagged DC42
+images into RAM, writes changed sectors through `workerApi.disks`, and refreshes
+DC42 checksums before worker periodic tasks. Guest beeps use signed 8-bit mono
+PCM at 44.1 kHz; the native harness can capture the same stream by setting
+`LISAEM_AUDIO_DUMP` to a raw `.s8` filename. Printers, serial/network
+devices, alternate machine configurations, and display aspect correction remain
+outside this initial bringup.
 
 ### Internal test pages
 

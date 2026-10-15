@@ -171,7 +171,7 @@ def prepare_native(name, iorom, blank=False):
     )
     (run / "lisaem.conf").write_text(config)
     (run / "initial.conf").write_text(config)
-    for filename in ("keyboard.txt", "mouse.txt"):
+    for filename in ("keyboard.txt", "mouse.txt", "floppy.txt"):
         (run / filename).touch()
     revision = subprocess.check_output(
         ["git", "-C", str(ROOT / "lisaem"), "rev-parse", "HEAD"], text=True
@@ -182,7 +182,29 @@ def prepare_native(name, iorom, blank=False):
         "romSHA256": sha256(run / "boot.ROM"),
         "blankDisk": blank, "disk": inspect_dc42(run / "LisaOfficeHardDisk.dc42"),
     }, indent=2) + "\n")
+
     print(run)
+
+def prepare_web():
+    """Make local /Disk chunks using the same format as import-disks.py."""
+    source = WORK / "originals" / "LisaOfficeHardDisk.dc42"
+    if sha256(source) != SOURCES[source.name][1]:
+        raise ValueError(f"Original changed: {source}")
+    contents = source.read_bytes()
+    destination = ROOT / "Images" / "build"
+    destination.mkdir(parents=True, exist_ok=True)
+    chunk_size = 256 * 1024
+    chunks = []
+    for offset in range(0, len(contents), chunk_size):
+        chunk = contents[offset:offset + chunk_size]
+        signature = hashlib.blake2b(chunk, digest_size=16, salt=b"raw").hexdigest()
+        (destination / f"{signature}.chunk").write_bytes(chunk)
+        chunks.append(signature)
+    manifest = {"name": "Lisa Office System 3.1", "totalSize": len(contents),
+                "chunks": chunks, "chunkSize": chunk_size}
+    (ROOT / "src" / "Data" / "Lisa Office System 3.1.dc42.json").write_text(
+        json.dumps(manifest, indent=4) + "\n")
+    print("http://localhost:3127/run?machine=Lisa+2&disk=Lisa+Office+System+3.1")
 
 
 def run_native(name, floppy=None):
@@ -193,7 +215,7 @@ def run_native(name, floppy=None):
     if len(candidates) != 1:
         raise ValueError(f"Expected one native binary, found {candidates}")
     launch = len(list(run.glob("launch-*.json"))) + 1
-    for filename in ("keyboard.txt", "mouse.txt"):
+    for filename in ("keyboard.txt", "mouse.txt", "floppy.txt"):
         path = run / filename
         if path.exists():
             path.rename(run / f"{path.stem}-before-{launch}.txt")
@@ -211,6 +233,7 @@ def run_native(name, floppy=None):
         "LISAEM_SCREEN_DUMP": str(run / "screen.png"),
         "LISAEM_KEYBOARD_FILE": str(run / "keyboard.txt"),
         "LISAEM_MOUSE_FILE": str(run / "mouse.txt"),
+        "LISAEM_FLOPPY_FILE": str(run / "floppy.txt"),
         "LISAEM_RAM_DUMP": str(run / "ram.bin"),
         "LISAEM_MOUSE_MOVE_AT": "20",
         "LISAEM_NO_DIALOGS": "1",
@@ -229,12 +252,26 @@ def run_native(name, floppy=None):
         subprocess.run(command, cwd=run, env=env, stdout=log, stderr=log, check=True)
 
 
+def insert_native(name, floppy):
+    run = run_path(name)
+    if not (run / "floppy.txt").exists():
+        raise ValueError("Launch the prepared run before inserting a floppy")
+    inspect_dc42(floppy)
+    target = run / floppy.name
+    if not target.exists():
+        shutil.copyfile(floppy, target)
+    with (run / "floppy.txt").open("a") as commands:
+        commands.write(str(target.resolve()) + "\n")
+    print(f"Queued {target}; insertion waits for an empty floppy drive")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("fetch")
+    commands.add_parser("prepare-web")
     floppies = commands.add_parser("prepare-floppies")
-    floppies.add_argument("--rle", action="store_true", help="Use the alternate LOS 3.0 RLE archive")
+    floppies.add_argument("--rle", action="store_true", help="Use the alternate Lisa 7/7 RLE archive")
     inspect_parser = commands.add_parser("inspect")
     inspect_parser.add_argument("image", type=Path)
     prepare = commands.add_parser("prepare-native")
@@ -244,15 +281,22 @@ def main():
     run = commands.add_parser("run-native")
     run.add_argument("name")
     run.add_argument("--floppy", type=Path)
+    insert = commands.add_parser("insert-native")
+    insert.add_argument("name")
+    insert.add_argument("floppy", type=Path)
     args = parser.parse_args()
     if args.command == "fetch":
         fetch()
+    elif args.command == "prepare-web":
+        prepare_web()
     elif args.command == "prepare-floppies":
         prepare_floppies(args.rle)
     elif args.command == "inspect":
         print(json.dumps(inspect_dc42(args.image), indent=2))
     elif args.command == "prepare-native":
         prepare_native(args.name, args.iorom, args.blank)
+    elif args.command == "insert-native":
+        insert_native(args.name, args.floppy)
     else:
         run_native(args.name, args.floppy)
 

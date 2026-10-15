@@ -45,6 +45,10 @@ elif [ "$1" = "snow" ]; then
     EMULATOR=snow
     JS_EXTENSION=".js"
     EMULATOR_DIR="${ROOT_DIR}/snow/target/wasm32-unknown-emscripten/release"
+elif [ "$1" = "lisaem" ]; then
+    EMULATOR=lisaem
+    JS_EXTENSION=".js"
+    EMULATOR_DIR="${ROOT_DIR}/lisaem/build-im-wasm"
 else
     echo "Unknown emulator $1"
     exit 1

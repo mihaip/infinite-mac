@@ -82,4 +82,10 @@ cd /snow
 cargo build -r -p snow_frontend_im --target wasm32-unknown-emscripten
 echo "✓ Snow built successfully"
 
+# LisaEm
+echo "Building LisaEm"
+emcmake cmake -S /lisaem/src/host/im -B /lisaem/build-im-wasm -DCMAKE_BUILD_TYPE=Release
+cmake --build /lisaem/build-im-wasm -j8
+echo "✓ LisaEm built successfully"
+
 echo "✓ All emulators built successfully!"

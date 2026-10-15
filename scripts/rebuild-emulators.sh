@@ -22,6 +22,7 @@ EMULATORS=(
     "previous"
     "pearpc"
     "snow"
+    "lisaem"
 )
 for emulator in "${EMULATORS[@]}"; do
     echo "Importing ${emulator}..."
