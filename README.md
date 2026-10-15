@@ -296,7 +296,12 @@ The initial browser frontend targets a Lisa 2/5 configuration: H boot ROM, A8 I/
 ROM, 1536 KB RAM, one ProFile, and a 720×364 framebuffer. It loads tagged DC42
 images into RAM, writes changed sectors through `workerApi.disks`, and refreshes
 DC42 checksums before worker periodic tasks. Guest beeps use signed 8-bit mono
-PCM at 44.1 kHz; the native harness can capture the same stream by setting
+PCM at 44.1 kHz. Mouse input uses pointer lock and relative COPS motion packets,
+bypassing LisaEm's absolute-position seeking and anti-jitter damping; click the
+screen to capture the pointer and press Escape to release it. The native harness
+retains absolute input for replay. Run its COPS input tests with
+`ctest --test-dir lisaem/build-im-native --output-on-failure`.
+The native harness can capture audio by setting
 `LISAEM_AUDIO_DUMP` to a raw `.s8` filename. Printers, serial/network
 devices, alternate machine configurations, and display aspect correction remain
 outside this initial bringup.

@@ -54,7 +54,12 @@ export function emulatorSupportsMouseDeltas(type: EmulatorType): boolean {
 }
 
 export function emulatorNeedsMouseDeltas(type: EmulatorType): boolean {
-    return type === "DingusPPC" || type === "Previous" || type === "PearPC";
+    return (
+        type === "DingusPPC" ||
+        type === "Previous" ||
+        type === "PearPC" ||
+        type === "LisaEm"
+    );
 }
 
 export function emulatorNeedsRestartForMouseDeltas(

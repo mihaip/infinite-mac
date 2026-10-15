@@ -3652,35 +3652,35 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 var ASM_CONSTS = {
-  182001: () => {
+  181985: () => {
     workerApi.didOpenVideo(720, 364);
   },
-  182039: () => {
+  182023: () => {
     workerApi.didOpenAudio(44100, 8, 1);
   },
-  182080: $0 => {
+  182064: $0 => {
     workerApi.blit($0, 720 * 364 * 4);
   },
-  182119: () => {
+  182103: () => {
     workerApi.checkForPeriodicTasks();
   },
-  182158: () => {
+  182142: () => {
     workerApi.reportError("Could not insert Lisa floppy. Use a 400K or 800K Disk Copy 4.2 image with sector tags.");
   },
-  182275: $0 => {
+  182259: $0 => {
     workerApi.sleep($0);
   },
-  182300: () => {
+  182284: () => {
     workerApi.exit();
   },
-  182322: () => workerApi.acquireInputLock(),
-  182363: () => {
+  182306: () => workerApi.acquireInputLock(),
+  182347: () => {
     workerApi.releaseInputLock();
   },
-  182397: ($0, $1) => {
+  182381: ($0, $1) => {
     workerApi.enqueueAudio($0, $1);
   },
-  182433: ($0, $1, $2) => {
+  182417: ($0, $1, $2) => {
     workerApi.didEjectFloppy(UTF8ToString($0), $1, $2);
   }
 };
