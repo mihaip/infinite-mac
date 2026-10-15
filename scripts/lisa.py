@@ -9,6 +9,7 @@ Media stays outside the checkout. Set LISA_WORK_DIR to choose another location.
 
 import argparse
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -34,6 +35,11 @@ SOURCES = {
         "https://mirrors.apple2.org.za/ftp.apple.asimov.net/images/applelisa/"
         "Apple%20Lisa%20Software%20-%20Disk%20Images.zip",
         "1a05abc342b0946c096e25568516da9c358b6c15534770d48d891dcdedc0de96",
+    ),
+    "Apple Lisa Software - Disk Images_vol_2.zip": (
+        "https://mirrors.apple2.org.za/ftp.apple.asimov.net/images/applelisa/"
+        "Apple%20Lisa%20Software%20-%20Disk%20Images_vol_2.zip",
+        "32c037c7a7170ad855cfb447057fc11903f1c8ede22aa9b89911591991cb9e76",
     ),
 }
 
@@ -103,15 +109,25 @@ def run_path(name):
     return WORK / "runs" / name
 
 
-def prepare_floppies():
+def prepare_floppies(rle=False):
     """Use libdc42's DART decoder; never discard Lisa sector tags."""
     tools = list((ROOT / "lisaem" / "bin").glob("*/lisafsh-tool"))
     if len(tools) != 1:
         raise ValueError("Build the native LisaEm tools first")
-    destination = WORK / "prepared" / "floppies"
+    destination = WORK / "prepared" / ("floppies-rle" if rle else "floppies")
     destination.mkdir(parents=True, exist_ok=True)
     manifest = {}
-    with zipfile.ZipFile(WORK / "originals" / "Apple Lisa Software - Disk Images.zip") as archive:
+    archive_path = WORK / "originals" / ("Apple Lisa Software - Disk Images_vol_2.zip" if rle
+                                          else "Apple Lisa Software - Disk Images.zip")
+    if sha256(archive_path) != SOURCES[archive_path.name][1]:
+        raise ValueError(f"Original changed: {archive_path}")
+    source = archive_path
+    if rle:
+        with zipfile.ZipFile(archive_path) as outer:
+            nested = next(name for name in outer.namelist()
+                          if name.endswith("LisaOS3.zip") and not name.startswith("__MACOSX/"))
+            source = io.BytesIO(outer.read(nested))
+    with zipfile.ZipFile(source) as archive:
         for name in archive.namelist():
             if name.startswith("__MACOSX/") or name.endswith("/") or "Pascal Workshop" in name:
                 continue
@@ -131,7 +147,7 @@ def prepare_floppies():
     (destination / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
 
-def prepare_native(name, iorom):
+def prepare_native(name, iorom, blank=False):
     run = run_path(name)
     run.mkdir(parents=True, exist_ok=False)
     originals = WORK / "originals"
@@ -139,6 +155,12 @@ def prepare_native(name, iorom):
         if sha256(originals / filename) != SOURCES[filename][1]:
             raise ValueError(f"Original changed: {filename}")
         shutil.copyfile(originals / filename, run / filename)
+    if blank:
+        # A 10 MB ProFile: DC42 stores data then 20-byte tags, not interleaved.
+        label = b"-lisaem.sunder.net hd-"
+        header = bytes([len(label)]) + label + bytes(63 - len(label))
+        header += struct.pack(">IIII4B", 19456 * 512, 19456 * 20, 0, 0, 0x5D, 0x93, 1, 0)
+        (run / "LisaOfficeHardDisk.dc42").write_bytes(header + bytes(19456 * 532))
     serial = "ff000000000000ff0000000000000000"
     config = (
         f"ROMFILE={run / 'boot.ROM'}\nMemoryKB=1536\nioromver={iorom}\n"
@@ -158,18 +180,32 @@ def prepare_native(name, iorom):
         "emulatorRevision": revision, "ioRom": iorom, "serial": serial,
         "memoryKB": 1536, "initialPram": "absent (firmware initializes it)",
         "romSHA256": sha256(run / "boot.ROM"),
-        "disk": inspect_dc42(run / "LisaOfficeHardDisk.dc42"),
+        "blankDisk": blank, "disk": inspect_dc42(run / "LisaOfficeHardDisk.dc42"),
     }, indent=2) + "\n")
     print(run)
 
 
-def run_native(name):
+def run_native(name, floppy=None):
     run = run_path(name)
     if not (run / "lisaem.conf").exists():
         raise ValueError(f"Prepare this run first: {run}")
     candidates = list((ROOT / "lisaem" / "bin").glob("LisaEm.app/Contents/MacOS/lisaem-*-wx*"))
     if len(candidates) != 1:
         raise ValueError(f"Expected one native binary, found {candidates}")
+    launch = len(list(run.glob("launch-*.json"))) + 1
+    for filename in ("keyboard.txt", "mouse.txt"):
+        path = run / filename
+        if path.exists():
+            path.rename(run / f"{path.stem}-before-{launch}.txt")
+        path.touch()
+    (run / f"config-before-{launch}.conf").write_bytes((run / "lisaem.conf").read_bytes())
+    (run / f"launch-{launch}.json").write_text(json.dumps({
+        "binary": str(candidates[0]), "binarySHA256": sha256(candidates[0]),
+        "diskSHA256": sha256(run / "LisaOfficeHardDisk.dc42"),
+        "configSHA256": sha256(run / "lisaem.conf"),
+        "floppy": str(floppy) if floppy else None,
+        "floppySHA256": sha256(floppy) if floppy else None,
+    }, indent=2) + "\n")
     env = dict(os.environ)
     env.update({
         "LISAEM_SCREEN_DUMP": str(run / "screen.png"),
@@ -180,6 +216,14 @@ def run_native(name):
         "LISAEM_NO_DIALOGS": "1",
     })
     command = [str(candidates[0]), "-c", str(run / "lisaem.conf"), "-p", "-q", "-s-", "-z", "1"]
+    if floppy:
+        # Floppies can be branded or written by the guest: boot a private copy.
+        target = run / floppy.name
+        if not target.exists():
+            shutil.copyfile(floppy, target)
+        command += ["-f", str(target)]
+    else:
+        command += ["-d"]
     print(f"Running in {run}; output in native.log", flush=True)
     with (run / "native.log").open("a") as log:
         subprocess.run(command, cwd=run, env=env, stdout=log, stderr=log, check=True)
@@ -189,25 +233,28 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("fetch")
-    commands.add_parser("prepare-floppies")
+    floppies = commands.add_parser("prepare-floppies")
+    floppies.add_argument("--rle", action="store_true", help="Use the alternate LOS 3.0 RLE archive")
     inspect_parser = commands.add_parser("inspect")
     inspect_parser.add_argument("image", type=Path)
     prepare = commands.add_parser("prepare-native")
     prepare.add_argument("name")
-    prepare.add_argument("--iorom", choices=("88", "a8"), default="88")
+    prepare.add_argument("--iorom", choices=("88", "a8"), default="a8")
+    prepare.add_argument("--blank", action="store_true")
     run = commands.add_parser("run-native")
     run.add_argument("name")
+    run.add_argument("--floppy", type=Path)
     args = parser.parse_args()
     if args.command == "fetch":
         fetch()
     elif args.command == "prepare-floppies":
-        prepare_floppies()
+        prepare_floppies(args.rle)
     elif args.command == "inspect":
         print(json.dumps(inspect_dc42(args.image), indent=2))
     elif args.command == "prepare-native":
-        prepare_native(args.name, args.iorom)
+        prepare_native(args.name, args.iorom, args.blank)
     else:
-        run_native(args.name)
+        run_native(args.name, args.floppy)
 
 
 if __name__ == "__main__":
