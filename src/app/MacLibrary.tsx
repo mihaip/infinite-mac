@@ -70,7 +70,7 @@ export function MacLibrary({
                                     // Fallthrough, try loading it as a regular file
                                 }
                             }
-                            handleLibraryURL(
+                            void handleLibraryURL(
                                 url,
                                 onRun,
                                 onLoadProgress,
@@ -175,7 +175,7 @@ export function MacLibraryHeader({
 const contentsLoader = () => import("@/app/MacLibraryContents");
 const MacLibraryContents = React.lazy(contentsLoader);
 export function preloadMacLibraryContents() {
-    contentsLoader();
+    void contentsLoader();
 }
 
 function MacLibraryContentsFallback() {

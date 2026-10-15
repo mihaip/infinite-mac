@@ -2,26 +2,30 @@ export async function get(name: string): Promise<number> {
     return (await fetch(`/varz?name=${name}`)).json() as Promise<number>;
 }
 
-export async function increment(name: string, delta: number = 1) {
-    return incrementMulti({[name]: delta});
+export function increment(name: string, delta: number = 1): void {
+    incrementMulti({[name]: delta});
 }
 
-export async function incrementMulti(changes: {[name: string]: number}) {
-    return fetch("/varz", {
+export function incrementMulti(changes: {[name: string]: number}): void {
+    fetch("/varz", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify(changes),
+    }).catch(err => {
+        console.error("Could not increment varz", changes, err);
     });
 }
 
-export async function incrementError(name: string, message: string) {
-    return fetch("/errorz", {
+export function incrementError(name: string, message: string): void {
+    fetch("/errorz", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({name, message}),
+    }).catch(err => {
+        console.error("Could not increment error", name, message, err);
     });
 }

@@ -13,7 +13,7 @@ export function Footer({
     const [aboutVisible, setAboutVisible] = useState(false);
     const [donateVisible, setDonateVisible] = useState(false);
     const handleFullScreenClick = () => {
-        document.body.requestFullscreen();
+        void document.body.requestFullscreen();
     };
 
     return (

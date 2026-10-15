@@ -6,7 +6,7 @@ export function startViewTransition(
     if ("startViewTransition" in document) {
         document.startViewTransition(updateCallback);
     } else {
-        updateCallback();
+        void updateCallback();
     }
 }
 

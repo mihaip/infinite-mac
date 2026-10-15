@@ -200,7 +200,7 @@ async function handleDiskCacheRequest(request: Request): Promise<Response> {
     // almost always end up with a cache hit, but we want to keep fetching
     // subsequent chunks).
     if (cache) {
-        prefetchNextChunk(cache, request.url);
+        void prefetchNextChunk(cache, request.url);
         const match = await cache.match(request);
         if (match) {
             if (match.ok) {
@@ -245,7 +245,7 @@ async function prefetchNextChunk(cache: Cache, url: string) {
 
 // Boilerplate to make sure we're running as quickly as possible.
 self.addEventListener("install", event => {
-    self.skipWaiting();
+    void self.skipWaiting();
 });
 
 self.addEventListener("activate", event => {

@@ -102,7 +102,7 @@ export abstract class EmulatorAudio {
     }
 
     #resumeOnGesture = () => {
-        this.#audioContext?.resume();
+        void this.#audioContext?.resume();
     };
 
     #handleAudioContextRunning() {
@@ -130,7 +130,7 @@ export abstract class EmulatorAudio {
     }
 
     stop() {
-        this.#audioContext?.close();
+        void this.#audioContext?.close();
         window.removeEventListener("pointerdown", this.#resumeOnGesture);
         if (this.#debugInterval) {
             window.clearInterval(this.#debugInterval);

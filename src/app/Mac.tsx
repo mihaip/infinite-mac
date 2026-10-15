@@ -218,7 +218,7 @@ export default function Mac({
                 fraction: 1.0,
                 linger: true,
             });
-            uploadFiles(emulator, [file], undefined, {fromLibrary: true});
+            void uploadFiles(emulator, [file], undefined, {fromLibrary: true});
         }
     }, []);
 
@@ -426,7 +426,7 @@ export default function Mac({
         emulatorRef.current = emulator;
         ethernetProviderRef.current = ethernetProvider;
         if (!debugPaused) {
-            emulator.start();
+            void emulator.start();
         }
 
         const startVarz = {
@@ -557,7 +557,7 @@ export default function Mac({
         // Make the entire page go fullscreen (instead of just the screen
         // canvas) because iOS Safari does not maintain the aspect ratio of the
         // canvas.
-        document.body.requestFullscreen();
+        void document.body.requestFullscreen();
     };
     const handleFullScreenChange = useCallback(() => {
         const isFullScreen = Boolean(
@@ -566,7 +566,7 @@ export default function Mac({
         setFullscreen(isFullScreen);
 
         if (isFullScreen) {
-            navigator.keyboard?.lock?.();
+            void navigator.keyboard?.lock?.();
         }
 
         document.body.classList.toggle("fullscreen", isFullScreen);
@@ -684,7 +684,7 @@ export default function Mac({
         });
     }, []);
     const handleStartClick = () => {
-        emulatorRef.current?.start();
+        void emulatorRef.current?.start();
     };
 
     let progress;
@@ -878,7 +878,7 @@ export default function Mac({
                         try {
                             const cdrom = await getCDROMInfo(url);
                             varz.increment("emulator_cdrom:drag");
-                            emulatorRef.current?.loadCDROM(cdrom);
+                            void emulatorRef.current?.loadCDROM(cdrom);
                         } catch (e) {
                             // TODO: try to use CORS to fetch the file directly
                             // and upload it?
@@ -911,7 +911,7 @@ export default function Mac({
                 return;
             }
         }
-        uploadFiles(emulator, files, undefined, {
+        void uploadFiles(emulator, files, undefined, {
             onResourceForkUpload: handleResourceForkUpload,
         });
     }
@@ -934,7 +934,7 @@ export default function Mac({
             // event if the user cancels the file picker.
             setDragCount(1);
             if (input.files && emulatorRef.current) {
-                uploadFiles(
+                void uploadFiles(
                     emulatorRef.current,
                     Array.from(input.files),
                     undefined,
@@ -956,7 +956,7 @@ export default function Mac({
             cdrom.isFloppy ? "emulator_floppies" : "emulator_cdroms",
             1
         );
-        emulatorRef.current?.loadCDROM(cdrom);
+        void emulatorRef.current?.loadCDROM(cdrom);
     }
 
     const hasEmulatorStats = Object.keys(emulatorStats).length > 0;
@@ -1156,24 +1156,24 @@ export default function Mac({
                         hasSavedHD={hasSavedHD}
                         onStorageReset={() => {
                             varz.increment("emulator_disk_saver_reset");
-                            emulatorRef.current?.restart(() =>
+                            void emulatorRef.current?.restart(() =>
                                 resetDiskSaver(SAVED_HD)
                             );
                         }}
                         onStorageExport={() => {
-                            emulatorRef.current?.restart(() =>
+                            void emulatorRef.current?.restart(() =>
                                 exportDiskSaver(SAVED_HD)
                             );
                             varz.increment("emulator_disk_saver_export");
                         }}
                         onStorageImport={() => {
-                            emulatorRef.current?.restart(() =>
+                            void emulatorRef.current?.restart(() =>
                                 importDiskSaver(SAVED_HD)
                             );
                             varz.increment("emulator_disk_saver_import");
                         }}
                         onSaveImage={deviceImage => {
-                            emulatorRef.current?.restart(() =>
+                            void emulatorRef.current?.restart(() =>
                                 saveDiskSaverImage(SAVED_HD, deviceImage)
                             );
                             varz.increment("emulator_disk_saver_save_image");
@@ -1285,7 +1285,7 @@ function uploadDirectory(
     const checkDone = () => {
         inProgressCount--;
         if (inProgressCount === 0) {
-            uploadFiles(emulator, files, names, options);
+            void uploadFiles(emulator, files, names, options);
         }
     };
 
@@ -1339,7 +1339,7 @@ type UploadFileOptions = {
     onResourceForkUpload?: () => void;
 };
 
-function uploadFiles(
+async function uploadFiles(
     emulator: Emulator,
     files: File[],
     names: string[] = [],
@@ -1360,7 +1360,7 @@ function uploadFiles(
     if (resourceForkCount) {
         onResourceForkUpload?.();
     }
-    emulator.uploadFiles(files, names);
+    await emulator.uploadFiles(files, names);
     varz.incrementMulti({
         "emulator_uploads": files.length,
         "emulator_uploads:files": fileCount,

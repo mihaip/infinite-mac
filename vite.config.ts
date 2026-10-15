@@ -120,8 +120,6 @@ export default defineConfig(() => {
                         ignoreRestSiblings: true,
                     },
                 ],
-                // Review fire-and-forget calls separately before enforcing this.
-                "typescript/no-floating-promises": "off",
                 // These React Compiler checks need a separate migration.
                 "react/preserve-manual-memoization": "off",
                 "react/purity": "off",

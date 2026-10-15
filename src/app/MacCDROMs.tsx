@@ -278,7 +278,7 @@ function MacCustomCDROM({
                             e.key === "Enter" &&
                             inputRef.current?.validity.valid
                         ) {
-                            handleLoad();
+                            void handleLoad();
                         }
                     }}
                     ref={inputRef}

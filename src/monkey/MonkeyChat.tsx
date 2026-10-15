@@ -68,7 +68,7 @@ export function MonkeyChat({
             }
         }
         varz.increment(`monkey_chat:${provider.id}:send`);
-        sendMessage(text);
+        void sendMessage(text);
         setMessage(""); // Clear the input after sending
     };
 
@@ -121,7 +121,7 @@ export function MonkeyChat({
                     onKeyDown={e => {
                         if (e.key === "Enter" && !e.shiftKey && canSend) {
                             e.preventDefault();
-                            handleMessageSend();
+                            void handleMessageSend();
                         }
                     }}
                     rows={3}

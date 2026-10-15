@@ -46,7 +46,7 @@ export function useChat(
     const [canSendMessage, setCanSendMessage] = useState(true);
     const [waitingForResponse, setWaitingForResponse] = useState(false);
     const stopMessageSend = useCallback(() => {
-        conversationRef.current?.stop();
+        void conversationRef.current?.stop();
     }, []);
 
     const sendMessage = useCallback(

@@ -16,7 +16,7 @@ export async function resetDiskSaver(disk: EmulatorDiskDef) {
         // Fastest way to reset is to delete the file that keeps track of dirty
         // chunks -- that way when we load the disk again, we'll only read the
         // base chunks.
-        opfsRoot.removeEntry(dirtyChunksFileName(spec));
+        await opfsRoot.removeEntry(dirtyChunksFileName(spec));
     } catch (err) {
         if (err instanceof DOMException && err.name === "NotFoundError") {
             // Expected if the file doesn't exist

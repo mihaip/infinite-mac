@@ -11,9 +11,12 @@ export function About({onDone}: {onDone: () => void}) {
 
     useEffect(() => {
         varz.increment("about_shown");
-        varz.get("emulator_starts").then(count =>
-            setEmulatorCount(count.toLocaleString())
-        );
+        varz.get("emulator_starts")
+            .then(count => setEmulatorCount(count.toLocaleString()))
+            .catch(err => {
+                console.error("Could not get emulator_starts varz", err);
+                setEmulatorCount("an unknown number");
+            });
     }, []);
 
     const headingClass = appearanceSystemFont("Classic");

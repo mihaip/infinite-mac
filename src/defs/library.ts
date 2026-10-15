@@ -331,7 +331,7 @@ export function useLibraryItemDetails(
     >();
 
     useEffect(() => {
-        fetchItemDetails(item, setDetailsItem);
+        void fetchItemDetails(item, setDetailsItem);
     }, [item]);
 
     return detailsItem;

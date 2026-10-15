@@ -162,7 +162,7 @@ export interface EmulatorDelegate {
 
 export type EmulatorFallbackCommandSender = (
     command: EmulatorFallbackCommand
-) => Promise<void>;
+) => void;
 
 export class Emulator {
     #config: EmulatorConfig;
@@ -218,7 +218,17 @@ export class Emulator {
             fallbackCommandSender = async (
                 command: EmulatorFallbackCommand
             ) => {
-                const serviceWorkerAvailable = await this.#serviceWorkerReady;
+                let serviceWorkerAvailable;
+                try {
+                    serviceWorkerAvailable = await this.#serviceWorkerReady;
+                } catch (err) {
+                    console.error(
+                        "Could not await service worker, cannot send command",
+                        command,
+                        err
+                    );
+                    return;
+                }
                 if (serviceWorkerAvailable) {
                     this.#serviceWorker!.postMessage({
                         type: "worker-command",
@@ -340,6 +350,7 @@ export class Emulator {
         console.time("Emulator quiescent");
         if (this.#workerTerminated) {
             this.#worker = new Worker();
+            this.#workerTerminated = false;
         }
         this.#worker.addEventListener("message", this.#handleWorkerMessage);
 
@@ -594,31 +605,22 @@ export class Emulator {
         }
     }
 
-    restart(whileStopped?: () => Promise<void>): Promise<void> {
+    async restart(whileStopped?: () => Promise<void>): Promise<void> {
         this.#bootFromROMHelper?.stop();
         this.#audio.stop();
         this.#input.handleInput({type: "stop"});
         // Wait for handleEmulatorStopped to be invoked, so that disk savers
         // are cleanly closed.
-        return new Promise(resolve => {
-            const interval = setInterval(() => {
-                if (this.#workerTerminated) {
-                    this.#clearScreen();
-                    clearInterval(interval);
-                    const start = () => {
-                        this.#startWorker();
-                        // Make sure we clear the "stopped" bit set above
-                        this.#input.handleInput({type: "start"});
-                        resolve();
-                    };
-                    if (whileStopped) {
-                        whileStopped().then(start);
-                    } else {
-                        start();
-                    }
-                }
-            }, 100);
-        });
+        while (!this.#workerTerminated) {
+            await new Promise<void>(resolve => {
+                setTimeout(resolve, 100);
+            });
+        }
+        this.#clearScreen();
+        await whileStopped?.();
+        // Clear the "stopped" bit before starting the new worker.
+        this.#input.handleInput({type: "start"});
+        await this.#startWorker();
     }
 
     pause() {
@@ -955,7 +957,7 @@ export class Emulator {
             this.#delegate?.emulatorDidChangeScreenSize?.(width, height);
         } else if (e.data.type === "emulator_audio_open") {
             const {sampleRate, sampleSize, channels} = e.data;
-            this.#audio.init(
+            void this.#audio.init(
                 sampleRate,
                 sampleSize,
                 channels,
@@ -981,15 +983,15 @@ export class Emulator {
                 this.#downKeyCodes.has("AltLeft") ||
                 this.#downKeyCodes.has("AltRight")
             ) {
-                handleDirectoryExtractionRaw(e.data.extraction);
+                void handleDirectoryExtractionRaw(e.data.extraction);
             } else {
-                handleDirectoryExtraction(e.data.extraction);
+                void handleDirectoryExtraction(e.data.extraction);
             }
         } else if (e.data.type === "emulator_quiescent") {
             console.timeEnd("Emulator quiescent");
             this.#delegate?.emulatorDidBecomeQuiescent?.(this);
         } else if (e.data.type === "emulator_stopped") {
-            this.#handleEmulatorStopped(e.data.isExit);
+            void this.#handleEmulatorStopped(e.data.isExit);
         } else if (e.data.type === "emulator_ethernet_init") {
             const {ethernetProvider} = this.#config;
             if (ethernetProvider) {
