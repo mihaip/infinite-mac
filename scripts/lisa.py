@@ -296,7 +296,7 @@ def insert_native(name, floppy):
     print(f"Queued {target}; insertion waits for an empty floppy drive")
 
 
-def install_headless(name):
+def install_headless(name, with_lisadraw=False):
     binary = ROOT / "lisaem/build-im-native/lisaem-im"
     if not binary.exists():
         raise ValueError("Build the native headless frontend first")
@@ -322,16 +322,35 @@ def install_headless(name):
         subprocess.run(command, cwd=run,
                        env={**os.environ, "LISAEM_BOOT_FLOPPY": "sys1.dc42"},
                        stdout=log, stderr=log, check=True)
+    if with_lisadraw:
+        source = media / "LisaDraw.dart.dc42"
+        smoke = ROOT / "lisaem/src/host/im/smoke-lisadraw.txt"
+        shutil.copyfile(source, run / "draw.dc42")
+        shutil.copyfile(smoke, run / "smoke.txt")
+        (run / "smoke-manifest.json").write_text(json.dumps({
+            "replaySHA256": sha256(smoke), "floppySHA256": sha256(source),
+        }, indent=2) + "\n")
+        env = dict(os.environ)
+        env.pop("LISAEM_BOOT_FLOPPY", None)
+        print("Installing LisaDraw, saving a sample rectangle, and powering off", flush=True)
+        with (run / "smoke.log").open("w") as log:
+            subprocess.run([str(binary), "boot.ROM", "LisaOfficeHardDisk.dc42", "1000",
+                            "smoke-screen.pgm", "smoke.txt"], cwd=run, env=env,
+                           stdout=log, stderr=log, check=True)
     # Keep the completed installation and matching PRAM before the cold boot.
     shutil.copyfile(run / "LisaOfficeHardDisk.dc42", run / "installed.dc42")
     shutil.copyfile(run / "pram.bin", run / "installed-pram.bin")
     with (run / "boot.log").open("w") as log:
         env = dict(os.environ)
         env.pop("LISAEM_BOOT_FLOPPY", None)
-        subprocess.run([str(binary), "boot.ROM", "LisaOfficeHardDisk.dc42", "120",
-                        "boot-screen.pgm"], cwd=run, env=env,
+        command = [str(binary), "boot.ROM", "LisaOfficeHardDisk.dc42",
+                   "220" if with_lisadraw else "120", "boot-screen.pgm"]
+        if with_lisadraw:
+            shutil.copyfile(ROOT / "lisaem/src/host/im/reopen-lisadraw.txt", run / "reopen.txt")
+            command.append("reopen.txt")
+        subprocess.run(command, cwd=run, env=env,
                        stdout=log, stderr=log, check=True)
-    print(f"Inspect {run / 'boot-screen.pgm'} to confirm the guest reached the desktop")
+    print(f"Inspect {run / 'boot-screen.pgm'} to confirm the guest result")
 
 
 def main():
@@ -355,6 +374,7 @@ def main():
     insert.add_argument("floppy", type=Path)
     install = commands.add_parser("install-headless")
     install.add_argument("name")
+    install.add_argument("--with-lisadraw", action="store_true")
     args = parser.parse_args()
     if args.command == "fetch":
         fetch()
@@ -369,7 +389,7 @@ def main():
     elif args.command == "insert-native":
         insert_native(args.name, args.floppy)
     elif args.command == "install-headless":
-        install_headless(args.name)
+        install_headless(args.name, args.with_lisadraw)
     else:
         run_native(args.name, args.floppy)
 

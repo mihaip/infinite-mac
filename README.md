@@ -288,6 +288,9 @@ It preserves `installed.dc42` with `installed-pram.bin`, then cold-boots a worki
 copy and writes `boot-screen.pgm`. Inspect that framebuffer to verify the guest
 result. Stopping before the final setup can leave an image that fails with 10738.
 The installer calls itself 3.0; the installed desktop contains Release 3.1.
+Add `--with-lisadraw` to copy LisaDraw, its stationery, and examples from a private
+master floppy, create and save a rectangle document, power off, and reopen it
+after a cold boot. The resulting `boot-screen.pgm` should show that rectangle.
 
 The initial browser frontend targets a Lisa 2/5 configuration: H boot ROM, A8 I/O
 ROM, 1536 KB RAM, one ProFile, and a 720×364 framebuffer. It loads tagged DC42
