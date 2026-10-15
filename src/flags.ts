@@ -9,5 +9,5 @@ export function isBeOSLaunched() {
     if (iso().location.searchParams.get("filter") === "beos") {
         return true;
     }
-    return false;
+    return true;
 }
