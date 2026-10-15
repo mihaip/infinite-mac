@@ -1161,9 +1161,13 @@ export default function Mac({
                             );
                         }}
                         onStorageExport={() => {
-                            void emulatorRef.current?.restart(() =>
-                                exportDiskSaver(SAVED_HD)
-                            );
+                            void emulatorRef.current?.restart(async () => {
+                                setEmulatorToastText("Exporting disk…", 0);
+                                await exportDiskSaver(SAVED_HD);
+                                setEmulatorToastText(
+                                    "Disk exported, check your downloads folder."
+                                );
+                            });
                             varz.increment("emulator_disk_saver_export");
                         }}
                         onStorageImport={() => {
@@ -1173,9 +1177,16 @@ export default function Mac({
                             varz.increment("emulator_disk_saver_import");
                         }}
                         onSaveImage={deviceImage => {
-                            void emulatorRef.current?.restart(() =>
-                                saveDiskSaverImage(SAVED_HD, deviceImage)
-                            );
+                            void emulatorRef.current?.restart(async () => {
+                                setEmulatorToastText(
+                                    "Exporting disk image…",
+                                    0
+                                );
+                                await saveDiskSaverImage(SAVED_HD, deviceImage);
+                                setEmulatorToastText(
+                                    "Disk image exported, check your downloads folder."
+                                );
+                            });
                             varz.increment("emulator_disk_saver_save_image");
                         }}
                         onDone={() => setSettingsVisible(false)}
@@ -1484,14 +1495,17 @@ function useOnboardingNotification(canShow: boolean, key: string) {
 function useToastNotification() {
     const [toast, setToastImpl] = useState("");
     const toastRef = useRef({});
-    const setToast = useCallback((message: string) => {
+    const setToast = useCallback((message: string, timeout: number = 3_000) => {
         const sentinel = (toastRef.current = {});
         setToastImpl(message);
+        if (timeout === 0) {
+            return;
+        }
         setTimeout(() => {
             if (toastRef.current === sentinel) {
                 setToastImpl("");
             }
-        }, 3000);
+        }, timeout);
     }, []);
 
     return [toast, setToast] as const;
