@@ -1,6 +1,9 @@
 import {useCallback, useEffect, useMemo, useRef} from "react";
 import {type Disk} from "@/monkey/disks";
-import {type EmbedControlEvent} from "@/embed-types";
+import {
+    type EmbedControlEvent,
+    type EmbedNotificationEvent,
+} from "@/embed-types";
 import {sleep} from "@/monkey/util";
 import {
     type ComputerAction,
@@ -13,9 +16,13 @@ export function useComputer(
     iframeRef: React.RefObject<HTMLIFrameElement>
 ): Computer {
     const [displayWidth, displayHeight] = disk.screenSize;
-    const screenContentsRef = useRef<Uint8ClampedArray | null>(null);
+    const screenContentsRef = useRef<Uint8ClampedArray<ArrayBuffer> | null>(
+        null
+    );
     useEffect(() => {
-        const messageListener = (event: MessageEvent) => {
+        const messageListener = (
+            event: MessageEvent<EmbedNotificationEvent>
+        ) => {
             if (event.data.type === "emulator_screen") {
                 screenContentsRef.current = event.data.data;
             }

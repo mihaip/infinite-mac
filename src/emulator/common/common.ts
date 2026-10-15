@@ -476,7 +476,7 @@ export type EmulatorWorkerDirectorExtractionEntry =
 
 export type EmulatorWorkerDirectorExtractionFileEntry = {
     name: string;
-    contents: Uint8Array;
+    contents: Uint8Array<ArrayBuffer>;
 };
 
 export type EmulatorWorkerDirectorExtractionDirectoryEntry = {

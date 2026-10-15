@@ -60,7 +60,7 @@ export type EmbedNotificationEvent =
       }
     | {
           type: "emulator_screen";
-          data: Uint8ClampedArray;
+          data: Uint8ClampedArray<ArrayBuffer>;
           width: number;
           height: number;
       };

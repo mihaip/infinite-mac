@@ -37,8 +37,12 @@ export class StuffItEntry {
         this.isDirectory = archive.entryIsDirectory(index);
     }
 
-    contents(): Uint8Array {
-        return this.#archive.entryContents(this.#index);
+    contents(): Uint8Array<ArrayBuffer> {
+        // wasm-bindgen copies the result out of WASM memory with .slice(),
+        // so the returned bytes have their own ArrayBuffer.
+        return this.#archive.entryContents(
+            this.#index
+        ) as Uint8Array<ArrayBuffer>;
     }
 }
 

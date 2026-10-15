@@ -22,7 +22,8 @@ export default defineConfig(() => {
             },
             options: {
                 typeAware: true,
-                // Compiler diagnostics still use the project's TypeScript version.
+                // We invoke tsc directly so that we can have more control over
+                // React app vs. worker settings.
                 typeCheck: false,
             },
             ignorePatterns: [

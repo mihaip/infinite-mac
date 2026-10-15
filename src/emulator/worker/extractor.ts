@@ -2,7 +2,7 @@ import {
     type EmulatorWorkerDirectorExtraction,
     type EmulatorWorkerDirectorExtractionEntry,
 } from "@/emulator/common/common";
-import {fsPathExists} from "@/emulator/worker/fs";
+import {fsPathExists, readBinaryFile} from "@/emulator/worker/fs";
 
 export function initializeExtractor() {
     FS.mkdir(EXTRACTOR_DIRECTORY);
@@ -48,11 +48,11 @@ const extractedPaths = new Set<string>();
 
 export function prepareDirectoryExtraction(
     dirPath: string
-): [EmulatorWorkerDirectorExtraction, ArrayBufferLike[]] {
+): [EmulatorWorkerDirectorExtraction, ArrayBuffer[]] {
     const {node} = FS.lookupPath(dirPath, {follow: true});
     const dirName = node.name;
     const dirParentPath = FS.getPath(node.parent);
-    const arrayBuffers: ArrayBufferLike[] = [];
+    const arrayBuffers: ArrayBuffer[] = [];
     const extraction: EmulatorWorkerDirectorExtraction = {
         name: dirName,
         isDirectory: true,
@@ -77,9 +77,7 @@ export function prepareDirectoryExtraction(
                 entries.push(dirEntry);
                 extract(childPath, dirEntry.contents);
             } else {
-                const fileContents = FS.readFile(childPath, {
-                    encoding: "binary",
-                });
+                const fileContents = readBinaryFile(childPath);
                 entries.push({
                     name: childName,
                     contents: fileContents,
@@ -98,9 +96,7 @@ export function prepareDirectoryExtraction(
     if (fsPathExists(dInfoPath)) {
         extraction.contents.push({
             name: "DInfo",
-            contents: FS.readFile(dInfoPath, {
-                encoding: "binary",
-            }),
+            contents: readBinaryFile(dInfoPath),
         });
     }
 
@@ -120,7 +116,7 @@ function extractFile(filePath: string) {
     const {node} = FS.lookupPath(filePath, {follow: true});
     const fileName = node.name;
     const fileParentPath = FS.getPath(node.parent);
-    const arrayBuffers: ArrayBufferLike[] = [];
+    const arrayBuffers: ArrayBuffer[] = [];
     const extraction: EmulatorWorkerDirectorExtraction = {
         name: fileName,
         isDirectory: false,
@@ -131,9 +127,7 @@ function extractFile(filePath: string) {
         filePath: string,
         entries: EmulatorWorkerDirectorExtractionEntry[]
     ) {
-        const fileContents = FS.readFile(filePath, {
-            encoding: "binary",
-        });
+        const fileContents = readBinaryFile(filePath);
         entries.push({
             name: fileName,
             contents: fileContents,

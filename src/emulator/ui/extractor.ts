@@ -2,6 +2,7 @@ import JSZip from "jszip";
 import {saveAs} from "file-saver";
 import {
     type EmulatorWorkerDirectorExtractionDirectoryEntry,
+    type EmulatorWorkerDirectorExtractionFileEntry,
     type EmulatorFileUpload,
     type EmulatorWorkerDirectorExtraction,
     type EmulatorWorkerDirectorExtractionEntry,
@@ -235,7 +236,7 @@ function isDirectoryEntry(
 
 function printedImageEntry(
     extraction: EmulatorWorkerDirectorExtraction
-): {name: string; contents: Uint8Array} | undefined {
+): EmulatorWorkerDirectorExtractionFileEntry | undefined {
     if (
         !extraction.name.startsWith("Snow print ") ||
         !extraction.name.endsWith(".png") ||
