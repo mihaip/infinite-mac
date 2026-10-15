@@ -9,4 +9,4 @@ if [ -f "${LOCAL_CA_BUNDLE}" ]; then
     export NODE_EXTRA_CA_CERTS="${LOCAL_CA_BUNDLE}"
 fi
 
-exec vite
+exec vp dev

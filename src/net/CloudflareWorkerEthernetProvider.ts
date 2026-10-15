@@ -8,9 +8,7 @@ import {
  * workers-ethernet/src/index.mjs to broadcast Ethernet packets to all emulator
  * instances in the same named zone.
  */
-export class CloudflareWorkerEthernetProvider
-    implements EmulatorEthernetProvider
-{
+export class CloudflareWorkerEthernetProvider implements EmulatorEthernetProvider {
     #zoneName: string;
     #macAddress?: string;
     #webSocket: WebSocket;

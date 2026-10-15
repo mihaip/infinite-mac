@@ -1,6 +1,6 @@
 export type ComputerAction = (
     | // Mouse
-    {
+      {
           type: "mouse_down";
           button: ComputerMouseButton;
       }

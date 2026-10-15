@@ -6,6 +6,21 @@
 ROOT_DIR="`dirname "${BASH_SOURCE[0]}"`/.."
 JS_EXTENSION=""
 
+lint_emulator() (
+    # Run in a subshell so the cleanup trap does not affect the import script.
+    # Oxlint selects its parser by extension, but some emulator outputs have none.
+    local emulator_lint_dir
+    emulator_lint_dir="$(mktemp -d)" || exit $?
+    trap 'unlink "$emulator_lint_dir/emulator.js"; rmdir "$emulator_lint_dir"' EXIT
+    cp "$1" "$emulator_lint_dir/emulator.js" || exit $?
+
+    # Allow host APIs and Emscripten's optional, typeof-guarded Browser/GL/SDL
+    # helpers, but reject missing dependencies before copying emulator artifacts.
+    "${ROOT_DIR}/node_modules/.bin/vp" lint \
+        --config "${ROOT_DIR}/scripts/emulator-lint.json" \
+        --no-ignore "$emulator_lint_dir/emulator.js"
+)
+
 if [ "$1" = "basiliskii" ]; then
     EMULATOR="BasiliskII"
     EMULATOR_DIR="${ROOT_DIR}/macemu/${EMULATOR}/src/Unix"
@@ -45,17 +60,7 @@ if [ ! -f "${EMULATOR_DIR}/${EMULATOR}.wasm" ]; then
 fi
 
 # Check the linked JS for missing dependencies before importing any files.
-# Use stdin with a .js filename because some emulator outputs have no extension.
-# Allow host APIs and Emscripten's optional, typeof-guarded Browser/GL/SDL helpers.
-"${ROOT_DIR}/node_modules/.bin/eslint" \
-    --no-config-lookup --no-ignore \
-    --rule 'no-undef: error' \
-    --global workerApi,Browser,GL,SDL \
-    --global Audio,Blob,Element,Image,TextDecoder,TextEncoder,URL,WebAssembly,WebSocket,XMLHttpRequest \
-    --global console,crypto,document,fetch,navigator,performance,screen,window \
-    --global clearInterval,clearTimeout,setInterval,setTimeout,process \
-    --stdin --stdin-filename "${EMULATOR}.js" \
-    < "${EMULATOR_DIR}/${EMULATOR}${JS_EXTENSION}" || exit $?
+lint_emulator "${EMULATOR_DIR}/${EMULATOR}${JS_EXTENSION}" || exit $?
 
 mkdir -p "${EMULATOR_DESTINATION_DIR}"
 # Build output

@@ -1,0 +1,33 @@
+{
+    "categories": {"correctness": "off"},
+    "rules": {"no-undef": "error"},
+    "globals": {
+        "workerApi": "readonly",
+        "Browser": "readonly",
+        "GL": "readonly",
+        "SDL": "readonly",
+        "Audio": "readonly",
+        "Blob": "readonly",
+        "Element": "readonly",
+        "Image": "readonly",
+        "TextDecoder": "readonly",
+        "TextEncoder": "readonly",
+        "URL": "readonly",
+        "WebAssembly": "readonly",
+        "WebSocket": "readonly",
+        "XMLHttpRequest": "readonly",
+        "console": "readonly",
+        "crypto": "readonly",
+        "document": "readonly",
+        "fetch": "readonly",
+        "navigator": "readonly",
+        "performance": "readonly",
+        "screen": "readonly",
+        "window": "readonly",
+        "clearInterval": "readonly",
+        "clearTimeout": "readonly",
+        "setInterval": "readonly",
+        "setTimeout": "readonly",
+        "process": "readonly"
+    }
+}

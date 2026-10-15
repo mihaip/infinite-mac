@@ -7,9 +7,7 @@ import {type EmulatorWorkerChunkedDiskDelegate} from "@/emulator/worker/chunked-
  * file. Keeps track of which chunks have been written to, so that we can
  * restore them on the next read.
  */
-export class EmulatorWorkerDiskSaver
-    implements EmulatorWorkerChunkedDiskDelegate
-{
+export class EmulatorWorkerDiskSaver implements EmulatorWorkerChunkedDiskDelegate {
     #spec: EmulatorChunkedFileSpec;
     #delegate: EmulatorWorkerChunkedDiskDelegate;
     #dataHandle?: FileSystemSyncAccessHandle;

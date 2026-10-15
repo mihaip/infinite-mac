@@ -3,9 +3,7 @@ import {
     type EmulatorEthernetProviderDelegate,
 } from "@/emulator/ui/ui";
 
-export class BroadcastChannelEthernetProvider
-    implements EmulatorEthernetProvider
-{
+export class BroadcastChannelEthernetProvider implements EmulatorEthernetProvider {
     #broadcastChannel = new BroadcastChannel("ethernet");
     #macAddress?: string;
     #delegate?: EmulatorEthernetProviderDelegate;

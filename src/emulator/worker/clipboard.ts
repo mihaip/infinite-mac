@@ -9,9 +9,7 @@ export interface EmulatorWorkerClipboard {
     clipboardText(): string | undefined;
 }
 
-export class SharedMemoryEmulatorWorkerClipboard
-    implements EmulatorWorkerClipboard
-{
+export class SharedMemoryEmulatorWorkerClipboard implements EmulatorWorkerClipboard {
     #clipboardBufferView: Uint8Array;
 
     constructor(config: EmulatorWorkerSharedMemoryClipboardConfig) {
@@ -43,9 +41,7 @@ export class SharedMemoryEmulatorWorkerClipboard
     }
 }
 
-export class FallbackEmulatorWorkerClipboard
-    implements EmulatorWorkerClipboard
-{
+export class FallbackEmulatorWorkerClipboard implements EmulatorWorkerClipboard {
     #fallbackEndpoint: EmulatorFallbackEndpoint;
     #data: EmulatorClipboardData | undefined;
 

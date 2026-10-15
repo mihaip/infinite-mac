@@ -1,8 +1,7 @@
 #!/bin/bash
 
-tsc --noEmit && \
-    tsc --noEmit --project worker/tsconfig.json && \
-    CLOUDFLARE_ENV=production vite build && \
+npm run --silent typecheck && \
+    CLOUDFLARE_ENV=production vp build && \
     wrangler deploy && \
     rclone \
         --config=scripts/rclone.conf \

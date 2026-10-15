@@ -80,7 +80,7 @@ export class FallbackEmulatorVideo implements EmulatorVideo {
     #lastBlitData?: EmulatorWorkerFallbackVideoBlit;
     #lastBlitRect?: EmulatorWorkerVideoBlitRect;
 
-    // eslint-disable-next-line no-useless-constructor
+    // oxlint-disable-next-line no-useless-constructor
     constructor(config: EmulatorConfig) {}
 
     workerConfig(): EmulatorWorkerFallbackVideoConfig {

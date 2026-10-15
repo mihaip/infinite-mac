@@ -15,9 +15,7 @@ export interface EmulatorWorkerEthernet {
     read(packet: Uint8Array): number;
 }
 
-export class SharedMemoryEmulatorWorkerEthernet
-    implements EmulatorWorkerEthernet
-{
+export class SharedMemoryEmulatorWorkerEthernet implements EmulatorWorkerEthernet {
     #receiveRingBuffer: RingBuffer<Uint8Array>;
 
     constructor(config: EmulatorWorkerSharedMemoryEthernetConfig) {

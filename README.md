@@ -73,11 +73,16 @@ Common deployment tasks (also done via `npm run`):
 
 Common checker and style tasks (also done via `npm run`):
 
-- `check`: Check TypeScript types
-- `lint`: Check ESLint rules (has a `lint:fix` counterpart)
-- `prettier`: Check formatting (has a `prettier:fix` counterpart)
+- `check`: Check TypeScript types, lint rules, and formatting across `src` and `worker`.
+- `typecheck`: Check TypeScript types only.
+- `lint`: Check Oxlint rules (has a `lint:fix` counterpart).
+- `format`: Check Oxfmt formatting (has a `format:fix` counterpart).
 
-`scripts/pre-commit.sh` runs all three, you can add it as a pre-commit hook:
+Lint and format settings live in `vite.config.ts`. Type checking still uses
+the project's TypeScript compiler; type-aware lint rules use Vite+'s native checker.
+
+`scripts/pre-commit.sh` runs `check` across the whole project without modifying
+files. You can add it as a pre-commit hook:
 
 ```sh
 ln -s ../../scripts/pre-commit.sh .git/hooks/pre-commit

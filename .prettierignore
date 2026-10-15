@@ -1,3 +1,0 @@
-src/emulator/worker/emscripten/*.js
-src/stuffit/generated/
-src/Data/*.json

@@ -33,7 +33,6 @@ async function handleDetails(url: URL, assets: Assets) {
     }
 
     if (!details) {
-        // eslint-disable-next-line require-atomic-updates
         details = await loadLibraryDetails(assets, assetUrl);
     }
 

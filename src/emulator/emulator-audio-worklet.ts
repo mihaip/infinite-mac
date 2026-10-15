@@ -13,9 +13,7 @@ interface EmulatorAudioDataProvider {
 // exert backpressure on the worker if the buffer starts to fill up.
 const READ_CHUNK_SIZE = 384 * 2 * 2;
 
-class SharedMemoryEmulatorAudioDataProvider
-    implements EmulatorAudioDataProvider
-{
+class SharedMemoryEmulatorAudioDataProvider implements EmulatorAudioDataProvider {
     #audioRingBuffer: RingBuffer<Uint8Array>;
 
     constructor(config: EmulatorWorkerSharedMemoryAudioConfig) {
@@ -117,7 +115,7 @@ export class EmulatorPlaybackProcessor extends AudioWorkletProcessor {
                     this.#currentAudioData.buffer,
                     this.#currentAudioData.byteOffset
                 );
-                // eslint-disable-next-line no-constant-condition
+                // oxlint-disable-next-line no-constant-condition
                 if (this.#options.debug && false) {
                     // too noisy even for debug
                     this.#logCurrentAudioData();

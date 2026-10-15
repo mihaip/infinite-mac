@@ -84,7 +84,6 @@ async function getTemplateHtml(env: Env, url: URL): Promise<string> {
         new URL("/index.html", url.href)
     );
     const templateHtml = await assetResponse.text();
-    // eslint-disable-next-line require-atomic-updates
     cachedTemplateHtml = templateHtml;
     return templateHtml;
 }

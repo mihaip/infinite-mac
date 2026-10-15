@@ -23,9 +23,6 @@
     "devDependencies": {
         "@cloudflare/vite-plugin": "^1.58.0",
         "@cloudflare/workers-types": "^5.20260727.1",
-        "@eslint/compat": "^1.2.9",
-        "@eslint/eslintrc": "^3.3.7",
-        "@eslint/js": "^9.39.5",
         "@types/audioworklet": "^0.0.77",
         "@types/cookie": "^0.6.0",
         "@types/dom-view-transitions": "^1.0.6",
@@ -34,18 +31,13 @@
         "@types/node": "^26.6.5",
         "@types/react": "^18.2.6",
         "@types/react-dom": "^18.2.4",
-        "@typescript-eslint/eslint-plugin": "^8.70.1",
-        "@typescript-eslint/parser": "^8.70.1",
         "@vitejs/plugin-basic-ssl": "^2.3.0",
         "@vitejs/plugin-react": "^6.0.4",
         "clang-format": "^1.8.0",
         "csstype": "^3.1.3",
-        "eslint": "^9.39.5",
-        "eslint-plugin-import": "^2.31.0",
-        "eslint-plugin-react-hooks": "^5.2.0",
-        "prettier": "^3.5.3",
-        "vite": "^8.3.0",
+        "vite": "npm:@voidzero-dev/vite-plus-core@1.2.0",
         "vite-plugin-svgr": "^5.2.0",
+        "vite-plus": "1.2.0",
         "wrangler": "^4.137.0"
     },
     "scripts": {
@@ -57,16 +49,17 @@
         "build-tools": "scripts/build-tools.sh",
         "generate-local-ca-bundle": "node scripts/generate-local-ca-bundle.mjs",
         "start": "scripts/start-dev.sh",
-        "build": "vite build",
-        "preview": "vite preview --host",
+        "build": "vp build",
+        "preview": "vp preview --host",
         "worker-dev": "wrangler dev --port=3128",
         "worker-deploy": "scripts/worker-deploy.sh",
         "sync-disks": "scripts/sync-disks.sh",
-        "prettier": "prettier --check src worker",
-        "prettier:fix": "prettier --write src worker",
-        "lint": "eslint src worker",
-        "lint:fix": "eslint --fix src worker",
-        "check": "tsc --noEmit && tsc --noEmit --project worker/tsconfig.json",
+        "format": "vp fmt --check src worker",
+        "format:fix": "vp fmt src worker",
+        "lint": "vp lint src worker",
+        "lint:fix": "vp lint --fix src worker",
+        "check": "npm run --silent typecheck && vp check src worker",
+        "typecheck": "tsc --noEmit && tsc --noEmit --project worker/tsconfig.json",
         "format-macemu": "clang-format -i --glob=macemu/BasiliskII/src/Unix/JS/*"
     },
     "browserslist": {
@@ -81,19 +74,12 @@
             "last 1 safari version"
         ]
     },
-    "prettier": {
-        "trailingComma": "es5",
-        "bracketSameLine": true,
-        "bracketSpacing": false,
-        "tabWidth": 4,
-        "semi": true,
-        "singleQuote": false,
-        "quoteProps": "preserve",
-        "arrowParens": "avoid"
-    },
     "allowScripts": {
         "esbuild": true,
         "fsevents": true,
         "workerd": true
+    },
+    "overrides": {
+        "vite": "$vite"
     }
 }

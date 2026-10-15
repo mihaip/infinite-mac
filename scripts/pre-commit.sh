@@ -14,5 +14,3 @@ run_check() {
 }
 
 run_check check
-run_check lint
-run_check prettier
