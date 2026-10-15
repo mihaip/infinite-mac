@@ -267,6 +267,10 @@ checksums alone do not establish bootability.
 Use `insert-native NAME PATH` to queue a private copy of the next floppy;
 insertion waits until the guest ejects the previous disk. This avoids a native
 file picker during multi-disk installation tests.
+The RLE archive's disk 3 is an 800 KB capture of a single-sided disk. Preparation
+also creates `Office Sys 3 side 0.dc42` by extracting side 0 track by track, with
+its tags, and records that transformation in the media manifest. Use that derived
+image for a Lisa with a 400 KB drive.
 
 For frontend comparisons without wxWidgets:
 
@@ -277,6 +281,14 @@ cmake --build lisaem/build-im-native -j8
 /path/to/lisaem/build-im-native/lisaem-im boot.ROM disk.dc42 120 screen.pgm
 ```
 
+After building the native frontend and tools, `python3 scripts/lisa.py
+install-headless NAME` creates a private blank ProFile, replays the five-disk
+installation, returns to disk 1 for final setup, and selects Finished → Start Up.
+It preserves `installed.dc42` with `installed-pram.bin`, then cold-boots a working
+copy and writes `boot-screen.pgm`. Inspect that framebuffer to verify the guest
+result. Stopping before the final setup can leave an image that fails with 10738.
+The installer calls itself 3.0; the installed desktop contains Release 3.1.
+
 The initial browser frontend targets a Lisa 2/5 configuration: H boot ROM, A8 I/O
 ROM, 1536 KB RAM, one ProFile, and a 720×364 framebuffer. It loads tagged DC42
 images into RAM, writes changed sectors through `workerApi.disks`, and refreshes
@@ -285,6 +297,10 @@ PCM at 44.1 kHz; the native harness can capture the same stream by setting
 `LISAEM_AUDIO_DUMP` to a raw `.s8` filename. Printers, serial/network
 devices, alternate machine configurations, and display aspect correction remain
 outside this initial bringup.
+Browser PRAM persistence is also deferred; guest restarts currently close the run
+cleanly, and a new run performs a cold boot. Native replay accepts an optional
+input file (`select-disk.txt` and `install-los.txt` in the frontend directory are
+examples), and `LISAEM_BOOT_FLOPPY` selects a floppy boot.
 
 ### Internal test pages
 

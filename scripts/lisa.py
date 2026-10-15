@@ -144,6 +144,37 @@ def prepare_floppies(rle=False):
                 raise ValueError(f"Converted image checksum failed: {dc42}")
             manifest[dc42.name] = {"archiveMember": name, **info}
             print(f"Verified {dc42.name}: {info['sectors']} sectors, {info['tagBytesPerSector']} tag bytes")
+    if rle:
+        # This archive's third installer is a double-sided capture of a
+        # single-sided Lisa disk. Preserve the original conversion and derive
+        # the 400K disk by taking side 0 of each track, including its tags.
+        source = destination / "Office Sys 3.dart.dc42"
+        image = source.read_bytes()
+        info = inspect_dc42(source)
+        if info["sectors"] != 1600 or info["tagBytesPerSector"] != 12:
+            raise ValueError("Unexpected geometry for Office System disk 3")
+        data = image[84:84 + 819200]
+        tags = image[84 + 819200:]
+        output_data, output_tags = bytearray(), bytearray()
+        sector = 0
+        for track in range(80):
+            sectors = 12 - track // 16
+            output_data.extend(data[sector * 512:(sector + sectors) * 512])
+            output_tags.extend(tags[sector * 12:(sector + sectors) * 12])
+            sector += sectors * 2
+        header = bytearray(image[:84])
+        header[64:80] = struct.pack(
+            ">IIII", len(output_data), len(output_tags),
+            checksum(output_data), checksum(output_tags[12:]))
+        header[80:82] = bytes([0, 2])
+        output = destination / "Office Sys 3 side 0.dc42"
+        output.write_bytes(header + output_data + output_tags)
+        manifest[output.name] = {
+            "derivedFrom": source.name, "sourceSHA256": info["sha256"],
+            "transformation": "Side 0 of each 800K track, retaining 12-byte sector tags",
+            **inspect_dc42(output),
+        }
+        print(f"Prepared {output.name} for the single-sided Lisa drive")
     (destination / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
 
@@ -265,6 +296,44 @@ def insert_native(name, floppy):
     print(f"Queued {target}; insertion waits for an empty floppy drive")
 
 
+def install_headless(name):
+    binary = ROOT / "lisaem/build-im-native/lisaem-im"
+    if not binary.exists():
+        raise ValueError("Build the native headless frontend first")
+    prepare_floppies(rle=True)
+    prepare_native(name, "a8", blank=True)
+    run = run_path(name)
+    media = WORK / "prepared/floppies-rle"
+    for number in range(1, 6):
+        source = media / ("Office Sys 3 side 0.dc42" if number == 3
+                          else f"Office Sys {number}.dart.dc42")
+        shutil.copyfile(source, run / f"sys{number}.dc42")
+    replay = ROOT / "lisaem/src/host/im/install-los.txt"
+    shutil.copyfile(replay, run / "install.txt")
+    command = [str(binary), "boot.ROM", "LisaOfficeHardDisk.dc42", "2000",
+               "install-screen.pgm", "install.txt"]
+    (run / "install-manifest.json").write_text(json.dumps({
+        "binarySHA256": sha256(binary), "replaySHA256": sha256(replay),
+        "command": command,
+        "floppies": {f"sys{n}.dc42": sha256(run / f"sys{n}.dc42") for n in range(1, 6)},
+    }, indent=2) + "\n")
+    print("Installing LOS in the native harness; output in install.log", flush=True)
+    with (run / "install.log").open("w") as log:
+        subprocess.run(command, cwd=run,
+                       env={**os.environ, "LISAEM_BOOT_FLOPPY": "sys1.dc42"},
+                       stdout=log, stderr=log, check=True)
+    # Keep the completed installation and matching PRAM before the cold boot.
+    shutil.copyfile(run / "LisaOfficeHardDisk.dc42", run / "installed.dc42")
+    shutil.copyfile(run / "pram.bin", run / "installed-pram.bin")
+    with (run / "boot.log").open("w") as log:
+        env = dict(os.environ)
+        env.pop("LISAEM_BOOT_FLOPPY", None)
+        subprocess.run([str(binary), "boot.ROM", "LisaOfficeHardDisk.dc42", "120",
+                        "boot-screen.pgm"], cwd=run, env=env,
+                       stdout=log, stderr=log, check=True)
+    print(f"Inspect {run / 'boot-screen.pgm'} to confirm the guest reached the desktop")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -284,6 +353,8 @@ def main():
     insert = commands.add_parser("insert-native")
     insert.add_argument("name")
     insert.add_argument("floppy", type=Path)
+    install = commands.add_parser("install-headless")
+    install.add_argument("name")
     args = parser.parse_args()
     if args.command == "fetch":
         fetch()
@@ -297,6 +368,8 @@ def main():
         prepare_native(args.name, args.iorom, args.blank)
     elif args.command == "insert-native":
         insert_native(args.name, args.floppy)
+    elif args.command == "install-headless":
+        install_headless(args.name)
     else:
         run_native(args.name, args.floppy)
 
