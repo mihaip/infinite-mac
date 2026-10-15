@@ -23,3 +23,6 @@
 [submodule "snow"]
 	path = snow
 	url = https://github.com/mihaip/snow.git
+[submodule "lisaem"]
+	path = lisaem
+	url = https://github.com/mihaip/lisaem
