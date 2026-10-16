@@ -1,5 +1,23 @@
 {
+    "[javascript]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "oxc.disableNestedConfig": true,
+    "oxc.fmt.disableNestedConfig": true,
     "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "editor.codeActionsOnSave": {
+        "source.fixAll.oxc": "explicit"
+    },
     // The emulators are large C/C++ codebases with their own style, we don't
     // want auto-formatting for them. There is a format-macemu NPM script that
     // can be used to format our code.

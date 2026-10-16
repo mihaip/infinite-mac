@@ -81,8 +81,7 @@ Common checker and style tasks (also done via `npm run`):
 Lint and format settings live in `vite.config.ts`. Type checking still uses
 the project's TypeScript compiler; type-aware lint rules use Vite+'s native checker.
 
-`scripts/pre-commit.sh` runs `check` across the whole project without modifying
-files. You can add it as a pre-commit hook:
+`scripts/pre-commit.sh` runs all checks across the whole project. You can add it as a pre-commit hook:
 
 ```sh
 ln -s ../../scripts/pre-commit.sh .git/hooks/pre-commit
