@@ -3,10 +3,11 @@
 import argparse
 import sys
 
-import disks
 import machfs
 import macresources
 from machfs.directory import AbstractFolder
+
+import disks
 
 
 def parse_args():

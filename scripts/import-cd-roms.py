@@ -6,17 +6,19 @@ import hashlib
 import io
 import json
 import os
-import paths
 import shutil
 import subprocess
 import sys
 import tempfile
 import typing
 import urllib.parse
-import urls
 import zipfile
 
 from PIL import Image
+from typing_extensions import NotRequired
+
+import paths
+import urls
 
 MAX_COVER_SIZE = 512
 MEDIA_R2_PREFIX = "media"
@@ -37,49 +39,50 @@ MEDIA_ARCHIVE_EXTENSIONS = (".zip", ".sit", ".sitx", ".7z", ".rar", ".tar")
 
 class InputManifest(typing.TypedDict):
     name: str
-    src_url: typing.NotRequired[str]
-    src_file: typing.NotRequired[str]
-    src_member: typing.NotRequired[str]
-    src_file_member: typing.NotRequired[str]
-    src_ext: typing.NotRequired[str]
-    origin_url: typing.NotRequired[str]
-    cover_image: typing.NotRequired[str]
-    cover_image_type: typing.NotRequired[str]
-    mode: typing.NotRequired[str]
-    data_offset: typing.NotRequired[int]
-    data_size: typing.NotRequired[int]
-    platform: typing.NotRequired[typing.Literal["Macintosh", "NeXT", "BeOS"]]
-    is_floppy: typing.NotRequired[bool]
-    self_hosted: typing.NotRequired[bool]
-    _manifest_path: typing.NotRequired[str]
+    src_url: NotRequired[str]
+    src_file: NotRequired[str]
+    src_member: NotRequired[str]
+    src_file_member: NotRequired[str]
+    src_ext: NotRequired[str]
+    origin_url: NotRequired[str]
+    cover_image: NotRequired[str]
+    cover_image_inset: NotRequired[int | tuple[int, int, int, int]]
+    cover_image_type: NotRequired[str]
+    mode: NotRequired[str]
+    data_offset: NotRequired[int]
+    data_size: NotRequired[int]
+    platform: NotRequired[typing.Literal["Macintosh", "NeXT", "BeOS"]]
+    is_floppy: NotRequired[bool]
+    self_hosted: NotRequired[bool]
+    _manifest_path: NotRequired[str]
 
 
 class OutputManifest(typing.TypedDict):
     name: str
     srcUrl: str
-    originalSrcUrl: typing.NotRequired[str]
+    originalSrcUrl: NotRequired[str]
     srcExtension: str
-    coverImageType: typing.NotRequired[str]
-    coverImageSize: typing.NotRequired[typing.Tuple[int, int]]
-    coverImageHash: typing.NotRequired[str]
+    coverImageType: NotRequired[str]
+    coverImageSize: NotRequired[typing.Tuple[int, int]]
+    coverImageHash: NotRequired[str]
     fileSize: int
-    mode: typing.NotRequired[str]
-    dataOffset: typing.NotRequired[int]
-    dataSize: typing.NotRequired[int]
-    platform: typing.NotRequired[typing.Literal["Macintosh", "NeXT", "BeOS"]]
-    isFloppy: typing.NotRequired[bool]
+    mode: NotRequired[str]
+    dataOffset: NotRequired[int]
+    dataSize: NotRequired[int]
+    platform: NotRequired[typing.Literal["Macintosh", "NeXT", "BeOS"]]
+    isFloppy: NotRequired[bool]
 
 
 def load_manifest(manifest_path: str) -> typing.Tuple[str, InputManifest]:
-    folder_path, _ = os.path.splitext(
-        os.path.relpath(manifest_path, paths.CD_ROMS_DIR))
+    folder_path, _ = os.path.splitext(os.path.relpath(manifest_path, paths.CD_ROMS_DIR))
     # Windows does not allow colons in filenames. To allow the repo to
     # be checked out in Windows, we use a "small colon" Unicode variant
     # in the filesystem, but replace it with a normal colon now.
     if ":" in folder_path:
         sys.stderr.write(
             "  WARNING: %s contains a colon in its path, it may not be accessible in Windows checkouts"
-            % folder_path)
+            % folder_path
+        )
     folder_path = folder_path.replace("﹕", ":")
     _, name = os.path.split(folder_path)
     sys.stderr.write("Importing %s\n" % folder_path)
@@ -91,12 +94,12 @@ def load_manifest(manifest_path: str) -> typing.Tuple[str, InputManifest]:
 
 
 def load_manifests(
-        manifest_paths: typing.Optional[typing.Iterable[str]] = None
+    manifest_paths: typing.Optional[typing.Iterable[str]] = None,
 ) -> typing.Iterator[typing.Tuple[str, InputManifest]]:
     if manifest_paths is None:
-        manifest_paths = glob.iglob(os.path.join(paths.CD_ROMS_DIR, "**",
-                                                 "*.json"),
-                                    recursive=True)
+        manifest_paths = glob.iglob(
+            os.path.join(paths.CD_ROMS_DIR, "**", "*.json"), recursive=True
+        )
     for manifest_path in manifest_paths:
         yield load_manifest(manifest_path)
 
@@ -114,7 +117,7 @@ def get_output_manifest(
         sync_media=sync_media,
         media_rclone_remote=media_rclone_remote,
     )
-    output_manifest = {
+    output_manifest: OutputManifest = {
         "name": input_manifest["name"],
         "srcUrl": src_url,
         "srcExtension": src_extension.lower(),
@@ -126,21 +129,28 @@ def get_output_manifest(
         cover_image_hash, cover_image_size = load_cover_image(
             input_manifest["cover_image"],
             input_manifest.get("cover_image_inset"),
-            write_cover=write_cover)
+            write_cover=write_cover,
+        )
         output_manifest["coverImageHash"] = cover_image_hash
         output_manifest["coverImageSize"] = cover_image_size
     if "cover_image_type" in input_manifest:
         output_manifest["coverImageType"] = input_manifest["cover_image_type"]
     if "mode" in input_manifest:
         output_manifest["mode"] = input_manifest["mode"]
-    decoded_size = (file_size // 2352 * 2048
-                    if input_manifest.get("mode") == "MODE1/2352" else file_size)
+    decoded_size = (
+        file_size // 2352 * 2048
+        if input_manifest.get("mode") == "MODE1/2352"
+        else file_size
+    )
     data_offset = input_manifest.get("data_offset", 0)
     if type(data_offset) is not int or not 0 <= data_offset < decoded_size:
         raise Exception("data_offset must be a byte offset within the decoded CD image")
     data_size = input_manifest.get("data_size", decoded_size - data_offset)
-    if (type(data_size) is not int or data_size <= 0 or
-            data_offset + data_size > decoded_size):
+    if (
+        type(data_size) is not int
+        or data_size <= 0
+        or data_offset + data_size > decoded_size
+    ):
         raise Exception("data_size must select bytes within the decoded CD image")
     if "data_offset" in input_manifest:
         output_manifest["dataOffset"] = data_offset
@@ -148,7 +158,9 @@ def get_output_manifest(
         output_manifest["dataSize"] = data_size
     if "platform" in input_manifest:
         if input_manifest["platform"] not in {"Macintosh", "NeXT", "BeOS"}:
-            raise Exception("Unsupported CD-ROM platform: %s" % input_manifest["platform"])
+            raise Exception(
+                "Unsupported CD-ROM platform: %s" % input_manifest["platform"]
+            )
         output_manifest["platform"] = input_manifest["platform"]
     if "is_floppy" in input_manifest:
         output_manifest["isFloppy"] = input_manifest["is_floppy"]
@@ -167,8 +179,12 @@ def get_source_info(
         raise Exception("Manifest must have exactly one of src_url or src_file")
     if has_src_file:
         media, src_extension = load_media_file(input_manifest)
-        hosted_url, file_size, = get_self_hosted_source_info(
-            media, write_media, sync_media, media_rclone_remote)
+        (
+            hosted_url,
+            file_size,
+        ) = get_self_hosted_source_info(
+            media, write_media, sync_media, media_rclone_remote
+        )
         return hosted_url, input_manifest.get("src_ext", src_extension), file_size
 
     src_url = input_manifest["src_url"]
@@ -178,11 +194,13 @@ def get_source_info(
         src_path = urls.read_url_to_path(
             src_url,
             on_cache_miss=lambda: sys.stderr.write(
-                "  Downloading media for self-hosting: %s\n" % src_url),
+                "  Downloading media for self-hosting: %s\n" % src_url
+            ),
         )
         media, src_extension = load_media_path(src_path, src_name, input_manifest)
         hosted_url, file_size = get_self_hosted_source_info(
-            media, write_media, sync_media, media_rclone_remote)
+            media, write_media, sync_media, media_rclone_remote
+        )
         return hosted_url, input_manifest.get("src_ext", src_extension), file_size
 
     if input_manifest.get("src_member") or input_manifest.get("src_file_member"):
@@ -192,8 +210,7 @@ def get_source_info(
     file_size = int(headers["Content-Length"])
     accepts_ranges = headers.get("Accept-Ranges") == "bytes"
     if not accepts_ranges:
-        sys.stderr.write("  WARNING: %s does not support range requests\n" %
-                         src_url)
+        sys.stderr.write("  WARNING: %s does not support range requests\n" % src_url)
     return src_url, src_extension, file_size
 
 
@@ -228,8 +245,7 @@ def load_media_file(input_manifest: InputManifest) -> typing.Tuple[bytes, str]:
     if not manifest_path:
         raise Exception("Cannot resolve src_file without manifest path")
     src_file = input_manifest["src_file"]
-    src_path = os.path.normpath(
-        os.path.join(os.path.dirname(manifest_path), src_file))
+    src_path = os.path.normpath(os.path.join(os.path.dirname(manifest_path), src_file))
     if not os.path.isfile(src_path):
         raise Exception("src_file does not exist: %s" % src_file)
     return load_media_path(src_path, src_file, input_manifest)
@@ -243,9 +259,11 @@ def load_media_path(
     if zipfile.is_zipfile(src_path):
         return load_media_from_zip(src_path, src_name, input_manifest)
     _, src_extension = os.path.splitext(src_name)
-    if (src_extension.lower() in MEDIA_ARCHIVE_EXTENSIONS or
-            input_manifest.get("src_member") or
-            input_manifest.get("src_file_member")):
+    if (
+        src_extension.lower() in MEDIA_ARCHIVE_EXTENSIONS
+        or input_manifest.get("src_member")
+        or input_manifest.get("src_file_member")
+    ):
         return load_media_from_archive(src_path, src_name, input_manifest)
     with open(src_path, "rb") as f:
         return f.read(), src_extension
@@ -257,10 +275,7 @@ def load_media_from_zip(
     input_manifest: InputManifest,
 ) -> typing.Tuple[bytes, str]:
     with zipfile.ZipFile(src_path, "r") as zip_file:
-        filenames = [
-            info.filename for info in zip_file.infolist()
-            if not info.is_dir()
-        ]
+        filenames = [info.filename for info in zip_file.infolist() if not info.is_dir()]
         member = select_media_member(filenames, src_name, input_manifest)
         _, src_extension = os.path.splitext(member)
         return zip_file.read(member), src_extension
@@ -272,28 +287,42 @@ def load_media_from_archive(
     input_manifest: InputManifest,
 ) -> typing.Tuple[bytes, str]:
     if not os.path.isfile(paths.LSAR_PATH) or not os.path.isfile(paths.UNAR_PATH):
-        raise Exception("Archive extraction requires lsar and unar "
-                        "(build them with npm run build-tools)")
-    listing = json.loads(subprocess.check_output(
-        [paths.LSAR_PATH, "-json", src_path]))
-    files = [entry for entry in listing["lsarContents"]
-             if not entry.get("XADIsDirectory") and
-             not entry.get("XADIsResourceFork")]
+        raise Exception(
+            "Archive extraction requires lsar and unar "
+            "(build them with npm run build-tools)"
+        )
+    listing = json.loads(subprocess.check_output([paths.LSAR_PATH, "-json", src_path]))
+    files = [
+        entry
+        for entry in listing["lsarContents"]
+        if not entry.get("XADIsDirectory") and not entry.get("XADIsResourceFork")
+    ]
     member = select_media_member(
-        [entry["XADFileName"] for entry in files], src_name, input_manifest)
+        [entry["XADFileName"] for entry in files], src_name, input_manifest
+    )
     entry = next(entry for entry in files if entry["XADFileName"] == member)
     # Extract only the data fork. Selecting by index avoids matching the
     # resource fork with the same name, and stdout avoids filesystem metadata
     # and sidecar files being mistaken for disk image bytes.
     result = subprocess.run(
-        [paths.UNAR_PATH, "-quiet", "-no-directory", "-no-recursion",
-         "-output-directory", "-", "-indexes", src_path,
-         str(entry["XADIndex"])],
+        [
+            paths.UNAR_PATH,
+            "-quiet",
+            "-no-directory",
+            "-no-recursion",
+            "-output-directory",
+            "-",
+            "-indexes",
+            src_path,
+            str(entry["XADIndex"]),
+        ],
         capture_output=True,
     )
     if result.returncode != 0:
-        raise Exception("Could not extract %s from %s: %s" %
-                        (member, src_name, result.stderr.decode(errors="replace")))
+        raise Exception(
+            "Could not extract %s from %s: %s"
+            % (member, src_name, result.stderr.decode(errors="replace"))
+        )
     if len(result.stdout) != entry["XADFileSize"]:
         raise Exception("Extracted size mismatch for %s in %s" % (member, src_name))
     _, src_extension = os.path.splitext(member)
@@ -308,15 +337,22 @@ def select_media_member(
     member = input_manifest.get("src_member") or input_manifest.get("src_file_member")
     if member:
         if filenames.count(member) != 1:
-            raise Exception("Archive member must exist exactly once in %s: %s" %
-                            (src_name, member))
+            raise Exception(
+                "Archive member must exist exactly once in %s: %s" % (src_name, member)
+            )
         return member
-    candidates = [name for name in filenames
-                  if is_media_file(name) and not name.startswith("__MACOSX/") and
-                  not os.path.basename(name).startswith("._")]
+    candidates = [
+        name
+        for name in filenames
+        if is_media_file(name)
+        and not name.startswith("__MACOSX/")
+        and not os.path.basename(name).startswith("._")
+    ]
     if len(candidates) != 1:
-        raise Exception("%s has %d media candidates (%s), specify src_member" %
-                        (src_name, len(candidates), ", ".join(candidates)))
+        raise Exception(
+            "%s has %d media candidates (%s), specify src_member"
+            % (src_name, len(candidates), ", ".join(candidates))
+        )
     return candidates[0]
 
 
@@ -331,8 +367,9 @@ def sync_media_to_r2(key: str, media: bytes, media_rclone_remote: str) -> None:
         return
     if existing_size is not None:
         sys.stderr.write(
-            "  R2 media size mismatch for %s (%d != %d), uploading\n" %
-            (key, existing_size, len(media)))
+            "  R2 media size mismatch for %s (%d != %d), uploading\n"
+            % (key, existing_size, len(media))
+        )
     else:
         sys.stderr.write("  Uploading R2 media: %s\n" % key)
 
@@ -358,8 +395,7 @@ def sync_media_to_r2(key: str, media: bytes, media_rclone_remote: str) -> None:
             os.unlink(temp_path)
 
 
-def get_r2_object_size(key: str,
-                       media_rclone_remote: str) -> typing.Optional[int]:
+def get_r2_object_size(key: str, media_rclone_remote: str) -> typing.Optional[int]:
     result = subprocess.run(
         [
             "rclone",
@@ -388,8 +424,8 @@ def get_r2_object_size(key: str,
 
 
 def load_cover_image(
-    cover_image_url: str, inset: typing.Union[int, typing.Tuple[int, int, int,
-                                                                int]],
+    cover_image_url: str,
+    inset: int | tuple[int, int, int, int] | None,
     write_cover: bool = True,
 ) -> typing.Tuple[str, typing.Tuple[int, int]]:
     cover_image_path = urls.read_url_to_path(cover_image_url)
@@ -399,14 +435,18 @@ def load_cover_image(
                 inset_left = inset_top = inset_right = inset_bottom = inset
             else:
                 inset_left, inset_top, inset_right, inset_bottom = inset
-            cover_image = cover_image.crop(box=(
-                inset_left,
-                inset_top,
-                cover_image.width - inset_right,
-                cover_image.height - inset_bottom,
-            ))
+            cover_image = cover_image.crop(
+                box=(
+                    inset_left,
+                    inset_top,
+                    cover_image.width - inset_right,
+                    cover_image.height - inset_bottom,
+                )
+            )
 
-        cover_image.thumbnail((MAX_COVER_SIZE, MAX_COVER_SIZE), Image.LANCZOS)
+        cover_image.thumbnail(
+            (MAX_COVER_SIZE, MAX_COVER_SIZE), Image.Resampling.LANCZOS
+        )
 
         # Ensure that we can write the output as JPEG, even if it's a palettized
         # PNG or GIF.
@@ -418,8 +458,9 @@ def load_cover_image(
         cover_image_content = cover_image_output.getvalue()
         cover_image_hash = hashlib.sha256(cover_image_content).hexdigest()
         if write_cover:
-            cover_image_path = os.path.join(paths.COVERS_DIR,
-                                            f"{cover_image_hash}.jpeg")
+            cover_image_path = os.path.join(
+                paths.COVERS_DIR, f"{cover_image_hash}.jpeg"
+            )
 
             with open(cover_image_path, "wb") as f:
                 f.write(cover_image_content)

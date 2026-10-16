@@ -27,7 +27,18 @@
     "[cpp]": {
         "editor.formatOnSave": false
     },
-    "python.formatting.provider": "yapf",
+    "python.languageServer": "None",
+    "ruff.importStrategy": "fromEnvironment",
+    "ty.importStrategy": "fromEnvironment",
+    "ruff.configurationPreference": "filesystemFirst",
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.ruff": "explicit",
+            "source.organizeImports.ruff": "explicit"
+        }
+    },
     "files.associations": {
         "__bit_reference": "cpp",
         "__bits": "cpp",

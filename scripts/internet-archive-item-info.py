@@ -9,10 +9,10 @@ import typing
 import urllib.parse
 import zipfile
 
-import paths
-import urls
 from PIL import Image
 
+import paths
+import urls
 
 METADATA_URL = "https://archive.org/metadata/{identifier}"
 DOWNLOAD_URL = "https://archive.org/download/{identifier}/{filename}"
@@ -131,9 +131,7 @@ def main() -> int:
             identifier = item
         elif parsed.netloc.endswith("archive.org"):
             path_parts = [
-                urllib.parse.unquote(part)
-                for part in parsed.path.split("/")
-                if part
+                urllib.parse.unquote(part) for part in parsed.path.split("/") if part
             ]
             if len(path_parts) < 2 or path_parts[0] not in {
                 "details",
@@ -188,16 +186,22 @@ def main() -> int:
                                 if not member.is_dir()
                             ]
                     else:
-                        listing = json.loads(subprocess.check_output(
-                            [paths.LSAR_PATH, "-json", archive_path]))
+                        listing = json.loads(
+                            subprocess.check_output(
+                                [paths.LSAR_PATH, "-json", archive_path]
+                            )
+                        )
                         media_archive["members"] = [
-                            {"name": member["XADFileName"],
-                             "size": member["XADFileSize"]}
+                            {
+                                "name": member["XADFileName"],
+                                "size": member["XADFileSize"],
+                            }
                             for member in listing["lsarContents"]
                             if not member.get("XADIsDirectory")
                             and not member.get("XADIsResourceFork")
                         ]
-                    for member in media_archive["members"]:
+                    members: list[dict[str, typing.Any]] = media_archive["members"]
+                    for member in members:
                         if not member["name"].lower().endswith(".cue"):
                             continue
                         try:
@@ -206,22 +210,36 @@ def main() -> int:
                                     cue = archive.read(member["name"])
                             else:
                                 entry = next(
-                                    entry for entry in listing["lsarContents"]
+                                    entry
+                                    for entry in listing["lsarContents"]
                                     if entry["XADFileName"] == member["name"]
-                                    and not entry.get("XADIsResourceFork"))
-                                cue = subprocess.check_output([
-                                    paths.UNAR_PATH, "-quiet", "-no-directory",
-                                    "-no-recursion", "-output-directory", "-",
-                                    "-indexes", archive_path, str(entry["XADIndex"])])
+                                    and not entry.get("XADIsResourceFork")
+                                )
+                                cue = subprocess.check_output(
+                                    [
+                                        paths.UNAR_PATH,
+                                        "-quiet",
+                                        "-no-directory",
+                                        "-no-recursion",
+                                        "-output-directory",
+                                        "-",
+                                        "-indexes",
+                                        archive_path,
+                                        str(entry["XADIndex"]),
+                                    ]
+                                )
                             member["cue_sheet"] = cue.decode(
-                                "utf-8-sig", errors="replace")
+                                "utf-8-sig", errors="replace"
+                            )
                         except Exception as e:
-                            print("Could not read archived cue sheet %s: %s"
-                                  % (member["name"], e), file=sys.stderr)
+                            print(
+                                "Could not read archived cue sheet %s: %s"
+                                % (member["name"], e),
+                                file=sys.stderr,
+                            )
                 archive_files.append(media_archive)
-            if (
-                extension in COVER_IMAGE_EXTENSIONS
-                and not basename.endswith("_thumb%s" % extension)
+            if extension in COVER_IMAGE_EXTENSIONS and not basename.endswith(
+                "_thumb%s" % extension
             ):
                 cover_image = archive_file_to_output(identifier, archive_file)
                 try:
@@ -243,9 +261,7 @@ def main() -> int:
                 if basename == "__ia_thumb.jpg":
                     name_rank = 30
                 elif (
-                    "front" in basename
-                    or "cover" in basename
-                    or "artwork" in basename
+                    "front" in basename or "cover" in basename or "artwork" in basename
                 ):
                     name_rank = 0
                 elif "disc" in basename or "disk" in basename or "cd" in basename:

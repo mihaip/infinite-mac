@@ -73,15 +73,19 @@ Common deployment tasks (also done via `npm run`):
 
 Common checker and style tasks (also done via `npm run`):
 
-- `check`: Check TypeScript types, lint rules, and formatting across `src` and `worker`.
-- `typecheck`: Check TypeScript types only.
-- `lint`: Check Oxlint rules (has a `lint:fix` counterpart).
-- `format`: Check Oxfmt formatting (has a `format:fix` counterpart).
+- `check`: Check types, lint rules, and formatting across `src`, `worker`, and Python files in `scripts`.
+- `ts:types`: Check TypeScript types across `src` and `worker`.
+- `ts:lint`: Check Oxlint rules (has a `ts:lint:fix` counterpart).
+- `ts:format`: Check Oxfmt formatting (has a `ts:format:fix` counterpart).
+- `py:types`: Check Python types in `scripts` with ty.
+- `py:lint`: Check Ruff rules (has a `py:lint:fix` counterpart).
+- `py:format`: Check Ruff formatting (has a `py:format:fix` counterpart).
 
-Lint and format settings live in `vite.config.ts`. Type checking still uses
-the project's TypeScript compiler; type-aware lint rules use Vite+'s native checker.
+TypeScript lint and format settings live in `vite.config.ts`. Type checking uses the project's TypeScript compiler; type-aware lint rules use [Vite+](https://viteplus.dev/)'s native checker.
 
-`scripts/pre-commit.sh` runs all checks across the whole project. You can add it as a pre-commit hook:
+Python uses Astral's [Ruff](https://docs.astral.sh/ruff/) for linting, import sorting, and formatting, and [ty](https://docs.astral.sh/ty/) for type checking. Their settings live in `pyproject.toml` and cover `scripts/`, excluding emulator submodules. Run `uv sync` to install the locked tools and dependencies (also done by `build-tools`).
+
+`scripts/pre-commit.sh` runs and times each of the six checks individually across the whole project. You can add it as a pre-commit hook:
 
 ```sh
 ln -s ../../scripts/pre-commit.sh .git/hooks/pre-commit

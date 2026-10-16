@@ -3,10 +3,7 @@ import datetime
 import glob
 import json
 import logging
-import machfs
-import machfs.main
 import os
-import paths
 import plistlib
 import shutil
 import struct
@@ -16,10 +13,15 @@ import tempfile
 import time
 import typing
 import unicodedata
-import urls
 import urllib.error
-import xattr
 import zipfile
+
+import machfs
+import machfs.main
+import xattr
+
+import paths
+import urls
 
 ImportFolders = typing.Tuple[
     typing.Dict[str, machfs.Folder],  # Universal folders
@@ -35,7 +37,9 @@ def get_import_folders() -> ImportFolders:
     import_folders7 = {}
     import_foldersX = {}
 
-    manifest_folders, manifest_folders6, manifest_folders7, manifest_foldersX = import_manifests()
+    manifest_folders, manifest_folders6, manifest_folders7, manifest_foldersX = (
+        import_manifests()
+    )
     import_folders.update(manifest_folders)
     import_folders6.update(manifest_folders6)
     import_folders7.update(manifest_folders7)
@@ -103,7 +107,9 @@ def import_manifests() -> ImportFolders:
     return import_folders, import_folders6, import_folders7, import_foldersX
 
 
-def import_manifest(manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder:
+def import_manifest(
+    manifest_json: typing.Dict[str, typing.Any],
+) -> typing.Optional[machfs.Folder]:
     src_url = manifest_json["src_url"]
     src_ext = manifest_json.get("src_ext")
     if not src_ext:
@@ -208,7 +214,7 @@ def import_archive(manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder
         for entry in lsar_json["lsarContents"]:
             lsar_entries_by_path[entry["XADFileName"]] = entry
 
-        def get_lsar_entry(path: str) -> typing.Optional[typing.Dict[str, typing.Any]]:
+        def get_lsar_entry(path: str) -> typing.Dict[str, typing.Any]:
             rel_path = os.path.relpath(path, tmp_dir_path)
             if rel_path not in lsar_entries_by_path:
                 rel_path = normalize(rel_path)
@@ -316,11 +322,11 @@ def import_archive(manifest_json: typing.Dict[str, typing.Any]) -> machfs.Folder
                 file_path = os.path.join(dir_path, file_name)
                 file = machfs.File()
                 with open(file_path, "rb") as f:
-                    file.data = f.read()
+                    file.data = f.read()  # ty: ignore[invalid-assignment]  # machfs also accepts bytes.
                 resource_fork_path = os.path.join(file_path, "..namedfork", "rsrc")
                 if os.path.exists(resource_fork_path):
                     with open(resource_fork_path, "rb") as f:
-                        file.rsrc = f.read()
+                        file.rsrc = f.read()  # ty: ignore[invalid-assignment]  # machfs also accepts bytes.
 
                 update_file_from_lsar_entry(file, get_lsar_entry(file_path))
 
@@ -421,6 +427,7 @@ def import_dmg_folder(
     archive_path: str,
     root_folder: machfs.Folder,
 ) -> None:
+    src_url = manifest_json["src_url"]
     if manifest_json.get("needs_dmg2img"):
         with tempfile.TemporaryDirectory() as tmp_dir_path:
             img_path = os.path.join(tmp_dir_path, "image.img")
@@ -457,8 +464,6 @@ def import_dmg_folder(
             del manifest_json_clone["needs_dmg2img"]
             return import_dmg_folder(manifest_json_clone, dmg_path, root_folder)
 
-    src_url = manifest_json["src_url"]
-
     def normalize(name: str) -> str:
         # Replaces : with /, to undo escaping done by hdiutil.
         # Normalizes accented characters to their combined form, since only
@@ -471,7 +476,14 @@ def import_dmg_folder(
 
     with tempfile.TemporaryDirectory() as tmp_dir_path:
         hdiutil_code = subprocess.run(
-            [paths.HDIUTIL_PATH, "attach", archive_path, "-mountpoint", tmp_dir_path, "-nobrowse"],
+            [
+                paths.HDIUTIL_PATH,
+                "attach",
+                archive_path,
+                "-mountpoint",
+                tmp_dir_path,
+                "-nobrowse",
+            ],
             # Pipe in a "y" to accept the license agreement (if any).
             input=b"y\n",
             stdout=subprocess.DEVNULL,
@@ -511,11 +523,11 @@ def import_dmg_folder(
                         continue
                     file = machfs.File()
                     with open(file_path, "rb") as f:
-                        file.data = f.read()
+                        file.data = f.read()  # ty: ignore[invalid-assignment]  # machfs also accepts bytes.
                     resource_fork_path = os.path.join(file_path, "..namedfork", "rsrc")
                     if os.path.exists(resource_fork_path):
                         with open(resource_fork_path, "rb") as f:
-                            file.rsrc = f.read()
+                            file.rsrc = f.read()  # ty: ignore[invalid-assignment]  # machfs also accepts bytes.
 
                     update_file_from_xattr(file, file_path)
 
@@ -582,7 +594,10 @@ SYSTEM7_ZIP_PATHS = {
 
 MAC_OS_X_ZIP_PATHS = {}
 
-def import_zips() -> ImportFolders:
+
+def import_zips() -> tuple[
+    dict[str, machfs.Folder], dict[str, machfs.Folder], dict[str, machfs.Folder]
+]:
     sys.stderr.write("Importing .zips\n")
     import_folders = {}
     import_folders7 = {}
@@ -666,7 +681,9 @@ def import_zip(zip_path: str) -> machfs.Folder:
     return folder
 
 
-def traverse_folders(parent: machfs.Folder, folder_path: str) -> machfs.Folder:
+def traverse_folders(
+    parent: machfs.directory.AbstractFolder, folder_path: str
+) -> machfs.directory.AbstractFolder:
     if folder_path:
         folder_path_pieces = folder_path.split(os.path.sep)
         for folder_path_piece in folder_path_pieces:
@@ -683,6 +700,7 @@ def fix_name(name: str) -> str:
 
 def clear_folder_window_position(folder: machfs.Folder) -> None:
     # Clear x/y position so that the Finder computes a layout for us.
+    assert folder.usrInfo is not None
     (rect_top, rect_left, rect_bottom, rect_right, flags, window_y, window_x, view) = (
         struct.unpack(">hhhhHhhH", folder.usrInfo)
     )
@@ -702,7 +720,9 @@ def clear_folder_window_position(folder: machfs.Folder) -> None:
 
 
 def build_images() -> typing.Tuple[bytes, bytes, bytes]:
-    import_folders, import_folders6, import_folders7, import_foldersX = get_import_folders()
+    import_folders, import_folders6, import_folders7, import_foldersX = (
+        get_import_folders()
+    )
 
     def create_base_volume() -> machfs.Volume:
         v = machfs.Volume()
@@ -771,15 +791,13 @@ def check_hfs_images(images: typing.List[typing.Tuple[str, bytes]]) -> None:
     fsck_hfs_path = shutil.which("fsck_hfs")
     if not fsck_hfs_path:
         logging.warning(
-            "DEBUG_FSCK_HFS is set, but fsck_hfs is not available; "
-            "skipping HFS checks"
+            "DEBUG_FSCK_HFS is set, but fsck_hfs is not available; skipping HFS checks"
         )
         return
 
     if not os.path.exists(paths.HDIUTIL_PATH):
         logging.warning(
-            "DEBUG_FSCK_HFS is set, but hdiutil is not available; "
-            "skipping HFS checks"
+            "DEBUG_FSCK_HFS is set, but hdiutil is not available; skipping HFS checks"
         )
         return
 
@@ -790,8 +808,12 @@ def check_hfs_images(images: typing.List[typing.Tuple[str, bytes]]) -> None:
             image_file.flush()
             check_hfs_image(image_name, image_file.name)
 
+
 def check_hfs_image(image_name: str, image_path: str) -> None:
     fsck_hfs_path = shutil.which("fsck_hfs")
+    if fsck_hfs_path is None:
+        logging.warning("fsck_hfs was not found, skipping HFS check for %s", image_name)
+        return
     device = None
     try:
         attach_result = subprocess.run(
@@ -810,19 +832,14 @@ def check_hfs_image(image_name: str, image_path: str) -> None:
         )
         attach_info = plistlib.loads(attach_result.stdout)
         entities = attach_info.get("system-entities", [])
-        devices = [
-            entity["dev-entry"]
-            for entity in entities
-            if "dev-entry" in entity
-        ]
+        devices = [entity["dev-entry"] for entity in entities if "dev-entry" in entity]
         if not devices:
             raise RuntimeError("hdiutil did not return an attached device")
         device = next(
             (
                 entity["dev-entry"]
                 for entity in entities
-                if entity.get("potentially-mountable")
-                and "dev-entry" in entity
+                if entity.get("potentially-mountable") and "dev-entry" in entity
             ),
             devices[-1],
         )
@@ -838,9 +855,7 @@ def check_hfs_image(image_name: str, image_path: str) -> None:
                 fsck_result.returncode,
             )
     except (OSError, plistlib.InvalidFileException, RuntimeError) as error:
-        logging.warning(
-            "Could not check %s with fsck_hfs: %s", image_name, error
-        )
+        logging.warning("Could not check %s with fsck_hfs: %s", image_name, error)
     except subprocess.CalledProcessError as error:
         logging.warning(
             "Could not attach %s for fsck_hfs (exit status %d)",
@@ -855,4 +870,3 @@ def check_hfs_image(image_name: str, image_path: str) -> None:
             )
             if detach_result.returncode != 0:
                 logging.warning("Could not detach %s after fsck_hfs", device)
-

@@ -2,15 +2,14 @@
 
 import argparse
 import os.path
-import struct
 import tempfile
-import zipfile
+
+import machfs
+import macresources
 
 import basilisk
 import disks
 import library
-import machfs
-import macresources
 import minivmac
 import paths
 import placeholders
@@ -24,7 +23,7 @@ def parse_args():
     parser.add_argument(
         "--system6",
         action="store_true",
-        help="Boot from System 6 (to avoid creating System 7-style desktop DBs)."
+        help="Boot from System 6 (to avoid creating System 7-style desktop DBs).",
     )
     parser.add_argument(
         "--fsck",
@@ -51,13 +50,13 @@ def build_placeholder_image(system6: bool = False) -> bytes:
     volume.name = "Infinite Mac Placeholders"
 
     stickies_file = machfs.File()
-    stickies_file.data = stickies.generate_placeholder()
+    stickies_file.data = stickies.generate_placeholder()  # ty: ignore[invalid-assignment]  # machfs also accepts bytes.
     stickies_file.type = b"notz"
     stickies_file.creator = b"notz"
     volume["Stickies file"] = stickies_file
 
     ttxt_file = machfs.File()
-    ttxt_file.data = stickies.generate_ttxt_placeholder()
+    ttxt_file.data = stickies.generate_ttxt_placeholder()  # ty: ignore[invalid-assignment]  # machfs also accepts bytes.
     ttxt_file.type = b"TEXT"
     ttxt_file.creator = b"ttxt"
     volume["Welcome!"] = ttxt_file
@@ -92,15 +91,20 @@ def build_placeholder_image(system6: bool = False) -> bytes:
         bootable=True,
     )
 
+
 def load_resedit() -> machfs.File:
     resedit_zip_path = os.path.join(paths.LIBRARY_DIR, "Developer", "ResEdit.zip")
     resedit_folder = library.import_zip(resedit_zip_path)
     return resedit_folder["ResEdit"]
 
+
 def load_speed_disk() -> machfs.File:
-    resedit_zip_path = os.path.join(paths.LIBRARY_DIR, "Utilities", "Norton Utilities 3.2.1.zip")
+    resedit_zip_path = os.path.join(
+        paths.LIBRARY_DIR, "Utilities", "Norton Utilities 3.2.1.zip"
+    )
     resedit_folder = library.import_zip(resedit_zip_path)
     return resedit_folder["Norton Tools"]["Speed Disk"]
+
 
 def main() -> None:
     args = parse_args()
@@ -113,7 +117,7 @@ def main() -> None:
         print(f"Wrote placeholder files to disk image {output_path}")
         if args.fsck:
             print("Running fsck on the generated placeholder disk image...")
-            library.fsck_hfs_image(output_path)
+            library.check_hfs_image("Placeholders.dsk", output_path)
             print("fsck completed successfully.")
 
         system_disks = disks.ALL_DISKS

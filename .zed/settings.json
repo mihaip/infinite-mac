@@ -20,6 +20,15 @@
     }
   },
   "languages": {
+    "Python": {
+      "language_servers": ["ty", "ruff"],
+      "format_on_save": "on",
+      "formatter": { "language_server": { "name": "ruff" } },
+      "code_actions_on_format": {
+        "source.organizeImports.ruff": true,
+        "source.fixAll.ruff": true
+      }
+    },
     "JavaScript": {
       "format_on_save": "on",
       "prettier": { "allowed": false },

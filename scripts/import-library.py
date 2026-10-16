@@ -4,9 +4,10 @@ import enum
 import glob
 import json
 import os.path
-import paths
 import sys
 import typing
+
+import paths
 
 
 # Should be sorted in rough order of commonality, so that items with only common
@@ -47,20 +48,20 @@ def to_output(src: dict[Field, typing.Any]) -> OutputItem:
 
 class Item(typing.NamedTuple):
     title: str
-    authors: list[str]
-    year: int
-    systems: list[int]
+    authors: list[str] | None
+    year: int | None
+    systems: list[float]
     architectures: list[int]
     categories: list[int]
     perspectives: list[int]
-    publishers: list[str]
+    publishers: list[str] | None
 
     url: str
     files: dict[str, int]
     description: str
     screenshots: list[str]
-    composers: list[str]
-    external_download_url: str
+    composers: list[str] | None
+    external_download_url: str | None
     manuals: dict[str, int]
 
     def to_index_output(self) -> OutputItem:
@@ -180,7 +181,7 @@ def main():
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} <directory>", file=sys.stderr)
         print(
-            f'    "placeholder" may be used as a dummy directory value to '
+            '    "placeholder" may be used as a dummy directory value to '
             "generate a stub file",
             file=sys.stderr,
         )
@@ -188,14 +189,18 @@ def main():
     import_dir = sys.argv[1]
 
     if import_dir != "placeholder":
-        app_items, game_items, unknown_categories, skipped_items = load_library(import_dir)
+        app_items, game_items, unknown_categories, skipped_items = load_library(
+            import_dir
+        )
     else:
         app_items, game_items, unknown_categories, skipped_items = [], [], set(), 0
 
     # The URL slug has been normalized to remove punctuation and other
     # characters. We ignore the first path component since a few games were
     # initially categorized as apps and vice-versa.
-    item_sort_key = lambda item: item.url.split("/")[-1]
+    def item_sort_key(item: Item) -> str:
+        return item.url.split("/")[-1]
+
     app_items = list(sorted(app_items, key=item_sort_key))
     game_items = list(sorted(game_items, key=item_sort_key))
 

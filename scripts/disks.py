@@ -1,13 +1,14 @@
-import beos
 import dataclasses
 import hashlib
 import logging
 import os.path
+import typing
+import zipfile
+
+import beos
 import paths
 import stickies
-import typing
 import urls
-import zipfile
 
 
 @dataclasses.dataclass
@@ -17,7 +18,7 @@ class Disk:
         default_factory=lambda: ["System Folder", "Preferences", "Stickies file"]
     )
     stickies_encoding: str = "mac_roman"
-    welcome_sticky_override: stickies.Sticky = None
+    welcome_sticky_override: typing.Optional[stickies.Sticky] = None
     # NULL byte does not work in TechText when run on older versions, but a
     # non-breaking space does, so we allow it to be overridden per-disk.
     sticky_placeholder_overwrite_byte: bytes = b"\x00"

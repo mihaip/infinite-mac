@@ -9,4 +9,24 @@ dependencies = [
     "beautifulsoup4==4.12.2",
     "Pillow>=12.3.0",
     "xattr==1.1.4",
+    "typing-extensions>=4.16.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.1",
+    "ty>=0.0.88",
+]
+
+[tool.ruff]
+include = ["pyproject.toml", "scripts/**/*.py"]
+src = ["scripts"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.ty.src]
+include = ["scripts"]
+
+[tool.ty.environment]
+root = ["scripts"]

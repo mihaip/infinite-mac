@@ -151,7 +151,7 @@ def zone(data: bytes) -> str:
     length = data[0]
     if length > 32:
         return f"invalid Pascal string length {length} (capacity 32)"
-    return f"{data[1:1 + length].decode('mac_roman')!r}; unused storage={data[1 + length:].hex(' ')}"
+    return f"{data[1 : 1 + length].decode('mac_roman')!r}; unused storage={data[1 + length :].hex(' ')}"
 
 
 @dataclass
@@ -226,27 +226,35 @@ def decode_pram(image: Image, base: int) -> None:
         8,
         1,
         "SPVolCtl: speaker, mouse, alarm",
-        lambda d: f"volume={d[0] & 7}/7; mouse tracking={(d[0] >> 3) & 15}; alarm={bool(d[0] & 128)}",
+        lambda d: (
+            f"volume={d[0] & 7}/7; mouse tracking={(d[0] >> 3) & 15}; alarm={bool(d[0] & 128)}"
+        ),
     )
     add(
         9,
         1,
         "SPClikCaret: caret / double click",
-        lambda d: f"caret blink={(d[0] & 15) * 4} ticks; double click={(d[0] >> 4) * 4} ticks (60 ticks/second)",
+        lambda d: (
+            f"caret blink={(d[0] & 15) * 4} ticks; double click={(d[0] >> 4) * 4} ticks (60 ticks/second)"
+        ),
     )
     add(0x0A, 1, "SPMisc1: legacy disk cache size", lambda d: f"{d[0] * 32} KiB")
     add(
         0x0B,
         1,
         "SPMisc2: miscellaneous settings",
-        lambda d: f"menu blinks={(d[0] >> 2) & 3}; preferred drive={'external' if d[0] & 16 else 'internal'}; disk cache={bool(d[0] & 32)}; mouse scaling={bool(d[0] & 64)}; color desktop pattern={bool(d[0] & 128)}",
+        lambda d: (
+            f"menu blinks={(d[0] >> 2) & 3}; preferred drive={'external' if d[0] & 16 else 'internal'}; disk cache={bool(d[0] & 32)}; mouse scaling={bool(d[0] & 64)}; color desktop pattern={bool(d[0] & 128)}"
+        ),
     )
     add(
         0x0C,
         4,
         "Extended PRAM validation signature",
-        lambda d: repr(d.decode("mac_roman"))
-        + ("; valid NuMc" if d == b"NuMc" else "; not NuMc"),
+        lambda d: (
+            repr(d.decode("mac_roman"))
+            + ("; valid NuMc" if d == b"NuMc" else "; not NuMc")
+        ),
     )
     add(
         0x10,
@@ -260,7 +268,9 @@ def decode_pram(image: Image, base: int) -> None:
         0x13,
         1,
         "SPConfig: serial port use / AppleTalk",
-        lambda d: f"A/modem={SERIAL_USES.get(d[0] >> 4, 'undocumented')}; B/printer={SERIAL_USES.get(d[0] & 15, 'undocumented')}",
+        lambda d: (
+            f"A/modem={SERIAL_USES.get(d[0] >> 4, 'undocumented')}; B/printer={SERIAL_USES.get(d[0] & 15, 'undocumented')}"
+        ),
     )
     add(0x14, 2, "SPPortA: modem port configuration", serial_config)
     add(0x16, 2, "SPPortB: printer port configuration", serial_config)
@@ -280,7 +290,9 @@ def decode_pram(image: Image, base: int) -> None:
         0x1E,
         1,
         "SPKbd: keyboard repeat",
-        lambda d: f"repeat rate={(d[0] & 15) * 2} ticks; threshold={(d[0] >> 4) * 4} ticks",
+        lambda d: (
+            f"repeat rate={(d[0] & 15) * 2} ticks; threshold={(d[0] >> 4) * 4} ticks"
+        ),
     )
     add(
         0x1F,
@@ -345,7 +357,9 @@ def decode_pram(image: Image, base: int) -> None:
             offset,
             4,
             name,
-            lambda d: f"{number(d, signed=True) * 90 / (1 << 30):.6f} degrees (signed 2.30 Fract)",
+            lambda d: (
+                f"{number(d, signed=True) * 90 / (1 << 30):.6f} degrees (signed 2.30 Fract)"
+            ),
         )
     add(0xEC, 1, "Daylight saving delta", lambda d: f"{number(d, signed=True)} hours")
     add(0xED, 3, "GMT delta", lambda d: f"{number(d, signed=True)} seconds")

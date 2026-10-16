@@ -1,3 +1,8 @@
 {
-  "recommendations": ["VoidZero.vite-plus-extension-pack"]
+  "recommendations": [
+    "VoidZero.vite-plus-extension-pack",
+    "ms-python.python",
+    "charliermarsh.ruff",
+    "astral-sh.ty"
+  ]
 }

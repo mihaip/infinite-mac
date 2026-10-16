@@ -10,7 +10,6 @@ import machfs
 from machfs.directory import AbstractFolder
 from macresources import parse_file
 
-
 MAC_EPOCH = datetime.datetime(1904, 1, 1, tzinfo=datetime.timezone.utc)
 DATE_FIELDS = ("crdate", "mddate", "bkdate")
 CATALOG_FIELDS = (
@@ -81,8 +80,7 @@ def parse_args():
         "--dates",
         action="store_true",
         help=(
-            "Include creation, modification, and backup dates in metadata "
-            "comparisons."
+            "Include creation, modification, and backup dates in metadata comparisons."
         ),
     )
     parser.add_argument(
@@ -314,8 +312,7 @@ def print_resource_changes(before: bytes, after: bytes, args, indent: str):
                 print(f"{indent}  name: {old.name!r} -> {new.name!r}")
             if old.attribs != new.attribs:
                 print(
-                    f"{indent}  attributes: 0x{old.attribs:02X} -> "
-                    f"0x{new.attribs:02X}"
+                    f"{indent}  attributes: 0x{old.attribs:02X} -> 0x{new.attribs:02X}"
                 )
             old_data = bytes(old.data)
             new_data = bytes(new.data)
@@ -373,9 +370,7 @@ def path_matches(path: str, filters: list[str] | None) -> bool:
 def print_added_or_removed(prefix: str, volume_name: str, path, obj):
     description = object_kind(obj)
     if description == "file":
-        description += (
-            f", data={len(obj.data)} bytes, resource={len(obj.rsrc)} bytes"
-        )
+        description += f", data={len(obj.data)} bytes, resource={len(obj.rsrc)} bytes"
     print(f"{prefix} {hfs_path(volume_name, path)} [{description}]")
 
 
@@ -391,7 +386,9 @@ def main():
         if args.git_diff["new_missing"]:
             print(f"--- a/{display_path}")
             print("+++ /dev/null")
-            print(f"HFS disk removed: {display_path} ({args.left.stat().st_size} bytes)")
+            print(
+                f"HFS disk removed: {display_path} ({args.left.stat().st_size} bytes)"
+            )
             return 1
 
     try:
@@ -444,20 +441,16 @@ def main():
         if left_path != right_path:
             changes.append(("path", left_path, right_path))
         if object_kind(left_obj) != object_kind(right_obj):
-            print(
-                f"! {full_path}: {object_kind(left_obj)} -> {object_kind(right_obj)}"
-            )
+            print(f"! {full_path}: {object_kind(left_obj)} -> {object_kind(right_obj)}")
             difference_count += 1
             continue
 
-        data_changed = (
-            not isinstance(left_obj, AbstractFolder)
-            and bytes(left_obj.data) != bytes(right_obj.data)
-        )
-        resource_changed = (
-            not isinstance(left_obj, AbstractFolder)
-            and bytes(left_obj.rsrc) != bytes(right_obj.rsrc)
-        )
+        data_changed = not isinstance(left_obj, AbstractFolder) and bytes(
+            left_obj.data
+        ) != bytes(right_obj.data)
+        resource_changed = not isinstance(left_obj, AbstractFolder) and bytes(
+            left_obj.rsrc
+        ) != bytes(right_obj.rsrc)
         changes.extend(metadata_changes(left_obj, right_obj, args))
         if not data_changed and not resource_changed and not changes:
             continue

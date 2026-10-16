@@ -1,15 +1,20 @@
-import bs4
 import hashlib
 import json
 import os
-import paths
 import ssl
 import sys
-import urllib.request
 import typing
+import urllib.parse
+import urllib.request
+
+import bs4
+
+import paths
 
 
-def read_url(url: str, on_cache_miss: typing.Callable[[], None] = None) -> bytes:
+def read_url(
+    url: str, on_cache_miss: typing.Optional[typing.Callable[[], object]] = None
+) -> bytes:
     cache_path = read_url_to_path(url, on_cache_miss=on_cache_miss)
     return open(cache_path, "rb").read()
 
@@ -21,7 +26,9 @@ def read_url_headers(url: str) -> dict:
 
 
 def read_url_to_path(
-    url: str, headers: bool = False, on_cache_miss: typing.Callable[[], None] = None
+    url: str,
+    headers: bool = False,
+    on_cache_miss: typing.Optional[typing.Callable[[], object]] = None,
 ) -> str:
     os.makedirs(paths.CACHE_DIR, exist_ok=True)
     cache_key = hashlib.sha256(url.encode()).hexdigest()
@@ -72,7 +79,7 @@ def fetch_url(url: str, headers: bool = False) -> bytes:
 
 # macgui.com has a nonce in the download URL, so we need to fetch the page first
 # to get it, and then do the download.
-def fetch_macgui_url(page_url: str, headers: bool = False) -> str:
+def fetch_macgui_url(page_url: str, headers: bool = False) -> bytes:
     page_body = fetch_url(page_url)
     soup = bs4.BeautifulSoup(page_body, "html.parser")
     download_link = soup.find("a", {"title": "Download File"})

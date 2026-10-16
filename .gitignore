@@ -1,6 +1,12 @@
 # dependencies
 /node_modules
 
+# Python tooling and bytecode
+.venv/
+.ruff_cache/
+__pycache__/
+*.pyc
+
 # testing
 /coverage
 

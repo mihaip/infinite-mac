@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import os.path
-import paths
 import struct
 import sys
+
+import paths
 
 # Python version of generateDeviceImageHeader to convert a bare HFS partition
 # into a full device image. See comments in emulator-common-device-image.ts for

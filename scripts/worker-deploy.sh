@@ -1,6 +1,7 @@
 #!/bin/bash
 
-npm run --silent typecheck && \
+npm run --silent ts:types && \
+    npm run --silent py:types && \
     CLOUDFLARE_ENV=production vp build && \
     wrangler deploy && \
     rclone \
