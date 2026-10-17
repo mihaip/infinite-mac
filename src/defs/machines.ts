@@ -7,6 +7,7 @@ import macClassicRomPath from "@/Data/Mac-Classic.rom";
 import macIIRomPath from "@/Data/Mac-II.rom";
 import macIIxRomPath from "@/Data/Mac-IIx.rom";
 import macIIfxRomPath from "@/Data/Mac-IIfx.rom";
+import macPortableRomPath from "@/Data/Mac-Portable.rom";
 import quadra650RomPath from "@/Data/Quadra-650.rom";
 import newWorldRomPath from "@/Data/New-World.rom";
 import powerMacintosh6100RomPath from "@/Data/Power-Macintosh-6100.rom";
@@ -345,6 +346,19 @@ export const MAC_SE30_SNOW: MachineDef = {
     },
 };
 
+export const MAC_PORTABLE_SNOW: MachineDef = {
+    name: "Mac Portable (Snow)",
+    cpu: "68000",
+    romPath: macPortableRomPath,
+    gestaltID: 10,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    fixedScreenSize: {width: 640, height: 400},
+    bezelStyle: "Platinum",
+    hasSCSI: true,
+    ramSizes: ["8M", "1M", "2M", "3M", "4M", "5M", "9M"],
+};
+
 export const MAC_IIFX: MachineDef = {
     name: "Mac IIfx",
     cpu: "68030",
@@ -658,6 +672,7 @@ export const ALL_MACHINES = [
     MAC_IIx_SNOW,
     MAC_IIcx_SNOW,
     MAC_SE30_SNOW,
+    MAC_PORTABLE_SNOW,
     MAC_IIFX,
     QUADRA_650,
     POWER_MACINTOSH_6100,
