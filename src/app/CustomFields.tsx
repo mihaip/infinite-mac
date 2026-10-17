@@ -868,7 +868,10 @@ function DiskURLOption({
                                     systemCDROMEra(systemCDROMs[i - 1]) && (
                                     <option disabled />
                                 )}
-                            <option value={cdrom.srcUrl}>{cdrom.name}</option>
+                            <option
+                                value={cdrom.originalSrcUrl ?? cdrom.srcUrl}>
+                                {cdrom.name}
+                            </option>
                         </Fragment>
                     ))}
                 </Select>
