@@ -658,6 +658,18 @@ export class Emulator {
     }
 
     async uploadFiles(files: File[], names: string[] = []) {
+        try {
+            await this.#uploadFiles(files, names);
+        } catch (err) {
+            this.#delegate?.emulatorDidHaveError?.(
+                this,
+                String(err),
+                String(err)
+            );
+        }
+    }
+
+    async #uploadFiles(files: File[], names: string[] = []) {
         const remainingFiles = [];
         const remainingNames: string[] = [];
         for (let i = 0; i < files.length; i++) {
@@ -688,8 +700,16 @@ export class Emulator {
     }
 
     async loadCDROM(cdrom: EmulatorCDROM) {
-        const cdroms = await this.#handleCDROMs([cdrom]);
-        this.#files.loadCDROM(cdroms[0]);
+        try {
+            const cdroms = await this.#handleCDROMs([cdrom]);
+            this.#files.loadCDROM(cdroms[0]);
+        } catch (err) {
+            this.#delegate?.emulatorDidHaveError?.(
+                this,
+                String(err),
+                String(err)
+            );
+        }
     }
 
     async #handleCDROMs(cdroms: EmulatorCDROM[]): Promise<EmulatorCDROM[]> {

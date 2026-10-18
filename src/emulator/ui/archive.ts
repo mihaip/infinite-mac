@@ -27,6 +27,20 @@ const archiveReaders: readonly ArchiveReader[] = [
 export async function openArchive(
     file: File
 ): Promise<OpenedArchive | undefined> {
-    const reader = archiveReaders.find(reader => reader.supports(file));
-    return reader?.open(file);
+    for (const reader of archiveReaders) {
+        if (!reader.supports(file)) {
+            continue;
+        }
+        try {
+            const archive = await reader.open(file);
+            return archive;
+        } catch (err) {
+            console.warn(
+                "Error opening archive file, not using archive reader",
+                file,
+                err
+            );
+        }
+    }
+    return undefined;
 }

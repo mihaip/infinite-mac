@@ -1,7 +1,7 @@
 use stuffit::{SitArchive, SitEntry};
 use wasm_bindgen::prelude::*;
 
-const MAX_ENTRY_SIZE: usize = 128 * 1024 * 1024;
+const MAX_ENTRY_SIZE: usize = 700 * 1024 * 1024;
 
 #[wasm_bindgen]
 pub struct StuffItArchive {

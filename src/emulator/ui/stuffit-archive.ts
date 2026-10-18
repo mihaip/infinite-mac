@@ -7,10 +7,14 @@ import {
     openStuffItArchive,
     type StuffItArchive,
     type StuffItEntry,
+    MAX_ARCHIVE_SIZE,
 } from "@/stuffit/decode";
 
 export const stuffItArchiveReader: ArchiveReader = {
     supports(file: File): boolean {
+        if (file.size > MAX_ARCHIVE_SIZE) {
+            return false;
+        }
         const name = file.name.toLowerCase();
         return name.endsWith(".sit") || name.endsWith(".sea");
     },

@@ -1,7 +1,7 @@
 import {type StuffItArchive as WasmStuffItArchive} from "@/stuffit/generated/stuffit";
 import wasmUrl from "@/stuffit/generated/stuffit.wasm?url";
 
-const MAX_ARCHIVE_SIZE = 100 * 1024 * 1024;
+export const MAX_ARCHIVE_SIZE = 700 * 1024 * 1024;
 
 export async function openStuffItArchive(
     data: Uint8Array
