@@ -40,7 +40,9 @@ export function Custom({
                   libraryDownloadURLs: [],
                   isCustom: true,
                   diskFiles: [],
-                  flags: {},
+                  flags: {
+                      customDate: defaultDisk.customDate,
+                  },
               }
     );
 
