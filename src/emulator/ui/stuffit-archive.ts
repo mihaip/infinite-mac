@@ -7,12 +7,12 @@ import {
     openStuffItArchive,
     type StuffItArchive,
     type StuffItEntry,
-    MAX_ARCHIVE_SIZE,
-} from "@/stuffit/decode";
+} from "@/stuffit/ui/ui";
+import {MAX_STUFFIT_ARCHIVE_SIZE} from "@/stuffit/common/common";
 
 export const stuffItArchiveReader: ArchiveReader = {
     supports(file: File): boolean {
-        if (file.size > MAX_ARCHIVE_SIZE) {
+        if (file.size > MAX_STUFFIT_ARCHIVE_SIZE) {
             return false;
         }
         const name = file.name.toLowerCase();
@@ -21,11 +21,7 @@ export const stuffItArchiveReader: ArchiveReader = {
 
     async open(file: File) {
         try {
-            return new OpenedStuffItArchive(
-                await openStuffItArchive(
-                    new Uint8Array(await file.arrayBuffer())
-                )
-            );
+            return new OpenedStuffItArchive(await openStuffItArchive(file));
         } catch (error) {
             // We only make a best-effort to decompress .sea archives - some
             // have a normal StuffIt archive in the data fork and just work,
@@ -72,13 +68,8 @@ class StuffItArchiveEntry implements ArchiveEntry {
 
     async contents(onProgress?: (fraction: number) => void): Promise<Blob> {
         onProgress?.(0);
-        // Give the UI a chance to display the progress before we block on
-        // decompression.
-        await new Promise<void>(resolve => {
-            window.setTimeout(resolve, 0);
-        });
-        const contents = this.#entry.contents();
+        const contents = await this.#entry.contents();
         onProgress?.(1);
-        return new Blob([contents]);
+        return contents;
     }
 }

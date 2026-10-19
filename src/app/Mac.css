@@ -57,6 +57,7 @@ body.embed {
     padding: 16px;
     box-sizing: border-box;
     text-align: center;
+    pointer-events: none;
 }
 
 .Mac-Loading-File.Mac-Loading-Non-Modal {

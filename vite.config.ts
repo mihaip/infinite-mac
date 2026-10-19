@@ -132,6 +132,7 @@ export default defineConfig(() => {
                     files: [
                         "src/emulator/ui/audio.ts",
                         "src/emulator/ui/ui.ts",
+                        "src/stuffit/ui/ui.ts",
                     ],
                     rules: {
                         "import/default": "off",

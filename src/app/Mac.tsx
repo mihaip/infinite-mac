@@ -1254,9 +1254,11 @@ function FileLoadingProgress({
                 <>
                     <div>
                         {progress.operation ?? "Loading"} {progress.name}…
-                        <span className="Mac-Loading-Fraction">
-                            {(progress.fraction * 100).toFixed(0)}%
-                        </span>
+                        {progress.fraction > 0 && (
+                            <span className="Mac-Loading-Fraction">
+                                {(progress.fraction * 100).toFixed(0)}%
+                            </span>
+                        )}
                     </div>
                     {progress.warning && (
                         <div className="Mac-Loading-Warning">
