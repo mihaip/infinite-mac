@@ -12,7 +12,7 @@ pub struct StuffItArchive {
 impl StuffItArchive {
     #[wasm_bindgen(constructor)]
     pub fn new(data: &[u8]) -> Result<StuffItArchive, JsError> {
-        let archive = SitArchive::parse(data)
+        let archive = SitArchive::parse_auto(data)
             .map_err(|_| JsError::new("This is not a supported StuffIt archive."))?;
         Ok(StuffItArchive { archive })
     }

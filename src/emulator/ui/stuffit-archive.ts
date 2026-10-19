@@ -15,8 +15,7 @@ export const stuffItArchiveReader: ArchiveReader = {
         if (file.size > MAX_STUFFIT_ARCHIVE_SIZE) {
             return false;
         }
-        const name = file.name.toLowerCase();
-        return name.endsWith(".sit") || name.endsWith(".sea");
+        return /\.(?:sit|sea)_*(?:\.bin_*)?$/i.test(file.name);
     },
 
     async open(file: File) {
@@ -26,7 +25,7 @@ export const stuffItArchiveReader: ArchiveReader = {
             // We only make a best-effort to decompress .sea archives - some
             // have a normal StuffIt archive in the data fork and just work,
             // other are a proprietary format.
-            if (file.name.toLowerCase().endsWith(".sea")) {
+            if (/\.sea_*(?:\.bin_*)?$/i.test(file.name)) {
                 console.warn(
                     `Could not decode StuffIt self-extracting archive ${file.name}; passing it through unchanged.`,
                     error

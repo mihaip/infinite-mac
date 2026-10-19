@@ -1,6 +1,6 @@
 # StuffIt decoding
 
-JavaScript wrapper for the `stuffit` Rust crate, so we can decompress `.sit` StuffIt archives and extract any disk images contained within them.
+JavaScript wrapper for the `stuffit` Rust crate, so we can decompress `.sit` StuffIt archives, including MacBinary-wrapped `.sit.bin` files, and extract any disk images contained within them. Archive detection also accepts trailing underscores after extensions, such as `.sit_.bin`.
 
 We generate bindings via `wasm-bindgen`. Each opened archive gets a dedicated worker that loads the Wasm module on demand, parses the archive, decompresses entries, and builds the output Blobs. Closing the archive terminates the worker and releases its Wasm memory.
 

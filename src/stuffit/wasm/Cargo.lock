@@ -217,9 +217,9 @@ checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
 
 [[package]]
 name = "stuffit"
-version = "0.2.3"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c27d301aaa118887b3aa1af4aa881d18e8875441ccb58ba338344a7cc8fd9c72"
+checksum = "5275c19ebc8034a5337a38204782535ff0c2b17b935ce17231ea92d08fa43004"
 dependencies = [
  "encoding_rs",
  "flate2",
