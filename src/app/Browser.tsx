@@ -162,6 +162,10 @@ function Description({
                 )}
                 You can{" "}
                 <span onClick={() => setAboutVisible(true)}>learn more</span>,{" "}
+                <span onClick={() => setChangelogVisible(true)}>
+                    see what's changed recently
+                </span>
+                ,{" "}
                 <a
                     href="/embed"
                     onClick={e => {
@@ -170,11 +174,8 @@ function Description({
                     }}>
                     embed instances into your own site
                 </a>
-                , <a href="/monkey">monkey around</a>,{" "}
-                <span onClick={() => setChangelogVisible(true)}>
-                    see what's changed recently
-                </span>{" "}
-                or <span onClick={() => setDonateVisible(true)}>donate</span> to
+                , <a href="/monkey">monkey around</a> or{" "}
+                <span onClick={() => setDonateVisible(true)}>donate</span> to
                 support this project.
             </p>
         </div>
