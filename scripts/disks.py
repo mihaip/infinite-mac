@@ -168,7 +168,7 @@ MAC_OS_76 = Disk(
     name="Mac OS 7.6 HD.dsk",
     compressed=True,
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.7.6.HD.dsk.zip?v=3"
+        "https://github.com/mihaip/infinite-mac/releases/download/mac-os-disk-images-2025-11-30/Mac.OS.7.6.HD.dsk.zip?v=4"
     ],
 )
 
