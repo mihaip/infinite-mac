@@ -383,6 +383,13 @@ export default function Mac({
                                 "emulator_error:saved_disk_unsupported",
                                 errorRaw
                             );
+                        } else if (
+                            error.includes("it may be open in another tab")
+                        ) {
+                            // This happens somewhat frequently (if opening
+                            // multiple tabs), make it a non-modal error.
+                            setEmulatorToastText(error, 5_000);
+                            return;
                         } else {
                             varz.incrementError(
                                 "emulator_error:saved_disk",
@@ -547,6 +554,7 @@ export default function Mac({
         handleScreenRecordingFrame,
         screenUpdateMessages,
         listenForControlMessages,
+        setEmulatorToastText,
     ]);
 
     useEffect(() => {
@@ -829,7 +837,7 @@ export default function Mac({
 
     if (emulatorToastText) {
         progress = (
-            <div className="Mac-Loading Mac-Loading-Non-Modal Mac-Loading-OneLine">
+            <div className="Mac-Loading Mac-Loading-Non-Modal">
                 {emulatorToastText}
             </div>
         );
