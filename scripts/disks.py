@@ -591,7 +591,7 @@ INFINITE_HD_BEOS = Disk(
     name="Infinite HD (BeOS).dsk",
     compressed=True,
     urls=[
-        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/Infinite.HD.BeOS.dsk.zip?v=2"
+        "https://github.com/mihaip/infinite-mac/releases/download/beos-disk-images-2026-09-30/Infinite.HD.BeOS.dsk.zip?v=3"
     ],
 )
 
