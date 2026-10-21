@@ -459,7 +459,7 @@ export function CustomFields({
                 )}
                 <div className="CustomFields-Description Dialog-Description">
                     Disk or CD-ROM image from a URL. The image must be a raw
-                    .iso/.img/.toast/.bin file (i.e. not compressed) and from{" "}
+                    .iso/.img/.toast/.bin file from{" "}
                     <span
                         className={classNames({
                             "CustomFields-Description-Link":

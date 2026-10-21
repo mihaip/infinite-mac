@@ -57,7 +57,10 @@
 .CustomFields-Repeated {
     display: flex !important;
     align-items: center;
-    margin-bottom: 8px;
+}
+
+.CustomFields-Repeated + .CustomFields-Repeated {
+    margin-top: 8px;
 }
 
 .CustomFields-Repeated input {
@@ -99,8 +102,7 @@
 }
 
 .CustomFields-DiskURL-MountReadWrite {
-    margin-top: -6px;
-    margin-bottom: 6px;
+    margin-top: 6px;
 }
 
 .CustomFields-CDROMs {
