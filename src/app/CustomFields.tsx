@@ -277,8 +277,8 @@ export function CustomFields({
                     ))}
                 </Select>
                 <div className="CustomFields-Description Dialog-Description">
-                    Not all operating systems versions can run with a reduced
-                    amount of RAM.
+                    Not all operating systems can run with a reduced amount of
+                    RAM.
                 </div>
             </label>
             <label className="CustomFields-Row">
@@ -325,7 +325,7 @@ export function CustomFields({
                 scale
                 {allowAutoScreenSize && (
                     <div className="CustomFields-Description Dialog-Description">
-                        Not all machines support custom screen sizes, some sizes
+                        Not all machines support custom screen sizes; some sizes
                         may result in crashes.
                     </div>
                 )}
