@@ -3,11 +3,11 @@ name = "infinite-mac"
 version = "0.1.0"
 description = "Infinite Mac build tooling"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "machfs @ git+https://github.com/mihaip/machfs.git@5f1572f0fb85310d6cc0dd6d55eb5fd41318ecb7",
     "beautifulsoup4==4.12.2",
-    "Pillow>=12.3.0",
+    "Pillow>=13.0.0",
     "xattr==1.1.4",
     "typing-extensions>=4.16.0",
 ]
