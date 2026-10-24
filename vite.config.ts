@@ -301,7 +301,22 @@ function ssrDevCssPlugin(): Plugin {
                     attrs: {
                         rel: "stylesheet",
                         href: virtualCssPath,
+                        "data-ssr-css": true,
                     },
+                },
+                {
+                    tag: "script",
+                    injectTo: "head",
+                    attrs: {type: "module"},
+                    // Remove our injected stylesheet after the page has finished
+                    // loading, so that the regular Vite CSS can take over (it
+                    // gets updated for HMR, whereas our snapshot is static).
+                    children: `
+                        document.addEventListener("DOMContentLoaded", () => {
+                            document.querySelectorAll("[data-ssr-css]")
+                                .forEach(node => node.remove());
+                        }, {once: true});
+                    `,
                 },
             ];
         },
