@@ -2,6 +2,9 @@
     position: sticky;
     top: 8px;
     z-index: 2;
+    display: flow-root;
+    margin-top: 1.5em;
+    margin-bottom: -1.5em;
 }
 
 .Browser .Dialog.Disk-Filters {

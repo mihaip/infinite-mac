@@ -20,7 +20,7 @@
 
 @media (max-width: 640px) {
     .Browser {
-        --browser-padding: 15px;
+        --browser-padding: 20px;
         --browser-logo-scale: 1;
     }
 }
@@ -71,15 +71,17 @@
     color: #fff;
     z-index: 1;
     position: relative;
+    margin: 0.83em 0 0.2em;
 }
 
 .Browser .Year .Disks {
     display: flex;
     flex-wrap: wrap;
+    gap: 20px 40px;
 }
 
 .Disk.ScreenFrame {
-    margin: 20px;
+    margin: 20px 0 0;
 }
 
 @media (max-width: 400px) {
