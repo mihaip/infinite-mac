@@ -231,7 +231,10 @@ function DiskFrame({
 }) {
     const isSmallScreen = useMemo(() => {
         const {userAgent} = iso().navigator;
-        return userAgent.includes("Mobile") || userAgent.includes("iPhone");
+        return (
+            (userAgent.includes("Mobile") || userAgent.includes("iPhone")) &&
+            !userAgent.includes("iPad")
+        );
     }, []);
     const bezelSize = isSmallScreen ? "Small-ish" : "Medium";
     const screenWidth = isSmallScreen ? 260 : 320;
