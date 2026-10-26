@@ -124,8 +124,12 @@ function AppImpl() {
     );
 }
 
-const ControlsPreview = React.lazy(() => import("@/app/ControlsPreview"));
-const EmulatorsPreview = React.lazy(() => import("@/app/EmulatorsPreview"));
+const ControlsPreview = React.lazy(
+    () => import("@/app/internal/ControlsPreview")
+);
+const EmulatorsPreview = React.lazy(
+    () => import("@/app/internal/EmulatorsPreview")
+);
 
 // Lazy load to avoid the bundle hit, but prefetch and replace with the
 // implementation so that we can use view transitions and not worry about

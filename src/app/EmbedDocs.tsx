@@ -227,7 +227,13 @@ export function EmbedDocs({
                         <code>screen_update_messages=true</code> query parameter
                         to be set. The data is a <code>Uint8Array</code>{" "}
                         containing the raw pixel data of the screen, in RGBA
-                        format (4 bytes per pixel).
+                        format (4 bytes per pixel). Optionally set{" "}
+                        <code>screen_update_interval</code> to an interval in
+                        milliseconds to reduce the overhead. For example,{" "}
+                        <code>screen_update_interval=250</code> coalesces
+                        updates to at most four per second, retaining the latest
+                        frame. With 0 or no interval, every screen update is
+                        sent.
                     </li>
                 </ul>
 

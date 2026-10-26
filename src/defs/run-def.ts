@@ -57,6 +57,7 @@ export type RunDef = {
     isCustom?: boolean;
     isEmbed?: boolean;
     screenUpdateMessages?: boolean;
+    screenUpdateInterval?: number;
     settings?: EmulatorSettings;
 };
 
@@ -192,6 +193,11 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
     const isEmbed = pathname === "/embed";
     const screenUpdateMessages =
         isEmbed && searchParams.get("screen_update_messages") === "true";
+    const screenUpdateInterval = screenUpdateMessages
+        ? normalizeScreenUpdateInterval(
+              Number(searchParams.get("screen_update_interval"))
+          )
+        : undefined;
     const startPaused = searchParams.get("paused") === "true";
     const autoPause = searchParams.get("auto_pause") === "true";
     let includeInfiniteHD;
@@ -373,6 +379,7 @@ export function runDefFromUrl(urlString: string): RunDef | undefined {
         isCustom,
         isEmbed,
         screenUpdateMessages,
+        screenUpdateInterval,
         settings,
     };
 }
@@ -482,6 +489,11 @@ export function runDefToUrl(runDef: RunDef, toEmbed: boolean = false): string {
     }
     if (runDef.screenUpdateMessages) {
         url.searchParams.set("screen_update_messages", "true");
+        const interval = normalizeScreenUpdateInterval(
+            runDef.screenUpdateInterval ?? 0
+        );
+        if (interval)
+            url.searchParams.set("screen_update_interval", String(interval));
     }
     if (
         emulatorHasOptionalBlueSCSI(runDef.machine.emulatorType) &&
@@ -533,4 +545,17 @@ function diskFromYearPath(pathname: string): SystemDiskDef | undefined {
         return undefined;
     }
     return disk;
+}
+
+export const MAX_SCREEN_UPDATE_INTERVAL = 10_000;
+
+export function normalizeScreenUpdateInterval(
+    interval: number
+): number | undefined {
+    return Number.isFinite(interval) && interval > 0
+        ? Math.max(
+              1,
+              Math.min(MAX_SCREEN_UPDATE_INTERVAL, Math.floor(interval))
+          )
+        : undefined;
 }

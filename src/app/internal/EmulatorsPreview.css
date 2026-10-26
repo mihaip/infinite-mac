@@ -130,3 +130,92 @@
         grid-template-columns: 1fr;
     }
 }
+
+.EmulatorsPreview-Governor {
+    margin-top: 12px;
+}
+
+.EmulatorsPreview-ActiveLimit {
+    width: 50px;
+}
+
+.EmulatorsPreview-Counters {
+    color: #bbb;
+    font-size: 13px;
+}
+
+.EmulatorsPreview-Status-Matched,
+.EmulatorsPreview-Count-Matched {
+    color: #a8dfa5;
+}
+
+.EmulatorsPreview-Status-Timed-out,
+.EmulatorsPreview-Count-Failed {
+    color: #ffb5b5;
+}
+
+.EmulatorsPreview-Notice {
+    margin: 8px 12px;
+    color: #aaa;
+    font-size: 12px;
+}
+
+.EmulatorsPreview-MatchedOverlay {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 72px;
+    height: 72px;
+    padding: 16px;
+    border: 2px solid #b6edc9;
+    border-radius: 50%;
+    background: #278c4b;
+    color: #fff;
+    box-shadow: 0 2px 12px #0008;
+    cursor: pointer;
+}
+
+.EmulatorsPreview-MatchedOverlay svg {
+    width: 100%;
+    height: 100%;
+}
+
+.EmulatorsPreview-MatchedOverlay .EmulatorsPreview-MatchedPlay {
+    display: none;
+}
+
+.EmulatorsPreview-MatchedOverlay:is(:hover, :focus-visible) {
+    background: #1d733b;
+}
+
+.EmulatorsPreview-MatchedOverlay:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+}
+
+.EmulatorsPreview-MatchedOverlay:is(:hover, :focus-visible)
+    .EmulatorsPreview-MatchedCheck {
+    display: none;
+}
+
+.EmulatorsPreview-MatchedOverlay:is(:hover, :focus-visible)
+    .EmulatorsPreview-MatchedPlay {
+    display: block;
+}
+
+.EmulatorsPreview-FrozenFrame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.EmulatorsPreview-Status-Needs-target {
+    color: #e7c27b;
+}

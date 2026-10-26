@@ -5,6 +5,8 @@ import * as varz from "@/lib/varz";
 import {
     runDefToUrl,
     runDefSupportedScreenSizes,
+    normalizeScreenUpdateInterval,
+    MAX_SCREEN_UPDATE_INTERVAL,
     type RunDef,
 } from "@/defs/run-def";
 import {SYSTEM_DISKS_BY_NAME, type SystemDiskDef} from "@/defs/disks";
@@ -12,6 +14,7 @@ import {AppearanceProvider} from "@/controls/Appearance";
 import {CustomFields} from "@/app/CustomFields";
 import {DEFAULT_SUPPORTED_SCREEN_SIZES} from "@/defs/machines";
 import {Checkbox} from "@/controls/Checkbox";
+import {Input} from "@/controls/Input";
 import {TextArea} from "@/controls/TextArea";
 import {
     DEFAULT_EMULATOR_SETTINGS,
@@ -206,11 +209,36 @@ export function Embed({
                             }
                         />
                         Send screen updates
-                    </label>
-                    <div className="CustomFields-Description Dialog-Description">
-                        Send the current screen contents to the parent window
-                        whenever they change. May introduce a performance hit
-                        for large or frequently-updating screens.
+                    </label>{" "}
+                    {runDef.screenUpdateMessages && (
+                        <label>
+                            every{" "}
+                            <Input
+                                className="Embed-ScreenUpdateInterval"
+                                type="number"
+                                min={0}
+                                max={MAX_SCREEN_UPDATE_INTERVAL}
+                                step={1}
+                                value={runDef.screenUpdateInterval ?? 0}
+                                onChange={e =>
+                                    setRunDef({
+                                        ...runDef,
+                                        screenUpdateInterval:
+                                            normalizeScreenUpdateInterval(
+                                                e.currentTarget.valueAsNumber
+                                            ),
+                                    })
+                                }
+                            />{" "}
+                            ms
+                        </label>
+                    )}
+                    <div
+                        id="Embed-ScreenUpdateInterval-Description"
+                        className="CustomFields-Description Dialog-Description">
+                        Send screen contents to the parent window. Set an
+                        interval (1–10,000 ms) to reduce overhead by sending
+                        only the latest frame; 0 sends every update.
                     </div>
                 </div>
                 <div className="CustomFields-Row">

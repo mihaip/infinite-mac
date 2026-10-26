@@ -231,4 +231,4 @@ Once it has built, use `npm run import-emulator snow` from the host to update th
 There are some internal pages available to make development easier:
 
 - `/_controls` ([dev](http://localhost:3127/_controls), [prod](https://infinitemac.org/_controls)): previewing of all the custom UI controls in all of the appearance types (Classic, Platinum, Aqua, etc.)
-- `/_emulators` ([dev](http://localhost:3127/_emulators), [prod](https://infinitemac.org/_emulators)) for an N-up view of multiple emulators, useful when making broad changes.
+- `/_emulators` ([dev](http://localhost:3127/_emulators), [prod](https://infinitemac.org/_emulators)) for an N-up boot testing harness. Instances are automatically paused when reaching a saved target image. See [target image workflow](src/app/internal/targets/README.md) for more details.

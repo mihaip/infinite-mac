@@ -1,0 +1,47 @@
+.EmulatorsPreview-TargetDialog {
+    background: #fff;
+    color: #111;
+    border-style: solid;
+    max-width: min(1100px, 90vw);
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.EmulatorsPreview-TargetScreenshot {
+    position: relative;
+    line-height: 0;
+    overflow: hidden;
+}
+
+.EmulatorsPreview-TargetScreenshot canvas {
+    width: 100%;
+    display: block;
+    image-rendering: pixelated;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.EmulatorsPreview-TargetSelection {
+    position: absolute;
+    box-sizing: border-box;
+    border: 2px solid #08f;
+    box-shadow: 0 0 0 5000px #0008;
+    pointer-events: none;
+}
+
+.EmulatorsPreview-TargetCoordinates {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.EmulatorsPreview-TargetCoordinates label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.EmulatorsPreview-TargetCoordinates input {
+    width: 65px;
+}

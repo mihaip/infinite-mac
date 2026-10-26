@@ -1,3 +1,4 @@
+import {createFrameSampler} from "@/lib/frame-sampler";
 import React, {useEffect, useState, useRef, useCallback, useMemo} from "react";
 import "@/app/Mac.css";
 import {
@@ -96,6 +97,7 @@ export default function Mac({
         screenSize: screenSizeProp,
         screenScale: screenScaleProp,
         screenUpdateMessages,
+        screenUpdateInterval,
         isEmbed,
         ethernetProvider: ethernetProviderDef,
         debugFallback,
@@ -258,6 +260,19 @@ export default function Mac({
             window.parent.postMessage(event, "*");
         };
 
+        const screenSampler = createFrameSampler<ImageData>(
+            screenUpdateInterval ?? 0,
+            ({data, width, height}) => {
+                // Make sure the alpha channel is fully opaque.
+                for (let i = 3; i < data.length; i += 4) data[i] = 255;
+                sendEmbedNotification({
+                    type: "emulator_screen",
+                    data,
+                    width,
+                    height,
+                });
+            }
+        );
         let ethernetProvider: EmulatorEthernetProvider | undefined;
         switch (ethernetProviderDef?.type) {
             case "cloudflare":
@@ -415,17 +430,7 @@ export default function Mac({
                 emulatorDidDrawScreen(emulator, imageData) {
                     handleScreenRecordingFrame(imageData);
                     if (screenUpdateMessages) {
-                        const data = imageData.data;
-                        // Make sure the alpha channel is fully opaque.
-                        for (let i = 3; i < data.length; i += 4) {
-                            data[i] = 255;
-                        }
-                        sendEmbedNotification({
-                            type: "emulator_screen",
-                            data,
-                            width: imageData.width,
-                            height: imageData.height,
-                        });
+                        screenSampler.push(imageData);
                     }
                 },
             }
@@ -523,6 +528,7 @@ export default function Mac({
         }
 
         return () => {
+            screenSampler.dispose();
             emulator.stop();
             emulatorRef.current = undefined;
             ethernetProvider?.close?.();
@@ -553,6 +559,7 @@ export default function Mac({
         handleMacLibraryProgress,
         handleScreenRecordingFrame,
         screenUpdateMessages,
+        screenUpdateInterval,
         listenForControlMessages,
         setEmulatorToastText,
     ]);
