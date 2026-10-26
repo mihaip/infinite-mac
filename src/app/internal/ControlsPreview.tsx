@@ -25,7 +25,7 @@ import {TextArea} from "@/controls/TextArea";
 import {ScreenFrame, type ScreenFrameProps} from "@/controls/ScreenFrame";
 import cdromIcon from "@/Images/CD-ROM.png";
 import "@/app/MacLibraryContents.css";
-import "./ControlsPreview.css";
+import "@/app/internal/ControlsPreview.css";
 
 // Each appearance gets its default rendering as well as any named variants.
 const VARIANTS: {[key in Appearance]: AppearanceVariant[]} = {

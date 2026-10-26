@@ -2,7 +2,7 @@ import {
     type EmulatorDef,
     type EmulatorSpeed,
 } from "@/emulator/common/emulators";
-import {type DeviceImageType} from "./device-image";
+import {type DeviceImageType} from "@/emulator/common/device-image";
 
 export const InputBufferAddresses = {
     globalLockAddr: 0,

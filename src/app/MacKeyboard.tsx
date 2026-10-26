@@ -8,7 +8,7 @@ import React, {
     useEffect,
 } from "react";
 import {createPortal} from "react-dom";
-import "./MacKeyboard.css";
+import "@/app/MacKeyboard.css";
 import classNames from "classnames";
 import {
     type EmulatorType,

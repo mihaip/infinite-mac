@@ -126,8 +126,30 @@ export default defineConfig(() => {
                 "react/refs": "off",
                 "react/set-state-in-effect": "off",
             },
-            // Vite synthesizes default exports for these ?worker imports.
             overrides: [
+                {
+                    files: ["src/**/*.ts", "src/**/*.tsx"],
+                    rules: {
+                        "no-restricted-imports": [
+                            "error",
+                            {
+                                patterns: [
+                                    {
+                                        group: [
+                                            "./**",
+                                            "../**",
+                                            // The changelog is outside the @/ alias root.
+                                            "!../../CHANGELOG.md?raw",
+                                        ],
+                                        message:
+                                            "Use @/ absolute imports for files inside src.",
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                },
+                // Vite synthesizes default exports for these ?worker imports.
                 {
                     files: [
                         "src/emulator/ui/audio.ts",
