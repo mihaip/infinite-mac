@@ -8,6 +8,9 @@ import macIIRomPath from "@/Data/Mac-II.rom";
 import macIIxRomPath from "@/Data/Mac-IIx.rom";
 import macIIfxRomPath from "@/Data/Mac-IIfx.rom";
 import macPortableRomPath from "@/Data/Mac-Portable.rom";
+import macLCRomPath from "@/Data/Mac-LC.rom";
+import macLCIIRomPath from "@/Data/Mac-LC-II.rom";
+import macLCIIIRomPath from "@/Data/Mac-LC-III.rom";
 import quadra650RomPath from "@/Data/Quadra-650.rom";
 import newWorldRomPath from "@/Data/New-World.rom";
 import powerMacintosh6100RomPath from "@/Data/Power-Macintosh-6100.rom";
@@ -47,6 +50,7 @@ export type MachineDef = EmulatorDef & {
     modifier?: "FDHD";
     prefsPath: string;
     fixedScreenSize?: MachineScreenSize;
+    videoDevice?: VideoDevice;
     // Family-specific sizes override the default list.
     supportedScreenSizes?: {default: MachineScreenSize[]} & Partial<
         Record<SystemFamily, MachineScreenSize[]>
@@ -78,6 +82,8 @@ export type MachineScreenSize = {
 export type MachineDefRAMSize = `${number}M` | `${number}K`;
 
 export type MachinePlatform = "Macintosh" | "NeXT";
+
+export type VideoDevice = "Toby" | "MDC12" | "V8";
 
 const snowSupportedScreenSizes = {
     default: [
@@ -258,6 +264,7 @@ export const MAC_II_SNOW: MachineDef = {
     romPath: macIIRomPath,
     gestaltID: 6,
     emulatorType: "Snow",
+    videoDevice: "Toby",
     prefsPath: emptyPrefsPath,
     supportedScreenSizes: snowSupportedScreenSizes,
     bezelStyle: "Platinum",
@@ -275,6 +282,7 @@ export const MAC_II_FDHD_SNOW: MachineDef = {
     gestaltID: 6,
     modifier: "FDHD",
     emulatorType: "Snow",
+    videoDevice: "Toby",
     prefsPath: emptyPrefsPath,
     supportedScreenSizes: snowSupportedScreenSizes,
     bezelStyle: "Platinum",
@@ -304,6 +312,7 @@ export const MAC_IIx_SNOW: MachineDef = {
     romPath: macIIxRomPath,
     gestaltID: 7,
     emulatorType: "Snow",
+    videoDevice: "MDC12",
     prefsPath: emptyPrefsPath,
     supportedScreenSizes: snowSupportedScreenSizes,
     bezelStyle: "Platinum",
@@ -320,6 +329,7 @@ export const MAC_IIcx_SNOW: MachineDef = {
     romPath: macIIxRomPath,
     gestaltID: 8,
     emulatorType: "Snow",
+    videoDevice: "MDC12",
     prefsPath: emptyPrefsPath,
     supportedScreenSizes: snowSupportedScreenSizes,
     bezelStyle: "Platinum",
@@ -371,6 +381,63 @@ export const MAC_IIFX: MachineDef = {
     prefsPath: basiliskPrefsPath,
     bezelStyle: "Platinum",
     ramSizes: ["128M", "64M", "32M", "16M", "8M", "4M"],
+};
+
+export const MAC_LC_SNOW: MachineDef = {
+    name: "Mac LC (Snow)",
+    cpu: "68020",
+    romPath: macLCRomPath,
+    gestaltID: 19,
+    emulatorType: "Snow",
+    videoDevice: "V8",
+    prefsPath: emptyPrefsPath,
+    supportedScreenSizes: {
+        default: [
+            {width: 640, height: 480, monitorId: "HiRes14"},
+            {width: 512, height: 384, monitorId: "RGB12"},
+        ],
+    },
+    bezelStyle: "Platinum",
+    hasSCSI: true,
+    ramSizes: ["10M", "6M", "4M", "2M"],
+};
+
+export const MAC_LC_II_SNOW: MachineDef = {
+    name: "Mac LC II (Snow)",
+    cpu: "68030",
+    romPath: macLCIIRomPath,
+    gestaltID: 37,
+    emulatorType: "Snow",
+    videoDevice: "V8",
+    prefsPath: emptyPrefsPath,
+    supportedScreenSizes: {
+        default: [
+            {width: 640, height: 480, monitorId: "HiRes14"},
+            {width: 512, height: 384, monitorId: "RGB12"},
+        ],
+    },
+    bezelStyle: "Platinum",
+    hasSCSI: true,
+    ramSizes: ["10M", "8M", "6M", "4M"],
+};
+
+export const MAC_LC_III_SNOW: MachineDef = {
+    name: "Mac LC III (Snow)",
+    cpu: "68030",
+    romPath: macLCIIIRomPath,
+    gestaltID: 27,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    supportedScreenSizes: {
+        default: [
+            {width: 832, height: 624, monitorId: "RGB16"},
+            {width: 640, height: 480, monitorId: "HiRes14"},
+            {width: 512, height: 384, monitorId: "RGB12"},
+        ],
+    },
+    bezelStyle: "Platinum",
+    hasSCSI: true,
+    ramSizes: ["36M", "20M", "12M", "8M", "6M", "5M", "4M"],
 };
 
 export const QUADRA_650: MachineDef = {
@@ -674,6 +741,9 @@ export const ALL_MACHINES = [
     MAC_SE30_SNOW,
     MAC_PORTABLE_SNOW,
     MAC_IIFX,
+    MAC_LC_SNOW,
+    MAC_LC_II_SNOW,
+    MAC_LC_III_SNOW,
     QUADRA_650,
     POWER_MACINTOSH_6100,
     POWER_MACINTOSH_7200,
