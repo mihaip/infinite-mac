@@ -29,6 +29,7 @@ import {
     type MachineDef,
     type MachineDefRAMSize,
     ALL_MACHINES,
+    machineDisplayName,
     MACHINES_BY_NAME,
     machineSupportsSavedHD,
 } from "@/defs/machines";
@@ -66,11 +67,6 @@ export function CustomFields({
     automaticScreenScale?: boolean;
     setCanRun: (canRun: boolean) => void;
 }) {
-    const displayMachineName = useCallback((machine: MachineDef) => {
-        return machine.emulatorType === "Snow"
-            ? machine.name.replace(/ \(Snow\)$/, "")
-            : machine.name;
-    }, []);
     const {flags} = runDef;
     const supportedScreenSizes = runDefSupportedScreenSizes(runDef);
     const setFlags = useCallback(
@@ -249,7 +245,7 @@ export function CustomFields({
                                 <option disabled>{group}</option>
                                 {machines.map(m => (
                                     <option key={m.name} value={m.name}>
-                                        {displayMachineName(m)}
+                                        {machineDisplayName(m)}
                                     </option>
                                 ))}
                             </Fragment>

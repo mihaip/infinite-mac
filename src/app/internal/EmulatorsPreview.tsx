@@ -34,6 +34,7 @@ import {
     type EmulatorPreviewCase,
 } from "@/app/internal/emulator-preview-presets";
 import "@/app/internal/EmulatorsPreview.css";
+import {machineDisplayName} from "@/defs/machines";
 
 export default function EmulatorsPreview() {
     const [presetId, setPresetId] = useState(() => {
@@ -302,7 +303,7 @@ function EmulatorPanel({
                         </a>
                     </h2>
                     <p>
-                        {machine.emulatorType} · {machine.name}
+                        {machine.emulatorType} · {machineDisplayName(machine)}
                     </p>
                 </div>
                 <div className="EmulatorsPreview-PanelToolbar">

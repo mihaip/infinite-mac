@@ -798,3 +798,9 @@ export function machineSupportsSavedHD(machine: MachineDef): boolean {
     }
     return !machine.mfsOnly;
 }
+
+export function machineDisplayName(machine: MachineDef): string {
+    return machine.emulatorType === "Snow"
+        ? machine.name.replace(/ \(Snow\)$/, "")
+        : machine.name;
+}
