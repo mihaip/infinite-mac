@@ -109,6 +109,9 @@ function MacCDROMsContents({
             0,
             folderPath.length - cdrom.name.length - 1
         );
+        if (category === "A⧸UX" && family !== "aux") {
+            continue;
+        }
         if (category !== lastCategory) {
             cdromsByCategory[category] = [];
             lastCategory = category;
