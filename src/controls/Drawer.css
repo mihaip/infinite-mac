@@ -5,6 +5,7 @@
     right: 0;
     display: flex;
     justify-content: center;
+    align-items: end;
     z-index: 2;
     gap: 8px;
     pointer-events: none;
