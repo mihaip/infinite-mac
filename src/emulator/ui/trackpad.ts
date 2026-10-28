@@ -9,10 +9,32 @@ export class EmulatorTrackpadController {
     #pointerDownIsMove = false;
 
     #dragTimeout = 0;
+    #doubleClickTimeouts: number[] = [];
     #pointerDownIsDrag = false;
 
     constructor(delegate: EmulatorTrackpadControllerDelegate) {
         this.#delegate = delegate;
+    }
+
+    cancel() {
+        const buttonDown =
+            this.#dragTimeout ||
+            this.#pointerDownIsDrag ||
+            this.#doubleClickTimeouts.length;
+        if (this.#dragTimeout) {
+            window.clearTimeout(this.#dragTimeout);
+            this.#dragTimeout = 0;
+        }
+        for (const timeout of this.#doubleClickTimeouts) {
+            window.clearTimeout(timeout);
+        }
+        this.#doubleClickTimeouts = [];
+        if (buttonDown) {
+            this.#delegate.trackpadButtonUp(0);
+        }
+        this.#pointerDown = false;
+        this.#pointerDownIsDrag = false;
+        this.#pointerDownIsMove = false;
     }
 
     handlePointerDown(event: PointerEvent) {
@@ -44,13 +66,15 @@ export class EmulatorTrackpadController {
                     window.clearTimeout(this.#dragTimeout);
                     this.#dragTimeout = 0;
                     this.#delegate.trackpadButtonUp(0);
-                    window.setTimeout(
-                        () => this.#delegate.trackpadButtonDown(0),
-                        33
-                    );
-                    window.setTimeout(
-                        () => this.#delegate.trackpadButtonUp(0),
-                        66
+                    this.#doubleClickTimeouts.push(
+                        window.setTimeout(
+                            () => this.#delegate.trackpadButtonDown(0),
+                            33
+                        ),
+                        window.setTimeout(() => {
+                            this.#delegate.trackpadButtonUp(0);
+                            this.#doubleClickTimeouts = [];
+                        }, 66)
                     );
                 } else {
                     // Begin holding down the button, and set a timeout to

@@ -170,6 +170,9 @@ export default function Mac({
     }, [rawEmulatorSettings, bootDiskNeedsMouseDeltas]);
     const emulatorSettingsRef = useRef(emulatorSettings);
     emulatorSettingsRef.current = emulatorSettings;
+    const [trackpadMode, setTrackpadMode] = useState(
+        emulatorSettings.trackpadMode
+    );
 
     const initialScreenSize = useInitialScreenSize(runDef);
     const {width: initialScreenWidth, height: initialScreenHeight} =
@@ -423,6 +426,9 @@ export default function Mac({
                 },
                 emulatorSettings(emulator) {
                     return emulatorSettingsRef.current;
+                },
+                emulatorDidChangeTrackpadMode(emulator, enabled) {
+                    setTrackpadMode(enabled);
                 },
                 emulatorDidMakeFileLoadingProgress(emulator, progress) {
                     setEmulatorFileLoadingProgress(progress);
@@ -767,7 +773,7 @@ export default function Mac({
                 emulatorLoaded &&
                 mouseHasMoved &&
                 emulatorNeedsMouseDeltas(emulatorType) &&
-                !USING_TOUCH_INPUT,
+                !trackpadMode,
             "pointer-lock-notification-count"
         );
     if (showPointerLockNotification) {
@@ -782,11 +788,14 @@ export default function Mac({
             </div>
         );
     }
-    const handlePointerMove = useCallback(() => {
-        if (!mouseHasMoved) {
-            setMouseHasMoved(true);
-        }
-    }, [mouseHasMoved]);
+    const handlePointerMove = useCallback(
+        (event: React.PointerEvent) => {
+            if (!mouseHasMoved && event.pointerType === "mouse") {
+                setMouseHasMoved(true);
+            }
+        },
+        [mouseHasMoved]
+    );
     const handlePointerDown = useCallback(() => {
         if (showPointerLockNotification) {
             clearPointerLockNotification();
@@ -1007,10 +1016,7 @@ export default function Mac({
             selected: isKeyboardVisible,
         },
     ];
-    if (USING_TOUCH_INPUT) {
-        const alwaysUsingTrackpadMode =
-            emulatorNeedsMouseDeltas(emulatorType) ||
-            emulatorSettings.useMouseDeltas;
+    if (HAS_TOUCH_INPUT || trackpadMode) {
         controls.push({
             label: "Trackpad",
             handler: () => {
@@ -1019,7 +1025,7 @@ export default function Mac({
                     trackpadMode: !emulatorSettings.trackpadMode,
                 });
             },
-            selected: alwaysUsingTrackpadMode || emulatorSettings.trackpadMode,
+            selected: trackpadMode,
         });
     }
     controls.push({
@@ -1480,10 +1486,9 @@ function useInitialScreenSize(runDef: RunDef): {width: number; height: number} {
     }, [machine, screenSizeProp, screenScaleProp, supportedScreenSizes]);
 }
 
-// Assume that mobile devices that can't do hover events also need an explicit
-// control for bringing up the on-screen keyboard.
-const USING_TOUCH_INPUT =
-    "matchMedia" in window && !window.matchMedia("(hover: hover)").matches;
+// Touch capability controls whether to offer the Trackpad button. Its selected
+// state comes from the emulator's effective mode after observing pointer input.
+const HAS_TOUCH_INPUT = navigator.maxTouchPoints > 0;
 
 function MacError({text, onDone}: {text: string; onDone: () => void}) {
     return (
