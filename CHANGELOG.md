@@ -1,6 +1,6 @@
 # CHANGELOG
 
-2026-10-19: Added BeOS releases (DR8.2 to 5.0.3).
+2026-10-19: Added BeOS releases (DR8.2 to 5.0.3). See https://blog.persistent.info/2026/10/infinite-mac-beos.html for more details.
 
 2026-09-21: Added A/UX releases (1.1 to 3.1). See https://blog.persistent.info/2026/09/infinite-mac-snow-and-aux.html for more details.
 
