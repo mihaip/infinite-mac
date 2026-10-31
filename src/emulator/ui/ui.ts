@@ -822,7 +822,18 @@ export class Emulator {
         }
         this.#activePointerId = event.pointerId;
         this.#activePointerButton = event.button;
-        this.#config.screenCanvas.setPointerCapture(event.pointerId);
+        // Can't capture the pointer if we're already in pointer lock (Chrome will throw)
+        if (!document.pointerLockElement) {
+            try {
+                console.log(
+                    "setPointerCapture, document.pointerLockElement=" +
+                        document.pointerLockElement
+                );
+                this.#config.screenCanvas.setPointerCapture(event.pointerId);
+            } catch (err) {
+                console.warn("Could not use setPointerCapture on canvas", err);
+            }
+        }
         if (this.#trackpadMode()) {
             this.#trackpadController.handlePointerDown(event);
             return;

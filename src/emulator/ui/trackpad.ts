@@ -38,8 +38,20 @@ export class EmulatorTrackpadController {
     }
 
     handlePointerDown(event: PointerEvent) {
-        if (event.target && "setPointerCapture" in event.target) {
-            (event.target as Element).setPointerCapture(event.pointerId);
+        // Can't capture the pointer if we're already in pointer lock (Blink will throw)
+        if (
+            event.target &&
+            "setPointerCapture" in event.target &&
+            !document.pointerLockElement
+        ) {
+            try {
+                (event.target as Element).setPointerCapture(event.pointerId);
+            } catch (err) {
+                console.warn(
+                    "Could not use setPointerCapture on trackpad",
+                    err
+                );
+            }
         }
         this.#pointerDown = true;
         this.#pointerDownIsMove = false;
