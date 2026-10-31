@@ -31,6 +31,7 @@ class InfiniteHD(enum.Enum):
     SYSTEM_6 = "Infinite HD6.dsk"
     MAC_OS_X = "Infinite HDX.dsk"
     NEXT = "Infinite HD (NeXT).dsk"
+    BEOS = "Infinite HD (BeOS).dsk"
 
 
 class ImageDef(typing.NamedTuple):
