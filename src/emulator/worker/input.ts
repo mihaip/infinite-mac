@@ -14,6 +14,8 @@ export interface EmulatorWorkerInput {
     acquireInputLock(): number;
     releaseInputLock(): void;
     getInputValue(addr: number): number;
+    /** True if the browser would like a screen frame drawn */
+    consumeFrameRequest(): boolean;
 }
 
 export class SharedMemoryEmulatorWorkerInput implements EmulatorWorkerInput {
@@ -27,6 +29,13 @@ export class SharedMemoryEmulatorWorkerInput implements EmulatorWorkerInput {
             config.inputBufferSize
         );
         this.#sleepInputBufferView = new Int32Array(new SharedArrayBuffer(4));
+        // Allow the first frame immediately, including after a worker restart
+        // that reuses the input buffer.
+        Atomics.store(
+            this.#inputBufferView,
+            InputBufferAddresses.frameRequestFlagAddr,
+            1
+        );
     }
 
     idleWait(timeout: number): boolean {
@@ -85,6 +94,16 @@ export class SharedMemoryEmulatorWorkerInput implements EmulatorWorkerInput {
 
     getInputValue(addr: number): number {
         return this.#inputBufferView[addr];
+    }
+
+    consumeFrameRequest(): boolean {
+        return (
+            Atomics.exchange(
+                this.#inputBufferView,
+                InputBufferAddresses.frameRequestFlagAddr,
+                0
+            ) !== 0
+        );
     }
 }
 
@@ -151,6 +170,10 @@ export class FallbackEmulatorWorkerInput implements EmulatorWorkerInput {
 
     getInputValue(addr: number): number {
         return this.#inputBuffer[addr];
+    }
+
+    consumeFrameRequest(): boolean {
+        return true;
     }
 }
 

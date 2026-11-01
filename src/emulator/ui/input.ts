@@ -16,6 +16,7 @@ const INPUT_BUFFER_SIZE = 100;
 
 export interface EmulatorInput {
     workerConfig(): EmulatorWorkerInputConfig;
+    requestFrame(): void;
     handleInput(inputEvent: EmulatorInputEvent): void;
 }
 
@@ -38,6 +39,14 @@ export class SharedMemoryEmulatorInput implements EmulatorInput {
             inputBuffer: this.#inputBuffer,
             inputBufferSize: INPUT_BUFFER_SIZE,
         };
+    }
+
+    requestFrame() {
+        Atomics.store(
+            this.#inputBufferView,
+            InputBufferAddresses.frameRequestFlagAddr,
+            1
+        );
     }
 
     handleInput(inputEvent: EmulatorInputEvent) {
@@ -130,6 +139,10 @@ export class FallbackEmulatorInput implements EmulatorInput {
     }
     workerConfig(): EmulatorWorkerFallbackInputConfig {
         return {type: "fallback", inputBufferSize: INPUT_BUFFER_SIZE};
+    }
+
+    requestFrame() {
+        // Frame requests are only used with shared memory.
     }
 
     handleInput(inputEvent: EmulatorInputEvent): void {

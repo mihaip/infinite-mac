@@ -17,6 +17,7 @@ import {
 } from "@/defs/device-image";
 import {
     emulatorUsesPlaceholderDisks,
+    emulatorUsesFrameRequests,
     emulatorNeedsMouseDeltas,
     type EmulatorDef,
     emulatorSupportsMouseDeltas,
@@ -188,6 +189,7 @@ export class Emulator {
     #serviceWorkerReady?: Promise<boolean>;
 
     #gotFirstBlit = false;
+    #frameRequestAnimationId?: number;
     #bootFromROMHelper?: BootFromROMHelper;
     #intersectionObserver?: IntersectionObserver;
 
@@ -1090,6 +1092,18 @@ export class Emulator {
             const blitData: EmulatorWorkerVideoBlit = e.data.data;
             this.#video.blit(blitData);
             this.#drawScreen();
+            if (
+                this.#config.useSharedMemory &&
+                emulatorUsesFrameRequests(this.#config.machine.emulatorType) &&
+                this.#frameRequestAnimationId === undefined
+            ) {
+                // Request one new frame per browser screen refresh, so that
+                // emulator avoids generating unused frames.
+                this.#frameRequestAnimationId = requestAnimationFrame(() => {
+                    this.#frameRequestAnimationId = undefined;
+                    this.#input.requestFrame();
+                });
+            }
         } else if (e.data.type === "emulator_audio") {
             if (this.#audio instanceof FallbackEmulatorAudio) {
                 this.#audio.handleData(e.data.data);
@@ -1281,6 +1295,10 @@ export class Emulator {
     }
 
     async #handleEmulatorStopped(isExit?: boolean) {
+        if (this.#frameRequestAnimationId !== undefined) {
+            cancelAnimationFrame(this.#frameRequestAnimationId);
+            this.#frameRequestAnimationId = undefined;
+        }
         this.#bootFromROMHelper?.stop();
         this.#worker.removeEventListener("message", this.#handleWorkerMessage);
         this.#worker.terminate();

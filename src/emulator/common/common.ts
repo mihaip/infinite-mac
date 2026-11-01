@@ -31,6 +31,9 @@ export const InputBufferAddresses = {
     useMouseDeltasAddr: 18,
 
     pausedAddr: 19,
+
+    // Independent of the input lock; only access with Atomics.
+    frameRequestFlagAddr: 20,
 };
 
 export type EmulatorMouseEvent =

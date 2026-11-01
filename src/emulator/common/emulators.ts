@@ -41,6 +41,11 @@ export function emulatorUsesPlaceholderDisks(type: EmulatorType): boolean {
     return type === "BasiliskII" || type === "SheepShaver";
 }
 
+// Opt in only when the emulator waits for UI refresh requests before blitting.
+export function emulatorUsesFrameRequests(type: EmulatorType): boolean {
+    return type === "Snow";
+}
+
 export function emulatorUsesInterruptKey(type: EmulatorType): boolean {
     return type === "Mini vMac";
 }

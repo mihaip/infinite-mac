@@ -76,6 +76,7 @@ import {
 import {
     type EmulatorType,
     type EmulatorSpeed,
+    emulatorUsesFrameRequests,
 } from "@/emulator/common/emulators";
 import {EmulatorWorkerDeviceImageDisk} from "@/emulator/worker/device-image-disk";
 import {EmulatorWorkerOverlayDisk} from "@/emulator/worker/overlay-disk";
@@ -118,6 +119,7 @@ class EmulatorWorkerApi {
     #speedGovernor?: EmulatorWorkerSpeedGovernor;
 
     #videoOpenTime = 0;
+    #usesFrameRequests: boolean;
     #lastBlitFrameId = 0;
     #nextExpectedBlitTime = 0;
     #lastIdleWaitFrameId = 0;
@@ -163,6 +165,9 @@ class EmulatorWorkerApi {
         }
 
         this.#emulatorType = emulatorType;
+        this.#usesFrameRequests =
+            inputConfig.type === "shared-memory" &&
+            emulatorUsesFrameRequests(emulatorType);
         this.#video =
             videoConfig.type === "shared-memory"
                 ? new SharedMemoryEmulatorWorkerVideo(videoConfig, blitSender)
@@ -302,6 +307,10 @@ class EmulatorWorkerApi {
         this.#videoOpenTime = performance.now();
     }
 
+    consumeFrameRequest(): boolean {
+        return !this.#usesFrameRequests || this.#input.consumeFrameRequest();
+    }
+
     blit(bufPtr: number, bufSize: number, rect?: EmulatorWorkerVideoBlitRect) {
         this.#lastBlitFrameId++;
         if (bufPtr) {
@@ -409,7 +418,13 @@ class EmulatorWorkerApi {
     }
 
     checkForPeriodicTasks() {
-        if (this.#lastIdleWaitFrameId === this.#lastBlitFrameId) {
+        // UI-driven video can stop producing frames in a hidden tab. Keep
+        // servicing stop requests and other housekeeping while it is hidden.
+        if (
+            this.#lastIdleWaitFrameId === this.#lastBlitFrameId &&
+            (!this.#usesFrameRequests ||
+                performance.now() - this.#lastPeriodicTasksTime < 250)
+        ) {
             return;
         }
         this.#lastIdleWaitFrameId = this.#lastBlitFrameId;

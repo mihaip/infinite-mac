@@ -154,7 +154,7 @@ function initRuntime() {
   if (!Module["noFSInit"] && !FS.initialized) FS.init();
   TTY.init();
   // End ATINITS hooks
-  wasmExports["ba"]();
+  wasmExports["ca"]();
   // Begin ATPOSTCTORS hooks
   FS.ignorePermissions = false;
 }
@@ -3398,6 +3398,10 @@ function _js_consume_floppy_name() {
   return snowNameToCString(workerApi.disks.consumeFloppyName());
 }
 
+function _js_consume_frame_request() {
+  return workerApi.consumeFrameRequest() ? 1 : 0;
+}
+
 function _js_did_open_audio(sampleRate, sampleSize, channels) {
   workerApi.didOpenAudio(sampleRate, sampleSize, channels);
 }
@@ -3584,55 +3588,56 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 // Imports from the Wasm binary.
-var _main, _malloc, _free, _realloc, ___funcs_on_exit, _fflush, ___trap, __emscripten_stack_alloc, memory, __indirect_function_table, __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h170699817b88cc1fE, __ZN9snow_core3mac3adb5mouse1_6__CTOR17ha7338fba54f73e1cE, __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hf3d4d4ae8cd6574fE, __ZN9snow_core3mac4scsi4disk1_6__CTOR17h61ea2843118648f3E, __ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E, wasmMemory;
+var _main, _malloc, _free, _realloc, ___funcs_on_exit, _fflush, ___trap, __emscripten_stack_alloc, memory, __indirect_function_table, __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h170699817b88cc1fE, __ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E, __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hf3d4d4ae8cd6574fE, __ZN9snow_core3mac4scsi4disk1_6__CTOR17h61ea2843118648f3E, __ZN9snow_core3mac3adb5mouse1_6__CTOR17ha7338fba54f73e1cE, wasmMemory;
 
 function assignWasmExports(wasmExports) {
-  _main = Module["_main"] = wasmExports["ca"];
-  _malloc = wasmExports["ia"];
-  _free = wasmExports["ja"];
-  _realloc = wasmExports["ka"];
-  ___funcs_on_exit = wasmExports["la"];
-  _fflush = wasmExports["ma"];
-  ___trap = wasmExports["na"];
-  __emscripten_stack_alloc = wasmExports["oa"];
-  memory = wasmMemory = wasmExports["aa"];
+  _main = Module["_main"] = wasmExports["da"];
+  _malloc = wasmExports["ja"];
+  _free = wasmExports["ka"];
+  _realloc = wasmExports["la"];
+  ___funcs_on_exit = wasmExports["ma"];
+  _fflush = wasmExports["na"];
+  ___trap = wasmExports["oa"];
+  __emscripten_stack_alloc = wasmExports["pa"];
+  memory = wasmMemory = wasmExports["ba"];
   __indirect_function_table = wasmExports["__indirect_function_table"];
-  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h170699817b88cc1fE = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h170699817b88cc1fE"] = wasmExports["da"].value;
-  __ZN9snow_core3mac3adb5mouse1_6__CTOR17ha7338fba54f73e1cE = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17ha7338fba54f73e1cE"] = wasmExports["ea"].value;
-  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hf3d4d4ae8cd6574fE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17hf3d4d4ae8cd6574fE"] = wasmExports["fa"].value;
-  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h61ea2843118648f3E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h61ea2843118648f3E"] = wasmExports["ga"].value;
-  __ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E"] = wasmExports["ha"].value;
+  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h170699817b88cc1fE = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h170699817b88cc1fE"] = wasmExports["ea"].value;
+  __ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E"] = wasmExports["fa"].value;
+  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hf3d4d4ae8cd6574fE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17hf3d4d4ae8cd6574fE"] = wasmExports["ga"].value;
+  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h61ea2843118648f3E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h61ea2843118648f3E"] = wasmExports["ha"].value;
+  __ZN9snow_core3mac3adb5mouse1_6__CTOR17ha7338fba54f73e1cE = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17ha7338fba54f73e1cE"] = wasmExports["ia"].value;
 }
 
 var wasmImports = {
-  /** @export */ $: ___syscall_fstat64,
-  /** @export */ _: ___syscall_getcwd,
-  /** @export */ Z: ___syscall_getdents64,
-  /** @export */ Y: ___syscall_lstat64,
-  /** @export */ X: ___syscall_newfstatat,
-  /** @export */ W: ___syscall_openat,
-  /** @export */ V: ___syscall_renameat,
-  /** @export */ U: ___syscall_stat64,
-  /** @export */ T: ___syscall_unlinkat,
-  /** @export */ L: __abort_js,
-  /** @export */ S: _clock_time_get,
+  /** @export */ aa: ___syscall_fstat64,
+  /** @export */ $: ___syscall_getcwd,
+  /** @export */ _: ___syscall_getdents64,
+  /** @export */ Z: ___syscall_lstat64,
+  /** @export */ Y: ___syscall_newfstatat,
+  /** @export */ X: ___syscall_openat,
+  /** @export */ W: ___syscall_renameat,
+  /** @export */ V: ___syscall_stat64,
+  /** @export */ U: ___syscall_unlinkat,
+  /** @export */ M: __abort_js,
+  /** @export */ T: _clock_time_get,
   /** @export */ a: _emscripten_get_now,
-  /** @export */ K: _emscripten_resize_heap,
-  /** @export */ J: _emscripten_run_script_string,
-  /** @export */ R: _environ_get,
-  /** @export */ Q: _environ_sizes_get,
+  /** @export */ L: _emscripten_resize_heap,
+  /** @export */ K: _emscripten_run_script_string,
+  /** @export */ S: _environ_get,
+  /** @export */ R: _environ_sizes_get,
   /** @export */ j: _fd_close,
-  /** @export */ P: _fd_fdstat_get,
+  /** @export */ Q: _fd_fdstat_get,
   /** @export */ i: _fd_read,
-  /** @export */ O: _fd_seek,
-  /** @export */ N: _fd_sync,
+  /** @export */ P: _fd_seek,
+  /** @export */ O: _fd_sync,
   /** @export */ h: _fd_write,
-  /** @export */ I: _js_acquire_input_lock,
+  /** @export */ J: _js_acquire_input_lock,
   /** @export */ c: _js_audio_buffer_size,
-  /** @export */ H: _js_blit,
-  /** @export */ G: _js_check_for_periodic_tasks,
+  /** @export */ I: _js_blit,
+  /** @export */ H: _js_check_for_periodic_tasks,
   /** @export */ g: _js_consume_cdrom_name,
   /** @export */ f: _js_consume_floppy_name,
+  /** @export */ G: _js_consume_frame_request,
   /** @export */ F: _js_did_open_audio,
   /** @export */ E: _js_did_open_video,
   /** @export */ b: _js_disk_close,
@@ -3658,7 +3663,7 @@ var wasmImports = {
   /** @export */ m: _js_set_clipboard_text,
   /** @export */ l: _js_sleep,
   /** @export */ k: _js_update_emulator_stats_json,
-  /** @export */ M: _random_get
+  /** @export */ N: _random_get
 };
 
 // include: postamble.js
