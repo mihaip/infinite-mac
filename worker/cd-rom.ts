@@ -1,5 +1,6 @@
 import {type EmulatorCDROM} from "@/emulator/common/common";
 import allowedDomains from "@/defs/cdrom-sites.json";
+import {getR2Object} from "./r2";
 
 type CDROMSpec = {
     srcUrl: string;
@@ -84,40 +85,28 @@ async function handleGET(
     const chunkStart = parseInt(chunkMatch[1]);
     const chunkEnd = parseInt(chunkMatch[2]);
 
-    let chunkFetchError;
-    for (let retry = 0; retry < 3; retry++) {
-        try {
-            const {chunk, contentLength} = isR2MediaSrcUrl(spec.srcUrl)
-                ? await fetchMediaChunk(
-                      spec,
-                      chunkStart,
-                      chunkEnd,
-                      bucket,
-                      requestUrl
-                  )
-                : await fetchChunk(spec, chunkStart, chunkEnd);
-            return new Response(chunk, {
-                status: 200,
-                headers: {
-                    "Content-Type": "multipart/mixed",
-                    "Content-Length": String(contentLength),
-                    // Always allow caching (mirrors logic for our own disk chunks).
-                    "Cache-Control": `public, max-age=${
-                        60 * 60 * 24 * 30
-                    }, immutable`,
-                },
-            });
-        } catch (e) {
-            chunkFetchError = e;
-        }
+    const fetchChunk = createChunkFetcher(spec, bucket, requestUrl);
+    try {
+        const {chunk, contentLength} = await fetchChunk(chunkStart, chunkEnd);
+        return new Response(chunk, {
+            status: 200,
+            headers: {
+                "Content-Type": "multipart/mixed",
+                "Content-Length": String(contentLength),
+                // Always allow caching (mirrors logic for our own disk chunks).
+                "Cache-Control": `public, max-age=${
+                    60 * 60 * 24 * 30
+                }, immutable`,
+            },
+        });
+    } catch (error) {
+        console.error("CD-ROM fetch failed:", error, {
+            ...spec,
+            chunkStart,
+            chunkEnd,
+        });
+        return errorResponse("CD-ROM fetch failed: " + error, 500);
     }
-
-    console.error("CD-ROM fetch failed:", chunkFetchError, {
-        ...spec,
-        chunkStart,
-        chunkEnd,
-    });
-    return errorResponse("CD-ROM fetch failed: " + chunkFetchError, 500);
 }
 
 /**
@@ -248,7 +237,50 @@ async function fetchMetadata(
     throw new Error("Too many CD-ROM redirects");
 }
 
-async function fetchChunk(
+type ChunkFetcher = (
+    chunkStart: number,
+    chunkEnd: number
+) => Promise<{chunk: ArrayBuffer; contentLength: number}>;
+
+function createChunkFetcher(
+    spec: CDROMSpec,
+    bucket: R2Bucket,
+    requestUrl: URL
+): ChunkFetcher {
+    if (!isR2MediaSrcUrl(spec.srcUrl)) {
+        return withFetchRetries((start, end) =>
+            fetchExternalChunk(spec, start, end)
+        );
+    }
+    if (bucket) {
+        // getR2Object owns the selective retry policy for bucket reads.
+        return (start, end) => fetchR2MediaChunk(spec, start, end, bucket);
+    }
+    if (import.meta.env.DEV) {
+        return withFetchRetries((start, end) =>
+            fetchLocalMediaChunk(spec, start, end, requestUrl)
+        );
+    }
+    return async () => {
+        throw new Error("Bucket not configured");
+    };
+}
+
+function withFetchRetries(fetchChunk: ChunkFetcher): ChunkFetcher {
+    return async (start, end) => {
+        for (let attempt = 1; ; attempt++) {
+            try {
+                return await fetchChunk(start, end);
+            } catch (error) {
+                if (attempt >= 3) {
+                    throw error;
+                }
+            }
+        }
+    };
+}
+
+async function fetchExternalChunk(
     spec: CDROMSpec,
     chunkStart: number,
     chunkEnd: number
@@ -295,29 +327,13 @@ async function fetchChunk(
     };
 }
 
-async function fetchMediaChunk(
-    spec: CDROMSpec,
-    chunkStart: number,
-    chunkEnd: number,
-    bucket: R2Bucket,
-    requestUrl: URL
-) {
-    if (!bucket) {
-        if (import.meta.env.DEV) {
-            return fetchLocalMediaChunk(spec, chunkStart, chunkEnd, requestUrl);
-        }
-        throw new Error("Bucket not configured");
-    }
-    return fetchR2MediaChunk(spec, chunkStart, chunkEnd, bucket);
-}
-
 async function fetchR2MediaChunk(
     spec: CDROMSpec,
     chunkStart: number,
     chunkEnd: number,
     bucket: R2Bucket
 ) {
-    const object = await bucket.get(r2MediaKey(spec), {
+    const object = await getR2Object(bucket, r2MediaKey(spec), {
         range: {
             offset: chunkStart,
             length: chunkEnd - chunkStart,

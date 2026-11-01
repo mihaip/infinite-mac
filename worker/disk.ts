@@ -1,3 +1,5 @@
+import {getR2Object} from "./r2";
+
 export async function handleRequest(
     request: Request,
     bucket: R2Bucket,
@@ -27,7 +29,7 @@ export async function handleRequest(
         return cacheResponse;
     }
 
-    const object = await bucket.get(key);
+    const object = await getR2Object(bucket, key);
 
     if (object === null) {
         return errorResponse("Chunk not found", 404);
