@@ -8,8 +8,9 @@ export async function handleRequest(
     analytics: AnalyticsEngineDataset
 ) {
     if (request.method === "POST") {
-        const body = await request.json();
-        await incrementVarz(namespace, body as VarData, analytics);
+        const changes = (await request.json()) as VarData;
+        const context = logTelemetryRequest(request, "/varz", changes);
+        await incrementVarz(namespace, changes, analytics, context);
         return new Response(null, {status: 204});
     }
     if (request.method !== "GET") {
@@ -64,7 +65,8 @@ export async function handleRequest(
 async function incrementVarz(
     namespace: KVNamespace,
     changes: VarData,
-    analytics: AnalyticsEngineDataset
+    analytics: AnalyticsEngineDataset,
+    context: TelemetryContext
 ) {
     for (const [name, delta] of Object.entries(changes)) {
         if (!delta) {
@@ -77,7 +79,12 @@ async function incrementVarz(
         } else {
             value += delta;
         }
-        await namespace.put(key, JSON.stringify(value));
+        try {
+            await namespace.put(key, JSON.stringify(value));
+        } catch (error) {
+            logKVPutFailure(context, key, name, delta);
+            throw error;
+        }
         try {
             const encodedName = new TextEncoder().encode(name);
             let index = name;
@@ -125,13 +132,20 @@ export async function handleErrorzRequest(
             name: string;
             message: string;
         };
+        const changes = {[name]: 1};
+        const context = logTelemetryRequest(request, "/errorz", changes);
         const messages = errorz[name] ?? [];
         if (messages.unshift(message) > 20) {
             messages.pop();
         }
         errorz[name] = messages;
-        await namespace.put(ERRORZ_KEY, JSON.stringify(errorz));
-        await incrementVarz(namespace, {[name]: 1}, analytics);
+        try {
+            await namespace.put(ERRORZ_KEY, JSON.stringify(errorz));
+        } catch (error) {
+            logKVPutFailure(context, ERRORZ_KEY, name, 1);
+            throw error;
+        }
+        await incrementVarz(namespace, changes, analytics, context);
         return new Response(null, {status: 204});
     }
     if (request.method !== "GET") {
@@ -146,5 +160,46 @@ export async function handleErrorzRequest(
             "Content-Type": "text/plain",
             "Cache-Control": "no-store",
         },
+    });
+}
+
+type TelemetryContext = {
+    endpoint: "/varz" | "/errorz";
+    pageLoadId: string | null;
+    requestSequence: number | null;
+};
+
+function logTelemetryRequest(
+    request: Request,
+    endpoint: TelemetryContext["endpoint"],
+    changes: VarData
+): TelemetryContext {
+    const sequenceHeader = request.headers.get("X-Request-Sequence");
+    const sequence = sequenceHeader === null ? NaN : Number(sequenceHeader);
+    const context = {
+        endpoint,
+        pageLoadId: request.headers.get("X-Page-Load-Id"),
+        requestSequence:
+            Number.isSafeInteger(sequence) && sequence > 0 ? sequence : null,
+    };
+    console.log({feature: "varz", type: "increment", ...context, changes});
+    return context;
+}
+
+function logKVPutFailure(
+    context: TelemetryContext,
+    key: string,
+    name: string,
+    delta: number
+) {
+    // Keep the context at info level and rethrow the original exception at the
+    // call site, so that logging does not create a second error issue.
+    console.log({
+        feature: "varz",
+        type: "kvPutFailed",
+        ...context,
+        key,
+        name,
+        delta,
     });
 }
