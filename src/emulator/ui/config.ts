@@ -452,8 +452,12 @@ export function configToSnowArgs(
     if (monitorId) {
         args.push("--monitor", monitorId);
     }
-    for (const romName of Object.keys(config.machine.extraFiles ?? {})) {
-        args.push("--extra-rom", romName);
+    for (const fileName of Object.keys(config.machine.extraFiles ?? {})) {
+        if (fileName === "pram.bin") {
+            args.push("--pram", fileName);
+        } else {
+            args.push("--extra-rom", fileName);
+        }
     }
     if (useMouseDeltas) {
         args.push("--use-mouse-deltas");

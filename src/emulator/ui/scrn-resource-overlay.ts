@@ -16,6 +16,7 @@ type SnowVideoDevice = {
     hardwareId: number;
     slot: number;
     baseAddress: number;
+    monitorBaseAddresses?: Record<string, number>;
     mode: number;
     fixedSize?: {width: number; height: number};
 };
@@ -39,6 +40,18 @@ const SNOW_VIDEO_DEVICES: Record<VideoDevice, SnowVideoDevice> = {
         hardwareId: 0x1a,
         slot: 0,
         baseAddress: 0x50f40000,
+        mode: 0x83,
+    },
+    // DAFB is a slot-zero device. Its dCtlDevBase includes a monitor-specific
+    // offset into slot 9's framebuffer (DAFBStdOffset/DAFBBSOffset in this ROM).
+    DAFB: {
+        hardwareId: 0x1c,
+        slot: 0,
+        baseAddress: 0xf9001000,
+        monitorBaseAddresses: {
+            RGB16: 0xf9000e00,
+            RGB21: 0xf9000e00,
+        },
         mode: 0x83,
     },
     // The LC III's Sonora ROM already defaults to color, so it needs no overlay.
@@ -70,7 +83,11 @@ export function createScrnResourceOverlays(
     view.setUint16(0, 1); // Number of devices
     view.setUint16(2, videoDevice.hardwareId); // Slot Manager hardware ID
     view.setUint16(4, videoDevice.slot);
-    view.setUint32(6, videoDevice.baseAddress); // dCtlDevBase
+    view.setUint32(
+        6,
+        videoDevice.monitorBaseAddresses?.[monitor?.monitorId ?? ""] ??
+            videoDevice.baseAddress
+    ); // dCtlDevBase
     view.setUint16(10, videoDevice.mode); // Driver-specific 256-color mode
     view.setUint16(12, 0x77fe); // Device-state flag mask
     view.setUint16(14, 0xa801); // Active, main, color screen

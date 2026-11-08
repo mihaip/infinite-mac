@@ -9,7 +9,6 @@ import {
     SYSTEM_7_1,
     SYSTEM_7_1_2,
     SYSTEM_7_5_2,
-    SYSTEM_7_5_3,
     MAC_OS_7_6,
     MAC_OS_7_6_1,
     MAC_OS_8_1,
@@ -46,9 +45,9 @@ import {
     MAC_IIx_SNOW,
     MAC_IIcx_SNOW,
     MAC_SE30_SNOW,
-    MAC_LC_SNOW,
-    MAC_LC_II_SNOW,
-    MAC_LC_III_SNOW,
+    LC_SNOW,
+    LC_II_SNOW,
+    LC_III_SNOW,
     QUADRA_650,
     POWER_MACINTOSH_6100,
     POWER_MACINTOSH_7200,
@@ -65,6 +64,8 @@ import {
     type MachineDef,
     POWER_MACINTOSH_G3_BW_DPPC,
     POWER_MACINTOSH_9500,
+    QUADRA_700_SNOW,
+    LC_475_SNOW,
 } from "@/defs/machines";
 import {type RunDef} from "@/defs/run-def";
 
@@ -147,9 +148,11 @@ export const EMULATOR_PREVIEW_PRESETS = [
             preview(MAC_IIx_SNOW, SYSTEM_7_1),
             preview(MAC_IIcx_SNOW, SYSTEM_7_1),
             preview(MAC_SE30_SNOW, SYSTEM_6_0_8),
-            preview(MAC_LC_SNOW, SYSTEM_7_1),
-            preview(MAC_LC_II_SNOW, SYSTEM_7_1),
-            preview(MAC_LC_III_SNOW, SYSTEM_7_5_3),
+            preview(LC_SNOW, SYSTEM_7_1),
+            preview(LC_II_SNOW, SYSTEM_7_1),
+            preview(LC_III_SNOW, SYSTEM_7_1),
+            preview(LC_475_SNOW, SYSTEM_7_1),
+            preview(QUADRA_700_SNOW, SYSTEM_7_1),
         ],
     },
     {
@@ -167,7 +170,7 @@ export const EMULATOR_PREVIEW_PRESETS = [
             preview(POWER_MACINTOSH_7300, MAC_OS_7_6_1),
             // OldWorld
             preview(POWER_MACINTOSH_G3_BEIGE, MAC_OS_8_1),
-            // NeWorld
+            // NewWorld
             preview(POWER_MACINTOSH_G3_BW_DPPC, MAC_OS_9_2_2),
             preview(IMAC_G3, MAC_OS_X_10_1_5),
         ],

@@ -8,10 +8,14 @@ import macIIRomPath from "@/Data/Mac-II.rom";
 import macIIxRomPath from "@/Data/Mac-IIx.rom";
 import macIIfxRomPath from "@/Data/Mac-IIfx.rom";
 import macPortableRomPath from "@/Data/Mac-Portable.rom";
-import macLCRomPath from "@/Data/Mac-LC.rom";
-import macLCIIRomPath from "@/Data/Mac-LC-II.rom";
-import macLCIIIRomPath from "@/Data/Mac-LC-III.rom";
+import lcRomPath from "@/Data/LC.rom";
+import lcIIRomPath from "@/Data/LC-II.rom";
+import lcIIIRomPath from "@/Data/LC-III.rom";
+import macLC475RomPath from "@/Data/LC-475.rom";
+import macLC475PramPath from "@/Data/LC-475-pram.bin?url";
 import quadra650RomPath from "@/Data/Quadra-650.rom";
+import quadra700PramPath from "@/Data/Quadra-700-pram.bin?url";
+import quadra700RomPath from "@/Data/Quadra-700.rom";
 import newWorldRomPath from "@/Data/New-World.rom";
 import powerMacintosh6100RomPath from "@/Data/Power-Macintosh-6100.rom";
 import powerMacintosh7300RomPath from "@/Data/Power-Macintosh-7300.rom";
@@ -83,7 +87,7 @@ export type MachineDefRAMSize = `${number}M` | `${number}K`;
 
 export type MachinePlatform = "Macintosh" | "NeXT";
 
-export type VideoDevice = "Toby" | "MDC12" | "V8";
+export type VideoDevice = "Toby" | "MDC12" | "V8" | "DAFB";
 
 const snowSupportedScreenSizes = {
     default: [
@@ -383,10 +387,10 @@ export const MAC_IIFX: MachineDef = {
     ramSizes: ["128M", "64M", "32M", "16M", "8M", "4M"],
 };
 
-export const MAC_LC_SNOW: MachineDef = {
-    name: "Mac LC (Snow)",
+export const LC_SNOW: MachineDef = {
+    name: "LC (Snow)",
     cpu: "68020",
-    romPath: macLCRomPath,
+    romPath: lcRomPath,
     gestaltID: 19,
     emulatorType: "Snow",
     videoDevice: "V8",
@@ -402,10 +406,10 @@ export const MAC_LC_SNOW: MachineDef = {
     ramSizes: ["10M", "6M", "4M", "2M"],
 };
 
-export const MAC_LC_II_SNOW: MachineDef = {
-    name: "Mac LC II (Snow)",
+export const LC_II_SNOW: MachineDef = {
+    name: "LC II (Snow)",
     cpu: "68030",
-    romPath: macLCIIRomPath,
+    romPath: lcIIRomPath,
     gestaltID: 37,
     emulatorType: "Snow",
     videoDevice: "V8",
@@ -421,16 +425,17 @@ export const MAC_LC_II_SNOW: MachineDef = {
     ramSizes: ["10M", "8M", "6M", "4M"],
 };
 
-export const MAC_LC_III_SNOW: MachineDef = {
-    name: "Mac LC III (Snow)",
+export const LC_III_SNOW: MachineDef = {
+    name: "LC III (Snow)",
     cpu: "68030",
-    romPath: macLCIIIRomPath,
+    romPath: lcIIIRomPath,
     gestaltID: 27,
     emulatorType: "Snow",
     prefsPath: emptyPrefsPath,
     supportedScreenSizes: {
         default: [
             {width: 832, height: 624, monitorId: "RGB16"},
+            {width: 640, height: 870, monitorId: "PortraitBW"},
             {width: 640, height: 480, monitorId: "HiRes14"},
             {width: 512, height: 384, monitorId: "RGB12"},
         ],
@@ -438,6 +443,43 @@ export const MAC_LC_III_SNOW: MachineDef = {
     bezelStyle: "Platinum",
     hasSCSI: true,
     ramSizes: ["36M", "20M", "12M", "8M", "6M", "5M", "4M"],
+    extraFiles: {
+        // The LC 475 PRAM works here too (to enable color and 32-bit addressing)
+        "pram.bin": macLC475PramPath,
+    },
+};
+
+export const LC_475_SNOW: MachineDef = {
+    name: "LC 475 (Snow)",
+    cpu: "68040",
+    romPath: macLC475RomPath,
+    gestaltID: 89,
+    emulatorType: "Snow",
+    prefsPath: emptyPrefsPath,
+    supportedScreenSizes: snowSupportedScreenSizes,
+    bezelStyle: "Platinum",
+    hasSCSI: true,
+    ramSizes: ["36M", "20M", "12M", "8M", "6M", "4M"],
+    extraFiles: {
+        "pram.bin": macLC475PramPath,
+    },
+};
+
+export const QUADRA_700_SNOW: MachineDef = {
+    name: "Quadra 700 (Snow)",
+    cpu: "68040",
+    romPath: quadra700RomPath,
+    gestaltID: 22,
+    emulatorType: "Snow",
+    videoDevice: "DAFB",
+    prefsPath: emptyPrefsPath,
+    supportedScreenSizes: snowSupportedScreenSizes,
+    bezelStyle: "Platinum",
+    hasSCSI: true,
+    ramSizes: ["8M", "64M", "32M", "16M", "4M"],
+    extraFiles: {
+        "pram.bin": quadra700PramPath,
+    },
 };
 
 export const QUADRA_650: MachineDef = {
@@ -741,9 +783,11 @@ export const ALL_MACHINES = [
     MAC_SE30_SNOW,
     MAC_PORTABLE_SNOW,
     MAC_IIFX,
-    MAC_LC_SNOW,
-    MAC_LC_II_SNOW,
-    MAC_LC_III_SNOW,
+    LC_SNOW,
+    LC_II_SNOW,
+    LC_III_SNOW,
+    LC_475_SNOW,
+    QUADRA_700_SNOW,
     QUADRA_650,
     POWER_MACINTOSH_6100,
     POWER_MACINTOSH_7200,

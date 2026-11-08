@@ -3588,7 +3588,7 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 // Imports from the Wasm binary.
-var _main, _malloc, _free, _realloc, ___funcs_on_exit, _fflush, ___trap, __emscripten_stack_alloc, memory, __indirect_function_table, __ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E, __ZN9snow_core3mac3adb5mouse1_6__CTOR17ha7338fba54f73e1cE, __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hf3d4d4ae8cd6574fE, __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h170699817b88cc1fE, __ZN9snow_core3mac4scsi4disk1_6__CTOR17h61ea2843118648f3E, wasmMemory;
+var _main, _malloc, _free, _realloc, ___funcs_on_exit, _fflush, ___trap, __emscripten_stack_alloc, memory, __indirect_function_table, __ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E, __ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E, __ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E, __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE, __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E, wasmMemory;
 
 function assignWasmExports(wasmExports) {
   _main = Module["_main"] = wasmExports["da"];
@@ -3601,11 +3601,11 @@ function assignWasmExports(wasmExports) {
   __emscripten_stack_alloc = wasmExports["pa"];
   memory = wasmMemory = wasmExports["ba"];
   __indirect_function_table = wasmExports["__indirect_function_table"];
-  __ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17h1dbb3a8264b6da35E"] = wasmExports["ea"].value;
-  __ZN9snow_core3mac3adb5mouse1_6__CTOR17ha7338fba54f73e1cE = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17ha7338fba54f73e1cE"] = wasmExports["fa"].value;
-  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17hf3d4d4ae8cd6574fE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17hf3d4d4ae8cd6574fE"] = wasmExports["ga"].value;
-  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h170699817b88cc1fE = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h170699817b88cc1fE"] = wasmExports["ha"].value;
-  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h61ea2843118648f3E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h61ea2843118648f3E"] = wasmExports["ia"].value;
+  __ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E"] = wasmExports["ea"].value;
+  __ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E"] = wasmExports["fa"].value;
+  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E"] = wasmExports["ga"].value;
+  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE"] = wasmExports["ha"].value;
+  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E"] = wasmExports["ia"].value;
 }
 
 var wasmImports = {
@@ -3625,24 +3625,24 @@ var wasmImports = {
   /** @export */ K: _emscripten_run_script_string,
   /** @export */ S: _environ_get,
   /** @export */ R: _environ_sizes_get,
-  /** @export */ j: _fd_close,
+  /** @export */ i: _fd_close,
   /** @export */ Q: _fd_fdstat_get,
-  /** @export */ i: _fd_read,
+  /** @export */ h: _fd_read,
   /** @export */ P: _fd_seek,
   /** @export */ O: _fd_sync,
-  /** @export */ h: _fd_write,
+  /** @export */ g: _fd_write,
   /** @export */ J: _js_acquire_input_lock,
   /** @export */ c: _js_audio_buffer_size,
   /** @export */ I: _js_blit,
   /** @export */ H: _js_check_for_periodic_tasks,
-  /** @export */ g: _js_consume_cdrom_name,
-  /** @export */ f: _js_consume_floppy_name,
+  /** @export */ f: _js_consume_cdrom_name,
+  /** @export */ e: _js_consume_floppy_name,
   /** @export */ G: _js_consume_frame_request,
   /** @export */ F: _js_did_open_audio,
   /** @export */ E: _js_did_open_video,
   /** @export */ b: _js_disk_close,
   /** @export */ D: _js_disk_open,
-  /** @export */ e: _js_disk_read,
+  /** @export */ d: _js_disk_read,
   /** @export */ C: _js_disk_size,
   /** @export */ B: _js_disk_write,
   /** @export */ A: _js_enqueue_audio,
@@ -3659,10 +3659,10 @@ var wasmImports = {
   /** @export */ p: _js_has_mouse_position,
   /** @export */ o: _js_has_speed_event,
   /** @export */ n: _js_release_input_lock,
-  /** @export */ d: _js_report_error,
-  /** @export */ m: _js_set_clipboard_text,
-  /** @export */ l: _js_sleep,
-  /** @export */ k: _js_update_emulator_stats_json,
+  /** @export */ m: _js_report_error,
+  /** @export */ l: _js_set_clipboard_text,
+  /** @export */ k: _js_sleep,
+  /** @export */ j: _js_update_emulator_stats_json,
   /** @export */ N: _random_get
 };
 
