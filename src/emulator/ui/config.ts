@@ -203,7 +203,7 @@ export function configToDingusPPCArgs(
             break;
         case POWER_MACINTOSH_G3_BW_DPPC:
             args.push("--machine", "pmg3nw");
-            args.push("--gfxmem_size", "8");
+            args.push("--gfxmem_size", "6");
             break;
         case IMAC_G3: {
             args.push("--machine", "imacg3");
