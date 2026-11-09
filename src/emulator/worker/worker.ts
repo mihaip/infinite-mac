@@ -96,6 +96,7 @@ addEventListener("unhandledrejection", (event: PromiseRejectionEvent) => {
 });
 
 function reportEmulatorError(reason: unknown) {
+    console.error(reason);
     const reasonString = String(reason);
     if (reasonString.toLowerCase().includes("out of memory")) {
         postMessage({type: "emulator_did_run_out_memory"});

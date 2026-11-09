@@ -13,8 +13,8 @@ import {
     MAC_OS_7_6_1,
     MAC_OS_8_1,
     MAC_OS_8_5,
+    MAC_OS_8_6,
     MAC_OS_9_0_4,
-    MAC_OS_9_2_2,
     MAC_OS_X_10_1_5,
     MAC_OS_X_10_2_8,
     MAC_OS_X_10_3_9,
@@ -173,7 +173,7 @@ export const EMULATOR_PREVIEW_PRESETS = [
             // OldWorld
             preview(POWER_MACINTOSH_G3_BEIGE, MAC_OS_8_1),
             // NewWorld
-            preview(POWER_MACINTOSH_G3_BW_DPPC, MAC_OS_9_2_2),
+            preview(POWER_MACINTOSH_G3_BW_DPPC, MAC_OS_8_6),
             preview(IMAC_G3, MAC_OS_X_10_1_5),
         ],
     },
