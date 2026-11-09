@@ -66,6 +66,7 @@ import {
     POWER_MACINTOSH_9500,
     QUADRA_700_SNOW,
     LC_475_SNOW,
+    QUADRA_800_SNOW,
 } from "@/defs/machines";
 import {type RunDef} from "@/defs/run-def";
 
@@ -153,6 +154,7 @@ export const EMULATOR_PREVIEW_PRESETS = [
             preview(LC_III_SNOW, SYSTEM_7_1),
             preview(LC_475_SNOW, SYSTEM_7_1),
             preview(QUADRA_700_SNOW, SYSTEM_7_1),
+            preview(QUADRA_800_SNOW, SYSTEM_7_1),
         ],
     },
     {

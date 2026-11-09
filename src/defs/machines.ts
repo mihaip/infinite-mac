@@ -482,6 +482,25 @@ export const QUADRA_700_SNOW: MachineDef = {
     },
 };
 
+export const QUADRA_800_SNOW: MachineDef = {
+    name: "Quadra 800 (Snow)",
+    cpu: "68040",
+    romPath: quadra650RomPath,
+    gestaltID: 35,
+    emulatorType: "Snow",
+    videoDevice: "DAFB",
+    prefsPath: emptyPrefsPath,
+    supportedScreenSizes: snowSupportedScreenSizes,
+    bezelStyle: "Platinum",
+    hasSCSI: true,
+    ramSizes: ["40M", "72M", "136M", "8M", "16M", "24M"],
+    extraFiles: {
+        // The Quadra 700 PRAM works here too (to enable color and 32-bit
+        // addressing)
+        "pram.bin": quadra700PramPath,
+    },
+};
+
 export const QUADRA_650: MachineDef = {
     name: "Quadra 650",
     cpu: "68040",
@@ -789,6 +808,7 @@ export const ALL_MACHINES = [
     LC_475_SNOW,
     QUADRA_700_SNOW,
     QUADRA_650,
+    QUADRA_800_SNOW,
     POWER_MACINTOSH_6100,
     POWER_MACINTOSH_7200,
     POWER_MACINTOSH_7300,

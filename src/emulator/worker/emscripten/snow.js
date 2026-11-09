@@ -3588,7 +3588,7 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 // Imports from the Wasm binary.
-var _main, _malloc, _free, _realloc, ___funcs_on_exit, _fflush, ___trap, __emscripten_stack_alloc, memory, __indirect_function_table, __ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E, __ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E, __ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E, __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE, __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E, wasmMemory;
+var _main, _malloc, _free, _realloc, ___funcs_on_exit, _fflush, ___trap, __emscripten_stack_alloc, memory, __indirect_function_table, __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E, __ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E, __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE, __ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E, __ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E, wasmMemory;
 
 function assignWasmExports(wasmExports) {
   _main = Module["_main"] = wasmExports["da"];
@@ -3601,11 +3601,11 @@ function assignWasmExports(wasmExports) {
   __emscripten_stack_alloc = wasmExports["pa"];
   memory = wasmMemory = wasmExports["ba"];
   __indirect_function_table = wasmExports["__indirect_function_table"];
-  __ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E"] = wasmExports["ea"].value;
+  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E"] = wasmExports["ea"].value;
   __ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E"] = wasmExports["fa"].value;
-  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E"] = wasmExports["ga"].value;
-  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE"] = wasmExports["ha"].value;
-  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E"] = wasmExports["ia"].value;
+  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE"] = wasmExports["ga"].value;
+  __ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E"] = wasmExports["ha"].value;
+  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E"] = wasmExports["ia"].value;
 }
 
 var wasmImports = {
