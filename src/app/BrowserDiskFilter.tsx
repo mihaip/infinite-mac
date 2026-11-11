@@ -4,7 +4,7 @@ import {
     type SystemDiskDef,
     type PlaceholderDiskDef,
 } from "@/defs/disks";
-import {type RefObject, useEffect, useState} from "react";
+import {Fragment, type RefObject, useEffect, useState} from "react";
 import classNames from "classnames";
 import {
     type Appearance,
@@ -43,6 +43,7 @@ export function browserDisks() {
     return {
         "all": makeEntry("All", () => true),
         "notable": makeEntry("Notable", d => d.notable ?? false),
+        "classic": makeEntry("Classic", d => d.family === undefined),
         "aux": makeEntry("A/UX", d => d.family === "aux"),
         "next": makeEntry("NeXT", d => d.family === "next"),
         "beos": makeEntry("BeOS", d => d.family === "beos"),
@@ -116,9 +117,16 @@ export function BrowserDiskFilter({
                     {Object.entries(browserDisks()).map(
                         ([filter, {label, all}]) =>
                             all.length > 0 && (
-                                <option key={filter} value={filter}>
-                                    {label} ({all.length})
-                                </option>
+                                <Fragment key={filter}>
+                                    <option value={filter}>
+                                        {label} ({all.length})
+                                    </option>
+                                    {filter === "notable" && (
+                                        // Add spacer between the all/notable pair
+                                        // and the OS families.
+                                        <option disabled></option>
+                                    )}
+                                </Fragment>
                             )
                     )}
                 </Select>
