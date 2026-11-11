@@ -76,6 +76,7 @@ import {isSystemDiskDef, type EmulatorDiskDef} from "@/defs/disks";
 import {fetchCDROM, probeCORSRangeSupport} from "@/emulator/ui/cdrom";
 import {BootFromROMHelper} from "@/emulator/ui/boot-from-rom";
 import {EmulatorTrackpadController} from "@/emulator/ui/trackpad";
+import {EmulatorLog} from "@/emulator/ui/log";
 import {
     configToDingusPPCArgs,
     configToPreviousConfig,
@@ -167,6 +168,8 @@ export type EmulatorFallbackCommandSender = (
 ) => void;
 
 export class Emulator {
+    readonly log = new EmulatorLog();
+
     #config: EmulatorConfig;
     #delegate?: EmulatorDelegate;
     #worker: Worker;
@@ -525,6 +528,7 @@ export class Emulator {
             ethernet: this.#ethernet.workerConfig(),
             clipboard: this.#clipboard.workerConfig(),
             dateOffset,
+            debugLog: this.#config.flags.debugLog ?? false,
             speedGovernorTargetIPS,
         };
 
@@ -827,10 +831,6 @@ export class Emulator {
         // Can't capture the pointer if we're already in pointer lock (Chrome will throw)
         if (!document.pointerLockElement) {
             try {
-                console.log(
-                    "setPointerCapture, document.pointerLockElement=" +
-                        document.pointerLockElement
-                );
                 this.#config.screenCanvas.setPointerCapture(event.pointerId);
             } catch (err) {
                 console.warn("Could not use setPointerCapture on canvas", err);
@@ -1140,6 +1140,8 @@ export class Emulator {
             }
         } else if (e.data.type === "emulator_stats") {
             this.#delegate?.emulatorStatsDidChange?.(this, e.data.stats);
+        } else if (e.data.type === "emulator_log") {
+            this.log.append(e.data.message);
         } else if (e.data.type === "emulator_set_clipboard_text") {
             const {text} = e.data;
             navigator.clipboard.writeText(text).then(

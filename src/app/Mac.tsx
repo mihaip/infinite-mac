@@ -68,6 +68,7 @@ import {
     type EmbedControlEvent,
 } from "@/embed-types";
 import {MacEmulatorStats} from "@/app/MacEmulatorStats";
+import {EmulatorLogging} from "@/app/EmulatorLogging";
 import {MacEthernetStatus} from "@/app/MacEthernetStatus";
 import {saveAs} from "file-saver";
 import {CloudflareWorkerEthernetProvider} from "@/net/CloudflareWorkerEthernetProvider";
@@ -1229,6 +1230,9 @@ export default function Mac({
                     />
                 )}
             </ScreenFrame>
+            {drawersVisible && flags.debugLog && emulatorRef.current && (
+                <EmulatorLogging log={emulatorRef.current.log} />
+            )}
             {drawersVisible && (
                 <DrawersContainer>
                     {canLoadFloppies && (

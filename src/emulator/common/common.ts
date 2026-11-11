@@ -193,6 +193,7 @@ export type EmulatorWorkerConfig = EmulatorDef & {
     ethernet: EmulatorWorkerEthernetConfig;
     clipboard: EmulatorWorkerClipboardConfig;
     dateOffset: number;
+    debugLog: boolean;
     speedGovernorTargetIPS?: number;
 };
 

@@ -93,15 +93,20 @@
     margin-top: 24px;
 }
 
-.ControlsPreview-Drawer .Drawers-Container {
+.ControlsPreview-Drawer .Drawers-Container:not(.Drawers-Container-Right) {
     position: static;
     margin: 0;
     justify-content: start;
 }
 
 .ControlsPreview-Drawer .Drawer {
-    width: 100%;
     color: #000;
+}
+
+.ControlsPreview-Drawer
+    .Drawers-Container:not(.Drawers-Container-Right)
+    .Drawer {
+    width: 100%;
 }
 
 .ControlsPreview-Drawer .Drawer-Contents {
@@ -110,8 +115,21 @@
     height: 220px;
 }
 
-.ControlsPreview-Drawer .Drawer-NeXT.Drawer-Expanded .Drawer-Title {
+.ControlsPreview-Drawer
+    .Drawers-Container:not(.Drawers-Container-Right)
+    .Drawer-NeXT.Drawer-Expanded
+    .Drawer-Title {
     width: 100%;
+}
+
+.ControlsPreview-Drawer .Drawers-Container-Right {
+    position: relative;
+    min-height: 220px;
+    z-index: auto;
+}
+
+.ControlsPreview-Drawer .Drawers-Container-Right .Drawer-Contents {
+    width: min(320px, 60vw);
 }
 
 .ControlsPreview-Drawer .Drawer-Header .Input {

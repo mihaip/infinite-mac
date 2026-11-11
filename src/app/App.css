@@ -13,3 +13,7 @@
 .App.top-align {
     justify-content: start;
 }
+
+.App:has(> .Drawers-Container-Right > .Drawer-Expanded) {
+    align-items: start;
+}

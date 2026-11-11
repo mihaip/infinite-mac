@@ -362,3 +362,81 @@
         width: 100%;
     }
 }
+
+.Drawers-Container-Right {
+    top: 0;
+    left: auto;
+    margin: 0;
+    align-items: center;
+    justify-content: flex-end;
+    z-index: 3;
+}
+
+.Drawers-Container-Right .Drawer {
+    flex-direction: row;
+    align-items: center;
+}
+
+.Drawers-Container-Right .Drawer-Title {
+    top: 0;
+    left: 0;
+    transform: rotate(-90deg) translateX(50%) translateY(1px);
+    transform-origin: right bottom;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.Drawers-Container-Right .Drawer-Platinum .Drawer-Title {
+    left: -1px;
+}
+
+.Drawers-Container-Right .Drawer-Platinum .Drawer-Title:before {
+    border-right-color: #fff;
+    border-left-color: #999;
+}
+
+.Drawers-Container-Right .Drawer-NeXT .Drawer-Title {
+    border-color: #fff #fff #555 #555;
+}
+
+.Drawers-Container-Right .Drawer-Expanded.Drawer-NeXT .Drawer-Title {
+    width: auto;
+    border-color: #aaa #aaa #555 #555;
+    left: -1px;
+}
+
+.Drawers-Container-Right .Drawer-BeOS {
+    align-self: stretch;
+    align-items: flex-start;
+}
+
+.Drawers-Container-Right .Drawer-BeOS .Drawer-Title {
+    top: 0;
+    /* Anchor the rotated tab to the top of its frame. */
+    transform: translateY(-100%) rotate(-90deg) translateY(1px);
+    border-color: #989898 #989898 #989898 #606060;
+    box-shadow:
+        inset -1px 1px #ffff66,
+        inset 1px 0 #ff9800;
+}
+
+.Drawers-Container-Right
+    .Drawer-BeOS
+    .Drawer-Title:is(:active, .Control-Active) {
+    box-shadow:
+        inset -1px 1px #e68600,
+        inset 1px 0 #ffff66;
+}
+
+.Drawers-Container-Right .Drawer-BeOS.Drawer-Expanded .Drawer-Title::after {
+    left: 0.5px;
+    right: 0;
+    border-left: 0;
+    border-right: solid 1px #fff;
+}
+
+.Drawers-Container-Right .Drawer-Contents {
+    box-sizing: border-box;
+    width: min(900px, calc(100vw - 38px));
+    height: 100dvh;
+}

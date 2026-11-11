@@ -1,0 +1,8 @@
+.EmulatorLogging {
+    margin: 0;
+    padding: 8px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}

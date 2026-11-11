@@ -227,11 +227,15 @@ function AppearancePreview({
                     {status}
                 </p>
             </DialogFrame>
-            {[false, true].map(active => (
-                <div className="ControlsPreview-Drawer" key={String(active)}>
-                    <DrawersContainer>
+            {[
+                {title: "CD-ROMs"},
+                {title: "Pressed CD-ROMs", active: true},
+                {title: "Right-side CD-ROMs", placement: "right" as const},
+            ].map(({title, active, placement}) => (
+                <div className="ControlsPreview-Drawer" key={title}>
+                    <DrawersContainer placement={placement}>
                         <Drawer
-                            title={active ? "Pressed CD-ROMs" : "CD-ROMs"}
+                            title={title}
                             titleClassName={
                                 active ? "Control-Active" : undefined
                             }

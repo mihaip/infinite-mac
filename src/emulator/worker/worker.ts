@@ -866,7 +866,8 @@ async function startEmulator(config: EmulatorWorkerConfig) {
             postMessage({type: "emulator_ready"});
         },
 
-        print(...args: any[]) {
+        print(...args: unknown[]) {
+            forwardLog(args);
             // Chrome and Safari's console.groupCollapsed works like a log
             // statement, so we can use it to wrap the current stack trace,
             // which is handy for debugging.
@@ -884,7 +885,10 @@ async function startEmulator(config: EmulatorWorkerConfig) {
             }
         },
 
-        printErr: console.warn.bind(console),
+        printErr(...args: unknown[]) {
+            forwardLog(args);
+            console.warn(...args);
+        },
 
         onExit(status: number) {
             console.log("Emulator quit with status", status);
@@ -895,6 +899,15 @@ async function startEmulator(config: EmulatorWorkerConfig) {
             }
         },
     };
+
+    function forwardLog(args: unknown[]) {
+        if (config.debugLog) {
+            postMessage({
+                type: "emulator_log",
+                message: args.map(String).join(" "),
+            });
+        }
+    }
 
     async function runEmulatorModule(emulatorModule: {
         default: (module: EmscriptenModule) => Promise<EmscriptenModule>;

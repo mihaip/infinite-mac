@@ -15,12 +15,20 @@ const DrawerContainerContext = createContext({
     setAnyDrawerExpanded: (expanded: boolean) => {},
 });
 
-export function DrawersContainer({children}: PropsWithChildren) {
+export function DrawersContainer({
+    children,
+    placement = "bottom",
+}: PropsWithChildren<{placement?: "bottom" | "right"}>) {
     const [anyDrawerExpanded, setAnyDrawerExpanded] = useState(false);
     return (
         <DrawerContainerContext.Provider
             value={{anyDrawerExpanded, setAnyDrawerExpanded}}>
-            <div className="Drawers-Container">{children}</div>
+            <div
+                className={classNames("Drawers-Container", {
+                    "Drawers-Container-Right": placement === "right",
+                })}>
+                {children}
+            </div>
         </DrawerContainerContext.Provider>
     );
 }
