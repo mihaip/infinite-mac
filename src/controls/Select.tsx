@@ -5,14 +5,18 @@ import {appearanceSystemFont, useAppearance} from "@/controls/Appearance";
 export function Select({
     className,
     children,
+    noLabel,
     ...selectProps
-}: React.SelectHTMLAttributes<HTMLSelectElement>) {
+}: React.SelectHTMLAttributes<HTMLSelectElement> & {noLabel?: boolean}) {
     const appearance = useAppearance();
     const selectClassName = classNames(
         "Select",
         `Select-${appearance}`,
         appearanceSystemFont(appearance),
-        className
+        className,
+        {
+            "NoLabel": noLabel,
+        }
     );
     return (
         <select className={selectClassName} {...selectProps}>

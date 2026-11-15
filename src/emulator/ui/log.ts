@@ -17,9 +17,15 @@ export class EmulatorLog {
                 message,
             },
         ];
-        for (const listener of this.#listeners) {
-            listener();
+        this.#notifyListeners();
+    }
+
+    clear() {
+        if (!this.#messages.length) {
+            return;
         }
+        this.#messages = [];
+        this.#notifyListeners();
     }
 
     getSnapshot = (): readonly EmulatorLogMessage[] => this.#messages;
@@ -34,6 +40,12 @@ export class EmulatorLog {
     #messages: readonly EmulatorLogMessage[] = [];
     #nextMessageId = 0;
     #listeners = new Set<() => void>();
+
+    #notifyListeners() {
+        for (const listener of this.#listeners) {
+            listener();
+        }
+    }
 }
 
 export function parseEmulatorLogMessage(

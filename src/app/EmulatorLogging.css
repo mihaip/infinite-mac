@@ -1,3 +1,21 @@
+.EmulatorLogging-Container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.EmulatorLogging-Container > .Drawer-Header {
+    flex: none;
+    align-items: center;
+}
+
+.EmulatorLogging-Controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .EmulatorLogging {
     flex: 1;
     min-height: 0;
@@ -74,4 +92,14 @@
 
 .EmulatorLogMessage-Source {
     color: #5e427a;
+}
+
+.EmulatorLogging:not(.WrapLines) .EmulatorLogMessage {
+    overflow-wrap: normal;
+    white-space: pre;
+}
+
+.EmulatorLogging:not(.WrapLines) .EmulatorLogMessage-Content {
+    flex: none;
+    min-width: max-content;
 }

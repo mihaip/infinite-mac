@@ -1231,7 +1231,10 @@ export default function Mac({
                 )}
             </ScreenFrame>
             {drawersVisible && flags.debugLog && emulatorRef.current && (
-                <EmulatorLogging log={emulatorRef.current.log} />
+                <EmulatorLogging
+                    log={emulatorRef.current.log}
+                    setToastText={setEmulatorToastText}
+                />
             )}
             {drawersVisible && (
                 <DrawersContainer>

@@ -92,6 +92,13 @@ function AppearancePreview({
         setStatus(result);
         setDialogVisible(false);
     };
+    const options = (
+        <>
+            <option value="640">640 × 480</option>
+            <option value="800">800 × 600</option>
+            <option value="1024">1024 × 768</option>
+        </>
+    );
     return (
         <section className="ControlsPreview-Appearance">
             <h2>{variant ? `${appearance} · System 7` : appearance}</h2>
@@ -199,26 +206,37 @@ function AppearancePreview({
                     <div className="ControlsPreview-Row">
                         <label>
                             Resolution{" "}
-                            <Select defaultValue="800">
-                                <option value="640">640 × 480</option>
-                                <option value="800">800 × 600</option>
-                                <option value="1024">1024 × 768</option>
-                            </Select>
+                            <Select defaultValue="800">{options}</Select>
                         </label>
                         <label>
-                            Disabled{" "}
-                            <Select disabled>
-                                <option>800 × 600</option>
-                            </Select>
+                            Disabled <Select disabled>{options}</Select>
                         </label>
                         <label>
                             Pressed{" "}
                             <Select
                                 className="Control-Active"
                                 defaultValue="800">
-                                <option value="640">640 × 480</option>
-                                <option value="800">800 × 600</option>
-                                <option value="1024">1024 × 768</option>
+                                {options}
+                            </Select>
+                        </label>
+                    </div>
+                    <div className="ControlsPreview-Row">
+                        <label>
+                            No Label{" "}
+                            <Select noLabel defaultValue="800">
+                                {options}
+                            </Select>
+                        </label>
+                        <label>
+                            Pressed, no label{" "}
+                            <Select noLabel className="Control-Active">
+                                {options}
+                            </Select>
+                        </label>
+                        <label>
+                            Disabled, no label{" "}
+                            <Select noLabel disabled>
+                                {options}
                             </Select>
                         </label>
                     </div>

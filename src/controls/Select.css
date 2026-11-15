@@ -29,6 +29,11 @@
     border-radius: 2px;
 }
 
+.Select.NoLabel {
+    width: 20px;
+    color: transparent !important; /* In case the label text peeks through */
+}
+
 .Select:disabled {
     opacity: 0.5;
 }
@@ -57,6 +62,13 @@
     outline-color: #6666c5;
 }
 
+.Select.Select-Platinum.NoLabel {
+    /* Skip the separator between the label and the arrows. */
+    border-image-slice: 3 20 3 3 fill;
+    border-image-width: 3px 20px 3px 3px;
+    border-right-width: 20px;
+}
+
 .Select.Select-Aqua {
     border-image-source: url("@/Images/AquaSelect.png");
     border-image-slice: 12 24 12 9 fill;
@@ -78,6 +90,19 @@
     border-radius: 3px;
 }
 
+.Select.Select-Aqua.NoLabel {
+    /* Keep just the blue arrow end of the existing artwork. */
+    border: 0;
+    border-image: none;
+    width: 24px;
+    border-radius: 6px;
+    background: url("@/Images/AquaSelect.png") right top no-repeat;
+}
+
+.Select.Select-Aqua.NoLabel:is(:active, .Control-Active) {
+    background-image: url("@/Images/AquaSelect-Active.png");
+}
+
 .Select.Select-NeXT {
     border-image-source: url("@/Images/NeXTSelect.png");
 }
@@ -85,6 +110,12 @@
 .Select.Select-NeXT:is(:active, .Control-Active) {
     color: #000;
     border-image-source: url("@/Images/NeXTSelect-Active.png");
+}
+
+.Select.Select-NeXT.NoLabel {
+    border-image-slice: 3 17 3 3 fill;
+    border-image-width: 3px 17px 3px 3px;
+    border-right-width: 17px;
 }
 
 .Select.Select-BeOS {
