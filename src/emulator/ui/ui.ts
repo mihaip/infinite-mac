@@ -168,7 +168,7 @@ export type EmulatorFallbackCommandSender = (
 ) => void;
 
 export class Emulator {
-    readonly log = new EmulatorLog();
+    readonly log: EmulatorLog;
 
     #config: EmulatorConfig;
     #delegate?: EmulatorDelegate;
@@ -212,6 +212,8 @@ export class Emulator {
     #lastTrackpadMode = false;
 
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
+        this.log = new EmulatorLog(config.machine.emulatorType);
+
         this.#config = config;
         this.#delegate = delegate;
         this.#worker = new Worker();

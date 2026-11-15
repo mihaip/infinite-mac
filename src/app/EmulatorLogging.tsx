@@ -1,12 +1,17 @@
 import {
     useCallback,
     useLayoutEffect,
+    useMemo,
     useRef,
     useSyncExternalStore,
 } from "react";
 import {observeElementRect, useVirtualizer} from "@tanstack/react-virtual";
 import {Drawer, DrawerContents, DrawersContainer} from "@/controls/Drawer";
-import {type EmulatorLog, type EmulatorLogMessage} from "@/emulator/ui/log";
+import {
+    type EmulatorLog,
+    type EmulatorLogMessage,
+    parseEmulatorLogMessage,
+} from "@/emulator/ui/log";
 import noteIcon from "@/Images/Note.png";
 import "@/app/EmulatorLogging.css";
 
@@ -71,9 +76,11 @@ function EmulatorLogOutput({log}: {log: EmulatorLog}) {
         <div
             className="EmulatorLogging"
             ref={scrollRef}
-            tabIndex={0}
             role="region"
             aria-label="Emulator debug log"
+            // Capture key events so that arrow keys, etc. can be used to scroll
+            // when we're focused.
+            tabIndex={0}
             onKeyDown={e => e.stopPropagation()}
             onKeyUp={e => e.stopPropagation()}>
             {messages.length ? (
@@ -103,5 +110,50 @@ function EmulatorLogOutput({log}: {log: EmulatorLog}) {
 }
 
 function EmulatorLogMessageView({message}: {message: EmulatorLogMessage}) {
-    return <pre className="EmulatorLogMessage">{message.message}</pre>;
+    const {parsed, timestamp, formattedTimestamp} = useMemo(() => {
+        const parsed = parseEmulatorLogMessage(message);
+        const timestamp = new Date(parsed.timestamp);
+        const formattedTimestamp = logTimeFormatter.format(timestamp);
+        return {parsed, timestamp, formattedTimestamp};
+    }, [message]);
+
+    return (
+        <pre className="EmulatorLogMessage" data-level={parsed.level}>
+            <time
+                className="EmulatorLogMessage-Timestamp"
+                dateTime={timestamp.toISOString()}
+                title={timestamp.toString()}>
+                {formattedTimestamp}
+            </time>
+            <span className="EmulatorLogMessage-Content">
+                {parsed.level && (
+                    <>
+                        <span className="EmulatorLogMessage-Level">
+                            {parsed.level}
+                        </span>{" "}
+                    </>
+                )}
+                {parsed.source && (
+                    <>
+                        <span className="EmulatorLogMessage-Source">
+                            {parsed.source}
+                            {parsed.sourceLine !== undefined &&
+                                `:${parsed.sourceLine}`}
+                        </span>{" "}
+                    </>
+                )}
+                <span className="EmulatorLogMessage-Text">
+                    {parsed.message}
+                </span>
+            </span>
+        </pre>
+    );
 }
+
+const logTimeFormatter = new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    fractionalSecondDigits: 3,
+    hourCycle: "h23",
+});

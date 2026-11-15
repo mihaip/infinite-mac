@@ -6,9 +6,12 @@
     overflow: auto;
     overflow-anchor: none;
     overscroll-behavior: contain;
-    font-family: monospace;
-    font-size: 13px;
-    line-height: 18px;
+    outline: none;
+}
+
+.EmulatorLogging-Waiting {
+    margin: 8px;
+    color: #666;
 }
 
 .EmulatorLogging-List {
@@ -22,16 +25,53 @@
     width: 100%;
 }
 
+.EmulatorLogging-Row:hover {
+    background-color: #ffb;
+}
+
 .EmulatorLogMessage {
+    display: flex;
+    gap: 1ch;
     min-height: 18px;
     margin: 0;
     padding: 0 8px;
-    font: inherit;
     overflow-wrap: anywhere;
     white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 18px;
 }
 
-.EmulatorLogging-Waiting {
-    margin: 8px;
-    font: inherit;
+.EmulatorLogMessage-Timestamp {
+    flex: none;
+    color: #666;
+    white-space: nowrap;
+}
+
+.EmulatorLogMessage-Content {
+    flex: 1;
+    min-width: 0;
+}
+
+.EmulatorLogMessage-Level {
+    color: #245b85;
+    font-weight: bold;
+}
+
+.EmulatorLogMessage:is([data-level="TRACE"], [data-level="DEBUG"])
+    .EmulatorLogMessage-Level {
+    color: #666;
+}
+
+.EmulatorLogMessage[data-level="WARN"] .EmulatorLogMessage-Level {
+    color: #8a4b00;
+}
+
+.EmulatorLogMessage:is([data-level="ERROR"], [data-level="FATAL"])
+    .EmulatorLogMessage-Level {
+    color: #b00020;
+}
+
+.EmulatorLogMessage-Source {
+    color: #5e427a;
 }
