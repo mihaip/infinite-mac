@@ -1,11 +1,16 @@
-import {useSyncExternalStore} from "react";
+import {
+    useCallback,
+    useLayoutEffect,
+    useRef,
+    useSyncExternalStore,
+} from "react";
+import {observeElementRect, useVirtualizer} from "@tanstack/react-virtual";
 import {Drawer, DrawerContents, DrawersContainer} from "@/controls/Drawer";
-import {type EmulatorLog} from "@/emulator/ui/log";
+import {type EmulatorLog, type EmulatorLogMessage} from "@/emulator/ui/log";
 import noteIcon from "@/Images/Note.png";
 import "@/app/EmulatorLogging.css";
 
 export function EmulatorLogging({log}: {log: EmulatorLog}) {
-    const messages = useSyncExternalStore(log.subscribe, log.getSnapshot);
     return (
         <DrawersContainer placement="right">
             <Drawer
@@ -13,18 +18,90 @@ export function EmulatorLogging({log}: {log: EmulatorLog}) {
                 titleIconUrl={noteIcon}
                 contents={() => (
                     <DrawerContents>
-                        <pre
-                            className="EmulatorLogging"
-                            tabIndex={0}
-                            onKeyDown={e => e.stopPropagation()}
-                            onKeyUp={e => e.stopPropagation()}>
-                            {messages.length
-                                ? messages.join("\n")
-                                : "Waiting for log output…"}
-                        </pre>
+                        <EmulatorLogOutput log={log} />
                     </DrawerContents>
                 )}
             />
         </DrawersContainer>
     );
+}
+
+function EmulatorLogOutput({log}: {log: EmulatorLog}) {
+    const messages = useSyncExternalStore(log.subscribe, log.getSnapshot);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    // TanStack Virtual exposes mutable state through the virtualizer instance.
+    // oxlint-disable-next-line react/incompatible-library
+    const virtualizer = useVirtualizer({
+        count: messages.length,
+        getScrollElement: () => scrollRef.current,
+        getItemKey: useCallback(index => messages[index].id, [messages]),
+        estimateSize: () => 18,
+        overscan: 10,
+        anchorTo: "end",
+        followOnAppend: true,
+        scrollEndThreshold: 8,
+        observeElementRect(instance, onRect) {
+            return observeElementRect(instance, rect => {
+                const previousHeight = instance.scrollRect?.height;
+                // isAtEnd() reads the already-resized DOM clientHeight, so use
+                // the cached previous height to check whether we were at the end.
+                const wasAtEnd =
+                    instance.getTotalSize() -
+                        (previousHeight ?? 0) -
+                        (instance.scrollOffset ?? 0) <=
+                    instance.options.scrollEndThreshold;
+                onRect(rect);
+                // Keep following when a viewport resize reduces its height.
+                if (
+                    previousHeight !== undefined &&
+                    previousHeight !== rect.height &&
+                    wasAtEnd
+                ) {
+                    instance.scrollToEnd();
+                }
+            });
+        },
+    });
+
+    useLayoutEffect(() => {
+        virtualizer.scrollToEnd();
+    }, [log, virtualizer]);
+
+    return (
+        <div
+            className="EmulatorLogging"
+            ref={scrollRef}
+            tabIndex={0}
+            role="region"
+            aria-label="Emulator debug log"
+            onKeyDown={e => e.stopPropagation()}
+            onKeyUp={e => e.stopPropagation()}>
+            {messages.length ? (
+                <div
+                    className="EmulatorLogging-List"
+                    style={{height: virtualizer.getTotalSize()}}>
+                    {virtualizer.getVirtualItems().map(item => (
+                        <div
+                            className="EmulatorLogging-Row"
+                            key={item.key}
+                            ref={virtualizer.measureElement}
+                            data-index={item.index}
+                            style={{top: item.start}}>
+                            <EmulatorLogMessageView
+                                message={messages[item.index]}
+                            />
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <pre className="EmulatorLogging-Waiting">
+                    Waiting for log output…
+                </pre>
+            )}
+        </div>
+    );
+}
+
+function EmulatorLogMessageView({message}: {message: EmulatorLogMessage}) {
+    return <pre className="EmulatorLogMessage">{message.message}</pre>;
 }

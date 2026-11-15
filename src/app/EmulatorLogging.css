@@ -1,8 +1,37 @@
 .EmulatorLogging {
-    margin: 0;
-    padding: 8px;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
     overflow: auto;
+    overflow-anchor: none;
     overscroll-behavior: contain;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 18px;
+}
+
+.EmulatorLogging-List {
+    position: relative;
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+.EmulatorLogging-Row {
+    position: absolute;
+    width: 100%;
+}
+
+.EmulatorLogMessage {
+    min-height: 18px;
+    margin: 0;
+    padding: 0 8px;
+    font: inherit;
     overflow-wrap: anywhere;
     white-space: pre-wrap;
+}
+
+.EmulatorLogging-Waiting {
+    margin: 8px;
+    font: inherit;
 }

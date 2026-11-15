@@ -1,13 +1,15 @@
 export class EmulatorLog {
     append(message: string) {
-        // Keep the most recent 1,000 messages.
-        this.#messages = [...this.#messages.slice(-999), message];
+        this.#messages = [
+            ...this.#messages,
+            {id: this.#nextMessageId++, message},
+        ];
         for (const listener of this.#listeners) {
             listener();
         }
     }
 
-    getSnapshot = (): readonly string[] => this.#messages;
+    getSnapshot = (): readonly EmulatorLogMessage[] => this.#messages;
 
     subscribe = (listener: () => void) => {
         this.#listeners.add(listener);
@@ -16,6 +18,12 @@ export class EmulatorLog {
         };
     };
 
-    #messages: readonly string[] = [];
+    #messages: readonly EmulatorLogMessage[] = [];
+    #nextMessageId = 0;
     #listeners = new Set<() => void>();
 }
+
+export type EmulatorLogMessage = {
+    readonly id: number;
+    readonly message: string;
+};
