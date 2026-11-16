@@ -8,7 +8,7 @@ export class EmulatorLog {
         this.#emulatorType = emulatorType;
     }
 
-    append(message: string) {
+    append(message: string, level?: EmulatorLogLevel) {
         this.#messages = [
             ...this.#messages,
             {
@@ -16,9 +16,21 @@ export class EmulatorLog {
                 emulatorType: this.#emulatorType,
                 timestamp: Date.now(),
                 message,
+                level,
             },
         ];
         this.#notifyListeners();
+    }
+
+    appendError(error: string, errorRaw = error, stack?: string) {
+        let details = errorRaw;
+        if (stack) {
+            details = stack.includes(details) ? stack : `${details}\n${stack}`;
+        }
+        this.append(
+            details.includes(error) ? details : `${error}\n${details}`,
+            "ERROR"
+        );
     }
 
     clear() {
@@ -52,6 +64,9 @@ export class EmulatorLog {
 export function parseEmulatorLogMessage(
     logMessage: EmulatorLogMessage
 ): EmulatorParsedLogMessage {
+    if (logMessage.level) {
+        return logMessage;
+    }
     switch (logMessage.emulatorType) {
         case "Snow":
             return parseSnowLogMessage(logMessage);
@@ -104,10 +119,10 @@ export type EmulatorLogMessage = {
     readonly emulatorType: EmulatorType;
     readonly timestamp: number;
     readonly message: string;
+    readonly level?: EmulatorLogLevel;
 };
 
 export type EmulatorParsedLogMessage = EmulatorLogMessage & {
-    readonly level?: EmulatorLogLevel;
     readonly source?: string;
     readonly sourceLine?: number;
 };

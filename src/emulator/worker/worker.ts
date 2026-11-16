@@ -95,13 +95,26 @@ addEventListener("unhandledrejection", (event: PromiseRejectionEvent) => {
     reportEmulatorError(event.reason);
 });
 
+addEventListener("error", (event: ErrorEvent) => {
+    reportEmulatorError(event.error ?? event.message);
+});
+
 function reportEmulatorError(reason: unknown) {
     console.error(reason);
     const reasonString = String(reason);
+    const errorStack = reason instanceof Error ? reason.stack : undefined;
     if (reasonString.toLowerCase().includes("out of memory")) {
-        postMessage({type: "emulator_did_run_out_memory"});
+        postMessage({
+            type: "emulator_did_run_out_memory",
+            error: reasonString,
+            errorStack,
+        });
     } else {
-        postMessage({type: "emulator_did_have_error", error: reasonString});
+        postMessage({
+            type: "emulator_did_have_error",
+            error: reasonString,
+            errorStack,
+        });
     }
 }
 
@@ -287,7 +300,11 @@ class EmulatorWorkerApi {
             error = this.#abortError;
             this.#abortError = undefined;
         }
-        postMessage({type: "emulator_did_have_error", error});
+        postMessage({
+            type: "emulator_did_have_error",
+            error,
+            errorStack: toThrow?.stack,
+        });
     }
 
     reportError(error: string) {

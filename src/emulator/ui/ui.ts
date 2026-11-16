@@ -1155,8 +1155,18 @@ export class Emulator {
                 }
             );
         } else if (e.data.type === "emulator_did_run_out_memory") {
+            this.log.appendError(
+                String(e.data.error ?? "The emulator ran out of memory."),
+                undefined,
+                e.data.errorStack
+            );
             this.#delegate?.emulatorDidRunOutOfMemory?.(this);
         } else if (e.data.type === "emulator_did_have_error") {
+            this.log.appendError(
+                String(e.data.error),
+                String(e.data.errorRaw ?? e.data.error),
+                e.data.errorStack
+            );
             this.#delegate?.emulatorDidHaveError?.(
                 this,
                 String(e.data.error),
