@@ -1,4 +1,5 @@
 import {type EmulatorType} from "@/emulator/common/emulators";
+import {parseSearchQuery} from "@/lib/search";
 
 export class EmulatorLog {
     #emulatorType: EmulatorType;
@@ -59,6 +60,43 @@ export function parseEmulatorLogMessage(
         default:
             return logMessage;
     }
+}
+
+export function createEmulatorLogSearchPredicate(
+    query: string
+): (message: EmulatorLogMessage) => boolean {
+    const terms = parseSearchQuery(query);
+    // Messages are immutable. Only evaluate newly appended messages while the
+    // query stays the same, rather than reparsing the whole buffer each frame.
+    const results = new WeakMap<EmulatorLogMessage, boolean>();
+    return message => {
+        const cached = results.get(message);
+        if (cached !== undefined) {
+            return cached;
+        }
+        let text: string | undefined;
+        let parsed: EmulatorParsedLogMessage | undefined;
+        const matches = terms.every(term => {
+            switch (term.operator) {
+                case undefined:
+                    text ??= message.message.toLowerCase();
+                    return text.includes(term.value);
+                case "level":
+                    parsed ??= parseEmulatorLogMessage(message);
+                    return parsed.level?.toLowerCase() === term.value;
+                case "file":
+                    parsed ??= parseEmulatorLogMessage(message);
+                    return (
+                        parsed.source?.toLowerCase().includes(term.value) ??
+                        false
+                    );
+                default:
+                    return false;
+            }
+        });
+        results.set(message, matches);
+        return matches;
+    };
 }
 
 export type EmulatorLogMessage = {

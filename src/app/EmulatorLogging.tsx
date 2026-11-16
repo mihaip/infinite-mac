@@ -14,6 +14,7 @@ import {
 } from "@tanstack/react-virtual";
 import {saveAs} from "file-saver";
 import {Button} from "@/controls/Button";
+import {Input} from "@/controls/Input";
 import {Select} from "@/controls/Select";
 import {
     Drawer,
@@ -24,6 +25,7 @@ import {
 import {
     type EmulatorLog,
     type EmulatorLogMessage,
+    createEmulatorLogSearchPredicate,
     parseEmulatorLogMessage,
 } from "@/emulator/ui/log";
 import noteIcon from "@/Images/Note.png";
@@ -38,6 +40,7 @@ export function EmulatorLogging({
     setToastText: ToastSetter;
 }) {
     const [wrapLines, setWrapLines] = useState(true);
+    const [search, setSearch] = useState("");
     const pauseableLog = useMemo(() => new EmulatorPauseableLog(log), [log]);
     return (
         <DrawersContainer placement="right">
@@ -48,6 +51,8 @@ export function EmulatorLogging({
                     <DrawerContents>
                         <EmulatorLogOutput
                             log={pauseableLog}
+                            search={search}
+                            onSearchChange={setSearch}
                             wrapLines={wrapLines}
                             onWrapLinesChange={setWrapLines}
                             setToastText={setToastText}
@@ -58,26 +63,32 @@ export function EmulatorLogging({
         </DrawersContainer>
     );
 }
+
 type ToastSetter = (text: string, timeout?: number) => void;
 
 function EmulatorLogOutput({
     log,
+    search,
+    onSearchChange,
     wrapLines,
     onWrapLinesChange,
     setToastText,
 }: {
     log: EmulatorPauseableLog;
+    search: string;
+    onSearchChange: (value: string) => void;
     wrapLines: boolean;
     onWrapLinesChange: (wrapLines: boolean) => void;
     setToastText: ToastSetter;
 }) {
-    const messages = useSyncExternalStore(log.subscribe, log.getSnapshot);
+    const rawMessages = useSyncExternalStore(log.subscribe, log.getSnapshot);
+    const messages = useSearchFilter(rawMessages, search);
     const {virtualizer, scrollRef, handleWrapLinesChange} =
         useEmulatorLogVirtualizer({messages, wrapLines, onWrapLinesChange});
     // Start out scrolled to the bottom
     useLayoutEffect(() => {
         virtualizer.scrollToEnd();
-    }, [log, virtualizer]);
+    }, [log, search, virtualizer]);
 
     return (
         <div
@@ -87,6 +98,8 @@ function EmulatorLogOutput({
             onKeyUp={e => e.stopPropagation()}>
             <EmulatorLogHeader
                 log={log}
+                search={search}
+                onSearchChange={onSearchChange}
                 onWrapLinesChange={handleWrapLinesChange}
                 wrapLines={wrapLines}
                 setToastText={setToastText}
@@ -118,9 +131,11 @@ function EmulatorLogOutput({
                     </div>
                 ) : (
                     <pre className="EmulatorLogging-Waiting">
-                        {log.isPaused()
-                            ? "Log updates paused."
-                            : "Waiting for log output…"}
+                        {rawMessages.length
+                            ? "No log messages match your search."
+                            : log.isPaused()
+                              ? "Log updates paused."
+                              : "Waiting for log output…"}
                     </pre>
                 )}
             </div>
@@ -130,11 +145,15 @@ function EmulatorLogOutput({
 
 function EmulatorLogHeader({
     log,
+    search,
+    onSearchChange,
     wrapLines,
     onWrapLinesChange,
     setToastText,
 }: {
     log: EmulatorPauseableLog;
+    search: string;
+    onSearchChange: (value: string) => void;
     wrapLines: boolean;
     onWrapLinesChange: (value: boolean) => void;
     setToastText: ToastSetter;
@@ -185,26 +204,38 @@ function EmulatorLogHeader({
 
     return (
         <DrawerHeader>
+            <Input
+                type="search"
+                className="EmulatorLogging-Search"
+                aria-label="Filter log"
+                placeholder="Filter log…"
+                title={
+                    'Combine words, "quoted phrases", level:WARN, and file:ppcmmu.cpp.'
+                }
+                spellCheck={false}
+                value={search}
+                onChange={e => onSearchChange(e.currentTarget.value)}
+            />
             <div className="EmulatorLogging-Controls">
                 <Button onClick={handlePauseResume}>
                     {log.isPaused() ? "Resume" : "Pause"}
                 </Button>
                 <Button onClick={handleClear}>Clear</Button>
+                <Select
+                    className="EmulatorLogging-MoreActions"
+                    aria-label="More log actions"
+                    noLabel
+                    value=""
+                    onChange={e => handleMoreAction(e.currentTarget.value)}>
+                    <option value="" disabled hidden />
+                    <option value="download">Download Log</option>
+                    <option value="copy">Copy Log</option>
+                    <option value="separator" disabled />
+                    <option value="wrap">
+                        {wrapLines ? "✓ Wrap Lines" : "Wrap Lines"}
+                    </option>
+                </Select>
             </div>
-            <Select
-                className="EmulatorLogging-MoreActions"
-                aria-label="More log actions"
-                noLabel
-                value=""
-                onChange={e => handleMoreAction(e.currentTarget.value)}>
-                <option value="" disabled hidden />
-                <option value="download">Download Log</option>
-                <option value="copy">Copy Log</option>
-                <option value="separator" disabled />
-                <option value="wrap">
-                    {wrapLines ? "✓ Wrap Lines" : "Wrap Lines"}
-                </option>
-            </Select>
         </DrawerHeader>
     );
 }
@@ -465,4 +496,23 @@ class EmulatorPauseableLog {
             });
         }
     }
+}
+
+function useSearchFilter(
+    rawMessages: readonly EmulatorLogMessage[],
+    search: string
+): readonly EmulatorLogMessage[] {
+    const searchPredicate = useMemo(
+        () =>
+            search.trim()
+                ? createEmulatorLogSearchPredicate(search)
+                : undefined,
+        [search]
+    );
+    const messages = useMemo(
+        () =>
+            searchPredicate ? rawMessages.filter(searchPredicate) : rawMessages,
+        [rawMessages, searchPredicate]
+    );
+    return messages;
 }

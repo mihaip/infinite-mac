@@ -11,9 +11,15 @@
 }
 
 .EmulatorLogging-Controls {
+    flex: none;
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+.EmulatorLogging-Search {
+    flex: 1;
+    min-width: 0;
 }
 
 .EmulatorLogging {
