@@ -7,8 +7,9 @@ import {
     useSyncExternalStore,
 } from "react";
 import {
+    elementScroll,
+    observeElementOffset,
     observeElementRect,
-    type ReactVirtualizer,
     useVirtualizer,
 } from "@tanstack/react-virtual";
 import {saveAs} from "file-saver";
@@ -71,50 +72,12 @@ function EmulatorLogOutput({
     setToastText: ToastSetter;
 }) {
     const messages = useSyncExternalStore(log.subscribe, log.getSnapshot);
-    const scrollRef = useRef<HTMLDivElement>(null);
-    // TanStack Virtual exposes mutable state through the virtualizer instance.
-    // oxlint-disable-next-line react/incompatible-library
-    const virtualizer = useVirtualizer({
-        count: messages.length,
-        getScrollElement: () => scrollRef.current,
-        getItemKey: useCallback(index => messages[index].id, [messages]),
-        estimateSize: () => 18,
-        overscan: 10,
-        anchorTo: "end",
-        followOnAppend: true,
-        scrollEndThreshold: 8,
-        observeElementRect(instance, onRect) {
-            return observeElementRect(instance, rect => {
-                const previousHeight = instance.scrollRect?.height;
-                // isAtEnd() reads the already-resized DOM clientHeight, so use
-                // the cached previous height to check whether we were at the end.
-                const wasAtEnd =
-                    instance.getTotalSize() -
-                        (previousHeight ?? 0) -
-                        (instance.scrollOffset ?? 0) <=
-                    instance.options.scrollEndThreshold;
-                onRect(rect);
-                // Keep following when a viewport resize reduces its height.
-                if (
-                    previousHeight !== undefined &&
-                    previousHeight !== rect.height &&
-                    wasAtEnd
-                ) {
-                    instance.scrollToEnd();
-                }
-            });
-        },
-    });
-
+    const {virtualizer, scrollRef, handleWrapLinesChange} =
+        useEmulatorLogVirtualizer({messages, wrapLines, onWrapLinesChange});
+    // Start out scrolled to the bottom
     useLayoutEffect(() => {
         virtualizer.scrollToEnd();
     }, [log, virtualizer]);
-
-    const handleWrapLinesChange = useWrapLines({
-        virtualizer,
-        scrollRef,
-        onWrapLinesChange,
-    });
 
     return (
         <div
@@ -162,51 +125,6 @@ function EmulatorLogOutput({
                 )}
             </div>
         </div>
-    );
-}
-
-function useWrapLines({
-    virtualizer,
-    scrollRef,
-    onWrapLinesChange,
-}: {
-    virtualizer: ReactVirtualizer<HTMLDivElement, Element>;
-    scrollRef: React.RefObject<HTMLDivElement>;
-    onWrapLinesChange: (value: boolean) => void;
-}) {
-    const wrapScrollAnchor = useRef<{atEnd: boolean; index: number}>();
-
-    useLayoutEffect(() => {
-        const anchor = wrapScrollAnchor.current;
-        if (!anchor) {
-            return;
-        }
-        wrapScrollAnchor.current = undefined;
-        virtualizer.measure();
-        // Explicit multiline rows may keep the same height, so ResizeObserver
-        // won't remeasure them after the cache is cleared.
-        scrollRef.current
-            ?.querySelectorAll<HTMLDivElement>(".EmulatorLogging-Row")
-            .forEach(element => virtualizer.measureElement(element));
-        if (anchor.atEnd) {
-            virtualizer.scrollToEnd();
-        } else {
-            virtualizer.scrollToIndex(anchor.index, {align: "start"});
-        }
-    }, [virtualizer, scrollRef.current]);
-
-    return useCallback(
-        (value: boolean) => {
-            wrapScrollAnchor.current = {
-                atEnd: virtualizer.isAtEnd(),
-                index:
-                    virtualizer.getVirtualItemForOffset(
-                        virtualizer.scrollOffset ?? 0
-                    )?.index ?? 0,
-            };
-            onWrapLinesChange(value);
-        },
-        [virtualizer, onWrapLinesChange]
     );
 }
 
@@ -332,6 +250,122 @@ function EmulatorLogMessageView({message}: {message: EmulatorLogMessage}) {
     );
 }
 
+function useEmulatorLogVirtualizer({
+    messages,
+    wrapLines,
+    onWrapLinesChange,
+}: {
+    messages: readonly EmulatorLogMessage[];
+    wrapLines: boolean;
+    onWrapLinesChange: (value: boolean) => void;
+}) {
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const reportScrollOffset =
+        useRef<(offset: number, isScrolling: boolean) => void>();
+    // TanStack Virtual exposes mutable state through the virtualizer instance.
+    // oxlint-disable-next-line react/incompatible-library
+    const virtualizer = useVirtualizer({
+        count: messages.length,
+        getScrollElement: () => scrollRef.current,
+        getItemKey: useCallback(index => messages[index].id, [messages]),
+        estimateSize: () => 18,
+        overscan: 10,
+        anchorTo: "end",
+        followOnAppend: true,
+        scrollEndThreshold: 8,
+        // Following new messages can scroll past the rendered rows before the
+        // browser sends a scroll event, briefly showing a blank log. Report
+        // non-smooth scroll changes ourselves, after React finishes its current
+        // update but before the browser draws the next frame. This lets
+        // TanStack render the rows at the new position in time.
+        observeElementOffset(instance, onOffset) {
+            reportScrollOffset.current = onOffset;
+            const unsubscribe = observeElementOffset(instance, onOffset);
+            return () => {
+                reportScrollOffset.current = undefined;
+                unsubscribe?.();
+            };
+        },
+        scrollToFn(offset, options, instance) {
+            const previousOffset = instance.scrollElement?.scrollTop;
+            elementScroll(offset, options, instance);
+            if (
+                options.behavior !== "smooth" &&
+                instance.scrollElement &&
+                instance.scrollElement.scrollTop !== previousOffset
+            ) {
+                queueMicrotask(() => {
+                    if (instance.scrollElement) {
+                        reportScrollOffset.current?.(
+                            instance.scrollElement.scrollTop,
+                            true
+                        );
+                    }
+                });
+            }
+        },
+        // Keep following when a viewport resize reduces its height.
+        observeElementRect(instance, onRect) {
+            return observeElementRect(instance, rect => {
+                const previousHeight = instance.scrollRect?.height;
+                // isAtEnd() reads the already-resized DOM clientHeight, so use
+                // the cached previous height to check whether we were at the end.
+                const wasAtEnd =
+                    instance.getTotalSize() -
+                        (previousHeight ?? 0) -
+                        (instance.scrollOffset ?? 0) <=
+                    instance.options.scrollEndThreshold;
+                onRect(rect);
+                if (
+                    previousHeight !== undefined &&
+                    previousHeight !== rect.height &&
+                    wasAtEnd
+                ) {
+                    instance.scrollToEnd();
+                }
+            });
+        },
+    });
+
+    // Preserve logical scroll position when toggling wrapped lines.
+    const wrapScrollAnchor = useRef<{atEnd: boolean; index: number}>();
+
+    useLayoutEffect(() => {
+        const anchor = wrapScrollAnchor.current;
+        if (!anchor) {
+            return;
+        }
+        wrapScrollAnchor.current = undefined;
+        virtualizer.measure();
+        // Explicit multiline rows may keep the same height, so ResizeObserver
+        // won't remeasure them after the cache is cleared.
+        scrollRef.current
+            ?.querySelectorAll<HTMLDivElement>(".EmulatorLogging-Row")
+            .forEach(element => virtualizer.measureElement(element));
+        if (anchor.atEnd) {
+            virtualizer.scrollToEnd();
+        } else {
+            virtualizer.scrollToIndex(anchor.index, {align: "start"});
+        }
+    }, [virtualizer, scrollRef, wrapLines]);
+
+    const handleWrapLinesChange = useCallback(
+        (value: boolean) => {
+            wrapScrollAnchor.current = {
+                atEnd: virtualizer.isAtEnd(),
+                index:
+                    virtualizer.getVirtualItemForOffset(
+                        virtualizer.scrollOffset ?? 0
+                    )?.index ?? 0,
+            };
+            onWrapLinesChange(value);
+        },
+        [virtualizer, onWrapLinesChange]
+    );
+
+    return {virtualizer, scrollRef, handleWrapLinesChange};
+}
+
 const logTimeFormatter = new Intl.DateTimeFormat(undefined, {
     hour: "2-digit",
     minute: "2-digit",
@@ -392,16 +426,28 @@ class EmulatorPauseableLog {
     #listeners = new Set<() => void>();
 
     #notifyListeners(): void {
+        this.#cancelNotificationFrame();
         for (const listener of this.#listeners) {
             listener();
         }
     }
 
+    #cancelNotificationFrame(): void {
+        if (this.#notificationFrame !== undefined) {
+            cancelAnimationFrame(this.#notificationFrame);
+            this.#notificationFrame = undefined;
+        }
+    }
+
     #removeUpstreamSubscription: (() => void) | undefined;
+    #notificationFrame: number | undefined;
 
     #updateUpstreamSubscription(): void {
         const needsUpstreamSubscription =
             this.#listeners.size > 0 && !this.isPaused();
+        if (!needsUpstreamSubscription) {
+            this.#cancelNotificationFrame();
+        }
         if (!needsUpstreamSubscription && this.#removeUpstreamSubscription) {
             this.#removeUpstreamSubscription();
             this.#removeUpstreamSubscription = undefined;
@@ -410,7 +456,12 @@ class EmulatorPauseableLog {
             needsUpstreamSubscription
         ) {
             this.#removeUpstreamSubscription = this.#log.subscribe(() => {
-                this.#notifyListeners();
+                // Keep collecting every message, but render at most once per
+                // frame instead of once per worker postMessage.
+                this.#notificationFrame ??= requestAnimationFrame(() => {
+                    this.#notificationFrame = undefined;
+                    this.#notifyListeners();
+                });
             });
         }
     }
