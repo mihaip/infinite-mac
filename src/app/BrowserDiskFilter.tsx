@@ -15,26 +15,18 @@ import {DialogFrame} from "@/controls/Dialog";
 import {Select} from "@/controls/Select";
 import {useIsoPersistentState} from "@/lib/useIsoPersistentState";
 import {iso} from "@/lib/iso";
-import {isBeOSLaunched} from "@/flags";
 import "@/app/BrowserDiskFilter.css";
 
 export function browserDisks() {
     type Filter = (d: SystemDiskDef | PlaceholderDiskDef) => boolean;
 
-    const beosLaunched = isBeOSLaunched();
-
-    const beosFilter: Filter = d => beosLaunched || d.family !== "beos";
-
     function makeEntry(label: string, filter: Filter) {
         return {
             label,
-            all: ALL_DISKS.filter(filter).filter(beosFilter),
+            all: ALL_DISKS.filter(filter),
             byYear: Object.fromEntries(
                 Object.entries(DISKS_BY_YEAR)
-                    .map(([year, disks]) => [
-                        year,
-                        disks.filter(filter).filter(beosFilter),
-                    ])
+                    .map(([year, disks]) => [year, disks.filter(filter)])
                     .filter(([, disks]) => disks.length > 0)
             ) as {[year: string]: (SystemDiskDef | PlaceholderDiskDef)[]},
         };

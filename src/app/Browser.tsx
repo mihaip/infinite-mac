@@ -26,7 +26,6 @@ import {
 import {Embed} from "@/app/Embed";
 import {EmbedDocs} from "@/app/EmbedDocs";
 import {iso} from "@/lib/iso";
-import {isBeOSLaunched} from "@/flags";
 
 type BrowserRunFn = (def: RunDef, inNewWindow?: boolean) => void;
 
@@ -109,7 +108,6 @@ function Description({
     const [embedDocsVisible, setEmbedDocsVisible] = useState(
         location.pathname === "/embed-docs"
     );
-    const beosLaunched = isBeOSLaunched();
 
     return (
         <div className="Description">
@@ -119,11 +117,11 @@ function Description({
                 comfort of a web browser.
             </p>
             <p>
-                Pick any version of System Software, A/UX, NeXTStep, Mac OS
-                {beosLaunched && ", BeOS"} or Mac OS X from the 1980s, 1990s or
-                early 2000s and run it within a virtual machine. An “Infinite
-                HD” disk with representative software from that era is also
-                available. You can also{" "}
+                Pick any version of System Software, A/UX, NeXTStep, Mac OS,
+                BeOS, or Mac OS X from the 1980s, 1990s or early 2000s and run
+                it within a virtual machine. An “Infinite HD” disk with
+                representative software from that era is also available. You can
+                also{" "}
                 <a
                     href="/run"
                     onClick={e => {
