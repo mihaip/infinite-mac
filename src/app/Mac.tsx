@@ -42,7 +42,10 @@ import {
     resetDiskSaver,
     saveDiskSaverImage,
 } from "@/emulator/ui/disk-saver";
-import {emulatorNeedsMouseDeltas} from "@/emulator/common/emulators";
+import {
+    emulatorNeedsMouseDeltas,
+    emulatorSupportsResEdit,
+} from "@/emulator/common/emulators";
 import {
     runDefSupportsBlueSCSI,
     runDefSupportsCDROMs,
@@ -69,6 +72,7 @@ import {
 } from "@/embed-types";
 import {MacEmulatorStats} from "@/app/MacEmulatorStats";
 import {EmulatorLogging} from "@/app/EmulatorLogging";
+import {MacResources} from "@/app/MacResources";
 import {MacEthernetStatus} from "@/app/MacEthernetStatus";
 import {saveAs} from "file-saver";
 import {CloudflareWorkerEthernetProvider} from "@/net/CloudflareWorkerEthernetProvider";
@@ -1230,11 +1234,19 @@ export default function Mac({
                     />
                 )}
             </ScreenFrame>
-            {drawersVisible && flags.debugLog && emulatorRef.current && (
-                <EmulatorLogging
-                    log={emulatorRef.current.log}
-                    setToastText={setEmulatorToastText}
-                />
+            {drawersVisible && (
+                <DrawersContainer placement="right">
+                    {flags.resEdit === true &&
+                        emulatorSupportsResEdit(emulatorType) && (
+                            <MacResources />
+                        )}
+                    {flags.debugLog && emulatorRef.current?.log && (
+                        <EmulatorLogging
+                            log={emulatorRef.current?.log}
+                            setToastText={setEmulatorToastText}
+                        />
+                    )}
+                </DrawersContainer>
             )}
             {drawersVisible && (
                 <DrawersContainer>

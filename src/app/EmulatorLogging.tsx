@@ -16,12 +16,7 @@ import {saveAs} from "file-saver";
 import {Button} from "@/controls/Button";
 import {Input} from "@/controls/Input";
 import {Select} from "@/controls/Select";
-import {
-    Drawer,
-    DrawerContents,
-    DrawerHeader,
-    DrawersContainer,
-} from "@/controls/Drawer";
+import {Drawer, DrawerContents, DrawerHeader} from "@/controls/Drawer";
 import {
     type EmulatorLog,
     type EmulatorLogMessage,
@@ -43,24 +38,22 @@ export function EmulatorLogging({
     const [search, setSearch] = useState("");
     const pauseableLog = useMemo(() => new EmulatorPauseableLog(log), [log]);
     return (
-        <DrawersContainer placement="right">
-            <Drawer
-                title="Debug Log"
-                titleIconUrl={noteIcon}
-                contents={() => (
-                    <DrawerContents>
-                        <EmulatorLogOutput
-                            log={pauseableLog}
-                            search={search}
-                            onSearchChange={setSearch}
-                            wrapLines={wrapLines}
-                            onWrapLinesChange={setWrapLines}
-                            setToastText={setToastText}
-                        />
-                    </DrawerContents>
-                )}
-            />
-        </DrawersContainer>
+        <Drawer
+            title="Debug Log"
+            titleIconUrl={noteIcon}
+            contents={() => (
+                <DrawerContents>
+                    <EmulatorLogOutput
+                        log={pauseableLog}
+                        search={search}
+                        onSearchChange={setSearch}
+                        wrapLines={wrapLines}
+                        onWrapLinesChange={setWrapLines}
+                        setToastText={setToastText}
+                    />
+                </DrawerContents>
+            )}
+        />
     );
 }
 

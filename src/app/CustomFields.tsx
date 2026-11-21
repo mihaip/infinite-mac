@@ -24,6 +24,7 @@ import {
     emulatorHasOptionalBlueSCSI,
     emulatorSupportsDebugLog,
     emulatorSupportsAppleTalk,
+    emulatorSupportsResEdit,
 } from "@/emulator/common/emulators";
 import {
     type MachineDef,
@@ -40,6 +41,7 @@ import {
     runDefSupportedScreenSizes,
 } from "@/defs/run-def";
 import allowedCDROMDomains from "@/defs/cdrom-sites.json";
+import {isResEditModeLaunched} from "@/flags";
 
 const ALL_DISKS_BY_NAME = {
     ...SYSTEM_DISKS_BY_NAME,
@@ -54,6 +56,7 @@ export function CustomFields({
     allowAutoScreenSize = true,
     allowSavedHD = true,
     allowAppleTalk = true,
+    allowResEdit = true,
     automaticScreenScale = false,
     setCanRun,
 }: {
@@ -64,6 +67,7 @@ export function CustomFields({
     allowAutoScreenSize?: boolean;
     allowSavedHD?: boolean;
     allowAppleTalk?: boolean;
+    allowResEdit?: boolean;
     automaticScreenScale?: boolean;
     setCanRun: (canRun: boolean) => void;
 }) {
@@ -87,6 +91,10 @@ export function CustomFields({
     const debugLogSupported = emulatorSupportsDebugLog(
         runDef.machine.emulatorType
     );
+    const resEditSupported =
+        allowResEdit &&
+        emulatorSupportsResEdit(runDef.machine.emulatorType) &&
+        isResEditModeLaunched();
     const blueSCSISupported = emulatorHasOptionalBlueSCSI(
         runDef.machine.emulatorType
     );
@@ -647,6 +655,27 @@ export function CustomFields({
                 </div>
             )}
 
+            {resEditSupported && (
+                <div className="CustomFields-Row">
+                    <span className="CustomFields-Label" />
+                    <label>
+                        <Checkbox
+                            checked={flags.resEdit ?? false}
+                            onChange={e =>
+                                setFlags(flags => ({
+                                    ...flags,
+                                    resEdit: e.target.checked || undefined,
+                                }))
+                            }
+                        />
+                        ResEdit mode
+                    </label>
+                    <div className="CustomFields-Description Dialog-Description">
+                        Show loaded resources in a drawer.
+                    </div>
+                </div>
+            )}
+
             {debugLogSupported && (
                 <div className="CustomFields-Row">
                     <span className="CustomFields-Label" />
@@ -665,7 +694,7 @@ export function CustomFields({
                         Debug mode
                     </label>
                     <div className="CustomFields-Description Dialog-Description">
-                        Include extra debug information in the console, and do a
+                        Show emulator debug information in a drawer, and do a
                         verbose boot if possible.
                     </div>
                 </div>

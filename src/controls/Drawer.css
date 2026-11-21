@@ -82,7 +82,7 @@
     bottom: 0;
     border: solid 1px red;
     pointer-events: none;
-    border-radius: 4px 4px 0 0;
+    border-radius: inherit;
     border-top-color: #fff;
     border-left-color: #fff;
     border-bottom-color: #999;
@@ -367,8 +367,9 @@
     top: 0;
     left: auto;
     margin: 0;
-    align-items: center;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
     z-index: 3;
 }
 
@@ -379,60 +380,81 @@
 
 .Drawers-Container-Right .Drawer-Title {
     top: 0;
-    left: 0;
-    transform: rotate(-90deg) translateX(50%) translateY(1px);
-    transform-origin: right bottom;
+    left: 1px;
+    flex-direction: column-reverse;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
+.Drawers-Container-Right .Drawer-Title-Label {
+    writing-mode: vertical-rl;
+    text-orientation: sideways;
+    transform: rotate(180deg);
+}
+
+.Drawers-Container-Right .Drawer-Title-Icon {
+    transform: rotate(-90deg);
+}
+
+.Drawers-Container-Right :is(.Drawer-Classic, .Drawer-Platinum) .Drawer-Title {
+    border-right-width: 0;
+    border-bottom-width: 1px;
+    border-radius: 4px 0 0 4px;
+}
+
 .Drawers-Container-Right .Drawer-Platinum .Drawer-Title {
-    left: -1px;
+    left: 0;
 }
 
-.Drawers-Container-Right .Drawer-Platinum .Drawer-Title:before {
-    border-right-color: #fff;
-    border-left-color: #999;
-}
-
-.Drawers-Container-Right .Drawer-NeXT .Drawer-Title {
-    border-color: #fff #fff #555 #555;
+.Drawers-Container-Right .Drawer-Aqua .Drawer-Title {
+    border-image-source: url("@/Images/AquaWindowTitlebarVertical.png");
+    border-image-slice: 12 9 fill;
+    border-image-width: 12px 9px;
 }
 
 .Drawers-Container-Right .Drawer-Expanded.Drawer-NeXT .Drawer-Title {
     width: auto;
-    border-color: #aaa #aaa #555 #555;
-    left: -1px;
+    left: 0;
+    align-self: stretch;
+    justify-content: flex-start;
+}
+
+.Drawers-Container-Right:has(> .Drawer-Expanded.Drawer-BeOS) {
+    justify-content: flex-start;
 }
 
 .Drawers-Container-Right .Drawer-BeOS {
-    align-self: stretch;
     align-items: flex-start;
 }
 
 .Drawers-Container-Right .Drawer-BeOS .Drawer-Title {
     top: 0;
-    /* Anchor the rotated tab to the top of its frame. */
-    transform: translateY(-100%) rotate(-90deg) translateY(1px);
-    border-color: #989898 #989898 #989898 #606060;
+    padding: 12px 2px 4px;
+    border-right-width: 0;
+    border-bottom-width: 1px;
+    border-color: #989898 #989898 #606060 #989898;
     box-shadow:
-        inset -1px 1px #ffff66,
-        inset 1px 0 #ff9800;
+        inset 1px 1px #ffff66,
+        inset 0 -1px #ff9800;
 }
 
 .Drawers-Container-Right
     .Drawer-BeOS
     .Drawer-Title:is(:active, .Control-Active) {
     box-shadow:
-        inset -1px 1px #e68600,
-        inset 1px 0 #ffff66;
+        inset 1px 1px #e68600,
+        inset 0 -1px #ffff66;
 }
 
 .Drawers-Container-Right .Drawer-BeOS.Drawer-Expanded .Drawer-Title::after {
-    left: 0.5px;
-    right: 0;
+    top: 0;
+    right: -2px;
+    bottom: 0.5px;
+    left: auto;
+    width: 2px;
+    height: auto;
     border-left: 0;
-    border-right: solid 1px #fff;
+    border-top: solid 1px #fff;
 }
 
 .Drawers-Container-Right .Drawer-Contents {

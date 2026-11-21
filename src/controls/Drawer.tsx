@@ -81,7 +81,7 @@ export function Drawer({
                         backgroundImage: `url(${titleIconUrl})`,
                     }}
                 />
-                {title}
+                <span className="Drawer-Title-Label">{title}</span>
             </div>
             {expanded && contents(collapse)}
         </div>

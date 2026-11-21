@@ -625,6 +625,7 @@ export function generateChunkedFileSpecForCDROM(
     };
 }
 export type EmulatorConfigFlags = {
+    resEdit?: boolean;
     customDate?: Date;
     startPaused?: boolean;
     autoPause?: boolean;

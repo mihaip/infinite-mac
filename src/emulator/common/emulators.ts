@@ -86,6 +86,10 @@ export function emulatorSupportsDebugLog(type: EmulatorType): boolean {
     );
 }
 
+export function emulatorSupportsResEdit(type: EmulatorType): boolean {
+    return false;
+}
+
 export function emulatorSupportsDiskCopy42Disks(type: EmulatorType): boolean {
     return type === "Mini vMac" || type === "Snow";
 }
