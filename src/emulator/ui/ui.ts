@@ -4,7 +4,6 @@ import {
     type EmulatorCDROM,
     type EmulatorChunkedFileSpec,
     type EmulatorFallbackCommand,
-    type EmulatorStatsUpdate,
     type EmulatorWorkerConfig,
     type EmulatorWorkerVideoBlit,
     type EmulatorMouseEvent,
@@ -77,6 +76,7 @@ import {fetchCDROM, probeCORSRangeSupport} from "@/emulator/ui/cdrom";
 import {BootFromROMHelper} from "@/emulator/ui/boot-from-rom";
 import {EmulatorTrackpadController} from "@/emulator/ui/trackpad";
 import {EmulatorLog} from "@/emulator/ui/log";
+import {EmulatorStatsStore} from "@/emulator/ui/stats";
 import {
     configToDingusPPCArgs,
     configToPreviousConfig,
@@ -144,10 +144,6 @@ export interface EmulatorDelegate {
         emulator: Emulator,
         peers: readonly EmulatorEthernetPeer[]
     ): void;
-    emulatorStatsDidChange?(
-        emulator: Emulator,
-        statsUpdate: EmulatorStatsUpdate
-    ): void;
     emulatorDidRunOutOfMemory?(emulator: Emulator): void;
     emulatorDidHaveError?(
         emulator: Emulator,
@@ -169,6 +165,7 @@ export type EmulatorFallbackCommandSender = (
 
 export class Emulator {
     readonly log: EmulatorLog;
+    readonly stats = new EmulatorStatsStore();
 
     #config: EmulatorConfig;
     #delegate?: EmulatorDelegate;
@@ -359,6 +356,7 @@ export class Emulator {
     }
 
     async #startWorker() {
+        this.stats.clear();
         this.#gotFirstBlit = false;
         console.time("Emulator first blit");
         console.time("Emulator quiescent");
@@ -1141,7 +1139,7 @@ export class Emulator {
                 this.#config.ethernetProvider?.send(destination, packet);
             }
         } else if (e.data.type === "emulator_stats") {
-            this.#delegate?.emulatorStatsDidChange?.(this, e.data.stats);
+            this.stats.update(e.data.stats);
         } else if (e.data.type === "emulator_log") {
             this.log.append(e.data.message);
         } else if (e.data.type === "emulator_set_clipboard_text") {

@@ -14,7 +14,6 @@ import {
 import {
     diskImageExtensions,
     type EmulatorCDROM,
-    type EmulatorStats,
     floppyDiskImageExtensions,
     isDiskImageFile,
     isFloppyDiskImageFile,
@@ -71,6 +70,10 @@ import {
     type EmbedControlEvent,
 } from "@/embed-types";
 import {MacEmulatorStats} from "@/app/MacEmulatorStats";
+import {
+    type EmulatorStatsStore,
+    useHasEmulatorStats,
+} from "@/emulator/ui/stats";
 import {EmulatorLogging} from "@/app/EmulatorLogging";
 import {MacResources} from "@/app/MacResources";
 import {MacEthernetStatus} from "@/app/MacEthernetStatus";
@@ -144,7 +147,7 @@ export default function Mac({
         readonly EmulatorEthernetPeer[]
     >([]);
     const [showBootFromROMKeys, setShowBootFromROMKeys] = useState(false);
-    const [emulatorStats, setEmulatorStats] = useState<EmulatorStats>({});
+    const [emulatorStats, setEmulatorStats] = useState<EmulatorStatsStore>();
     const [emulatorStatsExpanded, setEmulatorStatsExpanded] = useState(false);
     // Don't clear the loading state immediately, to make it clearer that I/O
     // is happening and things may be slow.
@@ -256,7 +259,7 @@ export default function Mac({
     onDoneRef.current = onDone;
 
     useEffect(() => {
-        setEmulatorStats({});
+        setEmulatorStatsExpanded(false);
         const hasSharedArrayBuffer = typeof SharedArrayBuffer !== "undefined";
         if (!hasSharedArrayBuffer) {
             console.warn(
@@ -372,9 +375,6 @@ export default function Mac({
                         setEthernetPeers(peers);
                     }
                 },
-                emulatorStatsDidChange(emulator, stats) {
-                    setEmulatorStats(current => ({...current, ...stats}));
-                },
                 emulatorDidRunOutOfMemory(emulator: Emulator) {
                     if (listenForControlMessages) {
                         sendEmbedNotification({
@@ -447,6 +447,7 @@ export default function Mac({
             }
         );
         emulatorRef.current = emulator;
+        setEmulatorStats(emulator.stats);
         ethernetProviderRef.current = ethernetProvider;
         if (!debugPaused) {
             void emulator.start();
@@ -988,7 +989,7 @@ export default function Mac({
         void emulatorRef.current?.loadCDROM(cdrom);
     }
 
-    const hasEmulatorStats = Object.keys(emulatorStats).length > 0;
+    const hasEmulatorStats = useHasEmulatorStats(emulatorStats);
     useEffect(() => {
         if (!hasEmulatorStats) {
             setEmulatorStatsExpanded(false);
@@ -1171,8 +1172,8 @@ export default function Mac({
                         peers={ethernetPeers}
                     />
                 )}
-                {hasEmulatorStats && emulatorStatsExpanded && (
-                    <MacEmulatorStats stats={emulatorStats} />
+                {emulatorStats && hasEmulatorStats && emulatorStatsExpanded && (
+                    <MacEmulatorStats store={emulatorStats} />
                 )}
                 {settingsVisible && (
                     <MacSettings

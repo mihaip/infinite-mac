@@ -1,7 +1,9 @@
 import "@/app/MacEmulatorStats.css";
-import {type EmulatorStats} from "@/emulator/common/common";
+import {type EmulatorStatsStore} from "@/emulator/ui/stats";
+import {useSyncExternalStore} from "react";
 
-export function MacEmulatorStats({stats}: {stats: EmulatorStats}) {
+export function MacEmulatorStats({store}: {store: EmulatorStatsStore}) {
+    const stats = useSyncExternalStore(store.subscribe, store.getSnapshot);
     if (Object.keys(stats).length === 0) {
         return null;
     }
