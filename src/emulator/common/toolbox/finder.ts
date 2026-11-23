@@ -1,3 +1,5 @@
+import {fourCCToString} from "@/emulator/common/toolbox/fourcc";
+
 export enum FinderFlags {
     kIsOnDesk = 0x0001,
     kColor = 0x000e,
@@ -34,18 +36,10 @@ export enum DInfoFields {
  * https://web.archive.org/web/20040918142656/http://developer.apple.com/documentation/Carbon/Reference/Finder_Interface/finder_interface/data_type_8.html
  */
 export function getDebugFinderInfo(buffer: ArrayBuffer): {[key: string]: any} {
-    function toChars(long: number): string {
-        return (
-            String.fromCharCode((long >> 24) & 0xff) +
-            String.fromCharCode((long >> 16) & 0xff) +
-            String.fromCharCode((long >> 8) & 0xff) +
-            String.fromCharCode((long >> 0) & 0xff)
-        );
-    }
     const fInfoView = new DataView(buffer);
     return {
-        typeCode: toChars(fInfoView.getInt32(FInfoFields.fdType)),
-        creatorCode: toChars(fInfoView.getInt32(FInfoFields.fdCreator)),
+        typeCode: fourCCToString(fInfoView.getInt32(FInfoFields.fdType)),
+        creatorCode: fourCCToString(fInfoView.getInt32(FInfoFields.fdCreator)),
         flags: getDebugFinderFlags(fInfoView.getInt16(FInfoFields.fdFlags)),
         location: {
             x: fInfoView.getInt16(FInfoFields.fdLocation),

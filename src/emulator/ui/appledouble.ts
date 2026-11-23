@@ -1,4 +1,4 @@
-import {fixArchiveFinderInfo} from "@/emulator/common/finder";
+import {fixArchiveFinderInfo} from "@/emulator/common/toolbox/finder";
 
 const APPLEDOUBLE_MAGIC = 0x00051607;
 const APPLEDOUBLE_VERSION = 0x00020000;
