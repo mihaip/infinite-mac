@@ -20,6 +20,7 @@ import {
     emulatorNeedsMouseDeltas,
     type EmulatorDef,
     emulatorSupportsMouseDeltas,
+    emulatorSupportsResEdit,
     emulatorNeedsDiskPlaceholderFiles,
     emulatorSpeedConfig,
 } from "@/emulator/common/emulators";
@@ -88,6 +89,7 @@ import {stringToArrayBuffer} from "@/lib/strings";
 import {type EmulatorSettings} from "@/emulator/ui/settings";
 import {createScrnResourceOverlays} from "@/emulator/ui/scrn-resource-overlay";
 import {createBeOSScreenSettingsOverlays} from "@/emulator/ui/beos-screen-settings-overlay";
+import {EmulatorResourceEvents} from "@/emulator/ui/resource-events";
 
 export type EmulatorConfig = {
     machine: MachineDef;
@@ -164,7 +166,8 @@ export type EmulatorFallbackCommandSender = (
 ) => void;
 
 export class Emulator {
-    readonly log: EmulatorLog;
+    readonly log?: EmulatorLog;
+    readonly resources?: EmulatorResourceEvents;
     readonly stats = new EmulatorStatsStore();
 
     #config: EmulatorConfig;
@@ -209,7 +212,15 @@ export class Emulator {
     #lastTrackpadMode = false;
 
     constructor(config: EmulatorConfig, delegate?: EmulatorDelegate) {
-        this.log = new EmulatorLog(config.machine.emulatorType);
+        if (
+            config.flags.resEdit &&
+            emulatorSupportsResEdit(config.machine.emulatorType)
+        ) {
+            this.resources = new EmulatorResourceEvents();
+        }
+        if (config.flags.debugLog) {
+            this.log = new EmulatorLog(config.machine.emulatorType);
+        }
 
         this.#config = config;
         this.#delegate = delegate;
@@ -357,6 +368,7 @@ export class Emulator {
 
     async #startWorker() {
         this.stats.clear();
+        this.resources?.clear();
         this.#gotFirstBlit = false;
         console.time("Emulator first blit");
         console.time("Emulator quiescent");
@@ -529,6 +541,7 @@ export class Emulator {
             clipboard: this.#clipboard.workerConfig(),
             dateOffset,
             debugLog: this.#config.flags.debugLog ?? false,
+            resourceEvents: this.resources !== undefined,
             speedGovernorTargetIPS,
         };
 
@@ -1141,7 +1154,9 @@ export class Emulator {
         } else if (e.data.type === "emulator_stats") {
             this.stats.update(e.data.stats);
         } else if (e.data.type === "emulator_log") {
-            this.log.append(e.data.message);
+            this.log?.append(e.data.message);
+        } else if (e.data.type === "emulator_resource_events") {
+            this.resources?.append(e.data);
         } else if (e.data.type === "emulator_set_clipboard_text") {
             const {text} = e.data;
             navigator.clipboard.writeText(text).then(
@@ -1153,14 +1168,14 @@ export class Emulator {
                 }
             );
         } else if (e.data.type === "emulator_did_run_out_memory") {
-            this.log.appendError(
+            this.log?.appendError(
                 String(e.data.error ?? "The emulator ran out of memory."),
                 undefined,
                 e.data.errorStack
             );
             this.#delegate?.emulatorDidRunOutOfMemory?.(this);
         } else if (e.data.type === "emulator_did_have_error") {
-            this.log.appendError(
+            this.log?.appendError(
                 String(e.data.error),
                 String(e.data.errorRaw ?? e.data.error),
                 e.data.errorStack

@@ -194,6 +194,7 @@ export type EmulatorWorkerConfig = EmulatorDef & {
     clipboard: EmulatorWorkerClipboardConfig;
     dateOffset: number;
     debugLog: boolean;
+    resourceEvents?: boolean;
     speedGovernorTargetIPS?: number;
 };
 

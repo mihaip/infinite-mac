@@ -4836,63 +4836,66 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 var ASM_CONSTS = {
-  452216: () => workerApi.idleWait(),
-  452249: ($0, $1) => {
+  452216: ($0, $1, $2, $3, $4, $5) => {
+    workerApi.resources?.resourceLoaded(HEAPU8.subarray($0, $0 + $1), $2, $3, $4, $5);
+  },
+  452304: () => workerApi.idleWait(),
+  452337: ($0, $1) => {
     workerApi.didOpenVideo($0, $1);
   },
-  452285: () => {
+  452373: () => {
     workerApi.blit(0, 0);
   },
-  452311: ($0, $1) => {
+  452399: ($0, $1) => {
     workerApi.blit($0, $1);
   },
-  452339: () => workerApi.etherSeed(),
-  452373: $0 => {
+  452427: () => workerApi.etherSeed(),
+  452461: $0 => {
     workerApi.etherInit(UTF8ToString($0));
   },
-  452416: ($0, $1, $2) => {
+  452504: ($0, $1, $2) => {
     workerApi.etherWrite(UTF8ToString($0), $1, $2);
   },
-  452468: $0 => workerApi.etherRead($0, 1514),
-  452510: ($0, $1) => {
+  452556: $0 => workerApi.etherRead($0, 1514),
+  452598: ($0, $1) => {
     workerApi.enqueueAudio($0, $1);
   },
-  452546: () => workerApi.audioBufferSize(),
-  452586: ($0, $1, $2) => {
+  452634: () => workerApi.audioBufferSize(),
+  452674: ($0, $1, $2) => {
     workerApi.didOpenAudio($0, $1, $2);
   },
-  452626: $0 => workerApi.acquireInputLock($0),
-  452669: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
-  452758: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
-  452848: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
-  452935: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
-  453019: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
-  453106: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
-  453190: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasFlagAddr),
-  453281: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasAddr),
-  453368: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
-  453453: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
-  453533: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
-  453614: () => workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr),
-  453708: () => {
+  452714: $0 => workerApi.acquireInputLock($0),
+  452757: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
+  452846: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
+  452936: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
+  453023: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
+  453107: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
+  453194: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
+  453278: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasFlagAddr),
+  453369: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasAddr),
+  453456: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
+  453541: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
+  453621: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
+  453702: () => workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr),
+  453796: () => {
     workerApi.releaseInputLock();
   },
-  453742: () => {
+  453830: () => {
     workerApi.sleep(.001);
   },
-  453770: $0 => {
+  453858: $0 => {
     workerApi.setClipboardText(UTF8ToString($0));
   },
-  453820: $0 => workerApi.disks.open(UTF8ToString($0)),
-  453871: $0 => {
+  453908: $0 => workerApi.disks.open(UTF8ToString($0)),
+  453959: $0 => {
     workerApi.disks.close($0);
   },
-  453902: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
-  453951: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3),
-  454001: $0 => workerApi.disks.size($0),
-  454038: $0 => workerApi.disks.isMediaPresent($0),
-  454085: $0 => workerApi.disks.isFixedDisk($0),
-  454129: $0 => {
+  453990: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
+  454039: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3),
+  454089: $0 => workerApi.disks.size($0),
+  454126: $0 => workerApi.disks.isMediaPresent($0),
+  454173: $0 => workerApi.disks.isFixedDisk($0),
+  454217: $0 => {
     workerApi.disks.eject($0);
   }
 };

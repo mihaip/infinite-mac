@@ -82,6 +82,7 @@ import {EmulatorWorkerDeviceImageDisk} from "@/emulator/worker/device-image-disk
 import {EmulatorWorkerOverlayDisk} from "@/emulator/worker/overlay-disk";
 import {EmulatorWorkerSpeedGovernor} from "@/emulator/worker/speed-governor";
 import {prepareDiskCopy42Disk} from "@/emulator/worker/disk-copy-42-disk";
+import {EmulatorWorkerResourceEvents} from "@/emulator/worker/resource-events";
 
 addEventListener("message", async event => {
     const {data} = event;
@@ -142,9 +143,10 @@ class EmulatorWorkerApi {
     #markedQuiescent = false;
     #handledStop = false;
 
-    disks: EmulatorWorkerDisksApi;
+    readonly disks: EmulatorWorkerDisksApi;
     #diskSavers: EmulatorWorkerDiskSaver[] = [];
     #ethernetMacAddress?: Uint8Array;
+    readonly resources?: EmulatorWorkerResourceEvents;
 
     constructor(
         config: EmulatorWorkerConfig,
@@ -280,6 +282,14 @@ class EmulatorWorkerApi {
         if (speedGovernorTargetIPS !== undefined) {
             this.#speedGovernor = new EmulatorWorkerSpeedGovernor(
                 speedGovernorTargetIPS
+            );
+        }
+        if (config.resourceEvents) {
+            this.resources = new EmulatorWorkerResourceEvents(message =>
+                postMessage(
+                    message,
+                    message.events.map(event => event.data.buffer)
+                )
             );
         }
     }
@@ -474,6 +484,7 @@ class EmulatorWorkerApi {
     }
 
     #periodicTasks() {
+        this.resources?.tick();
         // TODO: better place to poll for this? On the other hand, only doing it
         // when the machine is idle seems reasonable.
         this.#handleFileRequests();
@@ -553,6 +564,7 @@ class EmulatorWorkerApi {
             return;
         }
         this.#closeDiskSavers();
+        this.resources?.flush();
         this.#handledStop = true;
         postMessage({type: "emulator_stopped", isExit});
     }

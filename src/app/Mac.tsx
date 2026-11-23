@@ -41,10 +41,7 @@ import {
     resetDiskSaver,
     saveDiskSaverImage,
 } from "@/emulator/ui/disk-saver";
-import {
-    emulatorNeedsMouseDeltas,
-    emulatorSupportsResEdit,
-} from "@/emulator/common/emulators";
+import {emulatorNeedsMouseDeltas} from "@/emulator/common/emulators";
 import {
     runDefSupportsBlueSCSI,
     runDefSupportsCDROMs,
@@ -1237,11 +1234,10 @@ export default function Mac({
             </ScreenFrame>
             {drawersVisible && (
                 <DrawersContainer placement="right">
-                    {flags.resEdit === true &&
-                        emulatorSupportsResEdit(emulatorType) && (
-                            <MacResources />
-                        )}
-                    {flags.debugLog && emulatorRef.current?.log && (
+                    {emulatorRef.current?.resources && (
+                        <MacResources events={emulatorRef.current.resources} />
+                    )}
+                    {emulatorRef.current?.log && (
                         <EmulatorLogging
                             log={emulatorRef.current?.log}
                             setToastText={setEmulatorToastText}
