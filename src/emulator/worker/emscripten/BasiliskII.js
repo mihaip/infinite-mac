@@ -4836,66 +4836,74 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 var ASM_CONSTS = {
-  452216: ($0, $1, $2, $3, $4, $5) => {
-    workerApi.resources?.resourceLoaded(HEAPU8.subarray($0, $0 + $1), $2, $3, $4, $5);
+  452232: ($0, $1, $2, $3, $4, $5, $6, $7, $8, $9) => {
+    workerApi.resources?.resourceLoaded([ {
+      baseAddress: $2 >>> 0,
+      data: HEAPU8.subarray($0, $0 + $1),
+      kind: "ram"
+    }, {
+      baseAddress: $5 >>> 0,
+      data: HEAPU8.subarray($3, $3 + $4),
+      kind: "rom"
+    } ], $6, $7, $8, $9);
   },
-  452304: () => workerApi.idleWait(),
-  452337: ($0, $1) => {
+  452442: () => workerApi.idleWait(),
+  452475: ($0, $1) => {
     workerApi.didOpenVideo($0, $1);
   },
-  452373: () => {
+  452511: () => {
     workerApi.blit(0, 0);
   },
-  452399: ($0, $1) => {
+  452537: ($0, $1) => {
     workerApi.blit($0, $1);
   },
-  452427: () => workerApi.etherSeed(),
-  452461: $0 => {
+  452565: () => workerApi.etherSeed(),
+  452599: $0 => {
     workerApi.etherInit(UTF8ToString($0));
   },
-  452504: ($0, $1, $2) => {
+  452642: ($0, $1, $2) => {
     workerApi.etherWrite(UTF8ToString($0), $1, $2);
   },
-  452556: $0 => workerApi.etherRead($0, 1514),
-  452598: ($0, $1) => {
+  452694: $0 => workerApi.etherRead($0, 1514),
+  452736: ($0, $1) => {
     workerApi.enqueueAudio($0, $1);
   },
-  452634: () => workerApi.audioBufferSize(),
-  452674: ($0, $1, $2) => {
+  452772: () => workerApi.audioBufferSize(),
+  452812: ($0, $1, $2) => {
     workerApi.didOpenAudio($0, $1, $2);
   },
-  452714: $0 => workerApi.acquireInputLock($0),
-  452757: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
-  452846: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
-  452936: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
-  453023: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
-  453107: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
-  453194: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
-  453278: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasFlagAddr),
-  453369: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasAddr),
-  453456: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
-  453541: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
-  453621: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
-  453702: () => workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr),
-  453796: () => {
+  452852: $0 => workerApi.acquireInputLock($0),
+  452895: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseButtonStateAddr),
+  452984: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionFlagAddr),
+  453074: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionXAddr),
+  453161: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaXAddr),
+  453245: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mousePositionYAddr),
+  453332: () => workerApi.getInputValue(workerApi.InputBufferAddresses.mouseDeltaYAddr),
+  453416: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasFlagAddr),
+  453507: () => workerApi.getInputValue(workerApi.InputBufferAddresses.useMouseDeltasAddr),
+  453594: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyEventFlagAddr),
+  453679: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyCodeAddr),
+  453759: () => workerApi.getInputValue(workerApi.InputBufferAddresses.keyStateAddr),
+  453840: () => workerApi.getInputValue(workerApi.InputBufferAddresses.ethernetInterruptFlagAddr),
+  453934: () => {
     workerApi.releaseInputLock();
   },
-  453830: () => {
+  453968: () => {
     workerApi.sleep(.001);
   },
-  453858: $0 => {
+  453996: $0 => {
     workerApi.setClipboardText(UTF8ToString($0));
   },
-  453908: $0 => workerApi.disks.open(UTF8ToString($0)),
-  453959: $0 => {
+  454046: $0 => workerApi.disks.open(UTF8ToString($0)),
+  454097: $0 => {
     workerApi.disks.close($0);
   },
-  453990: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
-  454039: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3),
-  454089: $0 => workerApi.disks.size($0),
-  454126: $0 => workerApi.disks.isMediaPresent($0),
-  454173: $0 => workerApi.disks.isFixedDisk($0),
-  454217: $0 => {
+  454128: ($0, $1, $2, $3) => workerApi.disks.read($0, $1, $2, $3),
+  454177: ($0, $1, $2, $3) => workerApi.disks.write($0, $1, $2, $3),
+  454227: $0 => workerApi.disks.size($0),
+  454264: $0 => workerApi.disks.isMediaPresent($0),
+  454311: $0 => workerApi.disks.isFixedDisk($0),
+  454355: $0 => {
     workerApi.disks.eject($0);
   }
 };

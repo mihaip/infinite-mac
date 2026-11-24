@@ -61,6 +61,15 @@ function ResourceEvents({events}: {events: EmulatorResourceEvents}) {
 }
 
 function ResourceEvent({event}: {event: ResourceLoadEvent}) {
+    let source;
+    if (event.isRom) {
+        source = "ROM";
+    } else {
+        source = event.file?.name ?? "Source unavailable";
+        if (event.file?.volumeName) {
+            source += ` (${event.file.volumeName})`;
+        }
+    }
     return (
         <li className="MacResources-Event">
             <div className="MacResources-EventHeader">
@@ -73,8 +82,7 @@ function ResourceEvent({event}: {event: ResourceLoadEvent}) {
                 </time>
             </div>
             <div>
-                {event.file?.name ?? "Source unavailable"}
-                {event.file?.volumeName && ` (${event.file.volumeName})`}
+                {source}
                 {" · "}
                 {event.data.byteLength.toLocaleString()} bytes
             </div>

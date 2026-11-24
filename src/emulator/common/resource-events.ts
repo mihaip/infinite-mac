@@ -3,6 +3,7 @@ export type ResourceLoadEvent = {
     timestamp: number;
     type: string;
     resourceId: number;
+    isRom?: boolean;
     name?: string;
     file?: {
         refNum: number;

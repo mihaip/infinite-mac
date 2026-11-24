@@ -2,12 +2,12 @@ import {
     type ResourceLoadEvent,
     type ResourceEventsMessage,
 } from "@/emulator/common/resource-events";
-import {MacMemoryReader} from "@/emulator/common/toolbox/memory";
-import {fourCCToString} from "@/emulator/common/toolbox/fourcc";
 import {
-    readResourceReferenceEntry,
-    readResourceMetadata,
-} from "@/emulator/common/toolbox/resources";
+    MacMemoryReader,
+    type MacMemoryRegion,
+} from "@/emulator/common/toolbox/memory";
+import {fourCCToString} from "@/emulator/common/toolbox/fourcc";
+import {readResourceMetadata} from "@/emulator/common/toolbox/resources";
 
 export class EmulatorWorkerResourceEvents {
     constructor(private send: (message: ResourceEventsMessage) => void) {}
@@ -16,7 +16,7 @@ export class EmulatorWorkerResourceEvents {
      * Called synchronously by the emulator core after the resource loader and
      * compatibility patches.
      *
-     * @param ram The current state of the emulator's RAM.
+     * @param regions The RAM and ROM regions
      * @param type The resource type/FourCC.
      * @param id The resource ID.
      * @param handle The handle to the resource data.
@@ -24,7 +24,7 @@ export class EmulatorWorkerResourceEvents {
      * ReferenceEntry in its resource map.
      */
     resourceLoaded(
-        ram: Uint8Array,
+        regions: readonly MacMemoryRegion[],
         type: number,
         id: number,
         handle: number,
@@ -32,7 +32,7 @@ export class EmulatorWorkerResourceEvents {
     ) {
         try {
             this.#resourceLoadedImpl(
-                ram,
+                regions,
                 type,
                 id,
                 handle,
@@ -91,7 +91,7 @@ export class EmulatorWorkerResourceEvents {
     #reported = new Set<string>();
 
     #resourceLoadedImpl(
-        ram: Uint8Array,
+        regions: readonly MacMemoryRegion[],
         type: number,
         id: number,
         handle: number,
@@ -101,22 +101,12 @@ export class EmulatorWorkerResourceEvents {
         if (this.#reported.has(key)) {
             return;
         }
-        const memory = new MacMemoryReader(ram);
-        const referenceEntry = readResourceReferenceEntry(
-            memory,
-            referenceEntryAddress
-        );
-        if (
-            referenceEntry.handle !== memory.normalize(handle) ||
-            referenceEntry.id !== id
-        ) {
-            throw new Error("Resource reference does not match loader");
-        }
+        const memory = MacMemoryReader.fromRegions(regions);
         const block = memory.handle(handle);
         if (!block) {
             throw new Error("Resource is not resident");
         }
-        if (block.size > RESOURCE_EVENT_BYTES) {
+        if (block.size > RESOURCE_PAYLOAD_BYTE_LIMIT) {
             this.#oversizedCount++;
             return;
         }
@@ -125,13 +115,14 @@ export class EmulatorWorkerResourceEvents {
             timestamp: Date.now(),
             type: fourCCToString(type),
             resourceId: id,
+            isRom: block.isRom,
             data: memory.bytes(block.address, block.size).slice(),
         };
         // A transient or malformed map must not discard a valid payload.
         try {
             Object.assign(
                 event,
-                readResourceMetadata(memory, referenceEntry, event.type)
+                readResourceMetadata(memory, referenceEntryAddress, event.type)
             );
         } catch (error) {
             // Source metadata is best effort.
@@ -158,7 +149,7 @@ export class EmulatorWorkerResourceEvents {
     }
 }
 
-const RESOURCE_EVENT_BYTES = 64 * 1024 * 1024;
+const RESOURCE_PAYLOAD_BYTE_LIMIT = 64 * 1024 * 1024;
 const REPORTED_RESOURCE_LIMIT = 32_768;
 const RESOURCE_BATCH_EVENT_LIMIT = 64;
 const RESOURCE_BATCH_BYTE_LIMIT = 4 * 1024 * 1024;

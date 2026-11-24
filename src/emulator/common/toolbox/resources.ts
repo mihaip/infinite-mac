@@ -7,10 +7,10 @@ import {
 } from "@/emulator/common/toolbox/files";
 
 /**
- * Decode Apple's ReferenceEntry, including its packed attribute/data-offset field.
+ * Read the ReferenceEntry fields used for source metadata.
  * @see {@link https://developer.apple.com/library/archive/documentation/mac/pdf/MoreMacintoshToolbox.pdf#page=154 | Figure 1-16 (page 1-124)}
  */
-export function readResourceReferenceEntry(
+function readResourceReferenceEntry(
     memory: MacMemoryReader,
     referenceEntryAddress: number
 ): ResourceReferenceEntry {
@@ -26,11 +26,6 @@ export function readResourceReferenceEntry(
         address,
         id: entry.i16(ReferenceEntryFields.rID),
         nameOffset: entry.u16(ReferenceEntryFields.rNameOffset),
-        attributes: entry.u8(ReferenceEntryFields.rAttrData),
-        dataOffset:
-            entry.u32(ReferenceEntryFields.rAttrData) &
-            RESOURCE_DATA_OFFSET_MASK,
-        handle: entry.pointer(ReferenceEntryFields.rHandle),
     };
 }
 
@@ -40,9 +35,13 @@ export function readResourceReferenceEntry(
  */
 export function readResourceMetadata(
     memory: MacMemoryReader,
-    referenceEntry: ResourceReferenceEntry,
+    referenceEntryAddress: number,
     type: string
 ): ResourceMetadata | undefined {
+    const referenceEntry = readResourceReferenceEntry(
+        memory,
+        referenceEntryAddress
+    );
     let map = memory.pointer(LowMem.TopMapHndl);
     const visited = new Set<number>();
     while (map) {
@@ -86,18 +85,15 @@ export function readResourceMetadata(
             }
             const referenceListOffset =
                 typeBase + typeEntry.referenceListOffset;
-            const references = mapMemory.subarray(
-                referenceListOffset,
-                referenceListOffset +
-                    typeEntry.resourceCount * RESOURCE_REFERENCE_ENTRY_SIZE
-            );
+            const referenceListSize =
+                typeEntry.resourceCount * RESOURCE_REFERENCE_ENTRY_SIZE;
             const referenceOffset =
                 referenceEntry.address - base - referenceListOffset;
             if (
                 referenceOffset % RESOURCE_REFERENCE_ENTRY_SIZE !== 0 ||
                 referenceOffset < 0 ||
                 referenceOffset + RESOURCE_REFERENCE_ENTRY_SIZE >
-                    references.byteLength
+                    referenceListSize
             ) {
                 return undefined;
             }
@@ -131,13 +127,10 @@ export function readResourceMetadata(
     return undefined;
 }
 
-export type ResourceReferenceEntry = {
+type ResourceReferenceEntry = {
     address: number;
     id: number;
     nameOffset: number;
-    attributes: number;
-    dataOffset: number;
-    handle: number;
 };
 
 export type ResourceMetadata = {
@@ -151,15 +144,12 @@ const RESOURCE_MAP_HEADER_SIZE = 28;
 const RESOURCE_TYPE_ENTRY_SIZE = 8;
 const RESOURCE_TYPE_COUNT_SIZE = 2;
 const RESOURCE_COUNT_MASK = 0xffff;
-const RESOURCE_DATA_OFFSET_MASK = 0xffffff;
 const NO_RESOURCE_NAME = 0xffff;
 
 // Field names from Apple's ResourceMgrPriv.h.
 enum ReferenceEntryFields {
     rID = 0,
     rNameOffset = 2,
-    rAttrData = 4,
-    rHandle = 8,
 }
 
 enum ResourceMapHeaderFields {

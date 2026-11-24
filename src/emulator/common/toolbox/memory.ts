@@ -1,59 +1,72 @@
 import {LowMem} from "@/emulator/common/toolbox/lowmem";
 
 /**
- * A borrowed view for one synchronous observation. Copy any bytes retained
- * before returning control to the guest. All numeric fields are big-endian.
+ * Borrowed RAM/ROM regions for one synchronous observation. Each read must fit
+ * within one region. Copy any bytes retained before returning control to the
+ * guest. All numeric fields are big-endian.
  */
 export class MacMemoryReader {
     readonly pointerBits: 24 | 32;
-    #view: DataView;
+    #regions: readonly MacMemoryRegionView[];
 
-    constructor(
-        private readonly ram: Uint8Array,
+    private constructor(
+        regions: readonly MacMemoryRegionView[],
         pointerBits?: 24 | 32
     ) {
-        this.#view = new DataView(ram.buffer, ram.byteOffset, ram.byteLength);
+        this.#regions = regions;
         this.pointerBits = pointerBits ?? readPointerBits(this);
     }
 
-    get byteLength(): number {
-        return this.ram.byteLength;
+    /** Create region views; adapters supply ordered, non-overlapping regions. */
+    static fromRegions(regions: readonly MacMemoryRegion[]): MacMemoryReader {
+        return new MacMemoryReader(regions.map(createRegionView));
     }
 
     bytes(address: number, length: number): Uint8Array {
-        this.#checkRange(address, length);
-        return this.ram.subarray(address, address + length);
+        const region = this.#region(address, length);
+        const offset = address - region.baseAddress;
+        return region.data.subarray(offset, offset + length);
     }
 
     /**
      * Offsets in the child reader are relative to start. Pointer values remain
-     * guest addresses and should be dereferenced through the full-RAM reader.
+     * guest addresses and should be dereferenced through the full-memory reader.
      */
-    subarray(start: number, end = this.ram.byteLength): MacMemoryReader {
+    subarray(start: number, end: number): MacMemoryReader {
+        const region = this.#region(start, end - start);
         return new MacMemoryReader(
-            this.bytes(start, end - start),
+            [
+                createRegionView({
+                    baseAddress: 0,
+                    data: region.data.subarray(
+                        start - region.baseAddress,
+                        end - region.baseAddress
+                    ),
+                    kind: region.kind,
+                }),
+            ],
             this.pointerBits
         );
     }
 
     u8(address: number): number {
-        this.#checkRange(address, 1);
-        return this.#view.getUint8(address);
+        const region = this.#region(address, 1);
+        return region.view.getUint8(address - region.baseAddress);
     }
 
     u16(address: number): number {
-        this.#checkRange(address, 2);
-        return this.#view.getUint16(address, false);
+        const region = this.#region(address, 2);
+        return region.view.getUint16(address - region.baseAddress, false);
     }
 
     i16(address: number): number {
-        this.#checkRange(address, 2);
-        return this.#view.getInt16(address, false);
+        const region = this.#region(address, 2);
+        return region.view.getInt16(address - region.baseAddress, false);
     }
 
     u32(address: number): number {
-        this.#checkRange(address, 4);
-        return this.#view.getUint32(address, false);
+        const region = this.#region(address, 4);
+        return region.view.getUint32(address - region.baseAddress, false);
     }
 
     /**
@@ -79,42 +92,80 @@ export class MacMemoryReader {
         return macRoman.decode(this.bytes(address + 1, length));
     }
 
-    handle(handle: number): {address: number; size: number} | undefined {
+    handle(
+        handle: number
+    ): {address: number; size: number; isRom: boolean} | undefined {
         handle = this.normalize(handle);
-        if (!handle || handle % HANDLE_ALIGNMENT) {
-            throw new Error("Invalid resource handle");
+        if (!handle) {
+            return undefined;
         }
         const address = this.pointer(handle);
         if (!address) {
             return undefined;
         }
-        const header = readHeapBlockHeader(this, address);
-        if (header.blockType !== tybkRel) {
-            throw new Error("Handle does not reference a relocatable block");
-        }
+        const region = this.#region(address, 1);
+        const isRom = region.kind === "rom";
+        const header = isRom
+            ? readRomHeapBlockHeader(this, address, region)
+            : readHeapBlockHeader(this, address, this.pointerBits);
         const size =
             header.physicalSize - header.byteLength - header.sizeCorrection;
         if (size < 0) {
             throw new Error("Invalid resource block size");
         }
-        this.#checkRange(header.address, header.physicalSize);
-        return {address, size};
+        const headerOffset = header.address - region.baseAddress;
+        if (
+            headerOffset < 0 ||
+            headerOffset + header.physicalSize > region.data.byteLength
+        ) {
+            throw new Error("Resource block crosses memory regions");
+        }
+        return {address, size, isRom};
     }
 
-    #checkRange(address: number, length: number): void {
+    #region(address: number, length: number): MacMemoryRegionView {
         if (
             !Number.isSafeInteger(address) ||
             !Number.isSafeInteger(length) ||
             address < 0 ||
-            length < 0 ||
-            address + length > this.ram.byteLength
+            length < 0
         ) {
-            throw new Error("Invalid Mac memory range");
+            throw new Error(
+                `Invalid Mac memory range: address=${address}, length=${length}`
+            );
         }
+        for (const region of this.#regions) {
+            const offset = address - region.baseAddress;
+            if (offset >= 0 && offset + length <= region.data.byteLength) {
+                return region;
+            }
+        }
+        throw new Error(
+            `Invalid Mac memory range: address=${address}, length=${length}`
+        );
     }
 }
 
+export type MacMemoryRegion = {
+    baseAddress: number;
+    data: Uint8Array;
+    kind: "ram" | "rom";
+};
+
 const macRoman = new TextDecoder("macintosh");
+
+type MacMemoryRegionView = MacMemoryRegion & {view: DataView};
+
+function createRegionView(region: MacMemoryRegion): MacMemoryRegionView {
+    return {
+        ...region,
+        view: new DataView(
+            region.data.buffer,
+            region.data.byteOffset,
+            region.data.byteLength
+        ),
+    };
+}
 
 function readPointerBits(memory: MacMemoryReader): 24 | 32 {
     const mask = memory.u32(LowMem.Lo3Bytes);
@@ -130,46 +181,63 @@ function readPointerBits(memory: MacMemoryReader): 24 | 32 {
 
 const ADDRESS_MASK_24_BIT = 0xffffff;
 const ADDRESS_MASK_32_BIT = 0xffffffff;
-const HANDLE_ALIGNMENT = 2;
 const PASCAL_STRING_MAX_LENGTH = 255;
 
 type HeapBlockHeader = {
     address: number;
     byteLength: number;
-    blockType: number;
     physicalSize: number;
     sizeCorrection: number;
 };
 
 /**
- * Normalize the 24- and 32-bit Memory Manager header layouts so we can validate
- * a relocatable block and determine its logical payload size.
+ * Read block sizing fields from the 24- or 32-bit Memory Manager header.
  */
 function readHeapBlockHeader(
     memory: MacMemoryReader,
-    dataAddress: number
+    dataAddress: number,
+    pointerBits: 24 | 32
 ): HeapBlockHeader {
     const byteLength =
-        memory.pointerBits === 24
+        pointerBits === 24
             ? HeapBlockFields.blkData24
             : HeapBlockFields.blkData32;
     const address = dataAddress - byteLength;
     const header = memory.subarray(address, address + byteLength);
-    const tag = header.u8(HeapBlockFields.tagBC);
     return {
         address,
         byteLength,
-        blockType: (tag >>> HEAP_BLOCK_TYPE_SHIFT) & tybkMask,
         physicalSize:
-            memory.pointerBits === 24
+            pointerBits === 24
                 ? header.u32(HeapBlockFields.tagBC) &
                   HEAP_BLOCK_SIZE_MASK_24_BIT
                 : header.u32(HeapBlockFields.blkSize32),
         sizeCorrection:
-            memory.pointerBits === 24
-                ? tag & HEAP_BLOCK_SIZE_CORRECTION_MASK_24_BIT
+            pointerBits === 24
+                ? header.u8(HeapBlockFields.tagBC) &
+                  HEAP_BLOCK_SIZE_CORRECTION_MASK_24_BIT
                 : header.u8(HeapBlockFields.SizeCor32),
     };
+}
+
+/** ROM block headers describe their layout independently of the active RAM heap. */
+function readRomHeapBlockHeader(
+    memory: MacMemoryReader,
+    dataAddress: number,
+    region: MacMemoryRegionView
+): HeapBlockHeader {
+    const headerAddress = dataAddress - HeapBlockFields.blkData32;
+    const headerOffset = headerAddress - region.baseAddress;
+    // ROM blocks set both type bits; their state byte can change after boot.
+    // MMFlags is unreliable: Figment initializes it to 5, clearing the ROM
+    // layout bit. Check the size too, so bytes before a 24-bit header cannot
+    // be mistaken for a 32-bit header.
+    const is32Bit =
+        headerOffset >= 0 &&
+        memory.u8(headerAddress) >>> HEAP_BLOCK_TYPE_SHIFT === ROM_BLOCK_TYPE &&
+        memory.u32(headerAddress + HeapBlockFields.blkSize32) <=
+            region.data.byteLength - headerOffset;
+    return readHeapBlockHeader(memory, dataAddress, is32Bit ? 32 : 24);
 }
 
 // Field names from SysEqu.a and InternalOnlyEqu.a. blkData is also the header size.
@@ -181,9 +249,8 @@ enum HeapBlockFields {
     blkData32 = 12,
 }
 
-// Block types from Apple's SysEqu.a; the value occupies the top two tag bits.
-const tybkMask = 3;
-const tybkRel = 2;
+// ROM builder (Hiram) marks blocks as both relocatable and non-relocatable.
+const ROM_BLOCK_TYPE = 3;
 const HEAP_BLOCK_TYPE_SHIFT = 6;
 const HEAP_BLOCK_SIZE_MASK_24_BIT = 0xffffff;
 const HEAP_BLOCK_SIZE_CORRECTION_MASK_24_BIT = 0x0f;
