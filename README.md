@@ -104,6 +104,8 @@ ln -s ../../scripts/pre-commit.sh .git/hooks/pre-commit
         - `worker/`: emulator worker runtime and helpers.
             - `emscripten/`: generated WASM emulator binaries of emulator cores.
         - `common/`: shared types/utilities used by both UI and worker sides.
+            - `toolbox/`: low-level utilities for interacting with the guest Classic Mac OS Toolbox data structures and memory model
+    - `stuffit/`: utilities for decoding StuffIt archives, see `src/stuffit/README` for details.
     - `Data/`: support data files, including ROMs and disk manifests (generated via `import-disks`)
     - `Images/` and `Fonts/`: bundled assets and manifests (ROMs, disk manifests, UI art, fonts).
     - `monkey/`: Infinite Monkey LLM-based computer use demonstration
