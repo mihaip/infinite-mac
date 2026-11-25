@@ -1,6 +1,7 @@
-import {Drawer, DrawerContents} from "@/controls/Drawer";
+import {Drawer, DrawerContents, DrawerHeader} from "@/controls/Drawer";
 import resourcesIcon from "@/Images/Resources.png";
-import {useSyncExternalStore} from "react";
+import {useCallback, useLayoutEffect, useSyncExternalStore} from "react";
+import {useVirtualizedList} from "@/lib/useVirtualizedList";
 import {type EmulatorResourceEvents} from "@/emulator/ui/resource-events";
 import {type ResourceLoadEvent} from "@/emulator/common/resource-events";
 import "@/app/MacResources.css";
@@ -21,42 +22,83 @@ export function MacResources({events}: {events: EmulatorResourceEvents}) {
 
 function ResourceEvents({events}: {events: EmulatorResourceEvents}) {
     const snapshot = useSyncExternalStore(events.subscribe, events.getSnapshot);
+    const resourceEvents = snapshot.events;
+    const {virtualizer, scrollRef} =
+        useResourceEventsVirtualizer(resourceEvents);
+    useLayoutEffect(() => {
+        virtualizer.scrollToEnd();
+    }, [events, virtualizer]);
     return (
         <div
-            className="MacResources"
-            role="region"
-            aria-label="Resource loads"
-            tabIndex={0}
+            className="MacResources-Container"
             onKeyDown={event => event.stopPropagation()}
             onKeyUp={event => event.stopPropagation()}>
-            {snapshot.discardedCount > 0 && (
-                <p>
-                    {snapshot.discardedCount.toLocaleString()} older events
-                    discarded.
-                </p>
-            )}
-            {snapshot.oversizedCount > 0 && (
-                <p>
-                    {snapshot.oversizedCount.toLocaleString()} resources
-                    exceeded the size capture limit.
-                </p>
-            )}
-            {snapshot.unavailableCount > 0 && (
-                <p>
-                    {snapshot.unavailableCount.toLocaleString()} resource
-                    payloads were unavailable.
-                </p>
-            )}
-            {snapshot.events.length === 0 ? (
-                <p>Waiting for resource loads…</p>
-            ) : (
-                <ol className="MacResources-Events">
-                    {[...snapshot.events].reverse().map(event => (
-                        <ResourceEvent key={event.id} event={event} />
-                    ))}
-                </ol>
-            )}
+            <ResourceEventsHeader snapshot={snapshot} />
+            <div
+                className="MacResources"
+                ref={scrollRef}
+                role="region"
+                aria-label="Resource loads"
+                tabIndex={0}>
+                {resourceEvents.length === 0 ? (
+                    <p>Waiting for resource loads…</p>
+                ) : (
+                    <ol
+                        className="MacResources-Events"
+                        style={{height: virtualizer.getTotalSize()}}>
+                        {virtualizer.getVirtualItems().map(item => (
+                            <li
+                                className="MacResources-Row"
+                                key={item.key}
+                                ref={virtualizer.measureElement}
+                                data-index={item.index}
+                                aria-posinset={item.index + 1}
+                                aria-setsize={resourceEvents.length}
+                                style={{top: item.start}}>
+                                <ResourceEvent
+                                    event={resourceEvents[item.index]}
+                                />
+                            </li>
+                        ))}
+                    </ol>
+                )}
+            </div>
         </div>
+    );
+}
+
+function ResourceEventsHeader({
+    snapshot,
+}: {
+    snapshot: ReturnType<EmulatorResourceEvents["getSnapshot"]>;
+}) {
+    return (
+        <DrawerHeader>
+            <div className="MacResources-Status">
+                <div>
+                    {snapshot.events.length.toLocaleString()} resource{" "}
+                    {snapshot.events.length === 1 ? "load" : "loads"}
+                </div>
+                {snapshot.discardedCount > 0 && (
+                    <p>
+                        {snapshot.discardedCount.toLocaleString()} older events
+                        discarded.
+                    </p>
+                )}
+                {snapshot.oversizedCount > 0 && (
+                    <p>
+                        {snapshot.oversizedCount.toLocaleString()} resources
+                        exceeded the size capture limit.
+                    </p>
+                )}
+                {snapshot.unavailableCount > 0 && (
+                    <p>
+                        {snapshot.unavailableCount.toLocaleString()} resource
+                        payloads were unavailable.
+                    </p>
+                )}
+            </div>
+        </DrawerHeader>
     );
 }
 
@@ -71,7 +113,7 @@ function ResourceEvent({event}: {event: ResourceLoadEvent}) {
         }
     }
     return (
-        <li className="MacResources-Event">
+        <div className="MacResources-Event">
             <div className="MacResources-EventHeader">
                 <strong>
                     {event.type} {event.resourceId}
@@ -87,8 +129,17 @@ function ResourceEvent({event}: {event: ResourceLoadEvent}) {
                 {event.data.byteLength.toLocaleString()} bytes
             </div>
             <pre>{hexSnippet(event.data)}</pre>
-        </li>
+        </div>
     );
+}
+
+function useResourceEventsVirtualizer(events: readonly ResourceLoadEvent[]) {
+    return useVirtualizedList({
+        count: events.length,
+        getItemKey: useCallback(index => events[index].id, [events]),
+        estimateSize: () => 140,
+        overscan: 5,
+    });
 }
 
 const HEX_SNIPPET_BYTES = 64;

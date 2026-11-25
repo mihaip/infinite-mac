@@ -6,12 +6,7 @@ import {
     useState,
     useSyncExternalStore,
 } from "react";
-import {
-    elementScroll,
-    observeElementOffset,
-    observeElementRect,
-    useVirtualizer,
-} from "@tanstack/react-virtual";
+import {useVirtualizedList} from "@/lib/useVirtualizedList";
 import {saveAs} from "file-saver";
 import {Button} from "@/controls/Button";
 import {Input} from "@/controls/Input";
@@ -283,72 +278,11 @@ function useEmulatorLogVirtualizer({
     wrapLines: boolean;
     onWrapLinesChange: (value: boolean) => void;
 }) {
-    const scrollRef = useRef<HTMLDivElement>(null);
-    const reportScrollOffset =
-        useRef<(offset: number, isScrolling: boolean) => void>();
-    // TanStack Virtual exposes mutable state through the virtualizer instance.
-    // oxlint-disable-next-line react/incompatible-library
-    const virtualizer = useVirtualizer({
+    const {virtualizer, scrollRef} = useVirtualizedList({
         count: messages.length,
-        getScrollElement: () => scrollRef.current,
         getItemKey: useCallback(index => messages[index].id, [messages]),
         estimateSize: () => 18,
         overscan: 10,
-        anchorTo: "end",
-        followOnAppend: true,
-        scrollEndThreshold: 8,
-        // Following new messages can scroll past the rendered rows before the
-        // browser sends a scroll event, briefly showing a blank log. Report
-        // non-smooth scroll changes ourselves, after React finishes its current
-        // update but before the browser draws the next frame. This lets
-        // TanStack render the rows at the new position in time.
-        observeElementOffset(instance, onOffset) {
-            reportScrollOffset.current = onOffset;
-            const unsubscribe = observeElementOffset(instance, onOffset);
-            return () => {
-                reportScrollOffset.current = undefined;
-                unsubscribe?.();
-            };
-        },
-        scrollToFn(offset, options, instance) {
-            const previousOffset = instance.scrollElement?.scrollTop;
-            elementScroll(offset, options, instance);
-            if (
-                options.behavior !== "smooth" &&
-                instance.scrollElement &&
-                instance.scrollElement.scrollTop !== previousOffset
-            ) {
-                queueMicrotask(() => {
-                    if (instance.scrollElement) {
-                        reportScrollOffset.current?.(
-                            instance.scrollElement.scrollTop,
-                            true
-                        );
-                    }
-                });
-            }
-        },
-        // Keep following when a viewport resize reduces its height.
-        observeElementRect(instance, onRect) {
-            return observeElementRect(instance, rect => {
-                const previousHeight = instance.scrollRect?.height;
-                // isAtEnd() reads the already-resized DOM clientHeight, so use
-                // the cached previous height to check whether we were at the end.
-                const wasAtEnd =
-                    instance.getTotalSize() -
-                        (previousHeight ?? 0) -
-                        (instance.scrollOffset ?? 0) <=
-                    instance.options.scrollEndThreshold;
-                onRect(rect);
-                if (
-                    previousHeight !== undefined &&
-                    previousHeight !== rect.height &&
-                    wasAtEnd
-                ) {
-                    instance.scrollToEnd();
-                }
-            });
-        },
     });
 
     // Preserve logical scroll position when toggling wrapped lines.
