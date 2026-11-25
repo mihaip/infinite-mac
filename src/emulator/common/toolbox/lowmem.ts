@@ -4,6 +4,7 @@ export const LowMem = {
     Lo3Bytes: 0x031a,
     FCBSPtr: 0x034e,
     FSFCBLen: 0x03f6,
+    CurApName: 0x0910,
     TopMapHndl: 0x0a50,
     MMU32Bit: 0x0cb2,
 } as const;

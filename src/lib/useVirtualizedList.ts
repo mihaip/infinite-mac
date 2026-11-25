@@ -6,7 +6,9 @@ import {
     useVirtualizer,
 } from "@tanstack/react-virtual";
 
-/** Virtualize measured rows and follow appended items while pinned to the end. */
+/**
+ * Virtualize measured rows and follow appended items while pinned to the end.
+ */
 export function useVirtualizedList({
     count,
     getItemKey,

@@ -7,6 +7,7 @@ import {
     type MacMemoryRegion,
 } from "@/emulator/common/toolbox/memory";
 import {readResourceMetadata} from "@/emulator/common/toolbox/resources";
+import {readCurrentProcessName} from "@/emulator/common/toolbox/processes";
 
 export class EmulatorWorkerResourceEvents {
     constructor(private send: (message: ResourceEventsMessage) => void) {}
@@ -125,6 +126,7 @@ export class EmulatorWorkerResourceEvents {
             timestamp: Date.now(),
             resourceId,
             ...eventMetadata,
+            processName: readCurrentProcessName(memory),
             isRom: block.isRom,
             data: memory.bytes(block.address, block.size).slice(),
         };

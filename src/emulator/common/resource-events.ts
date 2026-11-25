@@ -3,6 +3,8 @@ export type ResourceLoadEvent = {
     timestamp: number;
     type: string;
     resourceId: number;
+    /** Application executing at capture time; not necessarily the foreground app. */
+    processName?: string;
     isRom?: boolean;
     name?: string;
     file?: {

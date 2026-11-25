@@ -128,6 +128,7 @@ function ResourceEvent({event}: {event: ResourceLoadEvent}) {
                 {" · "}
                 {event.data.byteLength.toLocaleString()} bytes
             </div>
+            {event.processName && <div>Loaded by {event.processName}</div>}
             <pre>{hexSnippet(event.data)}</pre>
         </div>
     );
