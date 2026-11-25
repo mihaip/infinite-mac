@@ -6,7 +6,6 @@ import {
     MacMemoryReader,
     type MacMemoryRegion,
 } from "@/emulator/common/toolbox/memory";
-import {fourCCToString} from "@/emulator/common/toolbox/fourcc";
 import {readResourceMetadata} from "@/emulator/common/toolbox/resources";
 
 export class EmulatorWorkerResourceEvents {
@@ -17,32 +16,22 @@ export class EmulatorWorkerResourceEvents {
      * compatibility patches.
      *
      * @param regions The RAM and ROM regions
-     * @param type The resource type/FourCC.
-     * @param id The resource ID.
      * @param handle The handle to the resource data.
      * @param referenceEntryAddress The guest address of the resource's
      * ReferenceEntry in its resource map.
      */
     resourceLoaded(
         regions: readonly MacMemoryRegion[],
-        type: number,
-        id: number,
         handle: number,
         referenceEntryAddress: number
     ) {
         try {
-            this.#resourceLoadedImpl(
-                regions,
-                type,
-                id,
-                handle,
-                referenceEntryAddress
-            );
+            this.#resourceLoadedImpl(regions, handle, referenceEntryAddress);
         } catch (error) {
             this.#unavailableCount++;
             console.warn(
                 "Could not capture resource",
-                {type: fourCCToString(type), id, handle, referenceEntryAddress},
+                {handle, referenceEntryAddress},
                 error
             );
         }
@@ -84,24 +73,45 @@ export class EmulatorWorkerResourceEvents {
     #lastFlush = Date.now();
 
     /**
-     * Some resources are loaded very frequently (e.g., MBDF ID 0 while opening
-     * menus), so we track which ones have already been reported to avoid
-     * duplicates.
+     * Some resources can load repeatedly (e.g. MBDF ID 0 while tracking menus).
+     * Quickly reject consecutive loads with the same parameters, but only
+     * the last few to avoid collisions if handles and reference entries are
+     * reused.
      */
-    #reported = new Set<string>();
+    #recentLoadKeys = new Set<string>();
+    /**
+     * More precise already-loaded map that takes into account resource ID/type.
+     */
+    #reportedResources = new Set<string>();
 
     #resourceLoadedImpl(
         regions: readonly MacMemoryRegion[],
-        type: number,
-        id: number,
         handle: number,
         referenceEntryAddress: number
     ) {
-        const key = `${type}:${id}:${handle}:${referenceEntryAddress}`;
-        if (this.#reported.has(key)) {
+        const loadKey = `${handle}:${referenceEntryAddress}`;
+        if (this.#recentLoadKeys.has(loadKey)) {
             return;
         }
+        this.#recentLoadKeys.add(loadKey);
+        if (this.#recentLoadKeys.size > 5) {
+            this.#recentLoadKeys.delete(
+                this.#recentLoadKeys.values().next().value!
+            );
+        }
+
         const memory = MacMemoryReader.fromRegions(regions);
+        const metadata = readResourceMetadata(memory, referenceEntryAddress);
+        if (!metadata) {
+            throw new Error("Resource type is unavailable");
+        }
+        const {mapHandle, id: resourceId, ...eventMetadata} = metadata;
+        // Handles and reference entries can move without changing the resource.
+        const resourceKey = `${mapHandle}:${metadata.type}:${metadata.id}`;
+        if (this.#reportedResources.has(resourceKey)) {
+            return;
+        }
+
         const block = memory.handle(handle);
         if (!block) {
             throw new Error("Resource is not resident");
@@ -113,25 +123,11 @@ export class EmulatorWorkerResourceEvents {
         const event: ResourceLoadEvent = {
             id: this.#idCounter++,
             timestamp: Date.now(),
-            type: fourCCToString(type),
-            resourceId: id,
+            resourceId,
+            ...eventMetadata,
             isRom: block.isRom,
             data: memory.bytes(block.address, block.size).slice(),
         };
-        // A transient or malformed map must not discard a valid payload.
-        try {
-            Object.assign(
-                event,
-                readResourceMetadata(memory, referenceEntryAddress, event.type)
-            );
-        } catch (error) {
-            // Source metadata is best effort.
-            console.warn(
-                "Could not read resource metadata",
-                {type: event.type, id, referenceEntryAddress},
-                error
-            );
-        }
 
         this.#pending.push(event);
         this.#pendingBytes += event.data.byteLength;
@@ -142,9 +138,11 @@ export class EmulatorWorkerResourceEvents {
             this.flush();
         }
 
-        this.#reported.add(key);
-        if (this.#reported.size > REPORTED_RESOURCE_LIMIT) {
-            this.#reported.delete(this.#reported.keys().next().value!);
+        this.#reportedResources.add(resourceKey);
+        if (this.#reportedResources.size > REPORTED_RESOURCE_LIMIT) {
+            this.#reportedResources.delete(
+                this.#reportedResources.values().next().value!
+            );
         }
     }
 }

@@ -7,7 +7,7 @@ import {
 } from "@/emulator/common/toolbox/files";
 
 /**
- * Read the ReferenceEntry fields used for source metadata.
+ * Read the resource ID and name offset from Apple's ReferenceEntry.
  * @see {@link https://developer.apple.com/library/archive/documentation/mac/pdf/MoreMacintoshToolbox.pdf#page=154 | Figure 1-16 (page 1-124)}
  */
 function readResourceReferenceEntry(
@@ -30,13 +30,12 @@ function readResourceReferenceEntry(
 }
 
 /**
- * Walk map headers to find this reference's owner and validate its type entry,
+ * Resolve a reference's map, type, ID, file, and name,
  * without reading other resources' payloads.
  */
 export function readResourceMetadata(
     memory: MacMemoryReader,
-    referenceEntryAddress: number,
-    type: string
+    referenceEntryAddress: number
 ): ResourceMetadata | undefined {
     const referenceEntry = readResourceReferenceEntry(
         memory,
@@ -80,9 +79,6 @@ export function readResourceMetadata(
                 typeEntries,
                 index * RESOURCE_TYPE_ENTRY_SIZE
             );
-            if (typeEntry.type !== type) {
-                continue;
-            }
             const referenceListOffset =
                 typeBase + typeEntry.referenceListOffset;
             const referenceListSize =
@@ -95,7 +91,7 @@ export function readResourceMetadata(
                 referenceOffset + RESOURCE_REFERENCE_ENTRY_SIZE >
                     referenceListSize
             ) {
-                return undefined;
+                continue;
             }
             // File metadata can fail independently of the resource name.
             const file = readOpenFileInfo(memory, mapHeader.fileRefNum) ?? {
@@ -113,14 +109,20 @@ export function readResourceMetadata(
                 console.warn(
                     "Could not read resource name",
                     {
-                        type,
+                        type: typeEntry.type,
                         id: referenceEntry.id,
                         referenceEntryAddress: referenceEntry.address,
                     },
                     error
                 );
             }
-            return {file, name};
+            return {
+                mapHandle: map,
+                type: typeEntry.type,
+                id: referenceEntry.id,
+                file,
+                name,
+            };
         }
         return undefined;
     }
@@ -134,6 +136,9 @@ type ResourceReferenceEntry = {
 };
 
 export type ResourceMetadata = {
+    mapHandle: number;
+    type: string;
+    id: number;
     file?: OpenFileInfo;
     name?: string;
 };
