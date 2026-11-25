@@ -9,6 +9,7 @@ __pycache__/
 
 # testing
 /coverage
+/scripts/tests/
 
 # production
 /build

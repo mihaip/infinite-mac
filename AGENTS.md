@@ -34,6 +34,10 @@ Infinite Mac is a web-based multi-emulator platform for running classic Macintos
 - Fix shared behavior in the component or state owner responsible for it. Keep supported configurations consistent instead of adding consumer-specific workarounds.
 - Make independently useful components self-contained. Give them their own class names and scoped styles, and keep their behavior independent of incidental parent structure.
 
+## Unit tests
+
+Use `scripts/tests/` for local unit tests during development. Do not commit unit tests.
+
 ## Working with emulator cores
 
 When working with emulators that live in Git submodules (e.g. `macemu/` for Baslisk II and SheepShaver, `dingusppc/` for DingusPPC, `snow/` for Snow, etc.), reference the `AGENTS.md` file in the respective submodule before doing anything else.
