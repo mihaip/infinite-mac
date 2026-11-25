@@ -11,6 +11,9 @@
     "[typescriptreact]": {
         "editor.defaultFormatter": "oxc.oxc-vscode"
     },
+    "[css]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
     "oxc.disableNestedConfig": true,
     "oxc.fmt.disableNestedConfig": true,
     "editor.formatOnSave": true,
