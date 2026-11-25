@@ -1,3 +1,5 @@
+import {type OpenFileInfo} from "@/emulator/common/toolbox/files";
+
 export type ResourceLoadEvent = {
     id: number;
     timestamp: number;
@@ -7,12 +9,7 @@ export type ResourceLoadEvent = {
     processName?: string;
     isRom?: boolean;
     name?: string;
-    file?: {
-        refNum: number;
-        name?: string;
-        volumeName?: string;
-        parentId?: number;
-    };
+    file?: OpenFileInfo & {path?: string};
     data: Uint8Array;
 };
 

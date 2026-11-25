@@ -1,4 +1,5 @@
 import {LowMem} from "@/emulator/common/toolbox/lowmem";
+import {pstring} from "@/emulator/common/toolbox/strings";
 
 /**
  * Borrowed RAM/ROM regions for one synchronous observation. Each read must fit
@@ -85,11 +86,8 @@ export class MacMemoryReader {
     }
 
     pstring(address: number, maxLength = PASCAL_STRING_MAX_LENGTH): string {
-        const length = this.u8(address);
-        if (length > maxLength) {
-            throw new Error("Invalid Pascal string");
-        }
-        return macRoman.decode(this.bytes(address + 1, length));
+        const length = Math.min(this.u8(address), maxLength);
+        return pstring(this.bytes(address, length + 1), 0, maxLength);
     }
 
     handle(
@@ -151,8 +149,6 @@ export type MacMemoryRegion = {
     data: Uint8Array;
     kind: "ram" | "rom";
 };
-
-const macRoman = new TextDecoder("macintosh");
 
 type MacMemoryRegionView = MacMemoryRegion & {view: DataView};
 

@@ -107,9 +107,9 @@ function ResourceEvent({event}: {event: ResourceLoadEvent}) {
     if (event.isRom) {
         source = "ROM";
     } else {
-        source = event.file?.name ?? "Source unavailable";
-        if (event.file?.volumeName) {
-            source += ` (${event.file.volumeName})`;
+        source = event.file?.path ?? event.file?.name ?? "Source unavailable";
+        if (!event.file?.path && event.file?.volume?.name) {
+            source += ` (${event.file.volume.name})`;
         }
     }
     return (

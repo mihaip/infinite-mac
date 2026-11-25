@@ -28,6 +28,7 @@ export class EmulatorWorkerDisksApi {
 
     #diskBytesRead = 0;
     #diskBytesWritten = 0;
+    #revision = 0;
 
     constructor(
         disks: EmulatorWorkerDisk[],
@@ -60,6 +61,20 @@ export class EmulatorWorkerDisksApi {
         return disk.hasDisk();
     }
 
+    /**
+     * Changes when mounted media or its contents change, invalidating catalog
+     * caches.
+     */
+    get revision(): number {
+        return this.#revision;
+    }
+
+    readableDisks(): EmulatorWorkerDisk[] {
+        return [...new Set(this.#openedDisks.values())].filter(
+            disk => !(disk instanceof EmulatorRemovableDisk) || disk.hasDisk()
+        );
+    }
+
     isFixedDisk(diskId: DiskId): boolean {
         const disk = this.#openedDisks.get(diskId);
         if (!disk) {
@@ -78,6 +93,7 @@ export class EmulatorWorkerDisksApi {
             return;
         }
         disk.eject();
+        this.#revision++;
     }
 
     addDisk(disk: EmulatorWorkerDisk) {
@@ -88,6 +104,7 @@ export class EmulatorWorkerDisksApi {
             const removableDisk = removableDisks.find(disk => !disk.hasDisk());
             if (removableDisk) {
                 removableDisk.insert(disk);
+                this.#revision++;
                 return;
             } else {
                 console.warn(
@@ -121,6 +138,7 @@ export class EmulatorWorkerDisksApi {
             return -1;
         }
         this.#openedDisks.set(diskId, disk);
+        this.#revision++;
         return diskId;
     }
 
@@ -130,6 +148,7 @@ export class EmulatorWorkerDisksApi {
             throw new Error(`Disk not found: ${diskId}`);
         }
         this.#openedDisks.delete(diskId);
+        this.#revision++;
         if (disk instanceof EmulatorRemovableDisk) {
             disk.eject();
         }
@@ -172,6 +191,9 @@ export class EmulatorWorkerDisksApi {
             bufPtr + length
         );
         const bytesWritten = disk.write(buffer, offset, length);
+        if (bytesWritten > 0) {
+            this.#revision++;
+        }
         this.#diskBytesWritten += Math.max(bytesWritten, 0);
         return bytesWritten;
     }

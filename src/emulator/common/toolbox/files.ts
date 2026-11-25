@@ -2,6 +2,11 @@ import {type MacMemoryReader} from "@/emulator/common/toolbox/memory";
 import {LowMem} from "@/emulator/common/toolbox/lowmem";
 
 /**
+ * @fileoverview Helpers for dealing with the File Manager and its in-memory
+ * data structures. See hfs.ts for on-disk HFS helpers.
+ */
+
+/**
  * Resolve an HFS file reference number through the guest's FCB and VCB tables.
  * File metadata is best effort when the tables are unavailable or malformed.
  */
@@ -20,25 +25,13 @@ export function readOpenFileInfo(
 export type OpenFileInfo = {
     refNum: number;
     name?: string;
-    volumeName?: string;
+    volume?: VolumeControlBlock;
     parentId?: number;
 };
 
 const FCB_TABLE_HEADER_SIZE = 2;
 const FILE_NAME_MAX_LENGTH = 31;
 const VOLUME_NAME_MAX_LENGTH = 27;
-
-// HFS FCB size and field names from Apple's FSEqu.a.
-const fcbEntLen = 94;
-enum FCBFields {
-    fcbVPtr = 20,
-    fcbDirID = 58,
-    fcbCName = 62,
-}
-
-enum VCBFields {
-    vcbVN = 44,
-}
 
 function readOpenFileInfoImpl(
     memory: MacMemoryReader,
@@ -63,7 +56,7 @@ function readOpenFileInfoImpl(
     return {
         refNum,
         name: fcb.name,
-        volumeName: volume?.name,
+        volume,
         parentId: fcb.parentId,
     };
 }
@@ -74,10 +67,7 @@ type FileControlBlock = {
     name?: string;
 };
 
-/**
- * Read the HFS FCB fields used for source attribution: a VCB pointer, the parent
- * directory ID, and a Str31 filename in the fixed 94-byte prefix.
- */
+/** Read the HFS FCB fields used for source attribution. */
 function readFileControlBlock(
     memory: MacMemoryReader,
     address: number
@@ -91,16 +81,30 @@ function readFileControlBlock(
     };
 }
 
-type VolumeControlBlock = {
+// HFS FCB size and field names from Apple's FSEqu.a.
+const fcbEntLen = 94;
+enum FCBFields {
+    fcbVPtr = 20,
+    fcbDirID = 58,
+    fcbCName = 62,
+}
+
+export type VolumeControlBlock = {
     name: string;
+    creationDate: number;
 };
 
-/** Read the VCB's volume name, a Str27 at offset 44. */
 function readVolumeControlBlock(
     memory: MacMemoryReader,
     address: number
 ): VolumeControlBlock {
     return {
         name: memory.pstring(address + VCBFields.vcbVN, VOLUME_NAME_MAX_LENGTH),
+        creationDate: memory.u32(address + VCBFields.vcbCrDate),
     };
+}
+
+enum VCBFields {
+    vcbCrDate = 10,
+    vcbVN = 44,
 }

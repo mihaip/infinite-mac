@@ -8,9 +8,13 @@ import {
 } from "@/emulator/common/toolbox/memory";
 import {readResourceMetadata} from "@/emulator/common/toolbox/resources";
 import {readCurrentProcessName} from "@/emulator/common/toolbox/processes";
+import {type HFSPathResolver} from "@/emulator/worker/hfs-paths";
 
 export class EmulatorWorkerResourceEvents {
-    constructor(private send: (message: ResourceEventsMessage) => void) {}
+    constructor(
+        private send: (message: ResourceEventsMessage) => void,
+        private paths?: HFSPathResolver
+    ) {}
 
     /**
      * Called synchronously by the emulator core after the resource loader and
@@ -130,6 +134,20 @@ export class EmulatorWorkerResourceEvents {
             isRom: block.isRom,
             data: memory.bytes(block.address, block.size).slice(),
         };
+        const file = event.file;
+        if (
+            this.paths &&
+            !event.isRom &&
+            file?.name &&
+            file.volume &&
+            file.parentId !== undefined
+        ) {
+            file.path = this.paths.resolve(
+                file.volume,
+                file.parentId,
+                file.name
+            );
+        }
 
         this.#pending.push(event);
         this.#pendingBytes += event.data.byteLength;

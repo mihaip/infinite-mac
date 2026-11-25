@@ -83,6 +83,7 @@ import {EmulatorWorkerOverlayDisk} from "@/emulator/worker/overlay-disk";
 import {EmulatorWorkerSpeedGovernor} from "@/emulator/worker/speed-governor";
 import {prepareDiskCopy42Disk} from "@/emulator/worker/disk-copy-42-disk";
 import {EmulatorWorkerResourceEvents} from "@/emulator/worker/resource-events";
+import {HFSPathResolver} from "@/emulator/worker/hfs-paths";
 
 addEventListener("message", async event => {
     const {data} = event;
@@ -285,11 +286,13 @@ class EmulatorWorkerApi {
             );
         }
         if (config.resourceEvents) {
-            this.resources = new EmulatorWorkerResourceEvents(message =>
-                postMessage(
-                    message,
-                    message.events.map(event => event.data.buffer)
-                )
+            this.resources = new EmulatorWorkerResourceEvents(
+                message =>
+                    postMessage(
+                        message,
+                        message.events.map(event => event.data.buffer)
+                    ),
+                new HFSPathResolver(this.disks)
             );
         }
     }
