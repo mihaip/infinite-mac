@@ -1,10 +1,6 @@
 import {type MacMemoryReader} from "@/emulator/common/toolbox/memory";
 import {LowMem} from "@/emulator/common/toolbox/lowmem";
 import {fourCCToString} from "@/emulator/common/toolbox/fourcc";
-import {
-    readOpenFileInfo,
-    type OpenFileInfo,
-} from "@/emulator/common/toolbox/files";
 
 /**
  * Read the resource ID and name offset from Apple's ReferenceEntry.
@@ -30,7 +26,7 @@ function readResourceReferenceEntry(
 }
 
 /**
- * Resolve a reference's map, type, ID, file, and name,
+ * Resolve a reference's map, type, ID, file reference number, and name,
  * without reading other resources' payloads.
  */
 export function readResourceMetadata(
@@ -93,10 +89,6 @@ export function readResourceMetadata(
             ) {
                 continue;
             }
-            // File metadata can fail independently of the resource name.
-            const file = readOpenFileInfo(memory, mapHeader.fileRefNum) ?? {
-                refNum: mapHeader.fileRefNum,
-            };
             let name: string | undefined;
             try {
                 if (referenceEntry.nameOffset !== NO_RESOURCE_NAME) {
@@ -105,7 +97,7 @@ export function readResourceMetadata(
                     name = mapMemory.pstring(offset) || undefined;
                 }
             } catch (error) {
-                // Preserve file attribution even if the resource name is corrupt.
+                // Preserve other metadata even if the resource name is corrupt.
                 console.warn(
                     "Could not read resource name",
                     {
@@ -120,7 +112,7 @@ export function readResourceMetadata(
                 mapHandle: map,
                 type: typeEntry.type,
                 id: referenceEntry.id,
-                file,
+                fileRefNum: mapHeader.fileRefNum,
                 name,
             };
         }
@@ -139,7 +131,7 @@ export type ResourceMetadata = {
     mapHandle: number;
     type: string;
     id: number;
-    file?: OpenFileInfo;
+    fileRefNum: number;
     name?: string;
 };
 

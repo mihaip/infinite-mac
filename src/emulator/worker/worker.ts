@@ -83,7 +83,6 @@ import {EmulatorWorkerOverlayDisk} from "@/emulator/worker/overlay-disk";
 import {EmulatorWorkerSpeedGovernor} from "@/emulator/worker/speed-governor";
 import {prepareDiskCopy42Disk} from "@/emulator/worker/disk-copy-42-disk";
 import {EmulatorWorkerResourceEvents} from "@/emulator/worker/resource-events";
-import {FilePathResolver} from "@/emulator/worker/file-paths";
 
 addEventListener("message", async event => {
     const {data} = event;
@@ -294,7 +293,7 @@ class EmulatorWorkerApi {
                         message,
                         message.events.map(event => event.data.buffer)
                     ),
-                new FilePathResolver(this.disks)
+                this.disks
             );
         }
     }

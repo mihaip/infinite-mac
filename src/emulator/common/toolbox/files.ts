@@ -22,6 +22,47 @@ export function readOpenFileInfo(
     }
 }
 
+/**
+ * Reuse the last file's metadata until its FCB identity or disk revision changes.
+ * File reference numbers can be reused without any disk writes.
+ * Returned metadata is shared; copy it before enriching an event.
+ */
+export class OpenFileInfoCache {
+    read(
+        memory: MacMemoryReader,
+        refNum: number,
+        diskRevision: number
+    ): OpenFileInfo | undefined {
+        try {
+            return this.#readImpl(memory, refNum, diskRevision);
+        } catch (error) {
+            console.warn("Could not read open file info", {refNum}, error);
+            return undefined;
+        }
+    }
+
+    #last: {key: string; file: OpenFileInfo} | undefined;
+
+    #readImpl(
+        memory: MacMemoryReader,
+        refNum: number,
+        diskRevision: number
+    ): OpenFileInfo | undefined {
+        const table = memory.pointer(LowMem.FCBSPtr);
+        if (!table) return undefined;
+        const address = table + refNum;
+        const fileId = memory.u32(address + FCBFields.fcbFlNm);
+        const volumeAddress = memory.pointer(address + FCBFields.fcbVPtr);
+        const key = `${diskRevision}:${refNum}:${fileId}:${volumeAddress}`;
+        if (this.#last?.key === key) {
+            return this.#last.file;
+        }
+        const file = readOpenFileInfoImpl(memory, refNum);
+        this.#last = file ? {key, file} : undefined;
+        return file;
+    }
+}
+
 export type OpenFileInfo = {
     refNum: number;
     name?: string;

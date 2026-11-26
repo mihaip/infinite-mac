@@ -8,13 +8,17 @@ import {
 } from "@/emulator/common/toolbox/memory";
 import {readResourceMetadata} from "@/emulator/common/toolbox/resources";
 import {readCurrentProcessName} from "@/emulator/common/toolbox/processes";
-import {type FilePathResolver} from "@/emulator/worker/file-paths";
+import {OpenFileInfoCache} from "@/emulator/common/toolbox/files";
+import {FilePathResolver} from "@/emulator/worker/file-paths";
+import {type EmulatorWorkerDisksApi} from "@/emulator/worker/disks";
 
 export class EmulatorWorkerResourceEvents {
     constructor(
         private send: (message: ResourceEventsMessage) => void,
-        private paths?: FilePathResolver
-    ) {}
+        private disks?: EmulatorWorkerDisksApi
+    ) {
+        this.#paths = disks ? new FilePathResolver(disks) : undefined;
+    }
 
     /**
      * Called synchronously by the emulator core after the resource loader and
@@ -88,6 +92,8 @@ export class EmulatorWorkerResourceEvents {
      * More precise already-loaded map that takes into account resource ID/type.
      */
     #reportedResources = new Set<string>();
+    #fileInfoCache = new OpenFileInfoCache();
+    #paths: FilePathResolver | undefined;
 
     #resourceLoadedImpl(
         regions: readonly MacMemoryRegion[],
@@ -115,7 +121,12 @@ export class EmulatorWorkerResourceEvents {
         if (!metadata) {
             throw new Error("Resource type is unavailable");
         }
-        const {mapHandle, id: resourceId, ...eventMetadata} = metadata;
+        const {
+            mapHandle,
+            fileRefNum,
+            id: resourceId,
+            ...eventMetadata
+        } = metadata;
         // Handles and reference entries can move without changing the resource.
         const resourceKey = `${mapHandle}:${metadata.type}:${metadata.id}`;
         if (this.#reportedResources.has(resourceKey)) {
@@ -132,13 +143,22 @@ export class EmulatorWorkerResourceEvents {
             timestamp: Date.now(),
             resourceId,
             ...eventMetadata,
+            // Each event owns its file info; path/name enrichment must not mutate
+            // the cached metadata or any earlier event.
+            file: {
+                ...(this.#fileInfoCache.read(
+                    memory,
+                    fileRefNum,
+                    this.disks?.revision ?? 0
+                ) ?? {refNum: fileRefNum}),
+            },
             processName: readCurrentProcessName(memory),
             isRom: block.isRom,
             data: memory.bytes(block.address, block.size).slice(),
         };
         const file = event.file;
-        if (this.paths && !event.isRom && file) {
-            const path = this.paths.resolve(file);
+        if (this.#paths && !event.isRom && file) {
+            const path = this.#paths.resolve(file);
             if (path) {
                 file.path = path;
                 file.name ??= path.slice(path.lastIndexOf(":") + 1);
