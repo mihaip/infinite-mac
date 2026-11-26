@@ -1,3 +1,4 @@
+import {diskCopy42DataDisk} from "@/emulator/worker/disk-copy-42-disk";
 import {type VolumeControlBlock} from "@/emulator/common/toolbox/files";
 import {
     HFS_ROOT_DIRECTORY_ID,
@@ -55,7 +56,7 @@ export class HFSPathResolver {
                 if (this.#scannedDisks.has(disk)) continue;
                 let discovered: HFSVolume[];
                 try {
-                    discovered = readHFSVolumes(disk);
+                    discovered = readHFSVolumes(diskCopy42DataDisk(disk));
                 } catch (error) {
                     console.warn(
                         "Could not read HFS volumes from disk",

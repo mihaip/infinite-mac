@@ -3,11 +3,11 @@ import {LowMem} from "@/emulator/common/toolbox/lowmem";
 
 /**
  * @fileoverview Helpers for dealing with the File Manager and its in-memory
- * data structures. See hfs.ts for on-disk HFS helpers.
+ * data structures. See hfs.ts and mfs.ts for on-disk filesystem helpers.
  */
 
 /**
- * Resolve an HFS file reference number through the guest's FCB and VCB tables.
+ * Resolve a file reference number through the guest's FCB and VCB tables.
  * File metadata is best effort when the tables are unavailable or malformed.
  */
 export function readOpenFileInfo(
@@ -27,6 +27,7 @@ export type OpenFileInfo = {
     name?: string;
     volume?: VolumeControlBlock;
     parentId?: number;
+    fileId?: number;
 };
 
 const FCB_TABLE_HEADER_SIZE = 2;
@@ -37,11 +38,12 @@ function readOpenFileInfoImpl(
     memory: MacMemoryReader,
     refNum: number
 ): OpenFileInfo | undefined {
-    // In HFS FCBs the file reference number is an offset into the table.
-    const recordLength = memory.u16(LowMem.FSFCBLen);
+    // Before HFS, FSFCBLen is -1 and FCBs have a fixed 30-byte layout.
+    const fcbLength = memory.i16(LowMem.FSFCBLen);
+    const recordLength = fcbLength > 0 ? fcbLength : MFSFCBLen;
     const table = memory.pointer(LowMem.FCBSPtr);
     if (
-        recordLength < fcbEntLen ||
+        recordLength < MFSFCBLen ||
         refNum < FCB_TABLE_HEADER_SIZE ||
         (refNum - FCB_TABLE_HEADER_SIZE) % recordLength !== 0 ||
         !table ||
@@ -49,7 +51,7 @@ function readOpenFileInfoImpl(
     ) {
         return undefined;
     }
-    const fcb = readFileControlBlock(memory, table + refNum);
+    const fcb = readFileControlBlock(memory, table + refNum, recordLength);
     const volume = fcb.volumeAddress
         ? readVolumeControlBlock(memory, fcb.volumeAddress)
         : undefined;
@@ -58,38 +60,51 @@ function readOpenFileInfoImpl(
         name: fcb.name,
         volume,
         parentId: fcb.parentId,
+        fileId: fcb.fileId,
     };
 }
 
 type FileControlBlock = {
     volumeAddress: number;
-    parentId: number;
+    parentId?: number;
+    fileId: number;
     name?: string;
 };
 
-/** Read the HFS FCB fields used for source attribution. */
+/**
+ * Read the MFS or extended HFS FCB fields used for source attribution.
+ */
 function readFileControlBlock(
     memory: MacMemoryReader,
-    address: number
+    address: number,
+    recordLength: number
 ): FileControlBlock {
-    const fcb = memory.subarray(address, address + fcbEntLen);
+    const fcb = memory.subarray(address, address + recordLength);
     return {
         volumeAddress: fcb.pointer(FCBFields.fcbVPtr),
-        parentId: fcb.u32(FCBFields.fcbDirID),
+        fileId: fcb.u32(FCBFields.fcbFlNm),
+        parentId:
+            recordLength >= fcbEntLen ? fcb.u32(FCBFields.fcbDirID) : undefined,
         name:
-            fcb.pstring(FCBFields.fcbCName, FILE_NAME_MAX_LENGTH) || undefined,
+            recordLength >= fcbEntLen
+                ? fcb.pstring(FCBFields.fcbCName, FILE_NAME_MAX_LENGTH) ||
+                  undefined
+                : undefined,
     };
 }
 
-// HFS FCB size and field names from Apple's FSEqu.a.
+// FCB sizes and field names from Apple's FSEqu.a.
 const fcbEntLen = 94;
+const MFSFCBLen = 30;
 enum FCBFields {
+    fcbFlNm = 0,
     fcbVPtr = 20,
     fcbDirID = 58,
     fcbCName = 62,
 }
 
 export type VolumeControlBlock = {
+    signature: number;
     name: string;
     creationDate: number;
 };
@@ -99,12 +114,14 @@ function readVolumeControlBlock(
     address: number
 ): VolumeControlBlock {
     return {
+        signature: memory.u16(address + VCBFields.vcbSigWord),
         name: memory.pstring(address + VCBFields.vcbVN, VOLUME_NAME_MAX_LENGTH),
         creationDate: memory.u32(address + VCBFields.vcbCrDate),
     };
 }
 
 enum VCBFields {
+    vcbSigWord = 8,
     vcbCrDate = 10,
     vcbVN = 44,
 }

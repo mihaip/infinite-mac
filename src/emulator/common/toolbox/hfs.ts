@@ -1,3 +1,4 @@
+import {type ReadableDisk} from "@/emulator/common/toolbox/disks";
 import {pstring} from "@/emulator/common/toolbox/strings";
 
 /**
@@ -10,7 +11,7 @@ export const HFS_ROOT_DIRECTORY_ID = 2;
 /**
  * Accept bare HFS partitions and Apple Partition Map device images.
  */
-export function readHFSVolumes(disk: HFSReadableDisk): HFSVolume[] {
+export function readHFSVolumes(disk: ReadableDisk): HFSVolume[] {
     if (disk.size < 3 * BLOCK_SIZE) return [];
     const flat = volumeAt(disk, 0);
     if (flat) return [flat];
@@ -111,11 +112,6 @@ export function readHFSDirectoryThread(volume: HFSVolume, directoryId: number) {
     return undefined;
 }
 
-export type HFSReadableDisk = {
-    readonly size: number;
-    read(buffer: Uint8Array, offset: number, length: number): number;
-};
-
 export type HFSVolume = {
     /** Raw HFS timestamp, in seconds since January 1, 1904. */
     creationDate: number;
@@ -124,7 +120,7 @@ export type HFSVolume = {
     allocationStart: number;
     catalogSize: number;
     catalogExtents: Extent[];
-    disk: HFSReadableDisk;
+    disk: ReadableDisk;
 };
 
 type Extent = {start: number; count: number};
@@ -191,7 +187,7 @@ function view(data: Uint8Array): DataView {
 }
 
 function readExact(
-    disk: HFSReadableDisk,
+    disk: ReadableDisk,
     offset: number,
     length: number
 ): Uint8Array {
@@ -205,7 +201,7 @@ function readExact(
     return data;
 }
 
-function volumeAt(disk: HFSReadableDisk, start: number): HFSVolume | undefined {
+function volumeAt(disk: ReadableDisk, start: number): HFSVolume | undefined {
     const data = readExact(
         disk,
         start + 2 * BLOCK_SIZE,

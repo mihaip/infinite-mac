@@ -83,7 +83,7 @@ import {EmulatorWorkerOverlayDisk} from "@/emulator/worker/overlay-disk";
 import {EmulatorWorkerSpeedGovernor} from "@/emulator/worker/speed-governor";
 import {prepareDiskCopy42Disk} from "@/emulator/worker/disk-copy-42-disk";
 import {EmulatorWorkerResourceEvents} from "@/emulator/worker/resource-events";
-import {HFSPathResolver} from "@/emulator/worker/hfs-paths";
+import {FilePathResolver} from "@/emulator/worker/file-paths";
 
 addEventListener("message", async event => {
     const {data} = event;
@@ -233,6 +233,7 @@ class EmulatorWorkerApi {
                     } else {
                         disk = new EmulatorWorkerChunkedDisk(spec, this);
                     }
+                    disk.isFloppy = spec.isFloppy;
                     if (spec.overlays?.length) {
                         disk = new EmulatorWorkerOverlayDisk(
                             disk,
@@ -257,6 +258,7 @@ class EmulatorWorkerApi {
                         spec,
                         this
                     );
+                    disk.isFloppy = spec.isFloppy;
                     disk = prepareDiskCopy42Disk(disk, this.#emulatorType);
                     if (
                         deviceImageType !== null &&
@@ -292,7 +294,7 @@ class EmulatorWorkerApi {
                         message,
                         message.events.map(event => event.data.buffer)
                     ),
-                new HFSPathResolver(this.disks)
+                new FilePathResolver(this.disks)
             );
         }
     }

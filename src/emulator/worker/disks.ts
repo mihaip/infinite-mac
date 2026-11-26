@@ -70,7 +70,14 @@ export class EmulatorWorkerDisksApi {
     }
 
     readableDisks(): EmulatorWorkerDisk[] {
-        return [...new Set(this.#openedDisks.values())].filter(
+        // Some cores load entire floppy images and close their worker handles.
+        // Keep those backing images available for file source attribution.
+        return [
+            ...new Set([
+                ...this.#openedDisks.values(),
+                ...this.#disks.filter(disk => disk.isFloppy),
+            ]),
+        ].filter(
             disk => !(disk instanceof EmulatorRemovableDisk) || disk.hasDisk()
         );
     }

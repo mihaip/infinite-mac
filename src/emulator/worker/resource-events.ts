@@ -8,12 +8,12 @@ import {
 } from "@/emulator/common/toolbox/memory";
 import {readResourceMetadata} from "@/emulator/common/toolbox/resources";
 import {readCurrentProcessName} from "@/emulator/common/toolbox/processes";
-import {type HFSPathResolver} from "@/emulator/worker/hfs-paths";
+import {type FilePathResolver} from "@/emulator/worker/file-paths";
 
 export class EmulatorWorkerResourceEvents {
     constructor(
         private send: (message: ResourceEventsMessage) => void,
-        private paths?: HFSPathResolver
+        private paths?: FilePathResolver
     ) {}
 
     /**
@@ -137,18 +137,12 @@ export class EmulatorWorkerResourceEvents {
             data: memory.bytes(block.address, block.size).slice(),
         };
         const file = event.file;
-        if (
-            this.paths &&
-            !event.isRom &&
-            file?.name &&
-            file.volume &&
-            file.parentId !== undefined
-        ) {
-            file.path = this.paths.resolve(
-                file.volume,
-                file.parentId,
-                file.name
-            );
+        if (this.paths && !event.isRom && file) {
+            const path = this.paths.resolve(file);
+            if (path) {
+                file.path = path;
+                file.name ??= path.slice(path.lastIndexOf(":") + 1);
+            }
         }
 
         this.#pending.push(event);

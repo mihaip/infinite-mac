@@ -26,6 +26,18 @@ export function prepareDiskCopy42Disk(
     disk: EmulatorWorkerDisk,
     emulatorType: EmulatorType
 ): EmulatorWorkerDisk {
+    const dataDisk = diskCopy42DataDisk(disk);
+    return emulatorSupportsDiskCopy42Disks(emulatorType) ? disk : dataDisk;
+}
+
+/**
+ * Expose sector data for filesystem readers, independent of core capabilities.
+ * Snow receives the full container; parsers need sector zero after its 84-byte
+ * header, with the trailing sector tags excluded.
+ */
+export function diskCopy42DataDisk(
+    disk: EmulatorWorkerDisk
+): EmulatorWorkerDisk {
     if (
         disk.size < DISK_COPY_42_MIN_FILE_SIZE ||
         disk.size > DISK_COPY_42_MAX_FILE_SIZE
@@ -43,10 +55,7 @@ export function prepareDiskCopy42Disk(
         return disk;
     }
 
-    disk.isFloppy = true;
-    if (emulatorSupportsDiskCopy42Disks(emulatorType)) {
-        return disk;
-    }
+    if (disk.isFloppy !== true) disk.isFloppy = true;
     return new EmulatorWorkerDiskCopy42Disk(disk, dataSize);
 }
 
