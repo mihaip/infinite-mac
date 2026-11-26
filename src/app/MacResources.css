@@ -7,6 +7,12 @@
 
 .MacResources-Container > .Drawer-Header {
     flex: none;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.MacResources-Search {
+    min-width: 0;
 }
 
 .MacResources-Status p {

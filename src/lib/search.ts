@@ -1,3 +1,5 @@
+import {useMemo} from "react";
+
 export function parseSearchQuery(query: string): SearchTerm[] {
     const terms: SearchTerm[] = [];
     const regex = /(\w+):"([^"]+)"|(\w+):(\S+)|"([^"]+)"|(\S+)/g;
@@ -25,6 +27,21 @@ export function parseSearchQuery(query: string): SearchTerm[] {
     }
 
     return terms;
+}
+
+export function useSearchFilter<T>(
+    items: readonly T[],
+    search: string,
+    createPredicate: (query: string) => (item: T) => boolean
+): readonly T[] {
+    const searchPredicate = useMemo(
+        () => (search.trim() ? createPredicate(search) : undefined),
+        [search, createPredicate]
+    );
+    return useMemo(
+        () => (searchPredicate ? items.filter(searchPredicate) : items),
+        [items, searchPredicate]
+    );
 }
 
 export type SearchTerm = {

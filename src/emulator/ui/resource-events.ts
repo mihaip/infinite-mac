@@ -2,6 +2,7 @@ import {
     type ResourceEventsMessage,
     type ResourceLoadEvent,
 } from "@/emulator/common/resource-events";
+import {parseSearchQuery} from "@/lib/search";
 
 // Session history outlives the drawer. Only a new worker clears the captures.
 export class EmulatorResourceEvents {
@@ -41,6 +42,71 @@ export class EmulatorResourceEvents {
             listener();
         }
     }
+}
+
+export function createResourceEventSearchPredicate(
+    query: string
+): (event: ResourceLoadEvent) => boolean {
+    const terms = parseSearchQuery(query);
+    // Captured events are immutable. Reuse matches as new events are appended.
+    const results = new WeakMap<ResourceLoadEvent, boolean>();
+    return event => {
+        const cached = results.get(event);
+        if (cached !== undefined) {
+            return cached;
+        }
+        let text: string | undefined;
+        let source: string | undefined;
+        const matches = terms.every(term => {
+            switch (term.operator) {
+                case undefined:
+                    text ??= [
+                        `${event.type.trimEnd()} ${event.resourceId}`,
+                        event.name,
+                        formatResourceEventSource(event),
+                        event.processName,
+                    ]
+                        .join("\n")
+                        .toLowerCase();
+                    return text.includes(term.value);
+                case "type":
+                    return (
+                        event.type.toLowerCase().trimEnd() ===
+                        term.value.trimEnd()
+                    );
+                case "id":
+                    return String(event.resourceId) === term.value;
+                case "name":
+                    return (
+                        event.name?.toLowerCase().includes(term.value) ?? false
+                    );
+                case "file":
+                    source ??= formatResourceEventSource(event).toLowerCase();
+                    return source.includes(term.value);
+                case "app":
+                case "program":
+                    return (
+                        event.processName?.toLowerCase().includes(term.value) ??
+                        false
+                    );
+                default:
+                    return false;
+            }
+        });
+        results.set(event, matches);
+        return matches;
+    };
+}
+
+export function formatResourceEventSource(event: ResourceLoadEvent): string {
+    if (event.isRom) {
+        return "ROM";
+    }
+    let source = event.file?.path ?? event.file?.name ?? "Source unavailable";
+    if (!event.file?.path && event.file?.volume?.name) {
+        source += ` (${event.file.volume.name})`;
+    }
+    return source;
 }
 
 const RESOURCE_EVENT_LIMIT = 10_000;

@@ -1,39 +1,72 @@
 import {Drawer, DrawerContents, DrawerHeader} from "@/controls/Drawer";
+import {Input} from "@/controls/Input";
 import resourcesIcon from "@/Images/Resources.png";
-import {useCallback, useLayoutEffect, useSyncExternalStore} from "react";
+import {
+    useCallback,
+    useLayoutEffect,
+    useState,
+    useSyncExternalStore,
+} from "react";
 import {useVirtualizedList} from "@/lib/useVirtualizedList";
-import {type EmulatorResourceEvents} from "@/emulator/ui/resource-events";
+import {useSearchFilter} from "@/lib/search";
+import {
+    type EmulatorResourceEvents,
+    createResourceEventSearchPredicate,
+    formatResourceEventSource,
+} from "@/emulator/ui/resource-events";
 import {type ResourceLoadEvent} from "@/emulator/common/resource-events";
 import "@/app/MacResources.css";
 
 export function MacResources({events}: {events: EmulatorResourceEvents}) {
+    const [search, setSearch] = useState("");
     return (
         <Drawer
             title="Resources"
             titleIconUrl={resourcesIcon}
             contents={() => (
                 <DrawerContents>
-                    <ResourceEvents events={events} />
+                    <ResourceEvents
+                        events={events}
+                        search={search}
+                        onSearchChange={setSearch}
+                    />
                 </DrawerContents>
             )}
         />
     );
 }
 
-function ResourceEvents({events}: {events: EmulatorResourceEvents}) {
+function ResourceEvents({
+    events,
+    search,
+    onSearchChange,
+}: {
+    events: EmulatorResourceEvents;
+    search: string;
+    onSearchChange: (value: string) => void;
+}) {
     const snapshot = useSyncExternalStore(events.subscribe, events.getSnapshot);
-    const resourceEvents = snapshot.events;
+    const resourceEvents = useSearchFilter(
+        snapshot.events,
+        search,
+        createResourceEventSearchPredicate
+    );
     const {virtualizer, scrollRef} =
         useResourceEventsVirtualizer(resourceEvents);
     useLayoutEffect(() => {
         virtualizer.scrollToEnd();
-    }, [events, virtualizer]);
+    }, [events, search, virtualizer]);
     return (
         <div
             className="MacResources-Container"
             onKeyDown={event => event.stopPropagation()}
             onKeyUp={event => event.stopPropagation()}>
-            <ResourceEventsHeader snapshot={snapshot} />
+            <ResourceEventsHeader
+                snapshot={snapshot}
+                search={search}
+                onSearchChange={onSearchChange}
+                filteredCount={resourceEvents.length}
+            />
             <div
                 className="MacResources"
                 ref={scrollRef}
@@ -41,7 +74,11 @@ function ResourceEvents({events}: {events: EmulatorResourceEvents}) {
                 aria-label="Resource loads"
                 tabIndex={0}>
                 {resourceEvents.length === 0 ? (
-                    <p>Waiting for resource loads…</p>
+                    <p>
+                        {snapshot.events.length
+                            ? "No resource loads match your search."
+                            : "Waiting for resource loads…"}
+                    </p>
                 ) : (
                     <ol
                         className="MacResources-Events"
@@ -69,13 +106,32 @@ function ResourceEvents({events}: {events: EmulatorResourceEvents}) {
 
 function ResourceEventsHeader({
     snapshot,
+    search,
+    onSearchChange,
+    filteredCount,
 }: {
     snapshot: ReturnType<EmulatorResourceEvents["getSnapshot"]>;
+    search: string;
+    onSearchChange: (value: string) => void;
+    filteredCount: number;
 }) {
     return (
         <DrawerHeader>
+            <Input
+                type="search"
+                className="MacResources-Search"
+                aria-label="Filter resources"
+                placeholder="Filter resources…"
+                title={
+                    'Combine words, "quoted phrases", type:ICON, id:128, name:"About", file:Finder, and app:TeachText.'
+                }
+                spellCheck={false}
+                value={search}
+                onChange={event => onSearchChange(event.currentTarget.value)}
+            />
             <div className="MacResources-Status">
                 <div>
+                    {search.trim() && `${filteredCount.toLocaleString()} of `}
                     {snapshot.events.length.toLocaleString()} resource{" "}
                     {snapshot.events.length === 1 ? "load" : "loads"}
                 </div>
@@ -103,15 +159,6 @@ function ResourceEventsHeader({
 }
 
 function ResourceEvent({event}: {event: ResourceLoadEvent}) {
-    let source;
-    if (event.isRom) {
-        source = "ROM";
-    } else {
-        source = event.file?.path ?? event.file?.name ?? "Source unavailable";
-        if (!event.file?.path && event.file?.volume?.name) {
-            source += ` (${event.file.volume.name})`;
-        }
-    }
     return (
         <div className="MacResources-Event">
             <div className="MacResources-EventHeader">
@@ -124,7 +171,7 @@ function ResourceEvent({event}: {event: ResourceLoadEvent}) {
                 </time>
             </div>
             <div>
-                {source}
+                {formatResourceEventSource(event)}
                 {" · "}
                 {event.data.byteLength.toLocaleString()} bytes
             </div>

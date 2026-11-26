@@ -7,6 +7,7 @@ import {
     useSyncExternalStore,
 } from "react";
 import {useVirtualizedList} from "@/lib/useVirtualizedList";
+import {useSearchFilter} from "@/lib/search";
 import {saveAs} from "file-saver";
 import {Button} from "@/controls/Button";
 import {Input} from "@/controls/Input";
@@ -70,7 +71,11 @@ function EmulatorLogOutput({
     setToastText: ToastSetter;
 }) {
     const rawMessages = useSyncExternalStore(log.subscribe, log.getSnapshot);
-    const messages = useSearchFilter(rawMessages, search);
+    const messages = useSearchFilter(
+        rawMessages,
+        search,
+        createEmulatorLogSearchPredicate
+    );
     const {virtualizer, scrollRef, handleWrapLinesChange} =
         useEmulatorLogVirtualizer({messages, wrapLines, onWrapLinesChange});
     // Start out scrolled to the bottom
@@ -423,23 +428,4 @@ class EmulatorPauseableLog {
             });
         }
     }
-}
-
-function useSearchFilter(
-    rawMessages: readonly EmulatorLogMessage[],
-    search: string
-): readonly EmulatorLogMessage[] {
-    const searchPredicate = useMemo(
-        () =>
-            search.trim()
-                ? createEmulatorLogSearchPredicate(search)
-                : undefined,
-        [search]
-    );
-    const messages = useMemo(
-        () =>
-            searchPredicate ? rawMessages.filter(searchPredicate) : rawMessages,
-        [rawMessages, searchPredicate]
-    );
-    return messages;
 }
