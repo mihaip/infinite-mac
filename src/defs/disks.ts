@@ -24,6 +24,7 @@ import {
     QUADRA_650,
     POWER_MACINTOSH_7300,
     IMAC_G3,
+    QUADRA_700_SNOW,
 } from "@/defs/machines";
 
 type GeneratedChunkedFileSpec = Omit<
@@ -378,7 +379,7 @@ export const SYSTEM_7_0_1: SystemDiskDef = {
     prefetchChunks: [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     ],
-    preferredMachine: MAC_IIcx_SNOW,
+    preferredMachine: QUADRA_700_SNOW,
     appleTalkSupported: true,
     appearanceVariant: "System7",
     generatedSpec: () => import("@/Data/System 7.0.1 HD.dsk.json"),
