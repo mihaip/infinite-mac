@@ -98,6 +98,12 @@ export class EmulatorWorkerResourceEvents {
         if (this.#recentLoadKeys.has(loadKey)) {
             return;
         }
+        const memory = MacMemoryReader.fromRegions(regions);
+        // SetResLoad(false) can return empty handles. Leave them uncached so a
+        // later call can capture the resource once its data is loaded.
+        if (memory.isNullHandle(handle)) {
+            return;
+        }
         this.#recentLoadKeys.add(loadKey);
         if (this.#recentLoadKeys.size > 5) {
             this.#recentLoadKeys.delete(
@@ -105,7 +111,6 @@ export class EmulatorWorkerResourceEvents {
             );
         }
 
-        const memory = MacMemoryReader.fromRegions(regions);
         const metadata = readResourceMetadata(memory, referenceEntryAddress);
         if (!metadata) {
             throw new Error("Resource type is unavailable");
@@ -117,10 +122,7 @@ export class EmulatorWorkerResourceEvents {
             return;
         }
 
-        const block = memory.handle(handle);
-        if (!block) {
-            throw new Error("Resource is not resident");
-        }
+        const block = memory.handle(handle)!;
         if (block.size > RESOURCE_PAYLOAD_BYTE_LIMIT) {
             this.#oversizedCount++;
             return;

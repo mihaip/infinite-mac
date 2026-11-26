@@ -90,6 +90,14 @@ export class MacMemoryReader {
         return pstring(this.bytes(address, length + 1), 0, maxLength);
     }
 
+    /**
+     * Check for a nil handle or an empty handle with no resident data.
+     */
+    isNullHandle(handle: number): boolean {
+        handle = this.normalize(handle);
+        return !handle || !this.pointer(handle);
+    }
+
     handle(
         handle: number
     ): {address: number; size: number; isRom: boolean} | undefined {

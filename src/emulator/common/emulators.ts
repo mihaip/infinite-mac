@@ -87,7 +87,7 @@ export function emulatorSupportsDebugLog(type: EmulatorType): boolean {
 }
 
 export function emulatorSupportsResEdit(type: EmulatorType): boolean {
-    return type === "BasiliskII";
+    return type === "BasiliskII" || type === "Snow";
 }
 
 export function emulatorSupportsDiskCopy42Disks(type: EmulatorType): boolean {

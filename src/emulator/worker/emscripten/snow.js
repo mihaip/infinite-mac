@@ -154,7 +154,7 @@ function initRuntime() {
   if (!Module["noFSInit"] && !FS.initialized) FS.init();
   TTY.init();
   // End ATINITS hooks
-  wasmExports["ca"]();
+  wasmExports["ea"]();
   // Begin ATPOSTCTORS hooks
   FS.ignorePermissions = false;
 }
@@ -3490,6 +3490,19 @@ function _js_report_error(errorPtr) {
   workerApi.reportError(UTF8ToString(errorPtr));
 }
 
+function _js_resource_events_enabled() {
+  return workerApi.resources !== undefined;
+}
+
+function _js_resource_loaded(regionsJsonPtr, handle, referenceEntryAddress) {
+  const regions = JSON.parse(UTF8ToString(regionsJsonPtr)).map(({baseAddress, data, length, kind}) => ({
+    baseAddress,
+    data: HEAPU8.subarray(data, data + length),
+    kind
+  }));
+  workerApi.resources?.resourceLoaded(regions, handle, referenceEntryAddress);
+}
+
 function _js_set_clipboard_text(textPtr) {
   workerApi.setClipboardText(UTF8ToString(textPtr));
 }
@@ -3588,82 +3601,84 @@ Module["FS"] = FS;
 // End JS library exports
 // end include: postlibrary.js
 // Imports from the Wasm binary.
-var _main, _malloc, _free, _realloc, ___funcs_on_exit, _fflush, ___trap, __emscripten_stack_alloc, memory, __indirect_function_table, __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E, __ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E, __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE, __ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E, __ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E, wasmMemory;
+var _main, _malloc, _free, _realloc, ___funcs_on_exit, _fflush, ___trap, __emscripten_stack_alloc, memory, __indirect_function_table, __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E, __ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E, __ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E, __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE, __ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E, wasmMemory;
 
 function assignWasmExports(wasmExports) {
-  _main = Module["_main"] = wasmExports["da"];
-  _malloc = wasmExports["ja"];
-  _free = wasmExports["ka"];
-  _realloc = wasmExports["la"];
-  ___funcs_on_exit = wasmExports["ma"];
-  _fflush = wasmExports["na"];
-  ___trap = wasmExports["oa"];
-  __emscripten_stack_alloc = wasmExports["pa"];
-  memory = wasmMemory = wasmExports["ba"];
+  _main = Module["_main"] = wasmExports["fa"];
+  _malloc = wasmExports["la"];
+  _free = wasmExports["ma"];
+  _realloc = wasmExports["na"];
+  ___funcs_on_exit = wasmExports["oa"];
+  _fflush = wasmExports["pa"];
+  ___trap = wasmExports["qa"];
+  __emscripten_stack_alloc = wasmExports["ra"];
+  memory = wasmMemory = wasmExports["da"];
   __indirect_function_table = wasmExports["__indirect_function_table"];
-  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E"] = wasmExports["ea"].value;
-  __ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E"] = wasmExports["fa"].value;
-  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE"] = wasmExports["ga"].value;
-  __ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E"] = wasmExports["ha"].value;
-  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E"] = wasmExports["ia"].value;
+  __ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E = Module["__ZN9snow_core3mac4scsi5cdrom1_6__CTOR17h23340aa9bf8f8852E"] = wasmExports["ga"].value;
+  __ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E = Module["__ZN9snow_core3mac4scsi4disk1_6__CTOR17h7179ce15eba65af6E"] = wasmExports["ha"].value;
+  __ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E = Module["__ZN9snow_core3mac3adb5mouse1_6__CTOR17h6139723a22f0eab4E"] = wasmExports["ia"].value;
+  __ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE = Module["__ZN9snow_core3mac3adb8keyboard1_6__CTOR17h614bbd276bcec6fdE"] = wasmExports["ja"].value;
+  __ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E = Module["__ZN9snow_core3mac4scsi7printer1_6__CTOR17h53bd48a059028299E"] = wasmExports["ka"].value;
 }
 
 var wasmImports = {
-  /** @export */ aa: ___syscall_fstat64,
-  /** @export */ $: ___syscall_getcwd,
-  /** @export */ _: ___syscall_getdents64,
-  /** @export */ Z: ___syscall_lstat64,
-  /** @export */ Y: ___syscall_newfstatat,
-  /** @export */ X: ___syscall_openat,
-  /** @export */ W: ___syscall_renameat,
-  /** @export */ V: ___syscall_stat64,
-  /** @export */ U: ___syscall_unlinkat,
-  /** @export */ M: __abort_js,
-  /** @export */ T: _clock_time_get,
+  /** @export */ ca: ___syscall_fstat64,
+  /** @export */ ba: ___syscall_getcwd,
+  /** @export */ aa: ___syscall_getdents64,
+  /** @export */ $: ___syscall_lstat64,
+  /** @export */ _: ___syscall_newfstatat,
+  /** @export */ Z: ___syscall_openat,
+  /** @export */ Y: ___syscall_renameat,
+  /** @export */ X: ___syscall_stat64,
+  /** @export */ W: ___syscall_unlinkat,
+  /** @export */ O: __abort_js,
+  /** @export */ V: _clock_time_get,
   /** @export */ a: _emscripten_get_now,
-  /** @export */ L: _emscripten_resize_heap,
-  /** @export */ K: _emscripten_run_script_string,
-  /** @export */ S: _environ_get,
-  /** @export */ R: _environ_sizes_get,
+  /** @export */ N: _emscripten_resize_heap,
+  /** @export */ M: _emscripten_run_script_string,
+  /** @export */ U: _environ_get,
+  /** @export */ T: _environ_sizes_get,
   /** @export */ i: _fd_close,
-  /** @export */ Q: _fd_fdstat_get,
+  /** @export */ S: _fd_fdstat_get,
   /** @export */ h: _fd_read,
-  /** @export */ P: _fd_seek,
-  /** @export */ O: _fd_sync,
+  /** @export */ R: _fd_seek,
+  /** @export */ Q: _fd_sync,
   /** @export */ g: _fd_write,
-  /** @export */ J: _js_acquire_input_lock,
+  /** @export */ L: _js_acquire_input_lock,
   /** @export */ c: _js_audio_buffer_size,
-  /** @export */ I: _js_blit,
-  /** @export */ H: _js_check_for_periodic_tasks,
+  /** @export */ K: _js_blit,
+  /** @export */ J: _js_check_for_periodic_tasks,
   /** @export */ f: _js_consume_cdrom_name,
   /** @export */ e: _js_consume_floppy_name,
-  /** @export */ G: _js_consume_frame_request,
-  /** @export */ F: _js_did_open_audio,
-  /** @export */ E: _js_did_open_video,
+  /** @export */ I: _js_consume_frame_request,
+  /** @export */ H: _js_did_open_audio,
+  /** @export */ G: _js_did_open_video,
   /** @export */ b: _js_disk_close,
-  /** @export */ D: _js_disk_open,
+  /** @export */ F: _js_disk_open,
   /** @export */ d: _js_disk_read,
-  /** @export */ C: _js_disk_size,
-  /** @export */ B: _js_disk_write,
-  /** @export */ A: _js_enqueue_audio,
-  /** @export */ z: _js_free,
-  /** @export */ y: _js_get_key_code,
-  /** @export */ x: _js_get_key_state,
-  /** @export */ w: _js_get_mouse_button_state,
-  /** @export */ v: _js_get_mouse_delta_x,
-  /** @export */ u: _js_get_mouse_delta_y,
-  /** @export */ t: _js_get_mouse_x_position,
-  /** @export */ s: _js_get_mouse_y_position,
-  /** @export */ r: _js_get_speed,
-  /** @export */ q: _js_has_key_event,
-  /** @export */ p: _js_has_mouse_position,
-  /** @export */ o: _js_has_speed_event,
-  /** @export */ n: _js_release_input_lock,
-  /** @export */ m: _js_report_error,
+  /** @export */ E: _js_disk_size,
+  /** @export */ D: _js_disk_write,
+  /** @export */ C: _js_enqueue_audio,
+  /** @export */ B: _js_free,
+  /** @export */ A: _js_get_key_code,
+  /** @export */ z: _js_get_key_state,
+  /** @export */ y: _js_get_mouse_button_state,
+  /** @export */ x: _js_get_mouse_delta_x,
+  /** @export */ w: _js_get_mouse_delta_y,
+  /** @export */ v: _js_get_mouse_x_position,
+  /** @export */ u: _js_get_mouse_y_position,
+  /** @export */ t: _js_get_speed,
+  /** @export */ s: _js_has_key_event,
+  /** @export */ r: _js_has_mouse_position,
+  /** @export */ q: _js_has_speed_event,
+  /** @export */ p: _js_release_input_lock,
+  /** @export */ o: _js_report_error,
+  /** @export */ n: _js_resource_events_enabled,
+  /** @export */ m: _js_resource_loaded,
   /** @export */ l: _js_set_clipboard_text,
   /** @export */ k: _js_sleep,
   /** @export */ j: _js_update_emulator_stats_json,
-  /** @export */ N: _random_get
+  /** @export */ P: _random_get
 };
 
 // include: postamble.js
